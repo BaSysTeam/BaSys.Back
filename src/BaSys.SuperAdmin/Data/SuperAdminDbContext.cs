@@ -12,5 +12,6 @@ public class SuperAdminDbContext : IdentityDbContext
     public SuperAdminDbContext(DbContextOptions<SuperAdminDbContext> options)
         : base(options)
     {
+        Database.Migrate();
     }
 }

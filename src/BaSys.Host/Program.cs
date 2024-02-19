@@ -1,12 +1,14 @@
 using BaSys.Host.Data;
 using BaSys.Host.Data.MsSqlContext;
 using BaSys.Host.Data.PgSqlContext;
+using BaSys.Host.Helpers;
 using BaSys.Host.Infrastructure;
 using BaSys.Host.Providers;
 using BaSys.SuperAdmin.Data;
 using BaSys.SuperAdmin.Infrastructure;
 using BaSys.SuperAdmin.Infrastructure.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace BaSys.Host
@@ -17,26 +19,20 @@ namespace BaSys.Host
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.AddScoped<ApplicationDbContext>(sp =>
+            builder.Services.AddScoped<IdentityDbContext>(sp =>
             {
                 var httpContextAccessor = sp.GetRequiredService<IHttpContextAccessor>();
-                var userId = httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault()?.Value;
-
-                ConnectionItem? item = null;
-                if (!string.IsNullOrEmpty(userId))
-                {
-                    item = sp.GetRequiredService<IDataSourceProvider>().GetCurrentConnectionItemByUser(userId);
-                }
-                else if (httpContextAccessor.HttpContext?.Request.ContentType != null && 
-                         httpContextAccessor.HttpContext?.Request.Form?.TryGetValue("Input.DbName", out var dbId) == true)
-                {
-                    item = sp.GetRequiredService<IDataSourceProvider>().GetConnectionItemByDbId(dbId);
-                }
+                // if sa
+                if (httpContextAccessor.HttpContext?.Request?.Method == "POST" &&
+                    httpContextAccessor.HttpContext?.Request?.Path.Value.StartsWith("/sa/Account/") == true)
+                    return sp.GetRequiredService<SuperAdminDbContext>();
                 else
-                {
-                    item = sp.GetRequiredService<IDataSourceProvider>().GetCurrentConnectionItemByUser(null);
-                }
-                
+                    return sp.GetRequiredService<ApplicationDbContext>();
+            });
+            
+            builder.Services.AddScoped<ApplicationDbContext>(sp =>
+            {
+                var item = ContextHelper.GetConnectionItem(sp);
                 switch (item.DbKind)
                 {
                     case DbKinds.MsSql:
@@ -50,48 +46,12 @@ namespace BaSys.Host
             
             builder.Services.AddDbContext<MsSqlDbContext>((sp, options) =>
             {
-                var httpContextAccessor = sp.GetRequiredService<IHttpContextAccessor>();
-                var userId = httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault()?.Value;
-
-                ConnectionItem? item = null;
-                if (!string.IsNullOrEmpty(userId))
-                {
-                    item = sp.GetRequiredService<IDataSourceProvider>().GetCurrentConnectionItemByUser(userId);
-                }
-                else if (httpContextAccessor.HttpContext?.Request.ContentType != null && 
-                         httpContextAccessor.HttpContext?.Request.Form?.TryGetValue("Input.DbName", out var dbId) == true)
-                {
-                    item = sp.GetRequiredService<IDataSourceProvider>().GetConnectionItemByDbId(dbId);
-                }
-                else
-                {
-                    item = sp.GetRequiredService<IDataSourceProvider>().GetCurrentConnectionItemByUser(null);
-                }
-            
+                var item = ContextHelper.GetConnectionItem(sp, DbKinds.MsSql);
                 options.UseSqlServer(item.ConnectionString);
             });
             builder.Services.AddDbContext<PgSqlDbContext>((sp, options) =>
             {
-                var httpContextAccessor = sp.GetRequiredService<IHttpContextAccessor>();
-                var userId = httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault()?.Value;
-
-                ConnectionItem? item = null;
-                if (!string.IsNullOrEmpty(userId))
-                {
-                    item = sp.GetRequiredService<IDataSourceProvider>().GetCurrentConnectionItemByUser(userId);
-                }
-                else if (httpContextAccessor.HttpContext?.Request.ContentType != null && 
-                         httpContextAccessor.HttpContext?.Request.Form?.TryGetValue("Input.DbName", out var dbId) == true)
-                {
-                    item = sp.GetRequiredService<IDataSourceProvider>().GetConnectionItemByDbId(dbId);
-                }
-                else
-                {
-                    item = sp.GetRequiredService<IDataSourceProvider>()
-                        .GetConnectionItems()
-                        .FirstOrDefault(x => x.DbKind == DbKinds.PgSql);
-                }
-            
+                var item = ContextHelper.GetConnectionItem(sp, DbKinds.PgSql);
                 options.UseNpgsql(item.ConnectionString);
             });
             
@@ -104,11 +64,10 @@ namespace BaSys.Host
                     options.Password.RequireUppercase = false;
                     options.Password.RequireNonAlphanumeric = false;
                 })
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+                .AddEntityFrameworkStores<IdentityDbContext>();
             
             // Add sa context
-            // builder.Services.AddSuperAdmin(builder.Configuration.GetConnectionString("SystemDbConnection")!);
-            
+            builder.Services.AddSuperAdmin(builder.Configuration.GetConnectionString("SystemDbConnection")!);
             
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
             builder.Services.AddRazorPages();

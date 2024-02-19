@@ -17,6 +17,7 @@
       <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.1" />
       <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.2" />
       <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.2" />
+      <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.2" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.2" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.2">
@@ -28,8 +29,11 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Areas\" />
       <Folder Include="Data\Migrations\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="Areas\sa\Pages\Account\Login.cshtml" />
     </ItemGroup>
 
 </Project>

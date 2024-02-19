@@ -41,6 +41,14 @@ public class DataSourceProvider : IDataSourceProvider
     }
 
     public List<ConnectionItem> GetConnectionItems() => _connectionItems;
+    
+    public ConnectionItem? GetDefaultConnectionItem(DbKinds? dbKind = null)
+    {
+        if (dbKind == null)
+            return _connectionItems.FirstOrDefault();
+        
+        return _connectionItems.FirstOrDefault(x => x.DbKind == dbKind);
+    }
 
     public ConnectionItem? GetCurrentConnectionItemByUser(string? userId)
     {

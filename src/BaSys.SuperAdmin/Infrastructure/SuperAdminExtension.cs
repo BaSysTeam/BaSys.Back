@@ -9,15 +9,7 @@ public static class SuperAdminExtension
 {
     public static IServiceCollection AddSuperAdmin(this IServiceCollection services, string connectionString)
     {
-        services.AddDbContext<SuperAdminDbContext>(options =>
-            options.UseSqlServer(connectionString));
-        
-        services.AddIdentityCore<SuperAdminIdentityUser>(options =>
-            {
-                options.SignIn.RequireConfirmedAccount = false;
-            })
-            .AddEntityFrameworkStores<SuperAdminDbContext>();
-        
+        services.AddDbContext<SuperAdminDbContext>(options => options.UseSqlServer(connectionString));
         
         return services;
     }
