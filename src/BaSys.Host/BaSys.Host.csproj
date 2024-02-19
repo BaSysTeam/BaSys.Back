@@ -29,4 +29,13 @@
     <Folder Include="Data\PgSqlContext\Migrations\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Areas\sa\Pages\Account\Login.cshtml" />
+    <_ContentIncludedByDefault Remove="Areas\sa\Pages\Account\Register.cshtml" />
+    <_ContentIncludedByDefault Remove="Areas\sa\Pages\Account\_ViewImports.cshtml" />
+    <_ContentIncludedByDefault Remove="Areas\sa\Pages\_ValidationScriptsPartial.cshtml" />
+    <_ContentIncludedByDefault Remove="Areas\sa\Pages\_ViewImports.cshtml" />
+    <_ContentIncludedByDefault Remove="Areas\sa\Pages\_ViewStart.cshtml" />
+  </ItemGroup>
+
 </Project>

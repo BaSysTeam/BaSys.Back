@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace BaSys.Host.Areas.sa.Pages.Account;
+namespace BaSys.SuperAdmin.Areas.sa.Pages.Account;
 
 public class Login : PageModel
 {

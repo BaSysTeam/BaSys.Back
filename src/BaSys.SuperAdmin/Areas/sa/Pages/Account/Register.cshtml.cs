@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 
-namespace BaSys.Host.Areas.sa.Pages.Account
+namespace BaSys.SuperAdmin.Areas.sa.Pages.Account
 {
     public class Register : PageModel
     {
