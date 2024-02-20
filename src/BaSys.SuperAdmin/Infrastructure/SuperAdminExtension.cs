@@ -21,6 +21,7 @@ public static class SuperAdminExtension
             .Add(new AssemblyPart(typeof(SuperAdminExtension).Assembly));
 
         services.AddTransient<IAppRecordsService, AppRecordsService>();
+        services.AddTransient<IDbInfoRecordsService, DbInfoRecordsService>();
         
         return services;
     }
