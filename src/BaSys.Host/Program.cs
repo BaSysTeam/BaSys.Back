@@ -5,11 +5,13 @@ using BaSys.Host.Data.PgSqlContext;
 using BaSys.Host.Helpers;
 using BaSys.Host.Infrastructure;
 using BaSys.Host.Providers;
+using BaSys.SuperAdmin.Controllers;
 using BaSys.SuperAdmin.Data;
 using BaSys.SuperAdmin.Infrastructure;
 using BaSys.SuperAdmin.Infrastructure.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.EntityFrameworkCore;
 
 namespace BaSys.Host
@@ -76,7 +78,6 @@ namespace BaSys.Host
             
             builder.Services.AddSingleton<IDataSourceProvider, DataSourceProvider>();
             builder.Services.AddTransient<IContextFactory, ContextFactory>();
-            
 
             var app = builder.Build();
 

@@ -1,6 +1,8 @@
-﻿using BaSys.SuperAdmin.Data;
-using BaSys.SuperAdmin.Infrastructure.Models;
-using Microsoft.AspNetCore.Identity;
+﻿using BaSys.SuperAdmin.Abstractions;
+using BaSys.SuperAdmin.Controllers;
+using BaSys.SuperAdmin.Data;
+using BaSys.SuperAdmin.Services;
+using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.EntityFrameworkCore;
 
 namespace BaSys.SuperAdmin.Infrastructure;
@@ -9,7 +11,16 @@ public static class SuperAdminExtension
 {
     public static IServiceCollection AddSuperAdmin(this IServiceCollection services, string connectionString)
     {
+        // add db context
         services.AddDbContext<SuperAdminDbContext>(options => options.UseSqlServer(connectionString));
+        
+        // add controllers
+        services.AddControllers()
+            .PartManager
+            .ApplicationParts
+            .Add(new AssemblyPart(typeof(SuperAdminExtension).Assembly));
+
+        services.AddTransient<IAppRecordsService, AppRecordsService>();
         
         return services;
     }
