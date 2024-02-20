@@ -1,4 +1,4 @@
-﻿namespace BaSys.Host.Infrastructure;
+﻿namespace BaSys.Common.Enums;
 
 public enum DbKinds
 {

@@ -1,4 +1,5 @@
-﻿using BaSys.Host.Infrastructure;
+﻿using BaSys.Common.Enums;
+using BaSys.Host.Infrastructure;
 
 namespace BaSys.Host.Providers;
 

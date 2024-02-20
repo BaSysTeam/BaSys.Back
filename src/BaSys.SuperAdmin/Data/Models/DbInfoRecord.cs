@@ -1,4 +1,4 @@
-﻿using BaSys.SuperAdmin.Data.Enum;
+﻿using BaSys.Common.Enums;
 
 namespace BaSys.SuperAdmin.Data.Models;
 

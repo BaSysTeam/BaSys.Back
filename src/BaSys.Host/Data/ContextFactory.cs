@@ -1,4 +1,5 @@
-﻿using BaSys.Host.Data.MsSqlContext;
+﻿using BaSys.Common.Enums;
+using BaSys.Host.Data.MsSqlContext;
 using BaSys.Host.Infrastructure;
 using BaSys.Host.Providers;
 using Microsoft.EntityFrameworkCore;

@@ -1,3 +1,4 @@
+using BaSys.Common.Enums;
 using BaSys.Host.Data;
 using BaSys.Host.Data.MsSqlContext;
 using BaSys.Host.Data.PgSqlContext;

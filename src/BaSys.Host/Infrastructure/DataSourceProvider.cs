@@ -1,4 +1,5 @@
-﻿using BaSys.Host.Providers;
+﻿using BaSys.Common.Enums;
+using BaSys.Host.Providers;
 using BaSys.SuperAdmin.Data;
 
 namespace BaSys.Host.Infrastructure;

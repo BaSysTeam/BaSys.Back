@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaSys.Host", "src\BaSys.Hos
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaSys.SuperAdmin", "src\BaSys.SuperAdmin\BaSys.SuperAdmin.csproj", "{8D0C639E-A726-4AD3-AEDD-8C1B0238FAA9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaSys.Common", "src\BaSys.Common\BaSys.Common.csproj", "{386AC061-A817-479E-B34E-A0326DFAAA02}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,6 +27,10 @@ Global
 		{8D0C639E-A726-4AD3-AEDD-8C1B0238FAA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8D0C639E-A726-4AD3-AEDD-8C1B0238FAA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8D0C639E-A726-4AD3-AEDD-8C1B0238FAA9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{386AC061-A817-479E-B34E-A0326DFAAA02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{386AC061-A817-479E-B34E-A0326DFAAA02}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{386AC061-A817-479E-B34E-A0326DFAAA02}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{386AC061-A817-479E-B34E-A0326DFAAA02}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -32,6 +38,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{92CC1CAD-943C-41D6-A510-99EE98BADDB4} = {0271BDA0-88FC-4672-A96C-3986061802E6}
 		{8D0C639E-A726-4AD3-AEDD-8C1B0238FAA9} = {0271BDA0-88FC-4672-A96C-3986061802E6}
+		{386AC061-A817-479E-B34E-A0326DFAAA02} = {0271BDA0-88FC-4672-A96C-3986061802E6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {363BB08F-378B-4D54-914F-51ACDC6A7B23}
