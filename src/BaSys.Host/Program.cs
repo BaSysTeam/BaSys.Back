@@ -44,11 +44,15 @@ namespace BaSys.Host
                 }   
             });
             
+            // Add sa context
+            builder.Services.AddSuperAdmin(builder.Configuration.GetConnectionString("SystemDbConnection")!);
+            // Add mssql context
             builder.Services.AddDbContext<MsSqlDbContext>((sp, options) =>
             {
                 var item = ContextHelper.GetConnectionItem(sp, DbKinds.MsSql);
                 options.UseSqlServer(item.ConnectionString);
             });
+            // Add pgsql context
             builder.Services.AddDbContext<PgSqlDbContext>((sp, options) =>
             {
                 var item = ContextHelper.GetConnectionItem(sp, DbKinds.PgSql);
@@ -65,9 +69,6 @@ namespace BaSys.Host
                     options.Password.RequireNonAlphanumeric = false;
                 })
                 .AddEntityFrameworkStores<IdentityDbContext>();
-            
-            // Add sa context
-            builder.Services.AddSuperAdmin(builder.Configuration.GetConnectionString("SystemDbConnection")!);
             
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
             builder.Services.AddRazorPages();

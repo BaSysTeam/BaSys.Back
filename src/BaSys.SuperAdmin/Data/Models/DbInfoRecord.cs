@@ -9,7 +9,7 @@ public class DbInfoRecord
     public string Title { get; set; }
     public DbKinds DbKind { get; set; }
     public string ConnectionString { get; set; }
-    public string Memo { get; set; }
+    public string? Memo { get; set; }
     public bool IsDeleted { get; set; }
 
     public override bool Equals(object obj)

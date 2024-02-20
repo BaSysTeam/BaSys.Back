@@ -4,7 +4,7 @@ public class AppRecord
 {
     public string Id { get; set; }
     public string Title { get; set; } = string.Empty;
-    public string Memo { get; set; } = string.Empty;
+    public string? Memo { get; set; } = null;
 
     public override bool Equals(object obj)
     {
