@@ -26,6 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Controllers\Models\" />
     <Folder Include="Data\PgSqlContext\Migrations\" />
   </ItemGroup>
 

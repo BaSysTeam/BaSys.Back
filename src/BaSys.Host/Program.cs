@@ -1,4 +1,6 @@
+using System.Text;
 using BaSys.Common.Enums;
+using BaSys.Common.Infrastructure.JwtAuth;
 using BaSys.Host.Data;
 using BaSys.Host.Data.MsSqlContext;
 using BaSys.Host.Data.PgSqlContext;
@@ -13,6 +15,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace BaSys.Host
 {
@@ -75,6 +78,23 @@ namespace BaSys.Host
             
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
             builder.Services.AddRazorPages();
+            
+            builder.Services.AddAuthentication()
+                .AddCookie()
+                .AddJwtBearer(
+                    opt =>
+                    {
+                        opt.TokenValidationParameters = new TokenValidationParameters
+                        {
+                            ValidateIssuerSigningKey = true,
+                            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:TokenKey"])),
+                            ValidateAudience = false,
+                            ValidateIssuer = false,
+                            RequireExpirationTime = true
+                        };
+                    });
+            
+            builder.Services.AddTransient<IJwtAuthService, JwtAuthService>();
             
             builder.Services.AddSingleton<IDataSourceProvider, DataSourceProvider>();
             builder.Services.AddTransient<IContextFactory, ContextFactory>();

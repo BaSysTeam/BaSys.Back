@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace BaSys.SuperAdmin.Controllers;
 
 [Route("api/[controller]")]
+[ApiController]
 public class DbInfoRecordsController : ControllerBase
 {
     private readonly IDbInfoRecordsService _dbInfoRecordsService;
