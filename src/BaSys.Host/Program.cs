@@ -98,6 +98,8 @@ namespace BaSys.Host
             
             builder.Services.AddSingleton<IDataSourceProvider, DataSourceProvider>();
             builder.Services.AddTransient<IContextFactory, ContextFactory>();
+            
+            builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
 
@@ -105,6 +107,9 @@ namespace BaSys.Host
             if (app.Environment.IsDevelopment())
             {
                 app.UseMigrationsEndPoint();
+                
+                app.UseSwagger();
+                app.UseSwaggerUI();
             }
             else
             {
