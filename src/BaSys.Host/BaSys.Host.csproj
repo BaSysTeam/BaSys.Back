@@ -39,4 +39,44 @@
     <_ContentIncludedByDefault Remove="Areas\sa\Pages\_ViewStart.cshtml" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="wwwroot\app\super_admin\img\primeicons.943ab24c.svg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\app\super_admin\fonts\primeicons.0112589c.ttf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\app\super_admin\fonts\primeicons.ffecb254.eot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\app\super_admin\fonts\primeicons.f8b9e8a4.woff">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\app\super_admin\fonts\primeicons.ba3f916d.woff2">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\app\super_admin\fonts\Inter-roman.var.b2129c00.woff2">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\app\super_admin\fonts\Inter-italic.var.958a0b97.woff2">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\app\super_admin\favicon.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\app\super_admin\super_admin.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\app\super_admin\super_admin.js.map">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <DependentUpon>super_admin.js</DependentUpon>
+    </Content>
+    <Content Update="wwwroot\app\super_admin\index.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\app\super_admin\super_admin.js.map">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

@@ -2,7 +2,7 @@
 
 namespace BaSys.SuperAdmin.Pages;
 
-public class Foo : PageModel
+public class SuperAdmin : PageModel
 {
     public void OnGet()
     {
