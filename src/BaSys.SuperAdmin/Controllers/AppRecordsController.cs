@@ -1,10 +1,15 @@
 ﻿using BaSys.SuperAdmin.Abstractions;
 using BaSys.SuperAdmin.Data.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BaSys.SuperAdmin.Controllers;
 
 [Route("api/[controller]")]
+[ApiController]
+#if !DEBUG
+[Authorize]
+#endif
 public class AppRecordsController : ControllerBase
 {
     private readonly IAppRecordsService _appRecordsService;

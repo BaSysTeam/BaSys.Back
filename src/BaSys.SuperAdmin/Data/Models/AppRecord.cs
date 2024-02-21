@@ -6,7 +6,7 @@ public class AppRecord
     public string Title { get; set; } = string.Empty;
     public string? Memo { get; set; } = null;
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         return obj is AppRecord description &&
                Id == description.Id;

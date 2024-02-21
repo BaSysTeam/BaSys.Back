@@ -12,7 +12,7 @@ public class DbInfoRecord
     public string? Memo { get; set; }
     public bool IsDeleted { get; set; }
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         return obj is DbInfoRecord record &&
                Id == record.Id;
