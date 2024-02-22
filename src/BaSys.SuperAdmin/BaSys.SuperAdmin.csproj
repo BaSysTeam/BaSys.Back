@@ -39,7 +39,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\BaSys.Common\BaSys.Common.csproj" />
+      <ProjectReference Include="..\BaSys.Shared\BaSys.Shared.csproj" />
     </ItemGroup>
 
 </Project>

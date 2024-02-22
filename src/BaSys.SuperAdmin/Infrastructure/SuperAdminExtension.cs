@@ -9,10 +9,10 @@ namespace BaSys.SuperAdmin.Infrastructure;
 
 public static class SuperAdminExtension
 {
-    public static IServiceCollection AddSuperAdmin(this IServiceCollection services, string connectionString)
+    public static IServiceCollection AddSuperAdmin(this IServiceCollection services, string systemDbConnectionString)
     {
         // add db context
-        services.AddDbContext<SuperAdminDbContext>(options => options.UseSqlServer(connectionString));
+        services.AddDbContext<SuperAdminDbContext>(options => options.UseSqlServer(systemDbConnectionString));
         
         // add controllers
         services.AddControllers()

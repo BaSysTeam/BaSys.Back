@@ -1,11 +1,11 @@
 using System.Text;
 using BaSys.Common.Enums;
-using BaSys.Common.Infrastructure.JwtAuth;
 using BaSys.Host.Data;
 using BaSys.Host.Data.MsSqlContext;
 using BaSys.Host.Data.PgSqlContext;
 using BaSys.Host.Helpers;
 using BaSys.Host.Infrastructure;
+using BaSys.Host.Infrastructure.JwtAuth;
 using BaSys.Host.Providers;
 using BaSys.SuperAdmin.Abstractions;
 using BaSys.SuperAdmin.Controllers;
@@ -51,8 +51,9 @@ namespace BaSys.Host
                 }   
             });
             
-            // Add sa context
+            // Add sa module
             builder.Services.AddSuperAdmin(builder.Configuration.GetConnectionString("SystemDbConnection")!);
+            
             // Add mssql context
             builder.Services.AddDbContext<MsSqlDbContext>((sp, options) =>
             {

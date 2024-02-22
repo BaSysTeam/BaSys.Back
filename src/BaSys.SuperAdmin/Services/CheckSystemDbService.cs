@@ -37,9 +37,6 @@ public class CheckSystemDbService : ICheckSystemDbService
     #region private methods
     private async Task CheckDbInfo(string appId)
     {
-        if (await _context.DbInfoRecords.AnyAsync())
-            return;
-        
         var dbTitle = _configuration["MainDb:Title"];
         var dbKind = _configuration["MainDb:DbKind"];
         var dbConnStr = _configuration["MainDb:ConnectionString"];
@@ -50,6 +47,11 @@ public class CheckSystemDbService : ICheckSystemDbService
             throw new ApplicationException("MainDb.DbKind is not set in the config!");
         if (string.IsNullOrEmpty(dbConnStr))
             throw new ApplicationException("MainDb.ConnectionString is not set in the config!");
+        
+        if (await _context.DbInfoRecords.AnyAsync(x => x.AppId.ToLower() == appId.ToLower() &&
+                                                       (int)x.DbKind == kind &&
+                                                       x.ConnectionString.ToLower() == dbConnStr.ToLower()))
+        return;
 
         _context.DbInfoRecords.Add(new DbInfoRecord
         {

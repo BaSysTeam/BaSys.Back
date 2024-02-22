@@ -1,4 +1,4 @@
-﻿using BaSys.Common.Infrastructure.JwtAuth;
+﻿using BaSys.Host.Infrastructure.JwtAuth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

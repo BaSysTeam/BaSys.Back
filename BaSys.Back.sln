@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaSys.Host", "src\BaSys.Hos
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaSys.SuperAdmin", "src\BaSys.SuperAdmin\BaSys.SuperAdmin.csproj", "{8D0C639E-A726-4AD3-AEDD-8C1B0238FAA9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaSys.Common", "src\BaSys.Common\BaSys.Common.csproj", "{386AC061-A817-479E-B34E-A0326DFAAA02}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaSys.Shared", "src\BaSys.Shared\BaSys.Shared.csproj", "{386AC061-A817-479E-B34E-A0326DFAAA02}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
