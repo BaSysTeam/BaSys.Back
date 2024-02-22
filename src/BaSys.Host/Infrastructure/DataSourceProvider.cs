@@ -13,44 +13,27 @@ public class DataSourceProvider : IDataSourceProvider
     public DataSourceProvider(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
+        _connectionItems = new List<ConnectionItem>();
+
+        Init();
+    }
+
+    public void Init()
+    {
         using var scope = _serviceProvider.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<SuperAdminDbContext>();
         var dbConnList = context.DbInfoRecords.ToList();
 
-        _connectionItems = new List<ConnectionItem>();
+        _connectionItems.Clear();
         foreach (var conn in dbConnList)
         {
             _connectionItems.Add(new ConnectionItem
             {
                 Id = conn.Title,
                 ConnectionString = conn.ConnectionString,
-                DbKind = (DbKinds)conn.DbKind
+                DbKind = conn.DbKind
             });
         }
-        
-        // _connectionItems = new List<ConnectionItem>
-        // {
-        //     new()
-        //     {
-        //         Id = "db1",
-        //         ConnectionString =
-        //             "Data Source=OSPC\\SQLEXPRESS19;Initial Catalog=BaSysDb_1;Persist Security Info=True;User ID=sa;Password=QAZwsx!@#;TrustServerCertificate=True;",
-        //         DbKind = DbKinds.MsSql
-        //     },
-        //     new()
-        //     {
-        //         Id = "db2",
-        //         ConnectionString =
-        //             "Data Source=OSPC\\SQLEXPRESS19;Initial Catalog=BaSysDb_2;Persist Security Info=True;User ID=sa;Password=QAZwsx!@#;TrustServerCertificate=True;",
-        //         DbKind = DbKinds.MsSql
-        //     },
-        //     new()
-        //     {
-        //         Id = "db3",
-        //         ConnectionString = "Host=localhost;Port=5432;Database=BaSysDb_3;Username=postgres;Password=QAZwsx!@#",
-        //         DbKind = DbKinds.PgSql
-        //     }
-        // };
     }
     
     public string? GetConnectionString(string? userId)

@@ -7,10 +7,12 @@ using BaSys.Host.Data.PgSqlContext;
 using BaSys.Host.Helpers;
 using BaSys.Host.Infrastructure;
 using BaSys.Host.Providers;
+using BaSys.SuperAdmin.Abstractions;
 using BaSys.SuperAdmin.Controllers;
 using BaSys.SuperAdmin.Data;
 using BaSys.SuperAdmin.Infrastructure;
 using BaSys.SuperAdmin.Infrastructure.Models;
+using BaSys.SuperAdmin.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
@@ -21,7 +23,7 @@ namespace BaSys.Host
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -29,8 +31,7 @@ namespace BaSys.Host
             {
                 var httpContextAccessor = sp.GetRequiredService<IHttpContextAccessor>();
                 // if sa
-                if (httpContextAccessor.HttpContext?.Request?.Method == "POST" &&
-                    httpContextAccessor.HttpContext?.Request?.Path.Value.StartsWith("/sa/Account/") == true)
+                if (httpContextAccessor.HttpContext == null || httpContextAccessor.HttpContext?.Request?.Path.Value.StartsWith("/sa/Account/") == true)
                     return sp.GetRequiredService<SuperAdminDbContext>();
                 else
                     return sp.GetRequiredService<ApplicationDbContext>();
@@ -46,7 +47,7 @@ namespace BaSys.Host
                     case DbKinds.PgSql:
                         return sp.GetRequiredService<PgSqlDbContext>();
                     default:
-                        throw new NotImplementedException();
+                        throw new NotImplementedException($"Not implemented DbContext for type {DbKinds.PgSql.ToString()}");
                 }   
             });
             
@@ -75,6 +76,7 @@ namespace BaSys.Host
                     options.Password.RequireUppercase = false;
                     options.Password.RequireNonAlphanumeric = false;
                 })
+                .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<IdentityDbContext>();
             
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
@@ -129,6 +131,10 @@ namespace BaSys.Host
             app.UseAuthorization();
 
             app.MapRazorPages();
+
+            using var serviceScope = app.Services.CreateScope();
+            var systemDbService = serviceScope.ServiceProvider.GetRequiredService<ICheckSystemDbService>();
+            await systemDbService.CheckSystemDb();
 
             app.Run();
         }

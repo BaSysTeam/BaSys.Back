@@ -5,6 +5,7 @@ namespace BaSys.Host.Providers;
 
 public interface IDataSourceProvider
 {
+    void Init();
     string? GetConnectionString(string? userId);
     List<ConnectionItem> GetConnectionItems();
     ConnectionItem? GetDefaultConnectionItem(DbKinds? dbKind = null);

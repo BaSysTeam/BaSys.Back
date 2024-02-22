@@ -22,6 +22,7 @@ public static class SuperAdminExtension
 
         services.AddTransient<IAppRecordsService, AppRecordsService>();
         services.AddTransient<IDbInfoRecordsService, DbInfoRecordsService>();
+        services.AddTransient<ICheckSystemDbService, CheckSystemDbService>();
         
         return services;
     }
