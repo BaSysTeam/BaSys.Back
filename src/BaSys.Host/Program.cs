@@ -65,9 +65,10 @@ namespace BaSys.Host
                 options.UseNpgsql(item.ConnectionString);
             });
             
+            // Add identity
             builder.Services.AddDefaultIdentity<IdentityUser>(options =>
                 {
-                    options.SignIn.RequireConfirmedAccount = true;
+                    options.SignIn.RequireConfirmedAccount = false;
                     options.Password.RequireDigit = false;
                     options.Password.RequiredLength = 5;
                     options.Password.RequireLowercase = false;
