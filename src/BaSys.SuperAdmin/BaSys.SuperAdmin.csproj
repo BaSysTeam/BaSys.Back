@@ -35,6 +35,11 @@
 
     <ItemGroup>
       <_ContentIncludedByDefault Remove="Areas\sa\Pages\Account\Login.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\Shared\_Layout.cshtml" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\BaSys.Shared\BaSys.Shared.csproj" />
     </ItemGroup>
 
 </Project>

@@ -1,4 +1,6 @@
-﻿namespace BaSys.Host.Infrastructure;
+﻿using BaSys.Common.Enums;
+
+namespace BaSys.Host.Infrastructure;
 
 public class ConnectionItem
 {

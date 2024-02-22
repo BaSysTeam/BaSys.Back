@@ -1,4 +1,5 @@
 ﻿using BaSys.SuperAdmin.Data.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,8 +10,7 @@ public class SuperAdminDbContext : IdentityDbContext
     public DbSet<AppRecord> AppRecords { get; set; }
     public DbSet<DbInfoRecord> DbInfoRecords { get; set; }
     
-    public SuperAdminDbContext(DbContextOptions<SuperAdminDbContext> options)
-        : base(options)
+    public SuperAdminDbContext(DbContextOptions<SuperAdminDbContext> options) : base(options)
     {
         Database.Migrate();
     }
