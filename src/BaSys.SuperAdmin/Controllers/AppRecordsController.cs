@@ -1,14 +1,15 @@
-﻿using BaSys.SuperAdmin.Abstractions;
+﻿using BaSys.Common.Infrastructure;
+using BaSys.SuperAdmin.Abstractions;
 using BaSys.SuperAdmin.Data.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BaSys.SuperAdmin.Controllers;
 
-[Route("api/[controller]")]
+[Route("api/v1/[controller]")]
 [ApiController]
 #if !DEBUG
-[Authorize]
+[Authorize(TeamRole.SuperAdministrator)]
 #endif
 public class AppRecordsController : ControllerBase
 {
@@ -19,16 +20,32 @@ public class AppRecordsController : ControllerBase
         _appRecordsService = appRecordsService;
     }
     
-    [HttpGet("GetAppRecords")]
-    public async Task<IEnumerable<AppRecord>> GetAppRecords()
+    [HttpGet]
+    public async Task<IActionResult> GetAppRecords()
     {
-        return await _appRecordsService.GetAppRecords();
+        var collection = await _appRecordsService.GetAppRecords();
+        var result = ResultWrapper<IEnumerable<AppRecord>>.Success(collection);
+
+        return Ok(result);
     }
     
-    [HttpPost("AddAppRecord")]
-    public async Task<AppRecord> AddAppRecord([FromBody]AppRecord appRecord)
+    [HttpPost]
+    public async Task<IActionResult> AddAppRecord([FromBody]AppRecord appRecord)
     {
-        return await _appRecordsService.AddAppRecord(appRecord);
+
+        ResultWrapper<AppRecord> result;
+
+        try
+        {
+           var record = await _appRecordsService.AddAppRecord(appRecord);
+           result = ResultWrapper<AppRecord>.Success(record);
+        }
+        catch (Exception e)
+        {
+            result = ResultWrapper<AppRecord>.Error(-1, $"Cannot add item. Message: {e.Message}");
+        }
+
+        return Ok(result);
     }
     
     [HttpPost("DeleteAppRecord")]
