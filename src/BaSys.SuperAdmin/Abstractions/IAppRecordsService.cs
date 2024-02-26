@@ -5,7 +5,8 @@ namespace BaSys.SuperAdmin.Abstractions;
 public interface IAppRecordsService
 {
     Task<IEnumerable<AppRecord>> GetAppRecords();
+    Task<AppRecord> GetAppRecord(string id);
     Task<AppRecord> AddAppRecord(AppRecord appRecord);
-    Task<bool> DeleteAppRecord(string appRecordId);
-    Task<AppRecord> EditAppRecord(AppRecord appRecord);
+    Task<int> DeleteAppRecord(string id);
+    Task<AppRecord> UpdateAppRecord(AppRecord appRecord);
 }
