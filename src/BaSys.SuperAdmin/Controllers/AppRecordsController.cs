@@ -102,9 +102,13 @@ public class AppRecordsController : ControllerBase
         return Ok(payload);
     }
 
-    // HTTP DELETE method to remove an app record by its id. The id is passed as a query parameter.
-    // It attempts to delete the record and returns the count of deleted records wrapped in a success wrapper.
-    // In case of failure, it wraps an error message and returns it.
+    /// <summary>
+    /// HTTP DELETE method to remove an app record by its id. The id is passed as a query parameter.
+    /// It attempts to delete the record and returns the count of deleted records wrapped in a success wrapper.
+    /// In case of failure, it wraps an error message and returns it.
+    /// </summary>
+    /// <param name="id">Identifier of record</param>
+    /// <returns></returns>
     [HttpDelete]
     public async Task<IActionResult> DeleteAppRecord([FromQuery] string id)
     {
