@@ -2,9 +2,25 @@
 
 public class AppRecord
 {
-    public string Id { get; set; }
+    public string Id { get; set; } = string.Empty;
     public string Title { get; set; } = string.Empty;
-    public string? Memo { get; set; } = null;
+    public string? Memo { get; set; }
+
+    public AppRecord()
+    {
+        
+    }
+
+    public AppRecord(AppRecord source)
+    {
+        Fill(source);
+    }
+
+    public void Fill(AppRecord record)
+    {
+        Title = record.Title;
+        Memo = record.Memo;
+    }
 
     public override bool Equals(object? obj)
     {

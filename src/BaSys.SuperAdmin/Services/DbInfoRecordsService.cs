@@ -13,7 +13,14 @@ public class DbInfoRecordsService : IDbInfoRecordsService
     {
         _context = context;
     }
-    
+
+    public async Task<IEnumerable<DbInfoRecord>> GetDbInfoRecords()
+    {  
+        return await _context.DbInfoRecords
+            .AsNoTracking()
+            .ToListAsync();
+    }
+
     public async Task<IEnumerable<DbInfoRecord>> GetDbInfoRecordsByAppId(string appId)
     {
         if (string.IsNullOrEmpty(appId))
@@ -21,9 +28,15 @@ public class DbInfoRecordsService : IDbInfoRecordsService
 
         return await _context.DbInfoRecords
             .AsNoTracking()
-            .Where(x => !x.IsDeleted &&
-                        x.AppId.ToUpper() == appId.ToUpper())
+            .Where(x=>x.AppId.ToUpper() == appId.ToUpper())
             .ToListAsync();
+    }
+
+    public async Task<DbInfoRecord> GetDbInfoRecord(int id)
+    {
+        var record = await _context.DbInfoRecords.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+
+        return record;
     }
 
     public async Task<DbInfoRecord> AddDbInfoRecord(DbInfoRecord dbInfoRecord)
@@ -34,15 +47,9 @@ public class DbInfoRecordsService : IDbInfoRecordsService
             string.IsNullOrEmpty(dbInfoRecord.ConnectionString))
             throw new ArgumentException();
 
-        var item = new DbInfoRecord
-        {
-            AppId = dbInfoRecord.AppId,
-            Title = dbInfoRecord.Title,
-            DbKind = dbInfoRecord.DbKind,
-            ConnectionString = dbInfoRecord.ConnectionString,
-            Memo = dbInfoRecord.Memo
-        };
+        var item = new DbInfoRecord(dbInfoRecord);
         _context.DbInfoRecords.Add(item);
+
         await _context.SaveChangesAsync();
 
         return item;
@@ -52,28 +59,25 @@ public class DbInfoRecordsService : IDbInfoRecordsService
     {
         var dbItem = await _context.DbInfoRecords.FirstOrDefaultAsync(x => x.Id == dbInfoRecord.Id);
         if (dbItem == null)
-            throw new ArgumentException();
+            throw new ArgumentException($"Record not found by id: {dbInfoRecord.Id}");
 
-        dbItem.AppId = dbInfoRecord.AppId;
-        dbItem.Title = dbInfoRecord.Title;
-        dbItem.DbKind = dbInfoRecord.DbKind;
-        dbItem.ConnectionString = dbInfoRecord.ConnectionString;
-        dbItem.Memo = dbInfoRecord.Memo;
+
+        dbItem.Fill(dbInfoRecord);
 
         await _context.SaveChangesAsync();
 
         return dbItem;
     }
 
-    public async Task<bool> DeleteDbInfoRecord(int dbInfoRecordId)
+    public async Task<int> DeleteDbInfoRecord(int dbInfoRecordId)
     {
         var dbItem = await _context.DbInfoRecords.FirstOrDefaultAsync(x => x.Id == dbInfoRecordId);
         if (dbItem == null)
-            throw new ArgumentException();
+            throw new ArgumentException($"Cannot find item by id:{dbInfoRecordId}");
 
         _context.DbInfoRecords.Remove(dbItem);
-        await _context.SaveChangesAsync();
+        var deletedCount =  await _context.SaveChangesAsync();
 
-        return true;
+        return deletedCount;
     }
 }

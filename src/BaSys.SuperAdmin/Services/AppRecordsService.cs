@@ -26,6 +26,22 @@ public class AppRecordsService : IAppRecordsService
     }
 
     /// <summary>
+    /// Return individual record by Id.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
+    public async Task<AppRecord> GetAppRecord(string id)
+    {
+        if (string.IsNullOrEmpty(id))
+            throw new ArgumentException();
+
+        var record = await _context.AppRecords.AsNoTracking().FirstOrDefaultAsync(x => x.Id.ToUpper().Equals(id.ToUpper()));
+
+        return record;
+    }
+
+    /// <summary>
     /// Add
     /// </summary>
     /// <param name="appRecord"></param>
@@ -53,19 +69,19 @@ public class AppRecordsService : IAppRecordsService
     /// <param name="appRecordId"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
-    public async Task<bool> DeleteAppRecord(string appRecordId)
+    public async Task<int> DeleteAppRecord(string id)
     {
-        if (string.IsNullOrEmpty(appRecordId))
+        if (string.IsNullOrEmpty(id))
             throw new ArgumentException();
 
-        var appRecord = await _context.AppRecords.FirstOrDefaultAsync(x => x.Id.ToUpper() == appRecordId.ToUpper());
+        var appRecord = await _context.AppRecords.FirstOrDefaultAsync(x => x.Id.ToUpper() == id.ToUpper());
         if (appRecord == null)
-            throw new ArgumentException($"Element with Id == '{appRecordId}' not found");
+            throw new ArgumentException($"Element with Id == '{id}' not found");
 
         _context.AppRecords.Remove(appRecord);
-        await _context.SaveChangesAsync();
+        var deletedCount = await _context.SaveChangesAsync();
 
-        return true;
+        return deletedCount;
     }
 
     /// <summary>
@@ -74,7 +90,7 @@ public class AppRecordsService : IAppRecordsService
     /// <param name="appRecord"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
-    public async Task<AppRecord> EditAppRecord(AppRecord appRecord)
+    public async Task<AppRecord> UpdateAppRecord(AppRecord appRecord)
     {
         if (appRecord == null ||
             string.IsNullOrEmpty(appRecord.Id) ||
@@ -85,8 +101,7 @@ public class AppRecordsService : IAppRecordsService
         if (dbAppRecord == null)
             throw new ArgumentException($"Element with Id == '{appRecord.Id}' not found");
 
-        dbAppRecord.Title = appRecord.Title;
-        dbAppRecord.Memo = appRecord.Memo;
+        dbAppRecord.Fill(appRecord);
 
         await _context.SaveChangesAsync();
 
