@@ -36,7 +36,7 @@ public class AppRecordsService : IAppRecordsService
         if (string.IsNullOrEmpty(id))
             throw new ArgumentException();
 
-        var record = await _context.AppRecords.AsNoTracking().FirstOrDefaultAsync(x => x.Id.Equals(id, StringComparison.OrdinalIgnoreCase));
+        var record = await _context.AppRecords.AsNoTracking().FirstOrDefaultAsync(x => x.Id.ToUpper().Equals(id.ToUpper()));
 
         return record;
     }
@@ -101,8 +101,7 @@ public class AppRecordsService : IAppRecordsService
         if (dbAppRecord == null)
             throw new ArgumentException($"Element with Id == '{appRecord.Id}' not found");
 
-        dbAppRecord.Title = appRecord.Title;
-        dbAppRecord.Memo = appRecord.Memo;
+        dbAppRecord.Fill(appRecord);
 
         await _context.SaveChangesAsync();
 

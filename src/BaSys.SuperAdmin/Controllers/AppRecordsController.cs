@@ -9,7 +9,7 @@ namespace BaSys.SuperAdmin.Controllers;
 /// <summary>
 /// This controller handles CRUD (Create, Read, Update, Delete) operations for app records.
 /// </summary>
-[Route("api/v1/[controller]")]
+[Route("api/sa/v1/[controller]")]
 [ApiController]
 #if !DEBUG
 [Authorize(TeamRole.SuperAdministrator)]
@@ -110,8 +110,8 @@ public class AppRecordsController : ControllerBase
     /// </summary>
     /// <param name="id">Identifier of record</param>
     /// <returns></returns>
-    [HttpDelete]
-    public async Task<IActionResult> DeleteAppRecord([FromQuery] string id)
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteAppRecord(string id)
     {
         var payload = new ResultWrapper<int>();
 

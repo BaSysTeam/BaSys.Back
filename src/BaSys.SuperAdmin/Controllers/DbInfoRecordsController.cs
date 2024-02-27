@@ -5,7 +5,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BaSys.SuperAdmin.Controllers;
 
-[Route("api/v1/[controller]")]
+/// <summary>
+/// This controller handles CRUD (Create, Read, Update, Delete) operations for DbInfoRecords.
+/// </summary>
+[Route("api/sa/v1/[controller]")]
 [ApiController]
 #if !DEBUG
 [Authorize(TeamRole.SuperAdministrator)]
@@ -19,14 +22,42 @@ public class DbInfoRecordsController : ControllerBase
         _dbInfoRecordsService = dbInfoRecordsService;
     }
 
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetDbInfoRecordsByAppId(string id)
+    /// <summary>
+    /// Get all records.
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet]
+    public async Task<IActionResult> GetDbInfoRecords()
     {
         var result = new ResultWrapper<IEnumerable<DbInfoRecord>>();
 
         try
         {
-            var collection = await _dbInfoRecordsService.GetDbInfoRecordsByAppId(id);
+            var collection = await _dbInfoRecordsService.GetDbInfoRecords();
+            result.Success(collection);
+        }
+        catch (Exception ex)
+        {
+            result.Error(-1, $"Error retrieving records. Message: {ex.Message}");
+            return Ok(result);
+        }
+
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Retrieve record by Id.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetDbInfoRecord(int id)
+    {
+        var result = new ResultWrapper<DbInfoRecord>();
+
+        try
+        {
+            var collection = await _dbInfoRecordsService.GetDbInfoRecord(id);
             result.Success(collection);
         }
         catch (Exception ex)
@@ -38,6 +69,11 @@ public class DbInfoRecordsController : ControllerBase
         return Ok(result);
     }
 
+    /// <summary>
+    /// Create new record.
+    /// </summary>
+    /// <param name="appRecord"></param>
+    /// <returns></returns>
     [HttpPost]
     public async Task<IActionResult> AddDbInfoRecord([FromBody] DbInfoRecord appRecord)
     {
@@ -56,6 +92,11 @@ public class DbInfoRecordsController : ControllerBase
         return Ok(result);
     }
 
+    /// <summary>
+    /// Update record.
+    /// </summary>
+    /// <param name="appRecord"></param>
+    /// <returns></returns>
     [HttpPut]
     public async Task<IActionResult> EditDbInfoRecord([FromBody] DbInfoRecord appRecord)
     {
@@ -74,8 +115,13 @@ public class DbInfoRecordsController : ControllerBase
         return Ok(result);
     }
 
-    [HttpDelete]
-    public async Task<IActionResult> DeleteDbInfoRecord([FromQuery] int id)
+    /// <summary>
+    /// Remove record by Id.
+    /// </summary>
+    /// <param name="id">Id of record</param>
+    /// <returns></returns>
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteDbInfoRecord(int id)
     {
         var result = new ResultWrapper<int>();
 
