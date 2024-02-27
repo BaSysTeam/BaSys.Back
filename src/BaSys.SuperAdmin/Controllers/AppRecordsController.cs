@@ -29,7 +29,8 @@ public class AppRecordsController : ControllerBase
     public async Task<IActionResult> GetAppRecords()
     {
         var collection = await _appRecordsService.GetAppRecords();
-        var payload = ResultWrapper<IEnumerable<AppRecord>>.Success(collection);
+        var payload = new ResultWrapper<IEnumerable<AppRecord>>();
+        payload.Success(collection);
 
         return Ok(payload);
     }
@@ -38,22 +39,22 @@ public class AppRecordsController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetAppRecordById(string id)
     {
-        ResultWrapper<AppRecord> payload;
+        var payload = new ResultWrapper<AppRecord>();
         try
         {
             var record = await _appRecordsService.GetAppRecord(id);
             if (record == null)
             {
-                payload = ResultWrapper<AppRecord>.Error(-1, $"Cannot find record by id: {id}");
+                payload.Error(-1, $"Cannot find record by id: {id}");
                 return Ok(payload);
             }
-            payload = ResultWrapper<AppRecord>.Success(record);
+            payload.Success(record);
             return Ok(payload);
         }
         catch (Exception e)
         {
             // Wrap and return any exceptions encountered during the retrieval process.
-            payload = ResultWrapper<AppRecord>.Error(-1, $"Error retrieving record by id: {id}. Message: {e.Message}");
+            payload.Error(-1, $"Error retrieving record by id: {id}. Message: {e.Message}");
             return Ok(payload); 
         }
     }
@@ -66,16 +67,16 @@ public class AppRecordsController : ControllerBase
     public async Task<IActionResult> AddAppRecord([FromBody] AppRecord appRecord)
     {
 
-        ResultWrapper<AppRecord> payload;
+        var payload = new ResultWrapper<AppRecord>();
 
         try
         {
             var record = await _appRecordsService.AddAppRecord(appRecord);
-            payload = ResultWrapper<AppRecord>.Success(record);
+            payload.Success(record);
         }
         catch (Exception e)
         {
-            payload = ResultWrapper<AppRecord>.Error(-2, $"Cannot add item. Message: {e.Message}");
+            payload.Error(-2, $"Cannot add item. Message: {e.Message}");
         }
 
         return Ok(payload);
@@ -87,16 +88,16 @@ public class AppRecordsController : ControllerBase
     [HttpPut]
     public async Task<IActionResult> UpdateAppRecord([FromBody] AppRecord appRecord)
     {
-        ResultWrapper<AppRecord> payload;
+        var payload = new ResultWrapper<AppRecord>();
 
         try
         {
             var record = await _appRecordsService.UpdateAppRecord(appRecord);
-            payload = ResultWrapper<AppRecord>.Success(record);
+            payload.Success(record);
         }
         catch (Exception e)
         {
-            payload = ResultWrapper<AppRecord>.Error(-3, $"Cannot add item. Message: {e.Message}");
+            payload.Error(-3, $"Cannot add item. Message: {e.Message}");
         }
 
         return Ok(payload);
@@ -112,16 +113,16 @@ public class AppRecordsController : ControllerBase
     [HttpDelete]
     public async Task<IActionResult> DeleteAppRecord([FromQuery] string id)
     {
-        ResultWrapper<int> payload;
+        var payload = new ResultWrapper<int>();
 
         try
         {
             var deletedCount = await _appRecordsService.DeleteAppRecord(id);
-            payload = ResultWrapper<int>.Success(deletedCount);
+            payload.Success(deletedCount);
         }
         catch (Exception e)
         {
-            payload = ResultWrapper<int>.Error(-4, $"Cannot delete item by id: {id}. Message: {e.Message}");
+            payload.Error(-4, $"Cannot delete item by id: {id}. Message: {e.Message}");
         }
 
         return Ok(payload);

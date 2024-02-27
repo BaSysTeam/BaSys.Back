@@ -21,11 +21,29 @@ namespace BaSys.Common.Infrastructure
         public T Data { get; set; } = default(T);
         public bool IsOK => Status == 0;
 
+        public ResultWrapper()
+        {
+            
+        }
+
         public ResultWrapper(T data, int status = 0, string message = null)
         {
             Status = status;
             Data = data;
             Message = message ?? SuccessMessage;
+        }
+
+        public void Success(T data)
+        {
+            Data = data;
+            Message = SuccessMessage;
+            Status = 0;
+        }
+        public void Error(int status, string message)
+        {
+            Data = default(T);
+            Status = status;
+            Message = message;
         }
 
         public void SetStatus(int status, string message)
@@ -38,16 +56,6 @@ namespace BaSys.Common.Infrastructure
         {
             return $"{Status}:{Message}";
         }
-
-        public static ResultWrapper<T> Success(T data){
-
-            return new ResultWrapper<T>(data);
-
-        }
-
-        public static ResultWrapper<T> Error(int status, string message)
-        {
-            return new ResultWrapper<T>(default(T), status, message);
-        }
+ 
     }
 }

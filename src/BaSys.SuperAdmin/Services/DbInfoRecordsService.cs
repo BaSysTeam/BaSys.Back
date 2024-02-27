@@ -65,15 +65,15 @@ public class DbInfoRecordsService : IDbInfoRecordsService
         return dbItem;
     }
 
-    public async Task<bool> DeleteDbInfoRecord(int dbInfoRecordId)
+    public async Task<int> DeleteDbInfoRecord(int dbInfoRecordId)
     {
         var dbItem = await _context.DbInfoRecords.FirstOrDefaultAsync(x => x.Id == dbInfoRecordId);
         if (dbItem == null)
             throw new ArgumentException();
 
         _context.DbInfoRecords.Remove(dbItem);
-        await _context.SaveChangesAsync();
+        var deletedCount =  await _context.SaveChangesAsync();
 
-        return true;
+        return deletedCount;
     }
 }
