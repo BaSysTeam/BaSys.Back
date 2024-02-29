@@ -49,10 +49,6 @@ public class AppRecordsService : IAppRecordsService
     /// <exception cref="ArgumentException"></exception>
     public async Task<AppRecord> AddAppRecord(AppRecord appRecord)
     {
-        if (appRecord == null ||
-            string.IsNullOrEmpty(appRecord.Id) ||
-            string.IsNullOrEmpty(appRecord.Title))
-            throw new ArgumentException();
         
         if (await _context.AppRecords.AsNoTracking().AnyAsync(x => x.Id.ToUpper() == appRecord.Id.ToUpper()))
             throw new ArgumentException($"Element with Id == '{appRecord.Id}' already exists");
