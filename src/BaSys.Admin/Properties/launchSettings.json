@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "BaSys.Admin": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:49654;http://localhost:49655"
+    }
+  }
+}
