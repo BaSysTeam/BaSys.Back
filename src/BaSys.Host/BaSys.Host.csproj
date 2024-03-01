@@ -31,6 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\BaSys.Admin\BaSys.Admin.csproj" />
     <ProjectReference Include="..\BaSys.SuperAdmin\BaSys.SuperAdmin.csproj" />
   </ItemGroup>
 
