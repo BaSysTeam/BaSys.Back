@@ -1,4 +1,5 @@
 ﻿using BaSys.Common.Enums;
+using BaSys.Common.Infrastructure;
 using BaSys.SuperAdmin.Abstractions;
 using BaSys.SuperAdmin.Data;
 using BaSys.SuperAdmin.Data.Models;
@@ -8,9 +9,7 @@ using Microsoft.EntityFrameworkCore;
 namespace BaSys.SuperAdmin.Services;
 
 public class CheckSystemDbService : ICheckSystemDbService
-{
-    private const string SaRoleName = "sa";
-    
+{ 
     private readonly IConfiguration _configuration;
     private readonly UserManager<IdentityUser> _userManager;
     private readonly SuperAdminDbContext _context;
@@ -85,11 +84,11 @@ public class CheckSystemDbService : ICheckSystemDbService
             var saUser = await _userManager.FindByEmailAsync(saLogin); 
 
             // create role
-            if (!_roleManager.Roles.Any(x => x.Name != null && x.Name.ToLower() == SaRoleName.ToLower()))
+            if (!_roleManager.Roles.Any(x => x.Name != null && x.Name.ToLower() == TeamRole.SuperAdministrator.ToLower()))
             {
-                await _roleManager.CreateAsync(new IdentityRole(SaRoleName));
+                await _roleManager.CreateAsync(new IdentityRole(TeamRole.SuperAdministrator));
                 if (saUser != null)
-                    await _userManager.AddToRoleAsync(saUser, SaRoleName);
+                    await _userManager.AddToRoleAsync(saUser, TeamRole.SuperAdministrator);
             }
         }
     }
