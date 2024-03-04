@@ -10,6 +10,7 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
+using BaSys.Common.Infrastructure;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -25,6 +26,7 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
     {
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IUserStore<IdentityUser> _userStore;
         private readonly IUserEmailStore<IdentityUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
@@ -34,6 +36,7 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
             UserManager<IdentityUser> userManager,
             IUserStore<IdentityUser> userStore,
             SignInManager<IdentityUser> signInManager,
+            RoleManager<IdentityRole> roleManager,
             ILogger<RegisterModel> logger,
             IEmailSender emailSender)
         {
@@ -41,6 +44,7 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
             _userStore = userStore;
             _emailStore = GetEmailStore();
             _signInManager = signInManager;
+            _roleManager = roleManager;
             _logger = logger;
             _emailSender = emailSender;
         }
@@ -124,6 +128,8 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
                 {
                     _logger.LogInformation("User created a new account with password.");
 
+                    await AddRolesAsync(user);
+
                     var userId = await _userManager.GetUserIdAsync(user);
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
@@ -177,6 +183,36 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
                 throw new NotSupportedException("The default UI requires a user store with email support.");
             }
             return (IUserEmailStore<IdentityUser>)_userStore;
+        }
+
+        private async Task CheckCreateRoleAsync(string roleName)
+        {
+            if (!_roleManager.Roles.Any(x => x.Name.ToUpper() == roleName.ToUpper()))
+            {
+                await _roleManager.CreateAsync(new IdentityRole(roleName));
+
+            }
+        }
+
+        private async Task AddRolesAsync(IdentityUser user)
+        {
+            // Administrator.
+            await CheckCreateRoleAsync(TeamRole.Administrator);
+            
+            if (user != null)
+                await _userManager.AddToRoleAsync(user, TeamRole.Administrator);
+
+            // Designer.
+            await CheckCreateRoleAsync(TeamRole.Designer);
+
+            if (user != null)
+                await _userManager.AddToRoleAsync(user, TeamRole.Designer);
+
+            // User.
+            await CheckCreateRoleAsync(TeamRole.User);
+
+            if (user != null)
+                await _userManager.AddToRoleAsync(user, TeamRole.User);
         }
     }
 }
