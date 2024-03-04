@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaSys.SuperAdmin", "src\BaS
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaSys.Shared", "src\BaSys.Shared\BaSys.Shared.csproj", "{386AC061-A817-479E-B34E-A0326DFAAA02}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaSys.Admin", "src\BaSys.Admin\BaSys.Admin.csproj", "{9C8B7B64-250B-42B5-A686-919C9824ECE2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaSys.Admin", "src\BaSys.Admin\BaSys.Admin.csproj", "{9C8B7B64-250B-42B5-A686-919C9824ECE2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
