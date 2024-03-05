@@ -30,6 +30,22 @@ namespace BaSys.Common.Infrastructure
             Title = title;
         }
 
+        /// <summary>
+        /// Return all roles except SuperAdministrator.
+        /// </summary>
+        /// <returns></returns>
+        public static IList<TeamRole> AllApplicationRoles()
+        {
+            var roles = new List<TeamRole>();
+
+            roles.Add(new TeamRole(Administrator, "Administrator"));
+            roles.Add(new TeamRole(Designer, "Designer"));
+            roles.Add(new TeamRole(User, "User"));
+            roles.Add(new TeamRole(Readonly, "Readonly"));
+
+            return roles;
+        }
+
         public override string ToString()
         {
             return $"{Name}";

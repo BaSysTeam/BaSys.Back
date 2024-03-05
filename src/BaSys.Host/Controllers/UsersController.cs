@@ -70,7 +70,11 @@ namespace BaSys.Host.Controllers
                 var user = await _userManager.FindByIdAsync(id);
                 if (user != null)
                 {
-                    result.Success(new UserDto(user));  
+                    var roles = await _userManager.GetRolesAsync(user);
+                    var userDto = new UserDto(user);    
+                    userDto.AddRoles(roles);
+
+                    result.Success(userDto);  
                 }
                 else
                 {

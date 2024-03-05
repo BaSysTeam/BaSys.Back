@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using BaSys.Common.Infrastructure;
+using Microsoft.AspNetCore.Identity;
 
 namespace BaSys.Admin.DTO
 {
@@ -9,9 +10,11 @@ namespace BaSys.Admin.DTO
         public string Email { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
 
+        public List<UserRoleDto> Roles { get; set; } = new List<UserRoleDto>();
+
         public UserDto()
         {
-            
+
         }
 
         public UserDto(IdentityUser user)
@@ -19,6 +22,23 @@ namespace BaSys.Admin.DTO
             Id = user.Id;
             UserName = user.UserName;
             Email = user.Email;
+        }
+
+        public void AddRoles(IList<string> roles)
+        {
+            if (roles == null)
+                return;
+
+            Roles.Clear();
+
+            var allAppRoles = TeamRole.AllApplicationRoles();
+
+            foreach (var appRole in allAppRoles)
+            {
+                var isChecked = roles.Any(x => x.Equals(appRole.Name, StringComparison.InvariantCultureIgnoreCase));
+                var roleDto = new UserRoleDto { IsChecked = isChecked, Name = appRole.Name };
+                Roles.Add(roleDto);
+            }
         }
     }
 }
