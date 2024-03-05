@@ -1,4 +1,6 @@
-﻿namespace BaSys.Admin.DTO
+﻿using Microsoft.AspNetCore.Identity;
+
+namespace BaSys.Admin.DTO
 {
     public sealed class UserDto
     {
@@ -6,5 +8,17 @@
         public string UserName { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
+
+        public UserDto()
+        {
+            
+        }
+
+        public UserDto(IdentityUser user)
+        {
+            Id = user.Id;
+            UserName = user.UserName;
+            Email = user.Email;
+        }
     }
 }

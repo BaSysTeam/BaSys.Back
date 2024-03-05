@@ -22,6 +22,10 @@ namespace BaSys.Host.Controllers
             _userManager = userManager;
         }
 
+        /// <summary>
+        /// Retrieve all registered users.
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public async Task<IActionResult> GetAllUsers()
         {
@@ -33,7 +37,7 @@ namespace BaSys.Host.Controllers
                 var identityUsers = await _userManager.Users.ToListAsync();
                 if (identityUsers != null)
                 {
-                    var users = identityUsers.Select(x => new UserDto() { Id = x.Id, Email = x.Email, UserName = x.UserName });
+                    var users = identityUsers.Select(x => new UserDto(x));
                     result.Success(users);
                 }
                 else
@@ -49,6 +53,36 @@ namespace BaSys.Host.Controllers
 
             return Ok(result);
 
+        }
+
+        /// <summary>
+        /// Retrieve user by Id.
+        /// </summary>
+        /// <param name="id">UserId</param>
+        /// <returns></returns>
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetUser(string id)
+        {
+            var result = new ResultWrapper<UserDto>();
+
+            try
+            {
+                var user = await _userManager.FindByIdAsync(id);
+                if (user != null)
+                {
+                    result.Success(new UserDto(user));  
+                }
+                else
+                {
+                    result.Error(-2, $"Cannot find user by Id: {id}");
+                }
+            }
+            catch(Exception ex)
+            {
+                result.Error(-3, $"Cannot get user by Id: {id}. Message: {ex.Message}");
+            }
+
+            return Ok(result);
         }
     }
 }
