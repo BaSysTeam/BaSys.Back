@@ -88,5 +88,65 @@ namespace BaSys.Host.Controllers
 
             return Ok(result);
         }
+
+        [HttpPatch("{id}/disable")]
+        public async Task<IActionResult> DisableUser(string id)
+        {
+            var result = new ResultWrapper<int>();
+
+            try
+            {
+                var user = await _userManager.FindByIdAsync(id);
+                if (user != null)
+                {
+                    // Set the LockoutEnd to a date far in the future to effectively disable the account.
+                    user.LockoutEnd = DateTimeOffset.MaxValue;
+                    await _userManager.UpdateAsync(user);
+
+                    result.Success(1);
+                }
+                else
+                {
+                    result.Error(-2, $"Cannot find user by Id: {id}");
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Error(-3, $"Cannot cannot disable user: {id}. Message: {ex.Message}");
+            }
+          
+
+            return Ok(result);
+        }
+
+        [HttpPatch("{id}/enable")]
+        public async Task<IActionResult> EnableUser(string id)
+        {
+            var result = new ResultWrapper<int>();
+
+            try
+            {
+                var user = await _userManager.FindByIdAsync(id);
+                if (user != null)
+                {
+                    // Set the LockoutEnd to a date far in the future to effectively disable the account.
+                    user.LockoutEnd = null;
+                    await _userManager.UpdateAsync(user);
+
+                    result.Success(1);
+                }
+                else
+                {
+                    result.Error(-2, $"Cannot find user by Id: {id}");
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Error(-3, $"Cannot cannot enable user: {id}. Message: {ex.Message}");
+            }
+
+
+            return Ok(result);
+        }
     }
 }
