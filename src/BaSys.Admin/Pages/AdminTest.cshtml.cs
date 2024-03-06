@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BaSys.Admin.Pages
 {
-    [Authorize(Roles = TeamRole.Administrator)]
+    [Authorize(Roles = ApplicationRole.Administrator)]
     public class AdminTestModel : PageModel
     {
 

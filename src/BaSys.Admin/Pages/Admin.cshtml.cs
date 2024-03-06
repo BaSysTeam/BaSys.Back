@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace BaSys.Admin.Pages
 {
-    [Authorize(Roles = TeamRole.Administrator)]
+    [Authorize(Roles = ApplicationRole.Administrator)]
     public class AdminModel : PageModel
     {
         public void OnGet()

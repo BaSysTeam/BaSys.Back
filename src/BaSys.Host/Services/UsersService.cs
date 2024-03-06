@@ -184,7 +184,7 @@ namespace BaSys.Host.Services
             {
                 await _userManager.UpdateAsync(savedUser);
 
-                await _userManager.RemoveFromRolesAsync(savedUser, TeamRole.AllApplicationRolesNames());
+                await _userManager.RemoveFromRolesAsync(savedUser, ApplicationRole.AllApplicationRolesNames());
                 await _userManager.AddToRolesAsync(savedUser, userDto.CheckedRoles);
 
 

@@ -197,22 +197,22 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
         private async Task AddRolesAsync(IdentityUser user)
         {
             // Administrator.
-            await CheckCreateRoleAsync(TeamRole.Administrator);
+            await CheckCreateRoleAsync(ApplicationRole.Administrator);
             
             if (user != null)
-                await _userManager.AddToRoleAsync(user, TeamRole.Administrator);
+                await _userManager.AddToRoleAsync(user, ApplicationRole.Administrator);
 
             // Designer.
-            await CheckCreateRoleAsync(TeamRole.Designer);
+            await CheckCreateRoleAsync(ApplicationRole.Designer);
 
             if (user != null)
-                await _userManager.AddToRoleAsync(user, TeamRole.Designer);
+                await _userManager.AddToRoleAsync(user, ApplicationRole.Designer);
 
             // User.
-            await CheckCreateRoleAsync(TeamRole.User);
+            await CheckCreateRoleAsync(ApplicationRole.User);
 
             if (user != null)
-                await _userManager.AddToRoleAsync(user, TeamRole.User);
+                await _userManager.AddToRoleAsync(user, ApplicationRole.User);
         }
     }
 }

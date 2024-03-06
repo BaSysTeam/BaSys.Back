@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Transactions;
 
 namespace BaSys.Common.Infrastructure
 {
     /// <summary>
     /// Stores names of asp.net roles, used in the application.
     /// </summary>
-    public sealed class TeamRole
+    public sealed class ApplicationRole
     {
         public const string SuperAdministrator = "sa";
         public const string Administrator = "administrator";
@@ -20,12 +17,12 @@ namespace BaSys.Common.Infrastructure
         public string Name { get; set; }
         public string Title { get; set; }
 
-        public TeamRole()
+        public ApplicationRole()
         {
 
         }
 
-        public TeamRole(string name, string title)
+        public ApplicationRole(string name, string title)
         {
             Name = name;
             Title = title;
@@ -35,14 +32,14 @@ namespace BaSys.Common.Infrastructure
         /// Return all roles except SuperAdministrator.
         /// </summary>
         /// <returns></returns>
-        public static IList<TeamRole> AllApplicationRoles()
+        public static IList<ApplicationRole> AllApplicationRoles()
         {
-            var roles = new List<TeamRole>();
+            var roles = new List<ApplicationRole>();
 
-            roles.Add(new TeamRole(Administrator, "Administrator"));
-            roles.Add(new TeamRole(Designer, "Designer"));
-            roles.Add(new TeamRole(User, "User"));
-            roles.Add(new TeamRole(Readonly, "Readonly"));
+            roles.Add(new ApplicationRole(Administrator, "Administrator"));
+            roles.Add(new ApplicationRole(Designer, "Designer"));
+            roles.Add(new ApplicationRole(User, "User"));
+            roles.Add(new ApplicationRole(Readonly, "Readonly"));
 
             return roles;
         }

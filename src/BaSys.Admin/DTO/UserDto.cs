@@ -39,7 +39,7 @@ namespace BaSys.Admin.DTO
 
             Roles.Clear();
 
-            var allAppRoles = TeamRole.AllApplicationRoles();
+            var allAppRoles = ApplicationRole.AllApplicationRoles();
 
             foreach (var appRole in allAppRoles)
             {
