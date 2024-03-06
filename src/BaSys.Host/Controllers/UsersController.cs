@@ -88,5 +88,18 @@ namespace BaSys.Host.Controllers
 
             return Ok(result);
         }
+
+        /// <summary>
+        /// Delete user by Id.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteUser(string id)
+        {
+            var result = await _usersService.DeleteUserAsync(id);
+
+            return Ok(result);
+        }
     }
 }

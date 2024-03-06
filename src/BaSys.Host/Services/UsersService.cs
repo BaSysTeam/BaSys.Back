@@ -221,6 +221,47 @@ namespace BaSys.Host.Services
             return result;
         }
 
+        public async Task<ResultWrapper<int>> DeleteUserAsync(string id)
+        {
+            var result = new ResultWrapper<int>();
+
+            try
+            {
+                var user = await _userManager.FindByIdAsync(id);
+                if (user != null)
+                {
+                    
+                    var deleteResult = await _userManager.DeleteAsync(user);
+                    if (deleteResult.Succeeded)
+                    {
+                        result.Success(1);
+                    }
+                    else
+                    {
+                        var sb = new StringBuilder();
+                        foreach (var error in deleteResult.Errors)
+                        {
+                            sb.AppendLine(error.Description);
+                        }
+                        result.Error(-1, $"Cannot delete user. Message: {sb}");
+                    }
+
+                   
+                }
+                else
+                {
+                    result.Error(-1, $"Cannot find user by Id: {id}");
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Error(-1, $"Cannot delete user: {id}. Message: {ex.Message}");
+            }
+
+
+            return result;
+        }
+
         private IdentityUser CreateUserInstance()
         {
             try
