@@ -11,7 +11,24 @@ namespace BaSys.Admin.DTO
         public string Password { get; set; } = string.Empty;
         public string LockoutEnd { get; set; } = string.Empty;
 
-        public List<UserRoleDto> Roles { get; set; } = new List<UserRoleDto>();
+        public IList<UserRoleDto> Roles { get; set; } = new List<UserRoleDto>();
+        public IList<string> CheckedRoles
+        {
+            get
+            {
+                var checkedRoles = new List<string>();
+
+                foreach (var role in Roles)
+                {
+                    if (!role.IsChecked)
+                        continue;
+
+                    checkedRoles.Add(role.Name);
+                }
+
+                return checkedRoles;
+            }
+        }
 
         public UserDto()
         {
@@ -20,9 +37,12 @@ namespace BaSys.Admin.DTO
 
         public UserDto(IdentityUser user)
         {
+            if (user == null)
+                return;
+
             Id = user.Id;
-            UserName = user.UserName;
-            Email = user.Email;
+            UserName = user.UserName ?? string.Empty;
+            Email = user.Email ?? string.Empty;
             LockoutEnd = user.LockoutEnd?.ToString("yyyy-MM-dd") ?? "";
         }
 

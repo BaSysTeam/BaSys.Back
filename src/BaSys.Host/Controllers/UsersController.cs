@@ -50,6 +50,24 @@ namespace BaSys.Host.Controllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// Creates new user and set rights to user.
+        /// </summary>
+        /// <param name="userDto"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<IActionResult> CreateUser(UserDto userDto)
+        {
+            var result = await _usersService.CreateUserAsync(userDto);
+
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Disable user by setting LockoutEnd maximum value.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpPatch("{id}/disable")]
         public async Task<IActionResult> DisableUser(string id)
         {
@@ -58,6 +76,11 @@ namespace BaSys.Host.Controllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// Enable user by setting LockoutEnd value null.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpPatch("{id}/enable")]
         public async Task<IActionResult> EnableUser(string id)
         {

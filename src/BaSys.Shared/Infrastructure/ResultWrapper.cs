@@ -15,9 +15,10 @@ namespace BaSys.Common.Infrastructure
     public sealed class ResultWrapper<T>
     {
         private const string SuccessMessage = "OK";
+        private const string UnknownErrorMessage = "Unknown error";
 
-        public int Status { get; set; }
-        public string Message { get; set; } = SuccessMessage;
+        public int Status { get; set; } = -1;
+        public string Message { get; set; } = UnknownErrorMessage;
         public T Data { get; set; } = default(T);
         public bool IsOK => Status == 0;
 
@@ -26,11 +27,11 @@ namespace BaSys.Common.Infrastructure
             
         }
 
-        public ResultWrapper(T data, int status = 0, string message = null)
+        public ResultWrapper(T data, int status = -1, string message = null)
         {
             Status = status;
             Data = data;
-            Message = message ?? SuccessMessage;
+            Message = message ?? UnknownErrorMessage;
         }
 
         public void Success(T data)
