@@ -63,7 +63,7 @@ namespace BaSys.Host.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUser(string id)
         {
-            var result = new ResultWrapper<UserDto>();
+            var result = new ResultWrapper<string>();
 
             try
             {
@@ -74,7 +74,7 @@ namespace BaSys.Host.Controllers
                     var userDto = new UserDto(user);    
                     userDto.AddRoles(roles);
 
-                    result.Success(userDto);  
+                    result.Success(id);  
                 }
                 else
                 {
@@ -92,7 +92,7 @@ namespace BaSys.Host.Controllers
         [HttpPatch("{id}/disable")]
         public async Task<IActionResult> DisableUser(string id)
         {
-            var result = new ResultWrapper<int>();
+            var result = new ResultWrapper<string>();
 
             try
             {
@@ -103,7 +103,7 @@ namespace BaSys.Host.Controllers
                     user.LockoutEnd = DateTimeOffset.MaxValue;
                     await _userManager.UpdateAsync(user);
 
-                    result.Success(1);
+                    result.Success(id);
                 }
                 else
                 {
