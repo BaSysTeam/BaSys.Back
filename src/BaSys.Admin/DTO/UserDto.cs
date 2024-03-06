@@ -10,6 +10,7 @@ namespace BaSys.Admin.DTO
         public string Email { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
         public string LockoutEnd { get; set; } = string.Empty;
+        public bool IsActive => string.IsNullOrWhiteSpace(LockoutEnd);
 
         public IList<UserRoleDto> Roles { get; set; } = new List<UserRoleDto>();
         public IList<string> CheckedRoles => Roles.Where(x => x.IsChecked).Select(x => x.Name).ToList();

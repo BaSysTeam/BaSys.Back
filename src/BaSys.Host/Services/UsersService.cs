@@ -298,6 +298,49 @@ namespace BaSys.Host.Services
             return result;
         }
 
+        public async Task<ResultWrapper<int>> ChangePasswordAsync(string id, string password)
+        {
+            var result = new ResultWrapper<int>();
+
+            if (string.IsNullOrWhiteSpace(password))
+            {
+                result.Error(-1, "Password is empty");
+                return result;
+            }
+
+            try
+            {
+                var user = await _userManager.FindByIdAsync(id);
+
+                if (user == null)
+                {
+                    result.Error(-1, $"Cannot find user by Id: {id}");
+                    return result;
+                }
+
+                var removeResult = await _userManager.RemovePasswordAsync(user);
+                var setResult = await _userManager.AddPasswordAsync(user, password);
+
+                if (setResult.Succeeded)
+                {
+                    result.Success(1);
+                }
+                else
+                {
+                    var message = BuildMessageFromIdentityResult(setResult);
+                    result.Error(-1, $"Cannot change password. Message: {message}");
+                }
+
+            }
+            catch (Exception ex)
+            {
+                result.Error(-1, $"Cannot change password. Message: {ex.Message}");
+            }
+
+
+            return result;
+        }
+
         private IdentityUser CreateUserInstance()
         {
             try
@@ -310,6 +353,17 @@ namespace BaSys.Host.Services
                     $"Ensure that '{nameof(IdentityUser)}' is not an abstract class and has a parameterless constructor, or alternatively " +
                     $"override the register page in /Areas/Identity/Pages/Account/Register.cshtml");
             }
+        }
+
+        private string BuildMessageFromIdentityResult(IdentityResult result)
+        {
+            var sb = new StringBuilder();
+            foreach (var error in result.Errors)
+            {
+                sb.AppendLine(error.Description);
+            }
+
+            return sb.ToString();
         }
     }
 }

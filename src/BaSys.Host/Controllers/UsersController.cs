@@ -9,6 +9,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BaSys.Host.Controllers
 {
+    /// <summary>
+    /// This controller allow to manipulate with Identity users. 
+    /// Implemented CRUD operations and extra operations: Disable, Enable user and ChangePassword.
+    /// To Disable, Enable user LockoutEnd property used.
+    /// </summary>
     [Route("api/admin/v1/[controller]")]
     [ApiController]
 #if !DEBUG
@@ -98,6 +103,19 @@ namespace BaSys.Host.Controllers
         public async Task<IActionResult> EnableUser(string id)
         {
             var result = await _usersService.EnableUserAsync(id);
+
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Change password for user.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpPatch("{id}/password")]
+        public async Task<IActionResult> EnableUser(string id, [FromBody] PasswordChangeRequest passwordChangeRequest)
+        {
+            var result = await _usersService.ChangePasswordAsync(id, passwordChangeRequest?.NewPassword);
 
             return Ok(result);
         }
