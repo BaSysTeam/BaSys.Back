@@ -1,5 +1,6 @@
 ﻿using BaSys.Admin.DTO;
 using BaSys.Common.Infrastructure;
+using BaSys.Host.Services;
 using BaSys.SuperAdmin.Data.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -16,10 +17,12 @@ namespace BaSys.Host.Controllers
     public class UsersController : ControllerBase
     {
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly UsersService _usersService;
 
         public UsersController(UserManager<IdentityUser> userManager)
         {
             _userManager = userManager;
+            _usersService = new UsersService(_userManager);
         }
 
         /// <summary>
@@ -29,30 +32,9 @@ namespace BaSys.Host.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllUsers()
         {
-
-            var result = new ResultWrapper<IEnumerable<UserDto>>();
-
-            try
-            {
-                var identityUsers = await _userManager.Users.ToListAsync();
-                if (identityUsers != null)
-                {
-                    var users = identityUsers.Select(x => new UserDto(x));
-                    result.Success(users);
-                }
-                else
-                {
-                    result.Error(-1, "Empty users list");
-                }
-
-            }
-            catch (Exception ex)
-            {
-                result.Error(-1, $"Cannot get users list. Message: {ex.Message}");
-            }
+            var result = await _usersService.GetAllUsers();
 
             return Ok(result);
-
         }
 
         /// <summary>
@@ -63,28 +45,7 @@ namespace BaSys.Host.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUser(string id)
         {
-            var result = new ResultWrapper<string>();
-
-            try
-            {
-                var user = await _userManager.FindByIdAsync(id);
-                if (user != null)
-                {
-                    var roles = await _userManager.GetRolesAsync(user);
-                    var userDto = new UserDto(user);    
-                    userDto.AddRoles(roles);
-
-                    result.Success(id);  
-                }
-                else
-                {
-                    result.Error(-2, $"Cannot find user by Id: {id}");
-                }
-            }
-            catch(Exception ex)
-            {
-                result.Error(-3, $"Cannot get user by Id: {id}. Message: {ex.Message}");
-            }
+            var result = await _usersService.GetUserAsync(id);
 
             return Ok(result);
         }
@@ -92,29 +53,7 @@ namespace BaSys.Host.Controllers
         [HttpPatch("{id}/disable")]
         public async Task<IActionResult> DisableUser(string id)
         {
-            var result = new ResultWrapper<string>();
-
-            try
-            {
-                var user = await _userManager.FindByIdAsync(id);
-                if (user != null)
-                {
-                    // Set the LockoutEnd to a date far in the future to effectively disable the account.
-                    user.LockoutEnd = DateTimeOffset.MaxValue;
-                    await _userManager.UpdateAsync(user);
-
-                    result.Success(id);
-                }
-                else
-                {
-                    result.Error(-2, $"Cannot find user by Id: {id}");
-                }
-            }
-            catch (Exception ex)
-            {
-                result.Error(-3, $"Cannot cannot disable user: {id}. Message: {ex.Message}");
-            }
-          
+            var result = await _usersService.DisableUserAsync(id);
 
             return Ok(result);
         }
@@ -122,29 +61,7 @@ namespace BaSys.Host.Controllers
         [HttpPatch("{id}/enable")]
         public async Task<IActionResult> EnableUser(string id)
         {
-            var result = new ResultWrapper<int>();
-
-            try
-            {
-                var user = await _userManager.FindByIdAsync(id);
-                if (user != null)
-                {
-                    // Set the LockoutEnd to a date far in the future to effectively disable the account.
-                    user.LockoutEnd = null;
-                    await _userManager.UpdateAsync(user);
-
-                    result.Success(1);
-                }
-                else
-                {
-                    result.Error(-2, $"Cannot find user by Id: {id}");
-                }
-            }
-            catch (Exception ex)
-            {
-                result.Error(-3, $"Cannot cannot enable user: {id}. Message: {ex.Message}");
-            }
-
+            var result = await _usersService.EnableUserAsync(id);
 
             return Ok(result);
         }
