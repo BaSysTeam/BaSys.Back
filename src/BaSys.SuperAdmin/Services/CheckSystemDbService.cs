@@ -84,11 +84,11 @@ public class CheckSystemDbService : ICheckSystemDbService
             var saUser = await _userManager.FindByEmailAsync(saLogin); 
 
             // create role
-            if (!_roleManager.Roles.Any(x => x.Name != null && x.Name.ToLower() == TeamRole.SuperAdministrator.ToLower()))
+            if (!_roleManager.Roles.Any(x => x.Name != null && x.Name.ToLower() == ApplicationRole.SuperAdministrator.ToLower()))
             {
-                await _roleManager.CreateAsync(new IdentityRole(TeamRole.SuperAdministrator));
+                await _roleManager.CreateAsync(new IdentityRole(ApplicationRole.SuperAdministrator));
                 if (saUser != null)
-                    await _userManager.AddToRoleAsync(saUser, TeamRole.SuperAdministrator);
+                    await _userManager.AddToRoleAsync(saUser, ApplicationRole.SuperAdministrator);
             }
         }
     }

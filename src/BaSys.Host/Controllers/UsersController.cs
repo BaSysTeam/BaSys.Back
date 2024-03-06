@@ -1,13 +1,15 @@
 ﻿using BaSys.Admin.DTO;
-using BaSys.Common.Infrastructure;
-using BaSys.SuperAdmin.Data.Models;
-using Microsoft.AspNetCore.Http;
+using BaSys.Host.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace BaSys.Host.Controllers
 {
+    /// <summary>
+    /// This controller allow to manipulate with Identity users. 
+    /// Implemented CRUD operations and extra operations: Disable, Enable user and ChangePassword.
+    /// To Disable, Enable user LockoutEnd property used.
+    /// </summary>
     [Route("api/admin/v1/[controller]")]
     [ApiController]
 #if !DEBUG
@@ -16,39 +18,115 @@ namespace BaSys.Host.Controllers
     public class UsersController : ControllerBase
     {
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly UsersService _usersService;
 
         public UsersController(UserManager<IdentityUser> userManager)
         {
             _userManager = userManager;
+            _usersService = new UsersService(_userManager);
         }
 
+        /// <summary>
+        /// Retrieve all registered users.
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public async Task<IActionResult> GetAllUsers()
         {
-
-            var result = new ResultWrapper<IEnumerable<UserDto>>();
-
-            try
-            {
-                var identityUsers = await _userManager.Users.ToListAsync();
-                if (identityUsers != null)
-                {
-                    var users = identityUsers.Select(x => new UserDto() { Id = x.Id, Email = x.Email, UserName = x.UserName });
-                    result.Success(users);
-                }
-                else
-                {
-                    result.Error(-1, "Empty users list");
-                }
-
-            }
-            catch (Exception ex)
-            {
-                result.Error(-1, $"Cannot get users list. Message: {ex.Message}");
-            }
+            var result = await _usersService.GetAllUsers();
 
             return Ok(result);
+        }
 
+        /// <summary>
+        /// Retrieve user by Id.
+        /// </summary>
+        /// <param name="id">UserId</param>
+        /// <returns></returns>
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetUser(string id)
+        {
+            var result = await _usersService.GetUserAsync(id);
+
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Creates new user and set rights to user.
+        /// </summary>
+        /// <param name="userDto"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<IActionResult> CreateUser(UserDto userDto)
+        {
+            var result = await _usersService.CreateUserAsync(userDto);
+
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Update user. 
+        /// </summary>
+        /// <param name="userDto"></param>
+        /// <returns></returns>
+        [HttpPut]
+        public async Task<IActionResult> UpdateUser(UserDto userDto)
+        {
+            var result = await _usersService.UpdateUser(userDto);
+
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Disable user by setting LockoutEnd maximum value.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpPatch("{id}/disable")]
+        public async Task<IActionResult> DisableUser(string id)
+        {
+            var result = await _usersService.DisableUserAsync(id);
+
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Enable user by setting LockoutEnd value null.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpPatch("{id}/enable")]
+        public async Task<IActionResult> EnableUser(string id)
+        {
+            var result = await _usersService.EnableUserAsync(id);
+
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Change password for user.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpPatch("{id}/password")]
+        public async Task<IActionResult> EnableUser(string id, [FromBody] PasswordChangeRequest passwordChangeRequest)
+        {
+            var result = await _usersService.ChangePasswordAsync(id, passwordChangeRequest?.NewPassword);
+
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Delete user by Id.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteUser(string id)
+        {
+            var result = await _usersService.DeleteUserAsync(id);
+
+            return Ok(result);
         }
     }
 }
