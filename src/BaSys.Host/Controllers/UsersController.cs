@@ -64,6 +64,19 @@ namespace BaSys.Host.Controllers
         }
 
         /// <summary>
+        /// Update user. 
+        /// </summary>
+        /// <param name="userDto"></param>
+        /// <returns></returns>
+        [HttpPut]
+        public async Task<IActionResult> UpdateUser(UserDto userDto)
+        {
+            var result = await _usersService.UpdateUser(userDto);
+
+            return Ok(result);
+        }
+
+        /// <summary>
         /// Disable user by setting LockoutEnd maximum value.
         /// </summary>
         /// <param name="id"></param>

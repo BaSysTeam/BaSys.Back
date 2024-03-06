@@ -12,23 +12,8 @@ namespace BaSys.Admin.DTO
         public string LockoutEnd { get; set; } = string.Empty;
 
         public IList<UserRoleDto> Roles { get; set; } = new List<UserRoleDto>();
-        public IList<string> CheckedRoles
-        {
-            get
-            {
-                var checkedRoles = new List<string>();
-
-                foreach (var role in Roles)
-                {
-                    if (!role.IsChecked)
-                        continue;
-
-                    checkedRoles.Add(role.Name);
-                }
-
-                return checkedRoles;
-            }
-        }
+        public IList<string> CheckedRoles => Roles.Where(x => x.IsChecked).Select(x => x.Name).ToList();
+        public IList<string> UnCheckedRoles => Roles.Where(x => !x.IsChecked).Select(x => x.Name).ToList();
 
         public UserDto()
         {

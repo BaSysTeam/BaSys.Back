@@ -130,10 +130,10 @@ namespace BaSys.Host.Services
                 {
                     // User created. Add checked roles to user.
                     await _userManager.AddToRolesAsync(newUser, userDto.CheckedRoles);
-                    
+
                     var getUserResult = await GetUserByEmailAsync(userDto.Email);
 
-                    if(getUserResult.IsOK)
+                    if (getUserResult.IsOK)
                     {
                         result.Success(getUserResult.Data);
                         return result;
@@ -141,7 +141,7 @@ namespace BaSys.Host.Services
                     else
                     {
                         return getUserResult;
-                    }              
+                    }
                 }
                 else
                 {
@@ -154,11 +154,47 @@ namespace BaSys.Host.Services
                     result.Error(-1, $"Cannot create user. Message: {sb}");
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 result.Error(-1, $"Cannot create user. Message: {ex.Message}");
             }
-            
+
+
+            return result;
+        }
+
+        public async Task<ResultWrapper<UserDto>> UpdateUser(UserDto userDto)
+        {
+            var result = new ResultWrapper<UserDto>();
+
+            var savedUser = await _userManager.FindByIdAsync(userDto.Id);
+
+            if (savedUser == null)
+            {
+                result.Error(-1, $"Cannot find user by Id: {userDto.Id}.");
+                return result;
+            }
+
+            savedUser.Email = userDto.Email;
+            savedUser.UserName = userDto.UserName;
+            savedUser.NormalizedUserName = savedUser.UserName.ToUpper();
+            savedUser.NormalizedEmail = savedUser.Email.ToUpper();
+
+            try
+            {
+                await _userManager.UpdateAsync(savedUser);
+
+                await _userManager.RemoveFromRolesAsync(savedUser, TeamRole.AllApplicationRolesNames());
+                await _userManager.AddToRolesAsync(savedUser, userDto.CheckedRoles);
+
+
+                result = await GetUserByEmailAsync(userDto.Email);
+
+            }
+            catch (Exception ex)
+            {
+                result.Error(-1, $"Cannot update user. Message: {ex.Message}");
+            }
 
             return result;
         }
@@ -230,7 +266,7 @@ namespace BaSys.Host.Services
                 var user = await _userManager.FindByIdAsync(id);
                 if (user != null)
                 {
-                    
+
                     var deleteResult = await _userManager.DeleteAsync(user);
                     if (deleteResult.Succeeded)
                     {
@@ -246,7 +282,7 @@ namespace BaSys.Host.Services
                         result.Error(-1, $"Cannot delete user. Message: {sb}");
                     }
 
-                   
+
                 }
                 else
                 {

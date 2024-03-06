@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Transactions;
 
@@ -44,6 +45,15 @@ namespace BaSys.Common.Infrastructure
             roles.Add(new TeamRole(Readonly, "Readonly"));
 
             return roles;
+        }
+
+        /// <summary>
+        /// Return all role names except SuperAdministrator.
+        /// </summary>
+        /// <returns></returns>
+        public static IList<string> AllApplicationRolesNames()
+        {
+            return AllApplicationRoles().Select(x => x.Name).ToList();
         }
 
         public override string ToString()
