@@ -298,15 +298,20 @@ namespace BaSys.Host.Services
             return result;
         }
 
-        public async Task<ResultWrapper<int>> ChangePasswordAsync(string id, string password)
+        public async Task<ResultWrapper<int>> ChangePasswordAsync(string id, PasswordChangeRequest passwordChangeRequest)
         {
             var result = new ResultWrapper<int>();
 
-            if (string.IsNullOrWhiteSpace(password))
+            var validator = new PasswordChangeRequestValidator();
+            var validationResult = validator.Validate(passwordChangeRequest);
+
+            if (!validationResult.IsValid)
             {
-                result.Error(-1, "Password is empty");
+                result.Error(-1, $"Wrong password. {validationResult}");
                 return result;
             }
+
+            var password = passwordChangeRequest.NewPassword;
 
             try
             {

@@ -41,11 +41,25 @@ namespace BaSys.Common.Infrastructure
         /// <summary>
         /// Combines all information into a single string.
         /// </summary>
-        public string Presentation => $"{Status}:{Message}:{Info}";
+        public string Presentation
+        {
+            get
+            {
+                var presentation = $"{Status}";
+
+                if (!string.IsNullOrEmpty(Message))
+                    presentation += " : " + Message;
+
+                if (!string.IsNullOrWhiteSpace(Info))
+                    presentation += " : " + Info;
+
+                return presentation;
+            }
+        }
 
         public ResultWrapper()
         {
-            
+
         }
 
         public ResultWrapper(T data, int status = -1, string message = null, string info = null)
@@ -81,6 +95,6 @@ namespace BaSys.Common.Infrastructure
         {
             return Presentation;
         }
- 
+
     }
 }

@@ -111,7 +111,7 @@ namespace BaSys.Host.Controllers
         [HttpPatch("{id}/password")]
         public async Task<IActionResult> EnableUser(string id, [FromBody] PasswordChangeRequest passwordChangeRequest)
         {
-            var result = await _usersService.ChangePasswordAsync(id, passwordChangeRequest?.NewPassword);
+            var result = await _usersService.ChangePasswordAsync(id, passwordChangeRequest);
 
             return Ok(result);
         }
