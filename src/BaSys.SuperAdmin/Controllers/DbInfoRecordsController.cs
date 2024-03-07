@@ -38,7 +38,7 @@ public class DbInfoRecordsController : ControllerBase
         }
         catch (Exception ex)
         {
-            result.Error(-1, $"Error retrieving records. Message: {ex.Message}");
+            result.Error(-1, $"Error retrieving records.", ex.Message);
             return Ok(result);
         }
 
@@ -62,7 +62,7 @@ public class DbInfoRecordsController : ControllerBase
         }
         catch (Exception ex)
         {
-            result.Error(-1, $"Error retrieving records by id: {id}. Message: {ex.Message}");
+            result.Error(-1, $"Error retrieving records by id: {id}.", ex.Message);
             return Ok(result);
         }
 
@@ -86,7 +86,7 @@ public class DbInfoRecordsController : ControllerBase
         }
         catch (Exception ex)
         {
-            result.Error(-2, $"Cannot add record. Message: {ex.Message}");
+            result.Error(-2, $"Cannot add record.", ex.Message);
         }
 
         return Ok(result);
@@ -109,7 +109,7 @@ public class DbInfoRecordsController : ControllerBase
         }
         catch (Exception ex)
         {
-            result.Error(-3, $"Cannot update record. Message: {ex.Message}");
+            result.Error(-3, $"Cannot update record.", ex.Message);
         }
 
         return Ok(result);
@@ -132,7 +132,7 @@ public class DbInfoRecordsController : ControllerBase
         }
         catch (Exception ex)
         {
-            result.Error(-4, $"Cannot delete record by id: {id}. Message: {ex.Message}");
+            result.Error(-4, $"Cannot delete record by id: {id}.", ex.Message);
         }
 
         return Ok(result);

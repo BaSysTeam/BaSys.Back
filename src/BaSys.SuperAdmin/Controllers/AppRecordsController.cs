@@ -54,7 +54,7 @@ public class AppRecordsController : ControllerBase
         catch (Exception e)
         {
             // Wrap and return any exceptions encountered during the retrieval process.
-            payload.Error(-1, $"Error retrieving record by id: {id}. Message: {e.Message}");
+            payload.Error(-1, $"Error retrieving record by id: {id}.", e.Message);
             return Ok(payload); 
         }
     }
@@ -76,7 +76,7 @@ public class AppRecordsController : ControllerBase
         }
         catch (Exception e)
         {
-            payload.Error(-2, $"Cannot add item. Message: {e.Message}");
+            payload.Error(-2, $"Cannot add item.", e.Message);
         }
 
         return Ok(payload);
@@ -97,7 +97,7 @@ public class AppRecordsController : ControllerBase
         }
         catch (Exception e)
         {
-            payload.Error(-3, $"Cannot add item. Message: {e.Message}");
+            payload.Error(-3, $"Cannot add item.", e.Message);
         }
 
         return Ok(payload);
@@ -122,7 +122,7 @@ public class AppRecordsController : ControllerBase
         }
         catch (Exception e)
         {
-            payload.Error(-4, $"Cannot delete item by id: {id}. Message: {e.Message}");
+            payload.Error(-4, $"Cannot delete item by id: {id}.", e.Message);
         }
 
         return Ok(payload);
