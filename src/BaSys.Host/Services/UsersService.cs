@@ -37,7 +37,7 @@ namespace BaSys.Host.Services
             }
             catch (Exception ex)
             {
-                result.Error(-1, $"Cannot get users list. Message: {ex.Message}");
+                result.Error(-1, $"Cannot get users list.", ex.Message);
             }
 
             return result;
@@ -94,7 +94,7 @@ namespace BaSys.Host.Services
             }
             catch (Exception ex)
             {
-                result.Error(-1, $"Cannot get user by EMail: {email}. Message: {ex.Message}");
+                result.Error(-1, $"Cannot get user by EMail: {email}.", ex.Message);
             }
 
             return result;
@@ -151,12 +151,12 @@ namespace BaSys.Host.Services
                     {
                         sb.AppendLine(error.Description);
                     }
-                    result.Error(-1, $"Cannot create user. Message: {sb}");
+                    result.Error(-1, $"Cannot create user.", sb.ToString());
                 }
             }
             catch (Exception ex)
             {
-                result.Error(-1, $"Cannot create user. Message: {ex.Message}");
+                result.Error(-1, $"Cannot create user.", ex.Message);
             }
 
 
@@ -193,7 +193,7 @@ namespace BaSys.Host.Services
             }
             catch (Exception ex)
             {
-                result.Error(-1, $"Cannot update user. Message: {ex.Message}");
+                result.Error(-1, $"Cannot update user.", ex.Message);
             }
 
             return result;
@@ -221,7 +221,7 @@ namespace BaSys.Host.Services
             }
             catch (Exception ex)
             {
-                result.Error(-3, $"Cannot cannot disable user: {id}. Message: {ex.Message}");
+                result.Error(-3, $"Cannot cannot disable user: {id}.", ex.Message);
             }
 
 
@@ -250,7 +250,7 @@ namespace BaSys.Host.Services
             }
             catch (Exception ex)
             {
-                result.Error(-1, $"Cannot cannot enable user: {id}. Message: {ex.Message}");
+                result.Error(-1, $"Cannot cannot enable user: {id}.", ex.Message);
             }
 
 
@@ -279,7 +279,7 @@ namespace BaSys.Host.Services
                         {
                             sb.AppendLine(error.Description);
                         }
-                        result.Error(-1, $"Cannot delete user. Message: {sb}");
+                        result.Error(-1, $"Cannot delete user.", sb.ToString());
                     }
 
 
@@ -291,7 +291,7 @@ namespace BaSys.Host.Services
             }
             catch (Exception ex)
             {
-                result.Error(-1, $"Cannot delete user: {id}. Message: {ex.Message}");
+                result.Error(-1, $"Cannot delete user: {id}.", ex.Message);
             }
 
 
@@ -328,13 +328,13 @@ namespace BaSys.Host.Services
                 else
                 {
                     var message = BuildMessageFromIdentityResult(setResult);
-                    result.Error(-1, $"Cannot change password. Message: {message}");
+                    result.Error(-1, $"Cannot change password.", message);
                 }
 
             }
             catch (Exception ex)
             {
-                result.Error(-1, $"Cannot change password. Message: {ex.Message}");
+                result.Error(-1, $"Cannot change password.", ex.Message);
             }
 
 
