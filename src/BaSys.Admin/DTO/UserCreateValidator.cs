@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using BaSys.Common.Infrastructure;
+using FluentValidation;
 
 namespace BaSys.Admin.DTO
 {
@@ -6,7 +7,7 @@ namespace BaSys.Admin.DTO
     {
         public UserCreateValidator(): base()
         {
-            RuleFor(x => x.Password).NotEmpty().MinimumLength(6);
+            RuleFor(x => x.Password).NotEmpty().MinimumLength(GlobalConstants.PasswordMinLength);
         }
     }
 }

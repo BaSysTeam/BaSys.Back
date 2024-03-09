@@ -1,5 +1,6 @@
 using System.Text;
 using BaSys.Common.Enums;
+using BaSys.Common.Infrastructure;
 using BaSys.Host.Data;
 using BaSys.Host.Data.MsSqlContext;
 using BaSys.Host.Data.PgSqlContext;
@@ -72,7 +73,7 @@ namespace BaSys.Host
                 {
                     options.SignIn.RequireConfirmedAccount = false;
                     options.Password.RequireDigit = false;
-                    options.Password.RequiredLength = 5;
+                    options.Password.RequiredLength = GlobalConstants.PasswordMinLength;
                     options.Password.RequireLowercase = false;
                     options.Password.RequireUppercase = false;
                     options.Password.RequireNonAlphanumeric = false;
