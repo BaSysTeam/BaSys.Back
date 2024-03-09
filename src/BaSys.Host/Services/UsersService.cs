@@ -104,6 +104,15 @@ namespace BaSys.Host.Services
         {
             var result = new ResultWrapper<UserDto>();
 
+            var validator = new UserCreateValidator();
+            var validationResult = validator.Validate(userDto);
+
+            if (!validationResult.IsValid)
+            {
+                result.Error(-1, $"Cannot create user. {validationResult}");
+                return result;
+            }
+
             var savedUser = await _userManager.FindByEmailAsync(userDto.Email);
 
             if (savedUser != null)
@@ -167,6 +176,15 @@ namespace BaSys.Host.Services
         {
             var result = new ResultWrapper<UserDto>();
 
+            var validator = new UserUpdateValidator();
+            var validationResult = validator.Validate(userDto);
+
+            if (!validationResult.IsValid)
+            {
+                result.Error(-1, $"Cannot update user. {validationResult}");
+                return result;
+            }
+
             var savedUser = await _userManager.FindByIdAsync(userDto.Id);
 
             if (savedUser == null)
@@ -188,7 +206,7 @@ namespace BaSys.Host.Services
                 await _userManager.AddToRolesAsync(savedUser, userDto.CheckedRoles);
 
 
-                result = await GetUserByEmailAsync(userDto.Email);
+                result = await GetUserAsync(userDto.Id);
 
             }
             catch (Exception ex)
