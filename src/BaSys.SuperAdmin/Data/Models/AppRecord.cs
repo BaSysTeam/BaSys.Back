@@ -3,7 +3,8 @@
 public class AppRecord
 {
     public string Id { get; set; } = string.Empty;
-    public string Title { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public string? Title { get; set; }
     public string? Memo { get; set; }
 
     public AppRecord()
@@ -18,8 +19,9 @@ public class AppRecord
 
     public void Fill(AppRecord record)
     {
-        Title = record.Title;
+        Name = record.Name;
         Memo = record.Memo;
+        Title = record.Title;
     }
 
     public override bool Equals(object? obj)
@@ -35,6 +37,6 @@ public class AppRecord
 
     public override string ToString()
     {
-        return $"{Id}/{Title}";
+        return $"{Id}/{Name}";
     }
 }

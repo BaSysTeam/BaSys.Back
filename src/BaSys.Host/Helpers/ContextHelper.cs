@@ -6,7 +6,7 @@ namespace BaSys.Host.Helpers;
 
 public class ContextHelper
 {
-    public static ConnectionItem GetConnectionItem(IServiceProvider serviceProvider, DbKinds? dbKind = null)
+    public static ConnectionItem? GetConnectionItem(IServiceProvider serviceProvider, DbKinds? dbKind = null)
     {
         var httpContextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
         var userId = httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault()?.Value;

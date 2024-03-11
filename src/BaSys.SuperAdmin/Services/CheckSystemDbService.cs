@@ -46,21 +46,39 @@ public class CheckSystemDbService : ICheckSystemDbService
             throw new ApplicationException("MainDb.DbKind is not set in the config!");
         if (string.IsNullOrEmpty(dbConnStr))
             throw new ApplicationException("MainDb.ConnectionString is not set in the config!");
-        
-        if (await _context.DbInfoRecords.AnyAsync(x => x.AppId.ToLower() == appId.ToLower() &&
-                                                       (int)x.DbKind == kind &&
-                                                       x.ConnectionString.ToLower() == dbConnStr.ToLower()))
-        return;
 
-        _context.DbInfoRecords.Add(new DbInfoRecord
+        var isInfoRecordExists = await _context.DbInfoRecords
+            .AnyAsync(x =>
+                x.AppId.ToLower() == appId.ToLower() &&
+                (int) x.DbKind == kind &&
+                x.Title.ToLower() == dbTitle);
+
+        if (!isInfoRecordExists)
         {
-            AppId = appId,
-            Title = dbTitle,
-            DbKind = (DbKinds) kind,
-            ConnectionString = dbConnStr
-        });
+            _context.DbInfoRecords.Add(new DbInfoRecord
+            {
+                AppId = appId,
+                Title = dbTitle,
+                DbKind = (DbKinds) kind,
+                ConnectionString = dbConnStr
+            });
+            
+            await _context.SaveChangesAsync();
+        }
+        else
+        {
+            var infoRecord = await _context.DbInfoRecords
+                .FirstAsync(x =>
+                    x.AppId.ToLower() == appId.ToLower() &&
+                    (int) x.DbKind == kind &&
+                    x.Title.ToLower() == dbTitle);
 
-        await _context.SaveChangesAsync();
+            if (infoRecord.ConnectionString.ToLower() != dbConnStr.ToLower())
+            {
+                infoRecord.ConnectionString = dbConnStr;
+                await _context.SaveChangesAsync();
+            }
+        }
     }
     
     private async Task CheckSaUser()
@@ -96,19 +114,19 @@ public class CheckSystemDbService : ICheckSystemDbService
     private async Task<string> CheckApp()
     {
         var appId = _configuration["CurrentApp:Id"];
-        var appTitle = _configuration["CurrentApp:Title"];
+        var appName = _configuration["CurrentApp:Name"];
 
         if (string.IsNullOrEmpty(appId))
             throw new ApplicationException("CurrentApp.Id is not set in the config!");
-        if (string.IsNullOrEmpty(appTitle))
-            throw new ApplicationException("CurrentApp.Title is not set in the config!");
+        if (string.IsNullOrEmpty(appName))
+            throw new ApplicationException("CurrentApp.Name is not set in the config!");
 
         if (!await _context.AppRecords.AnyAsync(x => x.Id.ToUpper() == appId.ToUpper()))
         {
             _context.AppRecords.Add(new AppRecord
             {
                 Id = appId,
-                Title = appTitle
+                Name = appName
             });
 
             await _context.SaveChangesAsync();

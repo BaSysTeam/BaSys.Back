@@ -59,13 +59,15 @@ namespace BaSys.Host
             builder.Services.AddDbContext<MsSqlDbContext>((sp, options) =>
             {
                 var item = ContextHelper.GetConnectionItem(sp, DbKinds.MsSql);
-                options.UseSqlServer(item.ConnectionString);
+                if (item != null)
+                    options.UseSqlServer(item.ConnectionString);
             });
             // Add pgsql context
             builder.Services.AddDbContext<PgSqlDbContext>((sp, options) =>
             {
                 var item = ContextHelper.GetConnectionItem(sp, DbKinds.PgSql);
-                options.UseNpgsql(item.ConnectionString);
+                if (item != null)
+                    options.UseNpgsql(item.ConnectionString);
             });
             
             // Add identity
