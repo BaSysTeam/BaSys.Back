@@ -53,7 +53,7 @@ namespace BaSys.Host
             });
             
             // Add sa module
-            builder.Services.AddSuperAdmin(builder.Configuration.GetConnectionString("SystemDbConnection")!);
+            builder.Services.AddSuperAdmin(builder.Configuration.GetSection("InitAppSettings"));
             
             // Add mssql context
             builder.Services.AddDbContext<MsSqlDbContext>((sp, options) =>
