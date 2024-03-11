@@ -145,7 +145,7 @@ namespace BaSys.Host
 
             using var serviceScope = app.Services.CreateScope();
             var systemDbService = serviceScope.ServiceProvider.GetRequiredService<ICheckSystemDbService>();
-            await systemDbService.CheckSystemDb();
+            await systemDbService.CheckDbs();
 
             app.Run();
         }

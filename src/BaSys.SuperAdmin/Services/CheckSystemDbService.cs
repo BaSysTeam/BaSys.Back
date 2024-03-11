@@ -3,6 +3,7 @@ using BaSys.Common.Infrastructure;
 using BaSys.SuperAdmin.Abstractions;
 using BaSys.SuperAdmin.Data;
 using BaSys.SuperAdmin.Data.Models;
+using BaSys.SuperAdmin.Infrastructure.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,6 +15,7 @@ public class CheckSystemDbService : ICheckSystemDbService
     private readonly UserManager<IdentityUser> _userManager;
     private readonly SuperAdminDbContext _context;
     private readonly RoleManager<IdentityRole> _roleManager;
+    private readonly InitAppSettings? _initAppSettings;
 
     public CheckSystemDbService(IConfiguration configuration,
         UserManager<IdentityUser> userManager,
@@ -24,43 +26,70 @@ public class CheckSystemDbService : ICheckSystemDbService
         _userManager = userManager;
         _context = context;
         _roleManager = roleManager;
+        
+        _initAppSettings = _configuration.GetSection("InitAppSettings").Get<InitAppSettings>();
     }
     
-    public async Task CheckSystemDb()
+    public async Task CheckDbs()
     {
-        var appId = await CheckApp();
-        await CheckDbInfo(appId);
-        await CheckSaUser();
+        var appId = await CheckCurrentApp();
+        await CheckMainDb(appId);
+        await CheckSa();
     }
 
     #region private methods
-    private async Task CheckDbInfo(string appId)
+    private async Task<string> CheckCurrentApp()
     {
-        var dbTitle = _configuration["MainDb:Title"];
-        var dbKind = _configuration["MainDb:DbKind"];
-        var dbConnStr = _configuration["MainDb:ConnectionString"];
-        
-        if (string.IsNullOrEmpty(dbTitle))
-            throw new ApplicationException("MainDb.Title is not set in the config!");
-        if (string.IsNullOrEmpty(dbKind) || !int.TryParse(dbKind, out var kind))
-            throw new ApplicationException("MainDb.DbKind is not set in the config!");
-        if (string.IsNullOrEmpty(dbConnStr))
-            throw new ApplicationException("MainDb.ConnectionString is not set in the config!");
+        var currentApp = _initAppSettings?.CurrentApp;
+        if (currentApp == null)
+            throw new ApplicationException("InitAppSettings:CurrentApp is not set in the config!");
 
+        if (string.IsNullOrEmpty(currentApp.Id))
+            throw new ApplicationException("InitAppSettings:CurrentApp:Id is not set in the config!");
+        if (string.IsNullOrEmpty(currentApp.Name))
+            throw new ApplicationException("InitAppSettings:CurrentApp:Name is not set in the config!");
+
+        if (!await _context.AppRecords.AnyAsync(x => x.Id.ToUpper() == currentApp.Id.ToUpper()))
+        {
+            _context.AppRecords.Add(new AppRecord
+            {
+                Id = currentApp.Id,
+                Name = currentApp.Name
+            });
+
+            await _context.SaveChangesAsync();
+        }
+
+        return currentApp.Id;
+    }
+    
+    private async Task CheckMainDb(string appId)
+    {
+        var mainDb = _initAppSettings?.MainDb;
+        if (mainDb == null)
+            throw new ApplicationException("InitAppSettings:MainDb is not set in the config!");
+        
+        if (string.IsNullOrEmpty(mainDb.Title))
+            throw new ApplicationException("InitAppSettings:MainDb:Title is not set in the config!");
+        if (mainDb.DbKind == null)
+            throw new ApplicationException("InitAppSettings:MainDb:DbKind is not set in the config!");
+        if (string.IsNullOrEmpty(mainDb.ConnectionString))
+            throw new ApplicationException("InitAppSettings:MainDb:ConnectionString is not set in the config!");
+        
         var isInfoRecordExists = await _context.DbInfoRecords
             .AnyAsync(x =>
                 x.AppId.ToLower() == appId.ToLower() &&
-                (int) x.DbKind == kind &&
-                x.Title.ToLower() == dbTitle);
+                x.DbKind == mainDb.DbKind &&
+                x.Title.ToLower() == mainDb.Title.ToLower());
 
         if (!isInfoRecordExists)
         {
             _context.DbInfoRecords.Add(new DbInfoRecord
             {
                 AppId = appId,
-                Title = dbTitle,
-                DbKind = (DbKinds) kind,
-                ConnectionString = dbConnStr
+                Title = mainDb.Title,
+                DbKind = mainDb.DbKind.Value,
+                ConnectionString = mainDb.ConnectionString
             });
             
             await _context.SaveChangesAsync();
@@ -70,36 +99,41 @@ public class CheckSystemDbService : ICheckSystemDbService
             var infoRecord = await _context.DbInfoRecords
                 .FirstAsync(x =>
                     x.AppId.ToLower() == appId.ToLower() &&
-                    (int) x.DbKind == kind &&
-                    x.Title.ToLower() == dbTitle);
+                    x.DbKind == mainDb.DbKind &&
+                    x.Title.ToLower() == mainDb.Title.ToLower());
 
-            if (infoRecord.ConnectionString.ToLower() != dbConnStr.ToLower())
+            if (infoRecord.ConnectionString.ToLower() != mainDb.ConnectionString.ToLower())
             {
-                infoRecord.ConnectionString = dbConnStr;
+                infoRecord.ConnectionString = mainDb.ConnectionString;
                 await _context.SaveChangesAsync();
             }
         }
     }
     
-    private async Task CheckSaUser()
+    private async Task CheckSa()
     {
-        var saLogin = _configuration["Sa:Login"];
-        var saPassword = _configuration["Sa:Password"];
-        
-        if (string.IsNullOrEmpty(saLogin))
-            throw new ApplicationException("Sa.Login is not set in the config!");
-        if (string.IsNullOrEmpty(saPassword))
-            throw new ApplicationException("Sa.Password is not set in the config!");
+        var sa = _initAppSettings?.Sa;
+        if (sa == null)
+            throw new ApplicationException("InitAppSettings:Sa is not set in the config!");
+            
+        if (string.IsNullOrEmpty(sa.Login))
+            throw new ApplicationException("InitAppSettings:Sa:Login is not set in the config!");
+        if (string.IsNullOrEmpty(sa.Password))
+            throw new ApplicationException("InitAppSettings:Sa:Password is not set in the config!");
+        if (sa.DbKind == null)
+            throw new ApplicationException("InitAppSettings:Sa:DbKind is not set in the config!");
+        if (string.IsNullOrEmpty(sa.ConnectionString))
+            throw new ApplicationException("InitAppSettings:Sa:ConnectionString is not set in the config!");
 
-        if (!_userManager.Users.Any(x => x.Email != null && x.Email.ToUpper() == saLogin.ToUpper()))
+        if (!_userManager.Users.Any(x => x.Email != null && x.Email.ToUpper() == sa.Login.ToUpper()))
         {
             // create user
             await _userManager.CreateAsync(new IdentityUser
             {
-                UserName = saLogin,
-                Email = saLogin
-            }, saPassword);
-            var saUser = await _userManager.FindByEmailAsync(saLogin); 
+                UserName = sa.Login,
+                Email = sa.Login
+            }, sa.Password);
+            var saUser = await _userManager.FindByEmailAsync(sa.Login);
 
             // create role
             if (!_roleManager.Roles.Any(x => x.Name != null && x.Name.ToLower() == ApplicationRole.SuperAdministrator.ToLower()))
@@ -109,30 +143,6 @@ public class CheckSystemDbService : ICheckSystemDbService
                     await _userManager.AddToRoleAsync(saUser, ApplicationRole.SuperAdministrator);
             }
         }
-    }
-
-    private async Task<string> CheckApp()
-    {
-        var appId = _configuration["CurrentApp:Id"];
-        var appName = _configuration["CurrentApp:Name"];
-
-        if (string.IsNullOrEmpty(appId))
-            throw new ApplicationException("CurrentApp.Id is not set in the config!");
-        if (string.IsNullOrEmpty(appName))
-            throw new ApplicationException("CurrentApp.Name is not set in the config!");
-
-        if (!await _context.AppRecords.AnyAsync(x => x.Id.ToUpper() == appId.ToUpper()))
-        {
-            _context.AppRecords.Add(new AppRecord
-            {
-                Id = appId,
-                Name = appName
-            });
-
-            await _context.SaveChangesAsync();
-        }
-
-        return appId;
     }
     #endregion
 }
