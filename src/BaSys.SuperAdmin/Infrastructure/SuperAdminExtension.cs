@@ -1,6 +1,7 @@
 ﻿using BaSys.SuperAdmin.Abstractions;
 using BaSys.SuperAdmin.Controllers;
 using BaSys.SuperAdmin.Data;
+using BaSys.SuperAdmin.Data.MsSqlContext;
 using BaSys.SuperAdmin.Infrastructure.Models;
 using BaSys.SuperAdmin.Services;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
@@ -20,7 +21,7 @@ public static class SuperAdminExtension
 
         var connectionString = initAppSettings.Sa.ConnectionString;
         // add db context
-        services.AddDbContext<SuperAdminDbContext>(options => options.UseSqlServer(connectionString));
+        services.AddDbContext<MsSqlSuperAdminDbContext>(options => options.UseSqlServer(connectionString));
         
         // add controllers
         services.AddControllers()

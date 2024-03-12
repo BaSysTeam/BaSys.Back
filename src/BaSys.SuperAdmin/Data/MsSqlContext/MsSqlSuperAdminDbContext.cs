@@ -1,16 +1,15 @@
 ﻿using BaSys.SuperAdmin.Data.Models;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace BaSys.SuperAdmin.Data;
+namespace BaSys.SuperAdmin.Data.MsSqlContext;
 
-public class SuperAdminDbContext : IdentityDbContext
+public class MsSqlSuperAdminDbContext : IdentityDbContext
 {
     public DbSet<AppRecord> AppRecords { get; set; }
     public DbSet<DbInfoRecord> DbInfoRecords { get; set; }
     
-    public SuperAdminDbContext(DbContextOptions<SuperAdminDbContext> options) : base(options)
+    public MsSqlSuperAdminDbContext(DbContextOptions<MsSqlSuperAdminDbContext> options) : base(options)
     {
         Database.Migrate();
     }

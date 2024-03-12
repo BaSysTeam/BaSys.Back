@@ -3,6 +3,7 @@ using BaSys.Common.Infrastructure;
 using BaSys.SuperAdmin.Abstractions;
 using BaSys.SuperAdmin.Data;
 using BaSys.SuperAdmin.Data.Models;
+using BaSys.SuperAdmin.Data.MsSqlContext;
 using BaSys.SuperAdmin.Infrastructure.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -12,13 +13,13 @@ namespace BaSys.SuperAdmin.Services;
 public class CheckSystemDbService : ICheckSystemDbService
 { 
     private readonly UserManager<IdentityUser> _userManager;
-    private readonly SuperAdminDbContext _context;
+    private readonly MsSqlSuperAdminDbContext _context;
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly InitAppSettings? _initAppSettings;
 
     public CheckSystemDbService(IConfiguration configuration,
         UserManager<IdentityUser> userManager,
-        SuperAdminDbContext context,
+        MsSqlSuperAdminDbContext context,
         RoleManager<IdentityRole> roleManager)
     {
         _userManager = userManager;
@@ -67,8 +68,8 @@ public class CheckSystemDbService : ICheckSystemDbService
         if (mainDb == null)
             throw new ApplicationException("InitAppSettings:MainDb is not set in the config!");
         
-        if (string.IsNullOrEmpty(mainDb.Title))
-            throw new ApplicationException("InitAppSettings:MainDb:Title is not set in the config!");
+        if (string.IsNullOrEmpty(mainDb.Name))
+            throw new ApplicationException("InitAppSettings:MainDb:Name is not set in the config!");
         if (mainDb.DbKind == null)
             throw new ApplicationException("InitAppSettings:MainDb:DbKind is not set in the config!");
         if (string.IsNullOrEmpty(mainDb.ConnectionString))
@@ -78,14 +79,14 @@ public class CheckSystemDbService : ICheckSystemDbService
             .AnyAsync(x =>
                 x.AppId.ToLower() == appId.ToLower() &&
                 x.DbKind == mainDb.DbKind &&
-                x.Title.ToLower() == mainDb.Title.ToLower());
-
+                x.Name.ToLower() == mainDb.Name.ToLower());
+        
         if (!isInfoRecordExists)
         {
             _context.DbInfoRecords.Add(new DbInfoRecord
             {
                 AppId = appId,
-                Title = mainDb.Title,
+                Name = mainDb.Name,
                 DbKind = mainDb.DbKind.Value,
                 ConnectionString = mainDb.ConnectionString
             });
@@ -98,8 +99,8 @@ public class CheckSystemDbService : ICheckSystemDbService
                 .FirstAsync(x =>
                     x.AppId.ToLower() == appId.ToLower() &&
                     x.DbKind == mainDb.DbKind &&
-                    x.Title.ToLower() == mainDb.Title.ToLower());
-
+                    x.Name.ToLower() == mainDb.Name.ToLower());
+        
             if (infoRecord.ConnectionString.ToLower() != mainDb.ConnectionString.ToLower())
             {
                 infoRecord.ConnectionString = mainDb.ConnectionString;

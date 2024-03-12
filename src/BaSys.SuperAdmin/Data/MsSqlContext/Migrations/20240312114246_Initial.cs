@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace BaSys.SuperAdmin.Data.Migrations
+namespace BaSys.SuperAdmin.Data.MsSqlContext.Migrations
 {
     /// <inheritdoc />
     public partial class Initial : Migration
@@ -17,7 +17,7 @@ namespace BaSys.SuperAdmin.Data.Migrations
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Memo = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Memo = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -61,24 +61,6 @@ namespace BaSys.SuperAdmin.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "DbInfoRecords",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    AppId = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DbKind = table.Column<int>(type: "int", nullable: false),
-                    ConnectionString = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Memo = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_DbInfoRecords", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -247,9 +229,6 @@ namespace BaSys.SuperAdmin.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens");
-
-            migrationBuilder.DropTable(
-                name: "DbInfoRecords");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

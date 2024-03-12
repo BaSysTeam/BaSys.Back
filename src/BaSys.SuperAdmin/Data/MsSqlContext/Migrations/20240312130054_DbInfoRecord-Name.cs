@@ -2,47 +2,40 @@
 
 #nullable disable
 
-namespace BaSys.SuperAdmin.Data.Migrations
+namespace BaSys.SuperAdmin.Data.MsSqlContext.Migrations
 {
     /// <inheritdoc />
-    public partial class nullableflds : Migration
+    public partial class DbInfoRecordName : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterColumn<string>(
-                name: "Memo",
+                name: "Title",
                 table: "DbInfoRecords",
                 type: "nvarchar(max)",
                 nullable: true,
                 oldClrType: typeof(string),
                 oldType: "nvarchar(max)");
 
-            migrationBuilder.AlterColumn<string>(
-                name: "Memo",
-                table: "AppRecords",
+            migrationBuilder.AddColumn<string>(
+                name: "Name",
+                table: "DbInfoRecords",
                 type: "nvarchar(max)",
-                nullable: true,
-                oldClrType: typeof(string),
-                oldType: "nvarchar(max)");
+                nullable: false,
+                defaultValue: "");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<string>(
-                name: "Memo",
-                table: "DbInfoRecords",
-                type: "nvarchar(max)",
-                nullable: false,
-                defaultValue: "",
-                oldClrType: typeof(string),
-                oldType: "nvarchar(max)",
-                oldNullable: true);
+            migrationBuilder.DropColumn(
+                name: "Name",
+                table: "DbInfoRecords");
 
             migrationBuilder.AlterColumn<string>(
-                name: "Memo",
-                table: "AppRecords",
+                name: "Title",
+                table: "DbInfoRecords",
                 type: "nvarchar(max)",
                 nullable: false,
                 defaultValue: "",

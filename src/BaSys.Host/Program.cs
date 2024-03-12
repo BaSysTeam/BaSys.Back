@@ -11,6 +11,7 @@ using BaSys.Host.Providers;
 using BaSys.SuperAdmin.Abstractions;
 using BaSys.SuperAdmin.Controllers;
 using BaSys.SuperAdmin.Data;
+using BaSys.SuperAdmin.Data.MsSqlContext;
 using BaSys.SuperAdmin.Infrastructure;
 using BaSys.SuperAdmin.Infrastructure.Models;
 using BaSys.SuperAdmin.Services;
@@ -33,7 +34,7 @@ namespace BaSys.Host
                 var httpContextAccessor = sp.GetRequiredService<IHttpContextAccessor>();
                 // if sa
                 if (httpContextAccessor.HttpContext == null || httpContextAccessor.HttpContext?.Request?.Path.Value.StartsWith("/sa/Account/") == true)
-                    return sp.GetRequiredService<SuperAdminDbContext>();
+                    return sp.GetRequiredService<MsSqlSuperAdminDbContext>();
                 else
                     return sp.GetRequiredService<ApplicationDbContext>();
             });
