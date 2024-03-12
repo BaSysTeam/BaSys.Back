@@ -90,7 +90,7 @@ public class AppRecordsService : IAppRecordsService
     {
         if (appRecord == null ||
             string.IsNullOrEmpty(appRecord.Id) ||
-            string.IsNullOrEmpty(appRecord.Name))
+            string.IsNullOrEmpty(appRecord.Title))
             throw new ArgumentException();
         
         var dbAppRecord = await _context.AppRecords.FirstOrDefaultAsync(x => x.Id.ToUpper() == appRecord.Id.ToUpper());

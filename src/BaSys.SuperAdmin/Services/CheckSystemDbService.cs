@@ -11,7 +11,6 @@ namespace BaSys.SuperAdmin.Services;
 
 public class CheckSystemDbService : ICheckSystemDbService
 { 
-    private readonly IConfiguration _configuration;
     private readonly UserManager<IdentityUser> _userManager;
     private readonly SuperAdminDbContext _context;
     private readonly RoleManager<IdentityRole> _roleManager;
@@ -22,12 +21,11 @@ public class CheckSystemDbService : ICheckSystemDbService
         SuperAdminDbContext context,
         RoleManager<IdentityRole> roleManager)
     {
-        _configuration = configuration;
         _userManager = userManager;
         _context = context;
         _roleManager = roleManager;
         
-        _initAppSettings = _configuration.GetSection("InitAppSettings").Get<InitAppSettings>();
+        _initAppSettings = configuration.GetSection("InitAppSettings").Get<InitAppSettings>();
     }
     
     public async Task CheckDbs()
@@ -46,15 +44,15 @@ public class CheckSystemDbService : ICheckSystemDbService
 
         if (string.IsNullOrEmpty(currentApp.Id))
             throw new ApplicationException("InitAppSettings:CurrentApp:Id is not set in the config!");
-        if (string.IsNullOrEmpty(currentApp.Name))
-            throw new ApplicationException("InitAppSettings:CurrentApp:Name is not set in the config!");
+        if (string.IsNullOrEmpty(currentApp.Title))
+            throw new ApplicationException("InitAppSettings:CurrentApp:Title is not set in the config!");
 
         if (!await _context.AppRecords.AnyAsync(x => x.Id.ToUpper() == currentApp.Id.ToUpper()))
         {
             _context.AppRecords.Add(new AppRecord
             {
                 Id = currentApp.Id,
-                Name = currentApp.Name
+                Title = currentApp.Title
             });
 
             await _context.SaveChangesAsync();

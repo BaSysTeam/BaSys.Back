@@ -5,7 +5,7 @@ namespace BaSys.SuperAdmin.Infrastructure.Models;
 public class CurrentAppConfig
 {
     public string Id { get; set; } = null!;
-    public string Name { get; set; } = null!;
+    public string Title { get; set; } = null!;
 }
 
 public class SuperAdminConfig
