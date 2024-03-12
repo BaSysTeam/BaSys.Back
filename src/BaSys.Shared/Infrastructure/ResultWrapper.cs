@@ -29,7 +29,7 @@ namespace BaSys.Common.Infrastructure
         /// <summary>
         /// Additional technical information. This should not be displayed to the user but printed to the console for debugging purposes.
         /// </summary>
-        public string Info { get; set; } = string.Empty;
+        public string TechnicalInfo { get; set; } = string.Empty;
         /// <summary>
         /// The result data.
         /// </summary>
@@ -50,8 +50,8 @@ namespace BaSys.Common.Infrastructure
                 if (!string.IsNullOrEmpty(Message))
                     presentation += " : " + Message;
 
-                if (!string.IsNullOrWhiteSpace(Info))
-                    presentation += " : " + Info;
+                if (!string.IsNullOrWhiteSpace(TechnicalInfo))
+                    presentation += " : " + TechnicalInfo;
 
                 return presentation;
             }
@@ -67,7 +67,7 @@ namespace BaSys.Common.Infrastructure
             Status = status;
             Data = data;
             Message = message ?? UnknownErrorMessage;
-            Info = info ?? string.Empty;
+            TechnicalInfo = info ?? string.Empty;
         }
 
         public void Success(T data)
@@ -81,14 +81,14 @@ namespace BaSys.Common.Infrastructure
             Data = default(T);
             Status = status;
             Message = message;
-            Info = info ?? string.Empty;
+            TechnicalInfo = info ?? string.Empty;
         }
 
         public void SetStatus(int status, string message, string info = null)
         {
             Status = status;
             Message = message;
-            Info = info ?? string.Empty;
+            TechnicalInfo = info ?? string.Empty;
         }
 
         public override string ToString()
