@@ -12,7 +12,7 @@ namespace BaSys.SuperAdmin.Controllers;
 [Route("api/sa/v1/[controller]")]
 [ApiController]
 #if !DEBUG
-[Authorize(TeamRole.SuperAdministrator)]
+[Authorize(ApplicationRole.SuperAdministrator)]
 #endif
 public class AppRecordsController : ControllerBase
 {

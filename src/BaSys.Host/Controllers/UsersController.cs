@@ -13,7 +13,7 @@ namespace BaSys.Host.Controllers
     [Route("api/admin/v1/[controller]")]
     [ApiController]
 #if !DEBUG
-    [Authorize(TeamRole.Administrator)]
+    [Authorize(ApplicationRole.Administrator)]
 #endif
     public class UsersController : ControllerBase
     {
