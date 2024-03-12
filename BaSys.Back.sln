@@ -15,7 +15,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaSys.Shared", "src\BaSys.S
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaSys.Admin", "src\BaSys.Admin\BaSys.Admin.csproj", "{9C8B7B64-250B-42B5-A686-919C9824ECE2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaSys.Admin.UnitTests", "test\BaSys.Admin.UnitTests\BaSys.Admin.UnitTests.csproj", "{A60EC1E9-92A5-4BD9-A012-39F94243C867}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaSys.Admin.UnitTests", "test\BaSys.Admin.UnitTests\BaSys.Admin.UnitTests.csproj", "{A60EC1E9-92A5-4BD9-A012-39F94243C867}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaSys.Translation", "src\BaSys.Translation\BaSys.Translation.csproj", "{37C79953-38E8-4F6E-A6C3-743BC14E87AE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -43,6 +45,10 @@ Global
 		{A60EC1E9-92A5-4BD9-A012-39F94243C867}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A60EC1E9-92A5-4BD9-A012-39F94243C867}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A60EC1E9-92A5-4BD9-A012-39F94243C867}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37C79953-38E8-4F6E-A6C3-743BC14E87AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37C79953-38E8-4F6E-A6C3-743BC14E87AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37C79953-38E8-4F6E-A6C3-743BC14E87AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37C79953-38E8-4F6E-A6C3-743BC14E87AE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -53,6 +59,7 @@ Global
 		{386AC061-A817-479E-B34E-A0326DFAAA02} = {0271BDA0-88FC-4672-A96C-3986061802E6}
 		{9C8B7B64-250B-42B5-A686-919C9824ECE2} = {0271BDA0-88FC-4672-A96C-3986061802E6}
 		{A60EC1E9-92A5-4BD9-A012-39F94243C867} = {8D015793-546A-4605-B235-CB595FD6061C}
+		{37C79953-38E8-4F6E-A6C3-743BC14E87AE} = {0271BDA0-88FC-4672-A96C-3986061802E6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {363BB08F-378B-4D54-914F-51ACDC6A7B23}

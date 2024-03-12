@@ -1,7 +1,7 @@
 ﻿using BaSys.Admin.DTO;
 using BaSys.Common.Infrastructure;
+using BaSys.Translation;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
 
@@ -27,17 +27,17 @@ namespace BaSys.Host.Services
                 if (identityUsers != null)
                 {
                     var users = identityUsers.Select(x => new UserDto(x));
-                    result.Success(users);
+                    result.Success(users, DictMain.UsersListRefreshed);
                 }
                 else
                 {
-                    result.Error(-1, "Empty users list");
+                    result.Error(-1, DictMain.EmptyUsersList);
                 }
 
             }
             catch (Exception ex)
             {
-                result.Error(-1, $"Cannot get users list.", ex.Message);
+                result.Error(-1, DictMain.CannotGetUsersList, ex.Message);
             }
 
             return result;
@@ -61,12 +61,12 @@ namespace BaSys.Host.Services
                 }
                 else
                 {
-                    result.Error(-1, $"Cannot find user by Id: {id}");
+                    result.Error(-1, DictMain.CannotFindUser, id);
                 }
             }
             catch (Exception ex)
             {
-                result.Error(-1, $"Cannot get user by Id: {id}. Message: {ex.Message}");
+                result.Error(-1, DictMain.CannotFindUser,$"Id: {id}, {ex.Message}");
             }
 
             return result;
@@ -89,12 +89,12 @@ namespace BaSys.Host.Services
                 }
                 else
                 {
-                    result.Error(-1, $"Cannot find user by EMail: {email}");
+                    result.Error(-1, $"{DictMain.CannotFindUser}: {email}");
                 }
             }
             catch (Exception ex)
             {
-                result.Error(-1, $"Cannot get user by EMail: {email}.", ex.Message);
+                result.Error(-1, $"{DictMain.CannotFindUser}: {email}.", ex.Message);
             }
 
             return result;
@@ -109,7 +109,7 @@ namespace BaSys.Host.Services
 
             if (!validationResult.IsValid)
             {
-                result.Error(-1, $"Cannot create user. {validationResult}");
+                result.Error(-1, $"{DictMain.CannotCreateUser}. {validationResult}");
                 return result;
             }
 
@@ -117,14 +117,14 @@ namespace BaSys.Host.Services
 
             if (savedUser != null)
             {
-                result.Error(-1, $"User {userDto.UserName}/{userDto.Email} already exists.");
+                result.Error(-1, $"{DictMain.UserAlreadyExists}: {userDto.UserName}/{userDto.Email}");
             }
 
             savedUser = await _userManager.FindByNameAsync(userDto.UserName);
 
             if (savedUser != null)
             {
-                result.Error(-1, $"User {userDto.UserName}/{userDto.Email} already exists.");
+                result.Error(-1, $"{DictMain.UserAlreadyExists}: {userDto.UserName}/{userDto.Email}");
             }
 
             try
@@ -144,7 +144,7 @@ namespace BaSys.Host.Services
 
                     if (getUserResult.IsOK)
                     {
-                        result.Success(getUserResult.Data);
+                        result.Success(getUserResult.Data, DictMain.UserCreated);
                         return result;
                     }
                     else
@@ -160,12 +160,12 @@ namespace BaSys.Host.Services
                     {
                         sb.AppendLine(error.Description);
                     }
-                    result.Error(-1, $"Cannot create user.", sb.ToString());
+                    result.Error(-1, DictMain.CannotCreateUser, sb.ToString());
                 }
             }
             catch (Exception ex)
             {
-                result.Error(-1, $"Cannot create user.", ex.Message);
+                result.Error(-1, DictMain.CannotCreateUser, ex.Message);
             }
 
 
@@ -181,7 +181,7 @@ namespace BaSys.Host.Services
 
             if (!validationResult.IsValid)
             {
-                result.Error(-1, $"Cannot update user. {validationResult}");
+                result.Error(-1, $"{DictMain.CannotUpdateUser}. {validationResult}");
                 return result;
             }
 
@@ -189,7 +189,7 @@ namespace BaSys.Host.Services
 
             if (savedUser == null)
             {
-                result.Error(-1, $"Cannot find user by Id: {userDto.Id}.");
+                result.Error(-1, DictMain.CannotUpdateUser, userDto.Id);
                 return result;
             }
 
@@ -207,11 +207,12 @@ namespace BaSys.Host.Services
                 await _userManager.AddToRolesAsync(savedUser, userDto.CheckedRoles);
 
                 result = await GetUserAsync(userDto.Id);
+                result.Message = DictMain.UserUpdated;
 
             }
             catch (Exception ex)
             {
-                result.Error(-1, $"Cannot update user.", ex.Message);
+                result.Error(-1, DictMain.CannotUpdateUser, ex.Message);
             }
 
             return result;
@@ -230,16 +231,16 @@ namespace BaSys.Host.Services
                     user.LockoutEnd = DateTimeOffset.MaxValue;
                     await _userManager.UpdateAsync(user);
 
-                    result.Success(id);
+                    result.Success(id, DictMain.UserDisabled);
                 }
                 else
                 {
-                    result.Error(-1, $"Cannot find user by Id: {id}");
+                    result.Error(-1, DictMain.CannotFindUser, id);
                 }
             }
             catch (Exception ex)
             {
-                result.Error(-3, $"Cannot cannot disable user: {id}.", ex.Message);
+                result.Error(-3, DictMain.CannotDisableUser, ex.Message);
             }
 
 
@@ -259,16 +260,16 @@ namespace BaSys.Host.Services
                     user.LockoutEnd = null;
                     await _userManager.UpdateAsync(user);
 
-                    result.Success(id);
+                    result.Success(id, DictMain.UserDisabled);
                 }
                 else
                 {
-                    result.Error(-1, $"Cannot find user by Id: {id}");
+                    result.Error(-1, DictMain.CannotFindUser, id);
                 }
             }
             catch (Exception ex)
             {
-                result.Error(-1, $"Cannot cannot enable user: {id}.", ex.Message);
+                result.Error(-1, DictMain.CannotEnableUser, ex.Message);
             }
 
 
@@ -288,7 +289,7 @@ namespace BaSys.Host.Services
                     var deleteResult = await _userManager.DeleteAsync(user);
                     if (deleteResult.Succeeded)
                     {
-                        result.Success(1);
+                        result.Success(1, DictMain.UserDeleted);
                     }
                     else
                     {
@@ -297,19 +298,19 @@ namespace BaSys.Host.Services
                         {
                             sb.AppendLine(error.Description);
                         }
-                        result.Error(-1, $"Cannot delete user.", sb.ToString());
+                        result.Error(-1, DictMain.CannotDeleteUser, sb.ToString());
                     }
 
 
                 }
                 else
                 {
-                    result.Error(-1, $"Cannot find user by Id: {id}");
+                    result.Error(-1, DictMain.CannotFindUser, id);
                 }
             }
             catch (Exception ex)
             {
-                result.Error(-1, $"Cannot delete user: {id}.", ex.Message);
+                result.Error(-1, $"{DictMain.CannotDeleteUser}: {id}.", ex.Message);
             }
 
 
@@ -325,7 +326,7 @@ namespace BaSys.Host.Services
 
             if (!validationResult.IsValid)
             {
-                result.Error(-1, $"Wrong password. {validationResult}");
+                result.Error(-1, $"{DictMain.WrongPasswordFormat}. {validationResult}");
                 return result;
             }
 
@@ -337,7 +338,7 @@ namespace BaSys.Host.Services
 
                 if (user == null)
                 {
-                    result.Error(-1, $"Cannot find user by Id: {id}");
+                    result.Error(-1, DictMain.CannotFindUser, id);
                     return result;
                 }
 
@@ -351,13 +352,13 @@ namespace BaSys.Host.Services
                 else
                 {
                     var message = BuildMessageFromIdentityResult(setResult);
-                    result.Error(-1, $"Cannot change password.", message);
+                    result.Error(-1, DictMain.CannotChangePassword, message);
                 }
 
             }
             catch (Exception ex)
             {
-                result.Error(-1, $"Cannot change password.", ex.Message);
+                result.Error(-1, DictMain.CannotChangePassword, ex.Message);
             }
 
 

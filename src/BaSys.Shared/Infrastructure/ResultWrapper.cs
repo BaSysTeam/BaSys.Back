@@ -70,10 +70,10 @@ namespace BaSys.Common.Infrastructure
             TechnicalInfo = info ?? string.Empty;
         }
 
-        public void Success(T data)
+        public void Success(T data, string message = null)
         {
             Data = data;
-            Message = SuccessMessage;
+            Message = message ?? SuccessMessage;
             Status = 0;
         }
         public void Error(int status, string message, string info = null)
