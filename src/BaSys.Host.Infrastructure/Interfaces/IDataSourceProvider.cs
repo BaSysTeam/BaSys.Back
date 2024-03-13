@@ -1,7 +1,6 @@
 ﻿using BaSys.Common.Enums;
-using BaSys.Host.Infrastructure;
 
-namespace BaSys.Host.Providers;
+namespace BaSys.Host.Infrastructure.Interfaces;
 
 public interface IDataSourceProvider
 {

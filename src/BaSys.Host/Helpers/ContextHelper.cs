@@ -1,6 +1,6 @@
 ﻿using BaSys.Common.Enums;
 using BaSys.Host.Infrastructure;
-using BaSys.Host.Providers;
+using BaSys.Host.Infrastructure.Interfaces;
 
 namespace BaSys.Host.Helpers;
 

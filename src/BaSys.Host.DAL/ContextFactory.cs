@@ -1,10 +1,11 @@
 ﻿using BaSys.Common.Enums;
+using BaSys.Host.Data;
 using BaSys.Host.Data.MsSqlContext;
-using BaSys.Host.Infrastructure;
-using BaSys.Host.Providers;
+using BaSys.Host.Infrastructure.Interfaces;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
-namespace BaSys.Host.Data;
+namespace BaSys.Host.DAL;
 
 public class ContextFactory : IContextFactory
 {

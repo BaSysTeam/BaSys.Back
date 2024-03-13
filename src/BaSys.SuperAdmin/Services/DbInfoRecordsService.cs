@@ -33,7 +33,7 @@ public class DbInfoRecordsService : IDbInfoRecordsService
             .ToListAsync();
     }
 
-    public async Task<DbInfoRecord> GetDbInfoRecord(int id)
+    public async Task<DbInfoRecord?> GetDbInfoRecord(int id)
     {
         var record = await _context.DbInfoRecords.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
         

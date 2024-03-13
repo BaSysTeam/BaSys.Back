@@ -1,23 +1,19 @@
 using System.Text;
 using BaSys.Common.Enums;
 using BaSys.Common.Infrastructure;
+using BaSys.Host.DAL;
 using BaSys.Host.Data;
 using BaSys.Host.Data.MsSqlContext;
 using BaSys.Host.Data.PgSqlContext;
 using BaSys.Host.Helpers;
 using BaSys.Host.Infrastructure;
+using BaSys.Host.Infrastructure.Interfaces;
 using BaSys.Host.Infrastructure.JwtAuth;
-using BaSys.Host.Providers;
 using BaSys.SuperAdmin.Abstractions;
-using BaSys.SuperAdmin.Controllers;
-using BaSys.SuperAdmin.Data;
 using BaSys.SuperAdmin.Data.MsSqlContext;
 using BaSys.SuperAdmin.Infrastructure;
-using BaSys.SuperAdmin.Infrastructure.Models;
-using BaSys.SuperAdmin.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
@@ -33,29 +29,30 @@ namespace BaSys.Host
             {
                 var httpContextAccessor = sp.GetRequiredService<IHttpContextAccessor>();
                 // if sa
-                if (httpContextAccessor.HttpContext == null || httpContextAccessor.HttpContext?.Request?.Path.Value.StartsWith("/sa/Account/") == true)
+                if (httpContextAccessor.HttpContext == null ||
+                    httpContextAccessor.HttpContext?.Request.Path.Value?.StartsWith("/sa/Account/") == true)
                     return sp.GetRequiredService<MsSqlSuperAdminDbContext>();
                 else
                     return sp.GetRequiredService<ApplicationDbContext>();
             });
-            
+
             builder.Services.AddScoped<ApplicationDbContext>(sp =>
             {
                 var item = ContextHelper.GetConnectionItem(sp);
-                switch (item.DbKind)
+                switch (item?.DbKind)
                 {
                     case DbKinds.MsSql:
                         return sp.GetRequiredService<MsSqlDbContext>();
                     case DbKinds.PgSql:
                         return sp.GetRequiredService<PgSqlDbContext>();
                     default:
-                        throw new NotImplementedException($"Not implemented DbContext for type {DbKinds.PgSql.ToString()}");
-                }   
+                        throw new NotImplementedException($"Not implemented DbContext for type {item?.DbKind.ToString()}");
+                }
             });
-            
+
             // Add sa module
             builder.Services.AddSuperAdmin(builder.Configuration.GetSection("InitAppSettings"));
-            
+
             // Add mssql context
             builder.Services.AddDbContext<MsSqlDbContext>((sp, options) =>
             {
@@ -70,7 +67,7 @@ namespace BaSys.Host
                 if (item != null)
                     options.UseNpgsql(item.ConnectionString);
             });
-            
+
             // Add identity
             builder.Services.AddDefaultIdentity<IdentityUser>(options =>
                 {
@@ -83,12 +80,12 @@ namespace BaSys.Host
                 })
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<IdentityDbContext>();
-            
+
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
             builder.Services.AddRazorPages();
 
             builder.Services.AddCors();
-            
+
             builder.Services.AddAuthentication()
                 .AddCookie()
                 .AddJwtBearer(
@@ -97,18 +94,20 @@ namespace BaSys.Host
                         opt.TokenValidationParameters = new TokenValidationParameters
                         {
                             ValidateIssuerSigningKey = true,
-                            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:TokenKey"])),
+                            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
+                                builder.Configuration["Jwt:TokenKey"] ??
+                                throw new ApplicationException("Jwt:TokenKey is not set in the config!"))),
                             ValidateAudience = false,
                             ValidateIssuer = false,
                             RequireExpirationTime = true
                         };
                     });
-            
+
             builder.Services.AddTransient<IJwtAuthService, JwtAuthService>();
-            
+
             builder.Services.AddSingleton<IDataSourceProvider, DataSourceProvider>();
             builder.Services.AddTransient<IContextFactory, ContextFactory>();
-            
+
             builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
@@ -117,7 +116,7 @@ namespace BaSys.Host
             if (app.Environment.IsDevelopment())
             {
                 app.UseMigrationsEndPoint();
-                
+
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
@@ -127,7 +126,7 @@ namespace BaSys.Host
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-            
+
             app.UseCors(builder => builder
                 .AllowAnyOrigin()
                 .AllowAnyMethod()

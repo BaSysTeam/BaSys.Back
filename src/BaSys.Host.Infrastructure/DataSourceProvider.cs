@@ -1,8 +1,7 @@
 ﻿using BaSys.Common.Enums;
-using BaSys.Host.Providers;
-using BaSys.SuperAdmin.Data;
+using BaSys.Host.Infrastructure.Interfaces;
 using BaSys.SuperAdmin.Data.MsSqlContext;
-using BaSys.SuperAdmin.Data.MsSqlContext.Migrations;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace BaSys.Host.Infrastructure;
 

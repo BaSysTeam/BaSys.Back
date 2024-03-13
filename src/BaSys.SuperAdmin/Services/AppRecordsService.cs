@@ -32,7 +32,7 @@ public class AppRecordsService : IAppRecordsService
     /// <param name="id"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
-    public async Task<AppRecord> GetAppRecord(string id)
+    public async Task<AppRecord?> GetAppRecord(string id)
     {
         if (string.IsNullOrEmpty(id))
             throw new ArgumentException();

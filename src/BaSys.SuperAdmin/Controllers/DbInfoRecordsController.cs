@@ -58,6 +58,9 @@ public class DbInfoRecordsController : ControllerBase
         try
         {
             var collection = await _dbInfoRecordsService.GetDbInfoRecord(id);
+            if (collection == null)
+                throw new Exception("collection is null");
+            
             result.Success(collection);
         }
         catch (Exception ex)

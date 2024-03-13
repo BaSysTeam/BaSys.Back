@@ -32,11 +32,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BaSys.Admin\BaSys.Admin.csproj" />
+    <ProjectReference Include="..\BaSys.Host.Infrastructure\BaSys.Host.Infrastructure.csproj" />
+    <ProjectReference Include="..\BaSys.Host.DAL\BaSys.Host.DAL.csproj" />
     <ProjectReference Include="..\BaSys.SuperAdmin\BaSys.SuperAdmin.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Data\PgSqlContext\Migrations\" />
   </ItemGroup>
 
   <ItemGroup>
