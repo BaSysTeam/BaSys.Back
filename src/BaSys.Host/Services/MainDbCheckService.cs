@@ -1,6 +1,7 @@
 ﻿using BaSys.Common.Infrastructure;
 using BaSys.Host.Abstractions;
 using BaSys.Host.Data;
+using BaSys.SuperAdmin.Data.Identity;
 using BaSys.SuperAdmin.Infrastructure.Models;
 using Microsoft.AspNetCore.Identity;
 
@@ -26,7 +27,8 @@ public class MainDbCheckService : IMainDbCheckService
         // Check roles
         foreach (var role in ApplicationRole.AllApplicationRoles())
         {
-            
+            if (!await _roleManager.RoleExistsAsync(role.Title))
+                await _roleManager.CreateAsync(new SaDbRole(role.Title));
         }
         
         // Check admin

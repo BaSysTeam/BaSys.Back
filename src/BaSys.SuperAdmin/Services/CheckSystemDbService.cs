@@ -1,5 +1,6 @@
 ﻿using BaSys.Common.Infrastructure;
 using BaSys.SuperAdmin.Abstractions;
+using BaSys.SuperAdmin.Data.Identity;
 using BaSys.SuperAdmin.Data.Models;
 using BaSys.SuperAdmin.Data.MsSqlContext;
 using BaSys.SuperAdmin.Infrastructure.Models;
@@ -10,17 +11,17 @@ namespace BaSys.SuperAdmin.Services;
 
 public class CheckSystemDbService : ICheckSystemDbService
 { 
-    private readonly UserManager<IdentityUser> _userManager;
+    private readonly UserManager<SaDbUser> _userManager;
     private readonly MsSqlSuperAdminDbContext _context;
-    private readonly RoleManager<IdentityRole> _roleManager;
+    private readonly RoleManager<SaDbRole> _roleManager;
     private readonly InitAppSettings? _initAppSettings;
     
     public event Action<InitAppSettings>? CheckAdminRolesEvent;
 
     public CheckSystemDbService(IConfiguration configuration,
-        UserManager<IdentityUser> userManager,
+        UserManager<SaDbUser> userManager,
         MsSqlSuperAdminDbContext context,
-        RoleManager<IdentityRole> roleManager)
+        RoleManager<SaDbRole> roleManager)
     {
         _userManager = userManager;
         _context = context;
@@ -131,7 +132,7 @@ public class CheckSystemDbService : ICheckSystemDbService
         if (!_userManager.Users.Any(x => x.Email != null && x.Email.ToUpper() == sa.Login.ToUpper()))
         {
             // create user
-            await _userManager.CreateAsync(new IdentityUser
+            await _userManager.CreateAsync(new SaDbUser()
             {
                 UserName = sa.Login,
                 Email = sa.Login
@@ -141,7 +142,7 @@ public class CheckSystemDbService : ICheckSystemDbService
             // create role
             if (!_roleManager.Roles.Any(x => x.Name != null && x.Name.ToLower() == ApplicationRole.SuperAdministrator.ToLower()))
             {
-                await _roleManager.CreateAsync(new IdentityRole(ApplicationRole.SuperAdministrator));
+                await _roleManager.CreateAsync(new SaDbRole(ApplicationRole.SuperAdministrator));
                 if (saUser != null)
                     await _userManager.AddToRoleAsync(saUser, ApplicationRole.SuperAdministrator);
             }

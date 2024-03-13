@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using BaSys.SuperAdmin.Data.Identity;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -9,10 +10,10 @@ namespace BaSys.SuperAdmin.Areas.sa.Pages.Account;
 public class Login : PageModel
 {
     private readonly ILogger<Login> _logger;
-    private readonly SignInManager<IdentityUser> _signInManager;
+    private readonly SignInManager<SaDbUser> _signInManager;
 
     public Login(ILogger<Login> logger,
-        SignInManager<IdentityUser> signInManager)
+        SignInManager<SaDbUser> signInManager)
     {
         _logger = logger;
         _signInManager = signInManager;

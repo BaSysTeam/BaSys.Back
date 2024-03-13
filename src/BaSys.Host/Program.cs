@@ -12,6 +12,7 @@ using BaSys.Host.Infrastructure.Interfaces;
 using BaSys.Host.Infrastructure.JwtAuth;
 using BaSys.Host.Services;
 using BaSys.SuperAdmin.Abstractions;
+using BaSys.SuperAdmin.Data.Identity;
 using BaSys.SuperAdmin.Data.MsSqlContext;
 using BaSys.SuperAdmin.Infrastructure;
 using Microsoft.AspNetCore.Identity;
@@ -29,13 +30,18 @@ namespace BaSys.Host
 
             builder.Services.AddScoped<IdentityDbContext>(sp =>
             {
-                var httpContextAccessor = sp.GetRequiredService<IHttpContextAccessor>();
-                // if sa
-                if (httpContextAccessor.HttpContext == null ||
-                    httpContextAccessor.HttpContext?.Request.Path.Value?.StartsWith("/sa/Account/") == true)
-                    return sp.GetRequiredService<MsSqlSuperAdminDbContext>();
-                else
+                // var httpContextAccessor = sp.GetRequiredService<IHttpContextAccessor>();
+                // // if sa
+                // if (httpContextAccessor.HttpContext == null ||
+                //     httpContextAccessor.HttpContext?.Request.Path.Value?.StartsWith("/sa/Account/") == true)
+                //     return sp.GetRequiredService<MsSqlSuperAdminDbContext>();
+                // else
                     return sp.GetRequiredService<ApplicationDbContext>();
+            });
+
+            builder.Services.AddScoped<IdentityDbContext<SaDbUser, SaDbRole, string>>(sp =>
+            {
+                return sp.GetRequiredService<MsSqlSuperAdminDbContext>();
             });
 
             builder.Services.AddScoped<ApplicationDbContext>(sp =>
@@ -70,8 +76,8 @@ namespace BaSys.Host
                     options.UseNpgsql(item.ConnectionString);
             });
 
-            // Add identity
-            builder.Services.AddDefaultIdentity<IdentityUser>(options =>
+            // Add default identity
+            builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
                 {
                     options.SignIn.RequireConfirmedAccount = false;
                     options.Password.RequireDigit = false;
@@ -80,8 +86,21 @@ namespace BaSys.Host
                     options.Password.RequireUppercase = false;
                     options.Password.RequireNonAlphanumeric = false;
                 })
-                .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<IdentityDbContext>();
+            
+            // Add sa identity
+            builder.Services.AddIdentityCore<SaDbUser>(options =>
+                {
+                    options.SignIn.RequireConfirmedAccount = false;
+                    options.Password.RequireDigit = false;
+                    options.Password.RequiredLength = GlobalConstants.PasswordMinLength;
+                    options.Password.RequireLowercase = false;
+                    options.Password.RequireUppercase = false;
+                    options.Password.RequireNonAlphanumeric = false;
+                })
+                .AddRoles<SaDbRole>()
+                .AddSignInManager()
+                .AddEntityFrameworkStores<MsSqlSuperAdminDbContext>();
 
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
             builder.Services.AddRazorPages();
@@ -109,7 +128,7 @@ namespace BaSys.Host
 
             builder.Services.AddSingleton<IDataSourceProvider, DataSourceProvider>();
             // ToDo: delete this?
-            builder.Services.AddTransient<IContextFactory, ContextFactory>();
+            // builder.Services.AddTransient<IContextFactory, ContextFactory>();
             builder.Services.AddTransient<IMainDbCheckService, MainDbCheckService>();
 
             builder.Services.AddSwaggerGen();
