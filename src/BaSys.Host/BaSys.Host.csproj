@@ -33,6 +33,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BaSys.Admin\BaSys.Admin.csproj" />
+    <ProjectReference Include="..\BaSys.App\BaSys.App.csproj" />
     <ProjectReference Include="..\BaSys.Constructor\BaSys.Constructor.csproj" />
     <ProjectReference Include="..\BaSys.SuperAdmin\BaSys.SuperAdmin.csproj" />
     <ProjectReference Include="..\BaSys.Translation\BaSys.Translation.csproj" />
@@ -41,6 +42,7 @@
   <ItemGroup>
     <Folder Include="Data\PgSqlContext\Migrations\" />
     <Folder Include="wwwroot\app\constructor\" />
+    <Folder Include="wwwroot\app\app\" />
   </ItemGroup>
 
   <ItemGroup>
