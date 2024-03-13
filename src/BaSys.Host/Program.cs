@@ -1,6 +1,7 @@
 using System.Text;
 using BaSys.Common.Enums;
 using BaSys.Common.Infrastructure;
+using BaSys.Host.Abstractions;
 using BaSys.Host.DAL;
 using BaSys.Host.Data;
 using BaSys.Host.Data.MsSqlContext;
@@ -9,6 +10,7 @@ using BaSys.Host.Helpers;
 using BaSys.Host.Infrastructure;
 using BaSys.Host.Infrastructure.Interfaces;
 using BaSys.Host.Infrastructure.JwtAuth;
+using BaSys.Host.Services;
 using BaSys.SuperAdmin.Abstractions;
 using BaSys.SuperAdmin.Data.MsSqlContext;
 using BaSys.SuperAdmin.Infrastructure;
@@ -106,7 +108,9 @@ namespace BaSys.Host
             builder.Services.AddTransient<IJwtAuthService, JwtAuthService>();
 
             builder.Services.AddSingleton<IDataSourceProvider, DataSourceProvider>();
+            // ToDo: delete this?
             builder.Services.AddTransient<IContextFactory, ContextFactory>();
+            builder.Services.AddTransient<IMainDbCheckService, MainDbCheckService>();
 
             builder.Services.AddSwaggerGen();
 
@@ -145,6 +149,12 @@ namespace BaSys.Host
 
             using var serviceScope = app.Services.CreateScope();
             var systemDbService = serviceScope.ServiceProvider.GetRequiredService<ICheckSystemDbService>();
+            systemDbService.CheckAdminRolesEvent += async (initAppSettings) =>
+            {
+                using var serviceScopeInner = app.Services.CreateScope();
+                var mainDbCheckService = serviceScopeInner.ServiceProvider.GetRequiredService<IMainDbCheckService>();
+                await mainDbCheckService.Check(initAppSettings);
+            };
             await systemDbService.CheckDbs();
 
             app.Run();

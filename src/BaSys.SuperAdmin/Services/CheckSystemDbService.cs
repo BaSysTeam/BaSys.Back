@@ -1,7 +1,5 @@
-﻿using BaSys.Common.Enums;
-using BaSys.Common.Infrastructure;
+﻿using BaSys.Common.Infrastructure;
 using BaSys.SuperAdmin.Abstractions;
-using BaSys.SuperAdmin.Data;
 using BaSys.SuperAdmin.Data.Models;
 using BaSys.SuperAdmin.Data.MsSqlContext;
 using BaSys.SuperAdmin.Infrastructure.Models;
@@ -16,6 +14,8 @@ public class CheckSystemDbService : ICheckSystemDbService
     private readonly MsSqlSuperAdminDbContext _context;
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly InitAppSettings? _initAppSettings;
+    
+    public event Action<InitAppSettings>? CheckAdminRolesEvent;
 
     public CheckSystemDbService(IConfiguration configuration,
         UserManager<IdentityUser> userManager,
@@ -27,6 +27,8 @@ public class CheckSystemDbService : ICheckSystemDbService
         _roleManager = roleManager;
         
         _initAppSettings = configuration.GetSection("InitAppSettings").Get<InitAppSettings>();
+        if (_initAppSettings == null)
+            throw new ApplicationException("InitAppSettings is not set in the config!");
     }
     
     public async Task CheckDbs()
@@ -107,6 +109,8 @@ public class CheckSystemDbService : ICheckSystemDbService
                 await _context.SaveChangesAsync();
             }
         }
+        
+        CheckAdminRolesEvent?.Invoke(_initAppSettings!);
     }
     
     private async Task CheckSa()
