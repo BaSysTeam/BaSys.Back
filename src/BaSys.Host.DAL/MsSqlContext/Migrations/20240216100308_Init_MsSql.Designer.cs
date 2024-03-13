@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BaSys.Host.Data.MsSqlContext.Migrations
 {
     [DbContext(typeof(MsSqlDbContext))]
-    [Migration("20240216100308_ini-mssql")]
-    partial class inimssql
+    [Migration("20240216100308_Init_MsSql")]
+    partial class Init_MsSql
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

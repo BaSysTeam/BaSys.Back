@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace BaSys.Host.Data.MsSqlContext.Migrations
 {
     /// <inheritdoc />
-    public partial class inimssql : Migration
+    public partial class Init_MsSql : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
