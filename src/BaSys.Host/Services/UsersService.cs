@@ -3,6 +3,7 @@ using BaSys.Common.Infrastructure;
 using BaSys.Translation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 using System.Text;
 
 namespace BaSys.Host.Services
@@ -200,10 +201,10 @@ namespace BaSys.Host.Services
 
             try
             {
-                var checkResult = await IsUserOnlyInRole(savedUser.Id, ApplicationRole.Administrator);
-                if (checkResult && !userDto.CheckedRoles.Contains(ApplicationRole.Administrator))
+                var checkResult = await AreActiveUsersInRole(userDto.Id, ApplicationRole.Administrator);
+                if (!checkResult && !userDto.CheckedRoles.Contains(ApplicationRole.Administrator))
                 {
-                    result.Error(-1, DictMain.CannotUpdateUser, DictMain.OnlyAdministrator);
+                    result.Error(-1, DictMain.CannotUpdateUser, DictMain.OnlyActiveAdministrator);
                 }
                 else
                 {
@@ -234,10 +235,10 @@ namespace BaSys.Host.Services
                 var user = await _userManager.FindByIdAsync(id);
                 if (user != null)
                 {
-                    var checkResult = await IsUserOnlyInRole(user.Id, ApplicationRole.Administrator);
-                    if (checkResult)
+                    var checkResult = await AreActiveUsersInRole(id, ApplicationRole.Administrator);
+                    if (!checkResult)
                     {
-                        result.Error(-1, DictMain.CannotDisableUser, DictMain.OnlyAdministrator);
+                        result.Error(-1, DictMain.CannotDisableUser, DictMain.OnlyActiveAdministrator);
                     }
                     else
                     {
@@ -300,10 +301,10 @@ namespace BaSys.Host.Services
                 var user = await _userManager.FindByIdAsync(id);
                 if (user != null)
                 {
-                    var checkResult = await IsUserOnlyInRole(user.Id, ApplicationRole.Administrator);
-                    if (checkResult)
+                    var checkResult = await AreActiveUsersInRole(id, ApplicationRole.Administrator);
+                    if (!checkResult)
                     {
-                        result.Error(-1, DictMain.CannotDeleteUser, DictMain.OnlyAdministrator);
+                        result.Error(-1, DictMain.CannotDeleteUser, DictMain.OnlyActiveAdministrator);
                     }
                     else
                     {
@@ -409,16 +410,14 @@ namespace BaSys.Host.Services
             return sb.ToString();
         }
 
-        private async Task<bool> IsUserOnlyInRole(string userId, string role)
+        private async Task<bool> AreActiveUsersInRole(string exceptUserId, string role)
         {
             var users = await _userManager.GetUsersInRoleAsync(role);
-            if (users.Count == 1 &&
-                users.First().Id == userId)
-            {
+            users = users.Where(x => x.Id != exceptUserId && x.LockoutEnd == null).ToList();
+            if (users.Any())
                 return true;
-            }
-
-            return false;
+            else
+                return false;
         }
     }
 }

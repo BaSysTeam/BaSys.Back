@@ -144,8 +144,8 @@
   <data name="EmptyUsersList" xml:space="preserve">
     <value>Empty users list</value>
   </data>
-  <data name="OnlyAdministrator" xml:space="preserve">
-    <value>The user is the only administrator</value>
+  <data name="OnlyActiveAdministrator" xml:space="preserve">
+    <value>The user is the only active administrator</value>
   </data>
   <data name="UserAlreadyExists" xml:space="preserve">
     <value>User already exists</value>

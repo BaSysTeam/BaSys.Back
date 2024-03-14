@@ -142,11 +142,11 @@ namespace BaSys.Translation {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The user is the only administrator.
+        ///   Looks up a localized string similar to The user is the only active administrator.
         /// </summary>
-        public static string OnlyAdministrator {
+        public static string OnlyActiveAdministrator {
             get {
-                return ResourceManager.GetString("OnlyAdministrator", resourceCulture);
+                return ResourceManager.GetString("OnlyActiveAdministrator", resourceCulture);
             }
         }
         
