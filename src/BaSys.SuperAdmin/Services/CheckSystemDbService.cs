@@ -12,21 +12,21 @@ namespace BaSys.SuperAdmin.Services;
 
 public class CheckSystemDbService : ICheckSystemDbService
 { 
-    private readonly UserManager<SaDbUser> _userManager;
-    private readonly SuperAdminDbContext _context;
-    private readonly RoleManager<SaDbRole> _roleManager;
+    private readonly UserManager<SaDbUser> _saUserManager;
+    private readonly RoleManager<SaDbRole> _saRoleManager;
+    private readonly SuperAdminDbContext _saContext;
     private readonly InitAppSettings? _initAppSettings;
-    
+
     public event Action<InitAppSettings>? CheckAdminRolesEvent;
 
     public CheckSystemDbService(IConfiguration configuration,
-        UserManager<SaDbUser> userManager,
-        SuperAdminDbContext context,
-        RoleManager<SaDbRole> roleManager)
+        UserManager<SaDbUser> saUserManager,
+        RoleManager<SaDbRole> saRoleManager,
+        SuperAdminDbContext saContext)
     {
-        _userManager = userManager;
-        _context = context;
-        _roleManager = roleManager;
+        _saUserManager = saUserManager;
+        _saContext = saContext;
+        _saRoleManager = saRoleManager;
         
         _initAppSettings = configuration.GetSection("InitAppSettings").Get<InitAppSettings>();
         if (_initAppSettings == null)
@@ -36,8 +36,9 @@ public class CheckSystemDbService : ICheckSystemDbService
     public async Task CheckDbs()
     {
         var appId = await CheckCurrentApp();
-        await CheckMainDb(appId);
         await CheckSa();
+        await CheckMainDb(appId);
+        await CheckAdminRoles();
     }
 
     #region private methods
@@ -52,15 +53,15 @@ public class CheckSystemDbService : ICheckSystemDbService
         if (string.IsNullOrEmpty(currentApp.Title))
             throw new ApplicationException("InitAppSettings:CurrentApp:Title is not set in the config!");
 
-        if (!await _context.AppRecords.AnyAsync(x => x.Id.ToUpper() == currentApp.Id.ToUpper()))
+        if (!await _saContext.AppRecords.AnyAsync(x => x.Id.ToUpper() == currentApp.Id.ToUpper()))
         {
-            _context.AppRecords.Add(new AppRecord
+            _saContext.AppRecords.Add(new AppRecord
             {
                 Id = currentApp.Id,
                 Title = currentApp.Title
             });
 
-            await _context.SaveChangesAsync();
+            await _saContext.SaveChangesAsync();
         }
 
         return currentApp.Id;
@@ -79,7 +80,7 @@ public class CheckSystemDbService : ICheckSystemDbService
         if (string.IsNullOrEmpty(mainDb.ConnectionString))
             throw new ApplicationException("InitAppSettings:MainDb:ConnectionString is not set in the config!");
         
-        var isInfoRecordExists = await _context.DbInfoRecords
+        var isInfoRecordExists = await _saContext.DbInfoRecords
             .AnyAsync(x =>
                 x.AppId.ToLower() == appId.ToLower() &&
                 x.DbKind == mainDb.DbKind &&
@@ -87,7 +88,7 @@ public class CheckSystemDbService : ICheckSystemDbService
         
         if (!isInfoRecordExists)
         {
-            _context.DbInfoRecords.Add(new DbInfoRecord
+            _saContext.DbInfoRecords.Add(new DbInfoRecord
             {
                 AppId = appId,
                 Name = mainDb.Name,
@@ -95,11 +96,11 @@ public class CheckSystemDbService : ICheckSystemDbService
                 ConnectionString = mainDb.ConnectionString
             });
             
-            await _context.SaveChangesAsync();
+            await _saContext.SaveChangesAsync();
         }
         else
         {
-            var infoRecord = await _context.DbInfoRecords
+            var infoRecord = await _saContext.DbInfoRecords
                 .FirstAsync(x =>
                     x.AppId.ToLower() == appId.ToLower() &&
                     x.DbKind == mainDb.DbKind &&
@@ -108,11 +109,9 @@ public class CheckSystemDbService : ICheckSystemDbService
             if (infoRecord.ConnectionString.ToLower() != mainDb.ConnectionString.ToLower())
             {
                 infoRecord.ConnectionString = mainDb.ConnectionString;
-                await _context.SaveChangesAsync();
+                await _saContext.SaveChangesAsync();
             }
         }
-        
-        CheckAdminRolesEvent?.Invoke(_initAppSettings!);
     }
     
     private async Task CheckSa()
@@ -130,24 +129,29 @@ public class CheckSystemDbService : ICheckSystemDbService
         if (string.IsNullOrEmpty(sa.ConnectionString))
             throw new ApplicationException("InitAppSettings:Sa:ConnectionString is not set in the config!");
 
-        if (!_userManager.Users.Any(x => x.Email != null && x.Email.ToUpper() == sa.Login.ToUpper()))
+        if (!_saUserManager.Users.Any(x => x.Email != null && x.Email.ToUpper() == sa.Login.ToUpper()))
         {
             // create user
-            await _userManager.CreateAsync(new SaDbUser()
+            await _saUserManager.CreateAsync(new SaDbUser()
             {
                 UserName = sa.Login,
                 Email = sa.Login
             }, sa.Password);
-            var saUser = await _userManager.FindByEmailAsync(sa.Login);
+            var saUser = await _saUserManager.FindByEmailAsync(sa.Login);
 
             // create role
-            if (!_roleManager.Roles.Any(x => x.Name != null && x.Name.ToLower() == ApplicationRole.SuperAdministrator.ToLower()))
+            if (!_saRoleManager.Roles.Any(x => x.Name != null && x.Name.ToLower() == ApplicationRole.SuperAdministrator.ToLower()))
             {
-                await _roleManager.CreateAsync(new SaDbRole(ApplicationRole.SuperAdministrator));
+                await _saRoleManager.CreateAsync(new SaDbRole(ApplicationRole.SuperAdministrator));
                 if (saUser != null)
-                    await _userManager.AddToRoleAsync(saUser, ApplicationRole.SuperAdministrator);
+                    await _saUserManager.AddToRoleAsync(saUser, ApplicationRole.SuperAdministrator);
             }
         }
+    }
+
+    private async Task CheckAdminRoles()
+    {
+        CheckAdminRolesEvent?.Invoke(_initAppSettings!);
     }
     #endregion
 }
