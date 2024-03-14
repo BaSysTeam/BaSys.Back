@@ -19,9 +19,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaSys.Admin.UnitTests", "te
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaSys.Translation", "src\BaSys.Translation\BaSys.Translation.csproj", "{37C79953-38E8-4F6E-A6C3-743BC14E87AE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaSys.Constructor", "src\BaSys.Constructor\BaSys.Constructor.csproj", "{A931A3D3-313C-44D4-AA6C-BE8AEDDECD05}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaSys.Constructor", "src\BaSys.Constructor\BaSys.Constructor.csproj", "{A931A3D3-313C-44D4-AA6C-BE8AEDDECD05}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaSys.App", "src\BaSys.App\BaSys.App.csproj", "{36F67A48-5F8E-4574-85B3-AE0415C6C2EB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaSys.App", "src\BaSys.App\BaSys.App.csproj", "{36F67A48-5F8E-4574-85B3-AE0415C6C2EB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaSys.Metadata", "src\BaSys.Metadata\BaSys.Metadata.csproj", "{446A4AF2-4F85-4E45-BB18-ADD5108A29D7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -61,6 +63,10 @@ Global
 		{36F67A48-5F8E-4574-85B3-AE0415C6C2EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{36F67A48-5F8E-4574-85B3-AE0415C6C2EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{36F67A48-5F8E-4574-85B3-AE0415C6C2EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{446A4AF2-4F85-4E45-BB18-ADD5108A29D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{446A4AF2-4F85-4E45-BB18-ADD5108A29D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{446A4AF2-4F85-4E45-BB18-ADD5108A29D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{446A4AF2-4F85-4E45-BB18-ADD5108A29D7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -74,6 +80,7 @@ Global
 		{37C79953-38E8-4F6E-A6C3-743BC14E87AE} = {0271BDA0-88FC-4672-A96C-3986061802E6}
 		{A931A3D3-313C-44D4-AA6C-BE8AEDDECD05} = {0271BDA0-88FC-4672-A96C-3986061802E6}
 		{36F67A48-5F8E-4574-85B3-AE0415C6C2EB} = {0271BDA0-88FC-4672-A96C-3986061802E6}
+		{446A4AF2-4F85-4E45-BB18-ADD5108A29D7} = {0271BDA0-88FC-4672-A96C-3986061802E6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {363BB08F-378B-4D54-914F-51ACDC6A7B23}
