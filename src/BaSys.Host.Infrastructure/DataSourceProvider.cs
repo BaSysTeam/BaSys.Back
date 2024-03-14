@@ -1,6 +1,6 @@
 ﻿using BaSys.Common.Enums;
 using BaSys.Host.Infrastructure.Interfaces;
-using BaSys.SuperAdmin.Data;
+using BaSys.SuperAdmin.DAL;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BaSys.Host.Infrastructure;

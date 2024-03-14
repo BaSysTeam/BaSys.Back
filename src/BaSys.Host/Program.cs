@@ -11,6 +11,7 @@ using BaSys.Host.Infrastructure.Interfaces;
 using BaSys.Host.Infrastructure.JwtAuth;
 using BaSys.Host.Services;
 using BaSys.SuperAdmin.Abstractions;
+using BaSys.SuperAdmin.DAL;
 using BaSys.SuperAdmin.Data;
 using BaSys.SuperAdmin.Data.Identity;
 using BaSys.SuperAdmin.Infrastructure;

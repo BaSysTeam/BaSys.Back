@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace BaSys.SuperAdmin.Data.MsSqlContext.Migrations
+namespace BaSys.SuperAdmin.DAL.MsSqlContext.Migrations
 {
     /// <inheritdoc />
     public partial class Initial : Migration

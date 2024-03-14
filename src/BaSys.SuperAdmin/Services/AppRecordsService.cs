@@ -1,7 +1,6 @@
 ﻿using BaSys.SuperAdmin.Abstractions;
-using BaSys.SuperAdmin.Data;
-using BaSys.SuperAdmin.Data.Models;
-using BaSys.SuperAdmin.Data.MsSqlContext;
+using BaSys.SuperAdmin.DAL;
+using BaSys.SuperAdmin.DAL.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace BaSys.SuperAdmin.Services;

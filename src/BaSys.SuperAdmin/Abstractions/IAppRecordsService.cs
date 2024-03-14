@@ -1,4 +1,4 @@
-﻿using BaSys.SuperAdmin.Data.Models;
+﻿using BaSys.SuperAdmin.DAL.Models;
 
 namespace BaSys.SuperAdmin.Abstractions;
 

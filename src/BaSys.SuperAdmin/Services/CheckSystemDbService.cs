@@ -1,8 +1,9 @@
 ﻿using BaSys.Common.Infrastructure;
 using BaSys.SuperAdmin.Abstractions;
+using BaSys.SuperAdmin.DAL;
+using BaSys.SuperAdmin.DAL.Models;
 using BaSys.SuperAdmin.Data;
 using BaSys.SuperAdmin.Data.Identity;
-using BaSys.SuperAdmin.Data.Models;
 using BaSys.SuperAdmin.Infrastructure.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;

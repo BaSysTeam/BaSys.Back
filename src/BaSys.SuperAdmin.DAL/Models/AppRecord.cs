@@ -1,4 +1,4 @@
-﻿namespace BaSys.SuperAdmin.Data.Models;
+﻿namespace BaSys.SuperAdmin.DAL.Models;
 
 public class AppRecord
 {

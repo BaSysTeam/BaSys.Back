@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace BaSys.SuperAdmin.Data.MsSqlContext;
+namespace BaSys.SuperAdmin.DAL.MsSqlContext;
 
 public class MsSqlSuperAdminDbContext : SuperAdminDbContext
 {

@@ -1,9 +1,9 @@
-﻿using BaSys.SuperAdmin.Data.Identity;
-using BaSys.SuperAdmin.Data.Models;
+﻿using BaSys.SuperAdmin.DAL.Models;
+using BaSys.SuperAdmin.Data.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace BaSys.SuperAdmin.Data;
+namespace BaSys.SuperAdmin.DAL;
 
 public class SuperAdminDbContext : IdentityDbContext<SaDbUser, SaDbRole, string>
 {

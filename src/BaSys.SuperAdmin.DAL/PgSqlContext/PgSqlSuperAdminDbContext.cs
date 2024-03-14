@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace BaSys.SuperAdmin.Data.PgSqlContext;
+namespace BaSys.SuperAdmin.DAL.PgSqlContext;
 
 public class PgSqlSuperAdminDbContext : SuperAdminDbContext
 {

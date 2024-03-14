@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace BaSys.SuperAdmin.Data.MsSqlContext.Migrations
+namespace BaSys.SuperAdmin.DAL.MsSqlContext.Migrations
 {
     /// <inheritdoc />
     public partial class DbInfoRecordName : Migration

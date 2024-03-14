@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaSys.Host.DAL", "src\BaSys
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaSys.Host.Infrastructure", "src\BaSys.Host.Infrastructure\BaSys.Host.Infrastructure.csproj", "{9C112969-8E51-4F9A-A4DD-F81E4D03F0CA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaSys.SuperAdmin.DAL", "src\BaSys.SuperAdmin.DAL\BaSys.SuperAdmin.DAL.csproj", "{93FE5417-D48D-451A-84C6-88FD7CD95D8D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,10 @@ Global
 		{9C112969-8E51-4F9A-A4DD-F81E4D03F0CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9C112969-8E51-4F9A-A4DD-F81E4D03F0CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9C112969-8E51-4F9A-A4DD-F81E4D03F0CA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{93FE5417-D48D-451A-84C6-88FD7CD95D8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93FE5417-D48D-451A-84C6-88FD7CD95D8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93FE5417-D48D-451A-84C6-88FD7CD95D8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93FE5417-D48D-451A-84C6-88FD7CD95D8D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -67,6 +73,7 @@ Global
 		{A60EC1E9-92A5-4BD9-A012-39F94243C867} = {8D015793-546A-4605-B235-CB595FD6061C}
 		{429FA84B-D8BA-47DA-AD05-C6B1306434A4} = {0271BDA0-88FC-4672-A96C-3986061802E6}
 		{9C112969-8E51-4F9A-A4DD-F81E4D03F0CA} = {0271BDA0-88FC-4672-A96C-3986061802E6}
+		{93FE5417-D48D-451A-84C6-88FD7CD95D8D} = {0271BDA0-88FC-4672-A96C-3986061802E6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {363BB08F-378B-4D54-914F-51ACDC6A7B23}

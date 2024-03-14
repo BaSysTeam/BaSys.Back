@@ -1,6 +1,6 @@
 ﻿using BaSys.Common.Infrastructure;
 using BaSys.SuperAdmin.Abstractions;
-using BaSys.SuperAdmin.Data.Models;
+using BaSys.SuperAdmin.DAL.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BaSys.SuperAdmin.Controllers;

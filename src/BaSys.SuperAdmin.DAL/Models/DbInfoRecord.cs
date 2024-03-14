@@ -1,6 +1,6 @@
 ﻿using BaSys.Common.Enums;
 
-namespace BaSys.SuperAdmin.Data.Models;
+namespace BaSys.SuperAdmin.DAL.Models;
 
 public class DbInfoRecord
 {
