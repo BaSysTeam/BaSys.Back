@@ -260,7 +260,7 @@ namespace BaSys.Host.Services
                     user.LockoutEnd = null;
                     await _userManager.UpdateAsync(user);
 
-                    result.Success(id, DictMain.UserDisabled);
+                    result.Success(id, DictMain.UserEnabled);
                 }
                 else
                 {
