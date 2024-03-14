@@ -5,13 +5,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BaSys.SuperAdmin.Data.MsSqlContext;
 
-public class MsSqlSuperAdminDbContext : IdentityDbContext<SaDbUser, SaDbRole, string>
+public class MsSqlSuperAdminDbContext : SuperAdminDbContext
 {
-    public DbSet<AppRecord> AppRecords { get; set; }
-    public DbSet<DbInfoRecord> DbInfoRecords { get; set; }
-    
-    public MsSqlSuperAdminDbContext(DbContextOptions<MsSqlSuperAdminDbContext> options) : base(options)
+    public MsSqlSuperAdminDbContext(DbContextOptions<MsSqlSuperAdminDbContext> options)
+        : base(options)
     {
-        Database.Migrate();
+        base.Database.Migrate();
     }
 }

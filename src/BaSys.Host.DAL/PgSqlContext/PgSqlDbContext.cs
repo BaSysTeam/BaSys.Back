@@ -1,12 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using BaSys.Host.Data;
+using Microsoft.EntityFrameworkCore;
 
-namespace BaSys.Host.Data.PgSqlContext;
+namespace BaSys.Host.DAL.PgSqlContext;
 
 public class PgSqlDbContext : ApplicationDbContext
 {
     public PgSqlDbContext(DbContextOptions<PgSqlDbContext> options) 
         : base(options)
     {
-        Database.Migrate();
+        base.Database.Migrate();
     }
 }
