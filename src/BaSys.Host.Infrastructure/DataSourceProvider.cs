@@ -1,6 +1,6 @@
 ﻿using BaSys.Common.Enums;
 using BaSys.Host.Infrastructure.Interfaces;
-using BaSys.SuperAdmin.Data.MsSqlContext;
+using BaSys.SuperAdmin.Data;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BaSys.Host.Infrastructure;
@@ -22,7 +22,7 @@ public class DataSourceProvider : IDataSourceProvider
     public void Init()
     {
         using var scope = _serviceProvider.CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<MsSqlSuperAdminDbContext>();
+        var context = scope.ServiceProvider.GetRequiredService<SuperAdminDbContext>();
         
         try
         {

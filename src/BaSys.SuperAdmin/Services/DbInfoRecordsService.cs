@@ -1,16 +1,15 @@
 ﻿using BaSys.SuperAdmin.Abstractions;
 using BaSys.SuperAdmin.Data;
 using BaSys.SuperAdmin.Data.Models;
-using BaSys.SuperAdmin.Data.MsSqlContext;
 using Microsoft.EntityFrameworkCore;
 
 namespace BaSys.SuperAdmin.Services;
 
 public class DbInfoRecordsService : IDbInfoRecordsService
 {
-    private readonly MsSqlSuperAdminDbContext _context;
+    private readonly SuperAdminDbContext _context;
     
-    public DbInfoRecordsService(MsSqlSuperAdminDbContext context)
+    public DbInfoRecordsService(SuperAdminDbContext context)
     {
         _context = context;
     }

@@ -8,9 +8,9 @@ namespace BaSys.SuperAdmin.Services;
 
 public class AppRecordsService : IAppRecordsService
 {
-    private readonly MsSqlSuperAdminDbContext _context;
+    private readonly SuperAdminDbContext _context;
     
-    public AppRecordsService(MsSqlSuperAdminDbContext context)
+    public AppRecordsService(SuperAdminDbContext context)
     {
         _context = context;
     }

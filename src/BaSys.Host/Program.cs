@@ -2,20 +2,17 @@ using System.Text;
 using BaSys.Common.Enums;
 using BaSys.Common.Infrastructure;
 using BaSys.Host.Abstractions;
-using BaSys.Host.DAL;
 using BaSys.Host.DAL.MsSqlContext;
 using BaSys.Host.DAL.PgSqlContext;
 using BaSys.Host.Data;
-using BaSys.Host.Data.MsSqlContext;
-using BaSys.Host.Data.PgSqlContext;
 using BaSys.Host.Helpers;
 using BaSys.Host.Infrastructure;
 using BaSys.Host.Infrastructure.Interfaces;
 using BaSys.Host.Infrastructure.JwtAuth;
 using BaSys.Host.Services;
 using BaSys.SuperAdmin.Abstractions;
+using BaSys.SuperAdmin.Data;
 using BaSys.SuperAdmin.Data.Identity;
-using BaSys.SuperAdmin.Data.MsSqlContext;
 using BaSys.SuperAdmin.Infrastructure;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -43,7 +40,7 @@ namespace BaSys.Host
 
             builder.Services.AddScoped<IdentityDbContext<SaDbUser, SaDbRole, string>>(sp =>
             {
-                return sp.GetRequiredService<MsSqlSuperAdminDbContext>();
+                return sp.GetRequiredService<SuperAdminDbContext>();
             });
 
             builder.Services.AddScoped<ApplicationDbContext>(sp =>
@@ -102,7 +99,7 @@ namespace BaSys.Host
                 })
                 .AddRoles<SaDbRole>()
                 .AddSignInManager()
-                .AddEntityFrameworkStores<MsSqlSuperAdminDbContext>();
+                .AddEntityFrameworkStores<SuperAdminDbContext>();
 
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
             builder.Services.AddRazorPages();

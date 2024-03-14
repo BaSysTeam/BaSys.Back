@@ -1,7 +1,8 @@
-﻿using BaSys.SuperAdmin.Abstractions;
-using BaSys.SuperAdmin.Controllers;
+﻿using BaSys.Common.Enums;
+using BaSys.SuperAdmin.Abstractions;
 using BaSys.SuperAdmin.Data;
 using BaSys.SuperAdmin.Data.MsSqlContext;
+using BaSys.SuperAdmin.Data.PgSqlContext;
 using BaSys.SuperAdmin.Infrastructure.Models;
 using BaSys.SuperAdmin.Services;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
@@ -11,7 +12,8 @@ namespace BaSys.SuperAdmin.Infrastructure;
 
 public static class SuperAdminExtension
 {
-    public static IServiceCollection AddSuperAdmin(this IServiceCollection services, IConfigurationSection configurationSection)
+    public static IServiceCollection AddSuperAdmin(this IServiceCollection services,
+        IConfigurationSection configurationSection)
     {
         var initAppSettings = configurationSection.Get<InitAppSettings>();
         if (initAppSettings == null)
@@ -20,9 +22,30 @@ public static class SuperAdminExtension
             throw new ApplicationException("InitAppSettings:Sa:ConnectionString is not set in the config!");
 
         var connectionString = initAppSettings.Sa.ConnectionString;
+
         // add db context
-        services.AddDbContext<MsSqlSuperAdminDbContext>(options => options.UseSqlServer(connectionString));
-        
+        services.AddScoped<SuperAdminDbContext>(sp =>
+        {
+            switch (initAppSettings.Sa.DbKind)
+            {
+                case DbKinds.MsSql:
+                    return sp.GetRequiredService<MsSqlSuperAdminDbContext>();
+                case DbKinds.PgSql:
+                    return sp.GetRequiredService<PgSqlSuperAdminDbContext>();
+                default:
+                    throw new NotImplementedException(
+                        $"Not implemented SuperAdmin DbContext for type {initAppSettings.Sa.DbKind.ToString()}");
+            }
+        });
+        services.AddDbContext<MsSqlSuperAdminDbContext>(options =>
+        {
+            options.UseSqlServer(connectionString);
+        });
+        services.AddDbContext<PgSqlSuperAdminDbContext>(options =>
+        {
+            options.UseNpgsql(connectionString);
+        });
+
         // add controllers
         services.AddControllers()
             .PartManager
@@ -32,7 +55,7 @@ public static class SuperAdminExtension
         services.AddTransient<IAppRecordsService, AppRecordsService>();
         services.AddTransient<IDbInfoRecordsService, DbInfoRecordsService>();
         services.AddTransient<ICheckSystemDbService, CheckSystemDbService>();
-        
+
         return services;
     }
 }

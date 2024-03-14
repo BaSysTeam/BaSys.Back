@@ -1,8 +1,8 @@
 ﻿using BaSys.Common.Infrastructure;
 using BaSys.SuperAdmin.Abstractions;
+using BaSys.SuperAdmin.Data;
 using BaSys.SuperAdmin.Data.Identity;
 using BaSys.SuperAdmin.Data.Models;
-using BaSys.SuperAdmin.Data.MsSqlContext;
 using BaSys.SuperAdmin.Infrastructure.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -12,7 +12,7 @@ namespace BaSys.SuperAdmin.Services;
 public class CheckSystemDbService : ICheckSystemDbService
 { 
     private readonly UserManager<SaDbUser> _userManager;
-    private readonly MsSqlSuperAdminDbContext _context;
+    private readonly SuperAdminDbContext _context;
     private readonly RoleManager<SaDbRole> _roleManager;
     private readonly InitAppSettings? _initAppSettings;
     
@@ -20,7 +20,7 @@ public class CheckSystemDbService : ICheckSystemDbService
 
     public CheckSystemDbService(IConfiguration configuration,
         UserManager<SaDbUser> userManager,
-        MsSqlSuperAdminDbContext context,
+        SuperAdminDbContext context,
         RoleManager<SaDbRole> roleManager)
     {
         _userManager = userManager;
