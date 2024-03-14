@@ -126,8 +126,6 @@ namespace BaSys.Host
             builder.Services.AddTransient<IJwtAuthService, JwtAuthService>();
 
             builder.Services.AddSingleton<IDataSourceProvider, DataSourceProvider>();
-            // ToDo: delete this?
-            // builder.Services.AddTransient<IContextFactory, ContextFactory>();
             builder.Services.AddTransient<IMainDbCheckService, MainDbCheckService>();
 
             builder.Services.AddSwaggerGen();
