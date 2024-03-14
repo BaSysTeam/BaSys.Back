@@ -142,6 +142,15 @@ namespace BaSys.Translation {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The user is the only administrator.
+        /// </summary>
+        public static string OnlyAdministrator {
+            get {
+                return ResourceManager.GetString("OnlyAdministrator", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to User already exists.
         /// </summary>
         public static string UserAlreadyExists {

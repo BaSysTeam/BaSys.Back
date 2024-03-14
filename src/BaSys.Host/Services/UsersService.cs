@@ -200,15 +200,22 @@ namespace BaSys.Host.Services
 
             try
             {
-                await _userManager.UpdateAsync(savedUser);
+                var checkResult = await IsUserOnlyInRole(savedUser.Id, ApplicationRole.Administrator);
+                if (checkResult && !userDto.CheckedRoles.Contains(ApplicationRole.Administrator))
+                {
+                    result.Error(-1, DictMain.CannotUpdateUser, DictMain.OnlyAdministrator);
+                }
+                else
+                {
+                    await _userManager.UpdateAsync(savedUser);
 
-                var userRoles = await _userManager.GetRolesAsync(savedUser);
-                await _userManager.RemoveFromRolesAsync(savedUser, userRoles);
-                await _userManager.AddToRolesAsync(savedUser, userDto.CheckedRoles);
+                    var userRoles = await _userManager.GetRolesAsync(savedUser);
+                    await _userManager.RemoveFromRolesAsync(savedUser, userRoles);
+                    await _userManager.AddToRolesAsync(savedUser, userDto.CheckedRoles);
 
-                result = await GetUserAsync(userDto.Id);
-                result.Message = DictMain.UserUpdated;
-
+                    result = await GetUserAsync(userDto.Id);
+                    result.Message = DictMain.UserUpdated;
+                }
             }
             catch (Exception ex)
             {
@@ -227,11 +234,19 @@ namespace BaSys.Host.Services
                 var user = await _userManager.FindByIdAsync(id);
                 if (user != null)
                 {
-                    // Set the LockoutEnd to a date far in the future to effectively disable the account.
-                    user.LockoutEnd = DateTimeOffset.MaxValue;
-                    await _userManager.UpdateAsync(user);
+                    var checkResult = await IsUserOnlyInRole(user.Id, ApplicationRole.Administrator);
+                    if (checkResult)
+                    {
+                        result.Error(-1, DictMain.CannotDisableUser, DictMain.OnlyAdministrator);
+                    }
+                    else
+                    {
+                        // Set the LockoutEnd to a date far in the future to effectively disable the account.
+                        user.LockoutEnd = DateTimeOffset.MaxValue;
+                        await _userManager.UpdateAsync(user);
 
-                    result.Success(id, DictMain.UserDisabled);
+                        result.Success(id, DictMain.UserDisabled);
+                    }
                 }
                 else
                 {
@@ -285,23 +300,28 @@ namespace BaSys.Host.Services
                 var user = await _userManager.FindByIdAsync(id);
                 if (user != null)
                 {
-
-                    var deleteResult = await _userManager.DeleteAsync(user);
-                    if (deleteResult.Succeeded)
+                    var checkResult = await IsUserOnlyInRole(user.Id, ApplicationRole.Administrator);
+                    if (checkResult)
                     {
-                        result.Success(1, DictMain.UserDeleted);
+                        result.Error(-1, DictMain.CannotDeleteUser, DictMain.OnlyAdministrator);
                     }
                     else
                     {
-                        var sb = new StringBuilder();
-                        foreach (var error in deleteResult.Errors)
+                        var deleteResult = await _userManager.DeleteAsync(user);
+                        if (deleteResult.Succeeded)
                         {
-                            sb.AppendLine(error.Description);
+                            result.Success(1, DictMain.UserDeleted);
                         }
-                        result.Error(-1, DictMain.CannotDeleteUser, sb.ToString());
+                        else
+                        {
+                            var sb = new StringBuilder();
+                            foreach (var error in deleteResult.Errors)
+                            {
+                                sb.AppendLine(error.Description);
+                            }
+                            result.Error(-1, DictMain.CannotDeleteUser, sb.ToString());
+                        }
                     }
-
-
                 }
                 else
                 {
@@ -312,7 +332,6 @@ namespace BaSys.Host.Services
             {
                 result.Error(-1, $"{DictMain.CannotDeleteUser}: {id}.", ex.Message);
             }
-
 
             return result;
         }
@@ -388,6 +407,18 @@ namespace BaSys.Host.Services
             }
 
             return sb.ToString();
+        }
+
+        private async Task<bool> IsUserOnlyInRole(string userId, string role)
+        {
+            var users = await _userManager.GetUsersInRoleAsync(role);
+            if (users.Count == 1 &&
+                users.First().Id == userId)
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }
