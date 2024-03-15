@@ -4,7 +4,7 @@ volumes:
   postgres_data: { }
   
 services:
-  postgres:
+  db:
     container_name: basys.postgres
     image: postgres
     restart: always
@@ -14,3 +14,31 @@ services:
       - POSTGRES_PASSWORD=QAZwsx!@#
     ports:
       - "7432:5432"
+    networks:
+      - default
+    
+  basys:
+    container_name: basys.app
+    image: oceanshiver/basys:latest
+    restart: always
+    links:
+      - db:db
+    ports:
+      - 8080:8080
+    environment:
+#      CurrentApp
+      InitAppSettings:CurrentApp:Id: main
+      InitAppSettings:CurrentApp:Title: Main
+#      Sa
+      InitAppSettings:Sa:Login: sa@mail.ru
+      InitAppSettings:Sa:Password: 111111
+      InitAppSettings:Sa:DbKind: 1
+      InitAppSettings:Sa:ConnectionString: Server=db;Port=5432;Database=SystemDb;User ID=postgres;Password=QAZwsx!@#;Timeout=60;
+#      MainDb
+      InitAppSettings:MainDb:Name: db1
+      InitAppSettings:MainDb:DbKind: 1
+      InitAppSettings:MainDb:ConnectionString: Server=db;Port=5432;Database=MainDb;User ID=postgres;Password=QAZwsx!@#;Timeout=60;
+      InitAppSettings:MainDb:AdminLogin: admin@mail.ru
+      InitAppSettings:MainDb:AdminPassword: 111111
+    networks:
+      - default
