@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace BaSys.Host.Data;
+namespace BaSys.Host.DAL;
 
 public class ApplicationDbContext : IdentityDbContext
 {

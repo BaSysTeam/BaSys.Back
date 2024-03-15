@@ -1,5 +1,4 @@
-﻿using BaSys.Host.Data;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace BaSys.Host.DAL.MsSqlContext;
 

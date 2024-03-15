@@ -1,6 +1,5 @@
 ﻿using BaSys.Common.Infrastructure;
 using BaSys.Host.Abstractions;
-using BaSys.Host.Data;
 using BaSys.SuperAdmin.Data.Identity;
 using BaSys.SuperAdmin.Infrastructure.Models;
 using Microsoft.AspNetCore.Identity;
