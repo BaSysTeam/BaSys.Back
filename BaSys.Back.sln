@@ -33,8 +33,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaSys.SuperAdmin.DAL", "src
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6B0047AF-0980-4282-9BEC-24962F68466E}"
 	ProjectSection(SolutionItems) = preProject
-		docker-compose.yml = docker-compose.yml
+		docker-compose.local.yml = docker-compose.local.yml
 		Dockerfile = Dockerfile
+		docker-compose.full.yml = docker-compose.full.yml
+		README.md = README.md
+		docker-compose.yml = docker-compose.yml
 	EndProjectSection
 EndProject
 Global

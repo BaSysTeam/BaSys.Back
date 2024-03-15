@@ -3,7 +3,7 @@
 services:
   basys:
     container_name: basys.app
-    build: .
+    image: oceanshiver/basys:latest
     restart: always
     ports:
       - 8080:8080
