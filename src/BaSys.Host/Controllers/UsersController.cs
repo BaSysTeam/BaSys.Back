@@ -1,5 +1,7 @@
 ﻿using BaSys.Admin.DTO;
+using BaSys.Common.Infrastructure;
 using BaSys.Host.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,7 +15,7 @@ namespace BaSys.Host.Controllers
     [Route("api/admin/v1/[controller]")]
     [ApiController]
 #if !DEBUG
-    [Authorize(TeamRole.Administrator)]
+    [Authorize(ApplicationRole.Administrator)]
 #endif
     public class UsersController : ControllerBase
     {
