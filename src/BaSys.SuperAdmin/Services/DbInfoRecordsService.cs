@@ -80,4 +80,17 @@ public class DbInfoRecordsService : IDbInfoRecordsService
         
         return deletedCount;
     }
+
+    public async Task<DbInfoRecord> SwitchActivityDbInfoRecord(int dbInfoRecordId)
+    {
+        var dbItem = await _context.DbInfoRecords.FirstOrDefaultAsync(x => x.Id == dbInfoRecordId);
+        if (dbItem == null)
+            throw new ArgumentException($"Cannot find item by id:{dbInfoRecordId}");
+
+        dbItem.IsDeleted = !dbItem.IsDeleted;
+        _context.Update(dbItem);
+        await _context.SaveChangesAsync();
+
+        return dbItem;
+    }
 }

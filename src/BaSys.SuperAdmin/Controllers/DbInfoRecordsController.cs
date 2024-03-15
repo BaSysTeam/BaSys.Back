@@ -141,4 +141,29 @@ public class DbInfoRecordsController : ControllerBase
 
         return Ok(result);
     }
+    
+    //
+
+    /// <summary>
+    /// Switch activity record by setting inverse IsDeleted.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpPatch("{id}/switchactivity")]
+    public async Task<IActionResult> SwitchActivityDbInfoRecord(int id)
+    {
+        var result = new ResultWrapper<DbInfoRecord>();
+
+        try
+        {
+            var record = await _dbInfoRecordsService.SwitchActivityDbInfoRecord(id);
+            result.Success(record);
+        }
+        catch (Exception ex)
+        {
+            result.Error(-3, $"Cannot switch activity record.", ex.Message);
+        }
+
+        return Ok(result);
+    }
 }

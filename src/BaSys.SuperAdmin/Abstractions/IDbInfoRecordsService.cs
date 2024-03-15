@@ -11,4 +11,5 @@ public interface IDbInfoRecordsService
     Task<DbInfoRecord> AddDbInfoRecord(DbInfoRecord dbInfoRecord);
     Task<DbInfoRecord> EditDbInfoRecord(DbInfoRecord dbInfoRecord);
     Task<int> DeleteDbInfoRecord(int dbInfoRecordId);
+    Task<DbInfoRecord> SwitchActivityDbInfoRecord(int dbInfoRecordId);
 }
