@@ -76,8 +76,8 @@ public class MainDbCheckService : IMainDbCheckService
     {
         foreach (var role in ApplicationRole.AllApplicationRoles())
         {
-            if (!await _roleManager.RoleExistsAsync(role.Title))
-                await _roleManager.CreateAsync(new SaDbRole(role.Title));
+            if (!await _roleManager.RoleExistsAsync(role.Name))
+                await _roleManager.CreateAsync(new SaDbRole(role.Name));
         }
     }
 }
