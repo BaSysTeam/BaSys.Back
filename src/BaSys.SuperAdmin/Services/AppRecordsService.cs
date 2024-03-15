@@ -1,6 +1,6 @@
 ﻿using BaSys.SuperAdmin.Abstractions;
-using BaSys.SuperAdmin.Data;
-using BaSys.SuperAdmin.Data.Models;
+using BaSys.SuperAdmin.DAL;
+using BaSys.SuperAdmin.DAL.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace BaSys.SuperAdmin.Services;
@@ -31,7 +31,7 @@ public class AppRecordsService : IAppRecordsService
     /// <param name="id"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
-    public async Task<AppRecord> GetAppRecord(string id)
+    public async Task<AppRecord?> GetAppRecord(string id)
     {
         if (string.IsNullOrEmpty(id))
             throw new ArgumentException();

@@ -10,13 +10,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Abstractions\**" />
-    <Content Remove="Abstractions\**" />
-    <EmbeddedResource Remove="Abstractions\**" />
-    <None Remove="Abstractions\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="FluentValidation" Version="11.9.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.2" />
@@ -25,14 +18,15 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.2" />
-    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.5" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.1" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.0" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.2" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\BaSys.Admin\BaSys.Admin.csproj" />
+    <ProjectReference Include="..\BaSys.Host.Infrastructure\BaSys.Host.Infrastructure.csproj" />
+    <ProjectReference Include="..\BaSys.Host.DAL\BaSys.Host.DAL.csproj" />
     <ProjectReference Include="..\BaSys.App\BaSys.App.csproj" />
     <ProjectReference Include="..\BaSys.Constructor\BaSys.Constructor.csproj" />
     <ProjectReference Include="..\BaSys.SuperAdmin\BaSys.SuperAdmin.csproj" />
@@ -40,7 +34,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Data\PgSqlContext\Migrations\" />
     <Folder Include="wwwroot\app\constructor\" />
     <Folder Include="wwwroot\app\app\" />
   </ItemGroup>
@@ -111,5 +104,4 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-
 </Project>

@@ -1,7 +1,6 @@
 ﻿using BaSys.Common.Infrastructure;
 using BaSys.SuperAdmin.Abstractions;
-using BaSys.SuperAdmin.Data.Models;
-using Microsoft.AspNetCore.Authorization;
+using BaSys.SuperAdmin.DAL.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BaSys.SuperAdmin.Controllers;
@@ -59,6 +58,9 @@ public class DbInfoRecordsController : ControllerBase
         try
         {
             var collection = await _dbInfoRecordsService.GetDbInfoRecord(id);
+            if (collection == null)
+                throw new Exception("collection is null");
+            
             result.Success(collection);
         }
         catch (Exception ex)
