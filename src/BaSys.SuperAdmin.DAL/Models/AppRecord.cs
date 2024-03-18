@@ -5,6 +5,7 @@ public class AppRecord
     public string Id { get; set; } = string.Empty;
     public string Title { get; set; } = string.Empty;
     public string? Memo { get; set; }
+    public List<DbInfoRecord> DbInfoRecords { get; set; }
 
     public AppRecord()
     {

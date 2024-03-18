@@ -1,13 +1,13 @@
 ﻿using BaSys.Common.Enums;
-
 namespace BaSys.SuperAdmin.DAL.Models;
 
 public class DbInfoRecord
 {
     public int Id { get; set; }
     public string AppId { get; set; } = string.Empty;
+    public AppRecord App { get; set; }
     public string Name { get; set; } = string.Empty;
-    public string? Title { get; set; }
+    public string? Title { get; set; } = string.Empty;
     public DbKinds DbKind { get; set; }
     public string ConnectionString { get; set; } = string.Empty;
     public string? Memo { get; set; }
