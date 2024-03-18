@@ -30,13 +30,7 @@ namespace BaSys.Host
 
             builder.Services.AddScoped<IdentityDbContext>(sp =>
             {
-                // var httpContextAccessor = sp.GetRequiredService<IHttpContextAccessor>();
-                // // if sa
-                // if (httpContextAccessor.HttpContext == null ||
-                //     httpContextAccessor.HttpContext?.Request.Path.Value?.StartsWith("/sa/Account/") == true)
-                //     return sp.GetRequiredService<MsSqlSuperAdminDbContext>();
-                // else
-                    return sp.GetRequiredService<ApplicationDbContext>();
+                return sp.GetRequiredService<ApplicationDbContext>();
             });
 
             builder.Services.AddScoped<IdentityDbContext<SaDbUser, SaDbRole, string>>(sp =>
@@ -87,7 +81,7 @@ namespace BaSys.Host
                     options.Password.RequireNonAlphanumeric = false;
                 })
                 .AddEntityFrameworkStores<IdentityDbContext>();
-            
+
             // Add sa identity
             builder.Services.AddIdentityCore<SaDbUser>(options =>
                 {

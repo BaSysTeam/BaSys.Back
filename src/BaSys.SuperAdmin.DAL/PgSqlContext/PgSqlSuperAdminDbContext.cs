@@ -7,6 +7,6 @@ public class PgSqlSuperAdminDbContext : SuperAdminDbContext
     public PgSqlSuperAdminDbContext(DbContextOptions<PgSqlSuperAdminDbContext> options)
         : base(options)
     {
-        base.Database.Migrate();
+        // base.Database.Migrate();
     }
 }

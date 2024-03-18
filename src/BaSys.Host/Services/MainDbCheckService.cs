@@ -1,5 +1,6 @@
 ﻿using BaSys.Common.Infrastructure;
 using BaSys.Host.Abstractions;
+using BaSys.Host.DAL;
 using BaSys.SuperAdmin.Data.Identity;
 using BaSys.SuperAdmin.Infrastructure.Models;
 using Microsoft.AspNetCore.Identity;
@@ -11,16 +12,21 @@ public class MainDbCheckService : IMainDbCheckService
 {
     private readonly UserManager<IdentityUser> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
+    private readonly ApplicationDbContext _context;
     
     public MainDbCheckService(UserManager<IdentityUser> userManager,
-        RoleManager<IdentityRole> roleManager)
+        RoleManager<IdentityRole> roleManager,
+        ApplicationDbContext context)
     {
         _userManager = userManager;
         _roleManager = roleManager;
+        _context = context;
     }
     
     public async Task Check(InitAppSettings initAppSettings)
     {
+        _context.Database.Migrate();
+        
         await CheckRoles();
         var adminLogin = await CheckAdminUser(initAppSettings);
         await CheckAdminRoles(adminLogin);
