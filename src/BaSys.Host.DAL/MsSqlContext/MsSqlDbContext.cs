@@ -7,6 +7,6 @@ public class MsSqlDbContext : ApplicationDbContext
     public MsSqlDbContext(DbContextOptions<MsSqlDbContext> options)
         : base(options)
     {
-        base.Database.Migrate();
+        // base.Database.Migrate();
     }
 }

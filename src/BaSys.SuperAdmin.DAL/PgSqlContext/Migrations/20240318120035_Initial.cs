@@ -16,9 +16,9 @@ namespace BaSys.SuperAdmin.DAL.PgSqlContext.Migrations
                 name: "AppRecords",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "text", nullable: false),
-                    Title = table.Column<string>(type: "text", nullable: false),
-                    Memo = table.Column<string>(type: "text", nullable: true)
+                    Id = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    Title = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Memo = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -70,17 +70,23 @@ namespace BaSys.SuperAdmin.DAL.PgSqlContext.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    AppId = table.Column<string>(type: "text", nullable: false),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    Title = table.Column<string>(type: "text", nullable: true),
+                    AppId = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    Name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    Title = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     DbKind = table.Column<int>(type: "integer", nullable: false),
                     ConnectionString = table.Column<string>(type: "text", nullable: false),
-                    Memo = table.Column<string>(type: "text", nullable: true),
+                    Memo = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: true),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_DbInfoRecords", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DbInfoRecords_AppRecords_AppId",
+                        column: x => x.AppId,
+                        principalTable: "AppRecords",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -225,14 +231,22 @@ namespace BaSys.SuperAdmin.DAL.PgSqlContext.Migrations
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DbInfoRecords_AppId",
+                table: "DbInfoRecords",
+                column: "AppId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DbInfoRecords_Name",
+                table: "DbInfoRecords",
+                column: "Name",
+                unique: true);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "AppRecords");
-
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
 
@@ -256,6 +270,9 @@ namespace BaSys.SuperAdmin.DAL.PgSqlContext.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "AppRecords");
         }
     }
 }

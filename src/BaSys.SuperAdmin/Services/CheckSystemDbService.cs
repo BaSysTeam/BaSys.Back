@@ -53,6 +53,8 @@ public class CheckSystemDbService : ICheckSystemDbService
         if (string.IsNullOrEmpty(currentApp.Title))
             throw new ApplicationException("InitAppSettings:CurrentApp:Title is not set in the config!");
 
+        _saContext.Database.Migrate();
+        
         if (!await _saContext.AppRecords.AnyAsync(x => x.Id.ToUpper() == currentApp.Id.ToUpper()))
         {
             _saContext.AppRecords.Add(new AppRecord
@@ -116,28 +118,28 @@ public class CheckSystemDbService : ICheckSystemDbService
     
     private async Task CheckSa()
     {
-        var sa = _initAppSettings?.Sa;
-        if (sa == null)
+        var saSettings = _initAppSettings?.Sa;
+        if (saSettings == null)
             throw new ApplicationException("InitAppSettings:Sa is not set in the config!");
             
-        if (string.IsNullOrEmpty(sa.Login))
+        if (string.IsNullOrEmpty(saSettings.Login))
             throw new ApplicationException("InitAppSettings:Sa:Login is not set in the config!");
-        if (string.IsNullOrEmpty(sa.Password))
+        if (string.IsNullOrEmpty(saSettings.Password))
             throw new ApplicationException("InitAppSettings:Sa:Password is not set in the config!");
-        if (sa.DbKind == null)
+        if (saSettings.DbKind == null)
             throw new ApplicationException("InitAppSettings:Sa:DbKind is not set in the config!");
-        if (string.IsNullOrEmpty(sa.ConnectionString))
+        if (string.IsNullOrEmpty(saSettings.ConnectionString))
             throw new ApplicationException("InitAppSettings:Sa:ConnectionString is not set in the config!");
-
-        if (!_saUserManager.Users.Any(x => x.Email != null && x.Email.ToUpper() == sa.Login.ToUpper()))
+        
+        if (!_saUserManager.Users.Any(x => x.Email != null && x.Email.ToUpper() == saSettings.Login.ToUpper()))
         {
             // create user
             await _saUserManager.CreateAsync(new SaDbUser()
             {
-                UserName = sa.Login,
-                Email = sa.Login
-            }, sa.Password);
-            var saUser = await _saUserManager.FindByEmailAsync(sa.Login);
+                UserName = saSettings.Login,
+                Email = saSettings.Login
+            }, saSettings.Password);
+            var saUser = await _saUserManager.FindByEmailAsync(saSettings.Login);
 
             // create role
             if (!_saRoleManager.Roles.Any(x => x.Name != null && x.Name.ToLower() == ApplicationRole.SuperAdministrator.ToLower()))

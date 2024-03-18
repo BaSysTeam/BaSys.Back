@@ -7,6 +7,6 @@ public class PgSqlDbContext : ApplicationDbContext
     public PgSqlDbContext(DbContextOptions<PgSqlDbContext> options) 
         : base(options)
     {
-        base.Database.Migrate();
+        // base.Database.Migrate();
     }
 }
