@@ -22,6 +22,73 @@ namespace BaSys.SuperAdmin.DAL.PgSqlContext.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("BaSys.SuperAdmin.DAL.Models.AppRecord", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Memo")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AppRecords");
+                });
+
+            modelBuilder.Entity("BaSys.SuperAdmin.DAL.Models.DbInfoRecord", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AppId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("ConnectionString")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("DbKind")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Memo")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppId");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("DbInfoRecords");
+                });
+
             modelBuilder.Entity("BaSys.SuperAdmin.Data.Identity.SaDbRole", b =>
                 {
                     b.Property<string>("Id")
@@ -110,60 +177,6 @@ namespace BaSys.SuperAdmin.DAL.PgSqlContext.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers", (string)null);
-                });
-
-            modelBuilder.Entity("BaSys.SuperAdmin.Data.Models.AppRecord", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Memo")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("AppRecords");
-                });
-
-            modelBuilder.Entity("BaSys.SuperAdmin.Data.Models.DbInfoRecord", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("AppId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("ConnectionString")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("DbKind")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Memo")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Title")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("DbInfoRecords");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -272,6 +285,17 @@ namespace BaSys.SuperAdmin.DAL.PgSqlContext.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("BaSys.SuperAdmin.DAL.Models.DbInfoRecord", b =>
+                {
+                    b.HasOne("BaSys.SuperAdmin.DAL.Models.AppRecord", "App")
+                        .WithMany("DbInfoRecords")
+                        .HasForeignKey("AppId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("App");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("BaSys.SuperAdmin.Data.Identity.SaDbRole", null)
@@ -321,6 +345,11 @@ namespace BaSys.SuperAdmin.DAL.PgSqlContext.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("BaSys.SuperAdmin.DAL.Models.AppRecord", b =>
+                {
+                    b.Navigation("DbInfoRecords");
                 });
 #pragma warning restore 612, 618
         }
