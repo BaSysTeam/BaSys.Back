@@ -1,6 +1,7 @@
 ﻿using BaSys.Common.Infrastructure;
 using BaSys.SuperAdmin.Abstractions;
 using BaSys.SuperAdmin.DAL.Models;
+using BaSys.SuperAdmin.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -76,16 +77,28 @@ public class DbInfoRecordsController : ControllerBase
     /// <summary>
     /// Create new record.
     /// </summary>
-    /// <param name="appRecord"></param>
+    /// <param name="dto"></param>
     /// <returns></returns>
     [HttpPost]
-    public async Task<IActionResult> AddDbInfoRecord([FromBody] DbInfoRecord appRecord)
+    public async Task<IActionResult> AddDbInfoRecord([FromBody] DbInfoRecordDto dto)
     {
+        if (dto == null)
+            throw new ArgumentException("dto is null");
+        
         var result = new ResultWrapper<DbInfoRecord>();
-
+        var model = new DbInfoRecord
+        {
+            AppId = dto.AppId ?? string.Empty,
+            Name = dto.Name ?? string.Empty,
+            Title = dto.Title,
+            DbKind = dto.DbKind,
+            ConnectionString = dto.ConnectionString ?? string.Empty,
+            Memo = dto.Memo
+        };
+        
         try
         {
-            var record = await _dbInfoRecordsService.AddDbInfoRecord(appRecord);
+            var record = await _dbInfoRecordsService.AddDbInfoRecord(model);
             result.Success(record);
         }
         catch (Exception ex)
@@ -99,16 +112,29 @@ public class DbInfoRecordsController : ControllerBase
     /// <summary>
     /// Update record.
     /// </summary>
-    /// <param name="appRecord"></param>
+    /// <param name="dto"></param>
     /// <returns></returns>
     [HttpPut]
-    public async Task<IActionResult> EditDbInfoRecord([FromBody] DbInfoRecord appRecord)
+    public async Task<IActionResult> EditDbInfoRecord([FromBody] DbInfoRecordDto dto)
     {
+        if (dto == null)
+            throw new ArgumentException("dto is null");
+        
         var result = new ResultWrapper<DbInfoRecord>();
-
+        var model = new DbInfoRecord
+        {
+            Id = dto.Id,
+            AppId = dto.AppId ?? string.Empty,
+            Name = dto.Name ?? string.Empty,
+            Title = dto.Title,
+            DbKind = dto.DbKind,
+            ConnectionString = dto.ConnectionString ?? string.Empty,
+            Memo = dto.Memo
+        };
+        
         try
         {
-            var record = await _dbInfoRecordsService.EditDbInfoRecord(appRecord);
+            var record = await _dbInfoRecordsService.EditDbInfoRecord(model);
             result.Success(record);
         }
         catch (Exception ex)
@@ -164,6 +190,24 @@ public class DbInfoRecordsController : ControllerBase
             result.Error(-3, $"Cannot switch activity record.", ex.Message);
         }
 
+        return Ok(result);
+    }
+
+    [HttpPatch("{id}/initdb")]
+    public async Task<IActionResult> InitDb(int id)
+    {
+        var result = new ResultWrapper<bool>();
+        
+        // try
+        // {
+        //     var state = await _dbInfoRecordsService.InitDb(id);
+        //     result.Success(state);
+        // }
+        // catch (Exception ex)
+        // {
+        //     result.Error(-3, $"Cannot switch activity record.", ex.Message);
+        // }
+        
         return Ok(result);
     }
 }

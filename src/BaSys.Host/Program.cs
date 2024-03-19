@@ -122,6 +122,7 @@ namespace BaSys.Host
 
             builder.Services.AddSingleton<IDataSourceProvider, DataSourceProvider>();
             builder.Services.AddTransient<IMainDbCheckService, MainDbCheckService>();
+            builder.Services.AddTransient<IWorkDbService, WorkDbService>();
 
             builder.Services.AddSwaggerGen();
 
