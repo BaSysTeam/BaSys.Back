@@ -1,4 +1,5 @@
 using System.Text;
+using BaSys.Admin.Infrastructure;
 using BaSys.Common.Enums;
 using BaSys.Common.Infrastructure;
 using BaSys.Host.Abstractions;
@@ -54,6 +55,9 @@ namespace BaSys.Host
 
             // Add sa module
             builder.Services.AddSuperAdmin(builder.Configuration.GetSection("InitAppSettings"));
+
+            // Add admin module
+            builder.Services.AddAdmin();
 
             // Add mssql context
             builder.Services.AddDbContext<MsSqlDbContext>((sp, options) =>
