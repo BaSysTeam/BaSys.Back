@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using BaSys.Common.Infrastructure;
 using Microsoft.AspNetCore.Identity;
+using BaSys.SuperAdmin.Data.Identity;
 
 namespace BaSys.SuperAdmin.Controllers
 {
@@ -11,9 +12,9 @@ namespace BaSys.SuperAdmin.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
-        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly SignInManager<SaDbUser> _signInManager;
 
-        public AccountController(SignInManager<IdentityUser> signInManager)
+        public AccountController(SignInManager<SaDbUser> signInManager)
         {
             _signInManager = signInManager;
         }
