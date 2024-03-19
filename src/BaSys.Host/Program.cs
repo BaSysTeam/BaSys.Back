@@ -16,6 +16,7 @@ using BaSys.SuperAdmin.DAL;
 using BaSys.SuperAdmin.Data;
 using BaSys.SuperAdmin.Data.Identity;
 using BaSys.SuperAdmin.Infrastructure;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -105,8 +106,18 @@ namespace BaSys.Host
 
             builder.Services.AddCors();
 
-            builder.Services.AddAuthentication()
-                .AddCookie()
+            builder.Services.AddAuthentication(
+                options =>
+                {
+                   // options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                   // options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                   // options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                })
+                .AddCookie(options =>
+                {
+                    options.LoginPath = new Microsoft.AspNetCore.Http.PathString("/Identity/Account/Login");
+                    
+                })             
                 .AddJwtBearer(
                     opt =>
                     {
@@ -121,6 +132,7 @@ namespace BaSys.Host
                             RequireExpirationTime = true
                         };
                     });
+                
 
             builder.Services.AddTransient<IJwtAuthService, JwtAuthService>();
 
@@ -158,6 +170,7 @@ namespace BaSys.Host
 
             app.UseRouting();
 
+            app.UseAuthentication(); // Ensure authentication is used
             app.UseAuthorization();
 
             app.MapRazorPages();
