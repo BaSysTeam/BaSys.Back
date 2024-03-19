@@ -10,7 +10,7 @@ public class ContextHelper
     {
         var httpContextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
         var userId = httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault()?.Value;
-
+    
         ConnectionItem? item;
         if (!string.IsNullOrEmpty(userId))
         {
@@ -37,7 +37,7 @@ public class ContextHelper
         {
             item = serviceProvider.GetRequiredService<IDataSourceProvider>().GetDefaultConnectionItem(dbKind);
         }
-
+    
         return item;
     } 
 }

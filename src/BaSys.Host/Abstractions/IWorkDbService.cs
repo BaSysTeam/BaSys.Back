@@ -2,5 +2,5 @@
 
 public interface IWorkDbService
 {
-    Task<bool> InitDb(int dbInfoRecordId);
+    Task<bool> InitWorkDb();
 }

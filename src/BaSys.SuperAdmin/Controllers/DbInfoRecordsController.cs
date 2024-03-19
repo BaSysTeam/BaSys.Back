@@ -192,22 +192,4 @@ public class DbInfoRecordsController : ControllerBase
 
         return Ok(result);
     }
-
-    [HttpPatch("{id}/initdb")]
-    public async Task<IActionResult> InitDb(int id)
-    {
-        var result = new ResultWrapper<bool>();
-        
-        // try
-        // {
-        //     var state = await _dbInfoRecordsService.InitDb(id);
-        //     result.Success(state);
-        // }
-        // catch (Exception ex)
-        // {
-        //     result.Error(-3, $"Cannot switch activity record.", ex.Message);
-        // }
-        
-        return Ok(result);
-    }
 }

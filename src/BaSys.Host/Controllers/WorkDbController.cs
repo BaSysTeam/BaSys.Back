@@ -22,7 +22,7 @@ public class WorkDbController : ControllerBase
 
         try
         {
-            var state = await _workDbService.InitDb(id);
+            var state = await _workDbService.InitWorkDb();
             result.Success(state);
         }
         catch (Exception ex)
