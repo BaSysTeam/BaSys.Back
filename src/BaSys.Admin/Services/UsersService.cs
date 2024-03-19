@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Data;
 using System.Text;
 
-namespace BaSys.Host.Services
+namespace BaSys.Admin.Services
 {
     public sealed class UsersService
     {

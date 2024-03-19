@@ -1,11 +1,11 @@
 ﻿using BaSys.Admin.DTO;
 using BaSys.Common.Infrastructure;
-using BaSys.Host.Services;
+using BaSys.Admin.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BaSys.Host.Controllers
+namespace BaSys.Admin.Controllers
 {
     /// <summary>
     /// This controller allow to manipulate with Identity users. 

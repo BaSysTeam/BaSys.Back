@@ -31,6 +31,7 @@
   <ItemGroup>
     <ProjectReference Include="..\BaSys.Host.DAL\BaSys.Host.DAL.csproj" />
     <ProjectReference Include="..\BaSys.Shared\BaSys.Shared.csproj" />
+    <ProjectReference Include="..\BaSys.Translation\BaSys.Translation.csproj" />
   </ItemGroup>
 
 
