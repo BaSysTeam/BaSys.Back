@@ -5,11 +5,11 @@ using BaSys.Host.Infrastructure.Interfaces;
 
 namespace BaSys.Host.Services;
 
-public class ContextService : IContextService
+public class HttpRequestContextService : IHttpRequestContextService
 {
     private readonly IServiceProvider _serviceProvider;
     
-    public ContextService(IServiceProvider serviceProvider)
+    public HttpRequestContextService(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
     }

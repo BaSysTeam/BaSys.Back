@@ -3,7 +3,7 @@ using BaSys.Host.Infrastructure;
 
 namespace BaSys.Host.Abstractions;
 
-public interface IContextService
+public interface IHttpRequestContextService
 {
     ConnectionItem? GetConnectionItem(DbKinds? dbKind = null);
 }

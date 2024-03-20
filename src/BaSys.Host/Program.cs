@@ -40,7 +40,7 @@ namespace BaSys.Host
 
             builder.Services.AddScoped<ApplicationDbContext>(sp =>
             {
-                var item = sp.GetRequiredService<IContextService>().GetConnectionItem();
+                var item = sp.GetRequiredService<IHttpRequestContextService>().GetConnectionItem();
                 // var item = ContextHelper.GetConnectionItem(sp);
                 switch (item?.DbKind)
                 {
@@ -60,7 +60,7 @@ namespace BaSys.Host
             builder.Services.AddDbContext<MsSqlDbContext>((sp, options) =>
             {
                 // var item = ContextHelper.GetConnectionItem(sp, DbKinds.MsSql);
-                var item = sp.GetRequiredService<IContextService>().GetConnectionItem(DbKinds.MsSql);
+                var item = sp.GetRequiredService<IHttpRequestContextService>().GetConnectionItem(DbKinds.MsSql);
                 if (item != null)
                     options.UseSqlServer(item.ConnectionString);
             });
@@ -68,7 +68,7 @@ namespace BaSys.Host
             builder.Services.AddDbContext<PgSqlDbContext>((sp, options) =>
             {
                 // var item = ContextHelper.GetConnectionItem(sp, DbKinds.PgSql);
-                var item = sp.GetRequiredService<IContextService>().GetConnectionItem(DbKinds.PgSql);
+                var item = sp.GetRequiredService<IHttpRequestContextService>().GetConnectionItem(DbKinds.PgSql);
                 if (item != null)
                     options.UseNpgsql(item.ConnectionString);
             });
@@ -126,7 +126,7 @@ namespace BaSys.Host
             builder.Services.AddSingleton<IDataSourceProvider, DataSourceProvider>();
             builder.Services.AddTransient<IMainDbCheckService, MainDbCheckService>();
             builder.Services.AddTransient<IWorkDbService, WorkDbService>();
-            builder.Services.AddTransient<IContextService, ContextService>();
+            builder.Services.AddTransient<IHttpRequestContextService, HttpRequestContextService>();
 
             builder.Services.AddSwaggerGen();
 
