@@ -33,7 +33,8 @@ public class DataSourceProvider : IDataSourceProvider
             {
                 _connectionItems.Add(new ConnectionItem
                 {
-                    Id = conn.Name,
+                    Id = conn.Id,
+                    Name = conn.Name,
                     ConnectionString = conn.ConnectionString,
                     DbKind = conn.DbKind
                 });
@@ -64,7 +65,7 @@ public class DataSourceProvider : IDataSourceProvider
     public ConnectionItem? GetCurrentConnectionItemByUser(string? userId)
     {
         if (!string.IsNullOrEmpty(userId) && _userConnectionDict.TryGetValue(userId, out var connId))
-            return _connectionItems.FirstOrDefault(x => x.Id == connId);
+            return _connectionItems.FirstOrDefault(x => x.Name == connId);
 
         return _connectionItems.FirstOrDefault();
     }
@@ -74,12 +75,35 @@ public class DataSourceProvider : IDataSourceProvider
         if (string.IsNullOrEmpty(dbId))
             return null;
 
-        var item = _connectionItems.FirstOrDefault(x => x.Id.ToUpper() == dbId.ToUpper());
+        var item = _connectionItems.FirstOrDefault(x => x.Name.ToUpper() == dbId.ToUpper());
         return item;
     }
 
     public void SetConnection(string connId, string userId)
     {
         _userConnectionDict[userId] = connId;
+    }
+
+    public ConnectionItem? GetConnectionItemByDbInfoId(int dbInfoId)
+    {
+        if (_connectionItems.Any(x => x.Id == dbInfoId))
+            return _connectionItems.First(x => x.Id == dbInfoId);
+
+        using var scope = _serviceProvider.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<SuperAdminDbContext>();
+        var dbInfoRecord = context.DbInfoRecords.FirstOrDefault(x => x.Id == dbInfoId);
+        if (dbInfoRecord == null)
+            return null;
+        
+        var item = new ConnectionItem
+        {
+            Id = dbInfoRecord.Id,
+            Name = dbInfoRecord.Name,
+            ConnectionString = dbInfoRecord.ConnectionString,
+            DbKind = dbInfoRecord.DbKind
+        };
+        _connectionItems.Add(item);
+
+        return item;
     }
 }

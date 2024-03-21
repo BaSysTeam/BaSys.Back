@@ -42,7 +42,8 @@ namespace BaSys.Host
 
             builder.Services.AddScoped<ApplicationDbContext>(sp =>
             {
-                var item = ContextHelper.GetConnectionItem(sp);
+                var item = sp.GetRequiredService<IHttpRequestContextService>().GetConnectionItem();
+                // var item = ContextHelper.GetConnectionItem(sp);
                 switch (item?.DbKind)
                 {
                     case DbKinds.MsSql:
@@ -63,14 +64,16 @@ namespace BaSys.Host
             // Add mssql context
             builder.Services.AddDbContext<MsSqlDbContext>((sp, options) =>
             {
-                var item = ContextHelper.GetConnectionItem(sp, DbKinds.MsSql);
+                // var item = ContextHelper.GetConnectionItem(sp, DbKinds.MsSql);
+                var item = sp.GetRequiredService<IHttpRequestContextService>().GetConnectionItem(DbKinds.MsSql);
                 if (item != null)
                     options.UseSqlServer(item.ConnectionString);
             });
             // Add pgsql context
             builder.Services.AddDbContext<PgSqlDbContext>((sp, options) =>
             {
-                var item = ContextHelper.GetConnectionItem(sp, DbKinds.PgSql);
+                // var item = ContextHelper.GetConnectionItem(sp, DbKinds.PgSql);
+                var item = sp.GetRequiredService<IHttpRequestContextService>().GetConnectionItem(DbKinds.PgSql);
                 if (item != null)
                     options.UseNpgsql(item.ConnectionString);
             });
@@ -138,6 +141,8 @@ namespace BaSys.Host
 
             builder.Services.AddSingleton<IDataSourceProvider, DataSourceProvider>();
             builder.Services.AddTransient<IMainDbCheckService, MainDbCheckService>();
+            builder.Services.AddTransient<IWorkDbService, WorkDbService>();
+            builder.Services.AddTransient<IHttpRequestContextService, HttpRequestContextService>();
 
             builder.Services.AddSwaggerGen();
 
