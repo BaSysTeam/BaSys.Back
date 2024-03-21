@@ -8,19 +8,18 @@ namespace BaSys.SuperAdmin.Services;
 public class DbInfoRecordsService : IDbInfoRecordsService
 {
     private readonly SuperAdminDbContext _context;
-    
+
     public DbInfoRecordsService(SuperAdminDbContext context)
     {
         _context = context;
     }
 
     public async Task<IEnumerable<DbInfoRecordDto>> GetDbInfoRecords()
-    {  
+    {
         return (await _context.DbInfoRecords
-            .AsNoTracking()
-            .ToListAsync())
-            .Select(x => new DbInfoRecordDto(x))
-            .ToList();
+                .AsNoTracking()
+                .ToListAsync())
+            .Select(x => new DbInfoRecordDto(x));
     }
 
     public async Task<IEnumerable<DbInfoRecordDto>> GetDbInfoRecordsByAppId(string appId)
@@ -29,11 +28,10 @@ public class DbInfoRecordsService : IDbInfoRecordsService
             throw new ArgumentException();
 
         return (await _context.DbInfoRecords
-            .AsNoTracking()
-            .Where(x => x.AppId.ToUpper() == appId.ToUpper())
-            .ToListAsync())
-            .Select(x => new DbInfoRecordDto(x))
-            .ToList();
+                .AsNoTracking()
+                .Where(x => x.AppId.ToUpper() == appId.ToUpper())
+                .ToListAsync())
+            .Select(x => new DbInfoRecordDto(x));
     }
 
     public async Task<DbInfoRecordDto?> GetDbInfoRecord(int id)
@@ -41,7 +39,7 @@ public class DbInfoRecordsService : IDbInfoRecordsService
         var record = await _context.DbInfoRecords
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == id);
-        
+
         return new DbInfoRecordDto(record);
     }
 
@@ -52,13 +50,13 @@ public class DbInfoRecordsService : IDbInfoRecordsService
             string.IsNullOrEmpty(dbInfoRecord.Name) ||
             string.IsNullOrEmpty(dbInfoRecord.ConnectionString))
             throw new ArgumentException();
-        
+
         //var item = new DbInfoRecord(dbInfoRecord);
         var item = dbInfoRecord.ToModel();
         _context.DbInfoRecords.Add(item);
-        
+
         await _context.SaveChangesAsync();
-        
+
         return new DbInfoRecordDto(item);
     }
 
@@ -67,11 +65,11 @@ public class DbInfoRecordsService : IDbInfoRecordsService
         var dbItem = await _context.DbInfoRecords.FirstOrDefaultAsync(x => x.Id == dbInfoRecord.Id);
         if (dbItem == null)
             throw new ArgumentException($"Record not found by id: {dbInfoRecord.Id}");
-        
+
         dbItem.Fill(dbInfoRecord.ToModel());
-        
+
         await _context.SaveChangesAsync();
-        
+
         return new DbInfoRecordDto(dbItem);
     }
 
@@ -80,10 +78,10 @@ public class DbInfoRecordsService : IDbInfoRecordsService
         var dbItem = await _context.DbInfoRecords.FirstOrDefaultAsync(x => x.Id == dbInfoRecordId);
         if (dbItem == null)
             throw new ArgumentException($"Cannot find item by id:{dbInfoRecordId}");
-        
+
         _context.DbInfoRecords.Remove(dbItem);
-        var deletedCount =  await _context.SaveChangesAsync();
-        
+        var deletedCount = await _context.SaveChangesAsync();
+
         return deletedCount;
     }
 

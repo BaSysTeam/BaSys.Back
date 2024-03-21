@@ -1,6 +1,7 @@
 ﻿using BaSys.Common.Infrastructure;
 using BaSys.SuperAdmin.Abstractions;
 using BaSys.SuperAdmin.DAL.Models;
+using BaSys.SuperAdmin.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -29,7 +30,7 @@ public class AppRecordsController : ControllerBase
     public async Task<IActionResult> GetAppRecords()
     {
         var collection = await _appRecordsService.GetAppRecords();
-        var payload = new ResultWrapper<IEnumerable<AppRecord>>();
+        var payload = new ResultWrapper<IEnumerable<AppRecordDto>>();
         payload.Success(collection);
 
         return Ok(payload);
@@ -39,7 +40,7 @@ public class AppRecordsController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetAppRecordById(string id)
     {
-        var payload = new ResultWrapper<AppRecord>();
+        var payload = new ResultWrapper<AppRecordDto>();
         try
         {
             var record = await _appRecordsService.GetAppRecord(id);
@@ -64,10 +65,10 @@ public class AppRecordsController : ControllerBase
     // If the operation is successful, it wraps the added record in a success wrapper.
     // If there's an exception, it wraps the error message and returns it.
     [HttpPost]
-    public async Task<IActionResult> AddAppRecord([FromBody] AppRecord appRecord)
+    public async Task<IActionResult> AddAppRecord([FromBody] AppRecordDto appRecord)
     {
 
-        var payload = new ResultWrapper<AppRecord>();
+        var payload = new ResultWrapper<AppRecordDto>();
 
         try
         {
@@ -86,9 +87,9 @@ public class AppRecordsController : ControllerBase
     // It attempts to update the record and wraps the result in a success wrapper.
     // In case of failure, wraps an error message instead.
     [HttpPut]
-    public async Task<IActionResult> UpdateAppRecord([FromBody] AppRecord appRecord)
+    public async Task<IActionResult> UpdateAppRecord([FromBody] AppRecordDto appRecord)
     {
-        var payload = new ResultWrapper<AppRecord>();
+        var payload = new ResultWrapper<AppRecordDto>();
 
         try
         {
@@ -127,6 +128,4 @@ public class AppRecordsController : ControllerBase
 
         return Ok(payload);
     }
-
-
 }
