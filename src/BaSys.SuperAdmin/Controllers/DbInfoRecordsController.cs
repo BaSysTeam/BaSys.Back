@@ -31,7 +31,7 @@ public class DbInfoRecordsController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetDbInfoRecords()
     {
-        var result = new ResultWrapper<IEnumerable<DbInfoRecord>>();
+        var result = new ResultWrapper<IEnumerable<DbInfoRecordDto>>();
 
         try
         {
@@ -55,7 +55,7 @@ public class DbInfoRecordsController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetDbInfoRecord(int id)
     {
-        var result = new ResultWrapper<DbInfoRecord>();
+        var result = new ResultWrapper<DbInfoRecordDto>();
 
         try
         {
@@ -85,20 +85,10 @@ public class DbInfoRecordsController : ControllerBase
         if (dto == null)
             throw new ArgumentException("dto is null");
         
-        var result = new ResultWrapper<DbInfoRecord>();
-        var model = new DbInfoRecord
-        {
-            AppId = dto.AppId ?? string.Empty,
-            Name = dto.Name ?? string.Empty,
-            Title = dto.Title,
-            DbKind = dto.DbKind,
-            ConnectionString = dto.ConnectionString ?? string.Empty,
-            Memo = dto.Memo
-        };
-        
+        var result = new ResultWrapper<DbInfoRecordDto>();
         try
         {
-            var record = await _dbInfoRecordsService.AddDbInfoRecord(model);
+            var record = await _dbInfoRecordsService.AddDbInfoRecord(dto);
             result.Success(record);
         }
         catch (Exception ex)
@@ -120,21 +110,10 @@ public class DbInfoRecordsController : ControllerBase
         if (dto == null)
             throw new ArgumentException("dto is null");
         
-        var result = new ResultWrapper<DbInfoRecord>();
-        var model = new DbInfoRecord
-        {
-            Id = dto.Id,
-            AppId = dto.AppId ?? string.Empty,
-            Name = dto.Name ?? string.Empty,
-            Title = dto.Title,
-            DbKind = dto.DbKind,
-            ConnectionString = dto.ConnectionString ?? string.Empty,
-            Memo = dto.Memo
-        };
-        
+        var result = new ResultWrapper<DbInfoRecordDto>();
         try
         {
-            var record = await _dbInfoRecordsService.EditDbInfoRecord(model);
+            var record = await _dbInfoRecordsService.EditDbInfoRecord(dto);
             result.Success(record);
         }
         catch (Exception ex)
@@ -178,7 +157,7 @@ public class DbInfoRecordsController : ControllerBase
     [HttpPatch("{id}/switchactivity")]
     public async Task<IActionResult> SwitchActivityDbInfoRecord(int id)
     {
-        var result = new ResultWrapper<DbInfoRecord>();
+        var result = new ResultWrapper<DbInfoRecordDto>();
 
         try
         {
