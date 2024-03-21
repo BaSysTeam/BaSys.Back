@@ -11,4 +11,5 @@ public interface IDataSourceProvider
     ConnectionItem? GetCurrentConnectionItemByUser(string? userId);
     ConnectionItem? GetConnectionItemByDbId(string? dbId);
     void SetConnection(string connId, string userId);
+    ConnectionItem? GetConnectionItemByDbInfoId(int dbInfoId);
 }
