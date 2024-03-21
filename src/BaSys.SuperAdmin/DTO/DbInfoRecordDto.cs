@@ -12,6 +12,7 @@ public class DbInfoRecordDto
     public DbKinds DbKind { get; set; }
     public string? ConnectionString { get; set; }
     public string? Memo { get; set; }
+    public bool IsDelete { get; set; }
     
     public DbInfoRecordDto()
     {
@@ -26,6 +27,7 @@ public class DbInfoRecordDto
         DbKind = model.DbKind;
         ConnectionString = model.ConnectionString;
         Memo = model.Memo;
+        IsDelete = model.IsDeleted;
     }
 
     public DbInfoRecord ToModel()
@@ -38,7 +40,8 @@ public class DbInfoRecordDto
             Title = Title,
             DbKind = DbKind,
             ConnectionString = ConnectionString ?? string.Empty,
-            Memo = Memo
+            Memo = Memo,
+            IsDeleted = IsDelete
         };
     }
 }
