@@ -21,6 +21,15 @@ public class HttpRequestContextService : IHttpRequestContextService
 
         ConnectionItem? item;
         
+        // if init work db
+        if (IsInitDbRequest(httpContextAccessor.HttpContext?.Request.RouteValues))
+        {
+            var value = httpContextAccessor.HttpContext?.Request.RouteValues["id"];
+            int.TryParse(value?.ToString(), out var dbInfoId);
+            item = _serviceProvider.GetRequiredService<IDataSourceProvider>().GetConnectionItemByDbInfoId(dbInfoId);
+            return item;
+        }
+        
         // From user
         if (!string.IsNullOrEmpty(userId))
         {
@@ -49,15 +58,6 @@ public class HttpRequestContextService : IHttpRequestContextService
             return item;
         }
         
-        // if init work db
-        if (IsInitDbRequest(httpContextAccessor.HttpContext?.Request.RouteValues))
-        {
-            var value = httpContextAccessor.HttpContext?.Request.RouteValues["id"];
-            int.TryParse(value?.ToString(), out var dbInfoId);
-            item = _serviceProvider.GetRequiredService<IDataSourceProvider>().GetConnectionItemByDbInfoId(dbInfoId);
-            return item;
-        }
-
         item = _serviceProvider.GetRequiredService<IDataSourceProvider>().GetDefaultConnectionItem(dbKind);
         
         return item;
