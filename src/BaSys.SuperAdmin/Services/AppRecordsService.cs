@@ -1,6 +1,7 @@
 ﻿using BaSys.SuperAdmin.Abstractions;
 using BaSys.SuperAdmin.DAL;
 using BaSys.SuperAdmin.DAL.Models;
+using BaSys.SuperAdmin.DTO;
 using Microsoft.EntityFrameworkCore;
 
 namespace BaSys.SuperAdmin.Services;
@@ -8,21 +9,22 @@ namespace BaSys.SuperAdmin.Services;
 public class AppRecordsService : IAppRecordsService
 {
     private readonly SuperAdminDbContext _context;
-    
+
     public AppRecordsService(SuperAdminDbContext context)
     {
         _context = context;
     }
-    
+
     /// <summary>
     /// Get all AppRecords
     /// </summary>
     /// <returns></returns>
-    public async Task<IEnumerable<AppRecord>> GetAppRecords()
+    public async Task<IEnumerable<AppRecordDto>> GetAppRecords()
     {
-        return await _context.AppRecords
-            .AsNoTracking()
-            .ToListAsync();
+        return (await _context.AppRecords
+                .AsNoTracking()
+                .ToListAsync())
+            .Select(x => new AppRecordDto(x));
     }
 
     /// <summary>
@@ -31,14 +33,19 @@ public class AppRecordsService : IAppRecordsService
     /// <param name="id"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
-    public async Task<AppRecord?> GetAppRecord(string id)
+    public async Task<AppRecordDto?> GetAppRecord(string id)
     {
         if (string.IsNullOrEmpty(id))
             throw new ArgumentException();
 
-        var record = await _context.AppRecords.AsNoTracking().FirstOrDefaultAsync(x => x.Id.ToUpper().Equals(id.ToUpper()));
+        var record = await _context.AppRecords
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id.ToUpper().Equals(id.ToUpper()));
 
-        return record;
+        if (record == null)
+            throw new ArgumentException($"Record with id: {id} not found");
+        
+        return new AppRecordDto(record);
     }
 
     /// <summary>
@@ -47,13 +54,15 @@ public class AppRecordsService : IAppRecordsService
     /// <param name="appRecord"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
-    public async Task<AppRecord> AddAppRecord(AppRecord appRecord)
+    public async Task<AppRecordDto> AddAppRecord(AppRecordDto appRecord)
     {
+        if (string.IsNullOrEmpty(appRecord?.Id))
+            throw new ArgumentException($"Id cannot be empty");
         
         if (await _context.AppRecords.AsNoTracking().AnyAsync(x => x.Id.ToUpper() == appRecord.Id.ToUpper()))
             throw new ArgumentException($"Element with Id == '{appRecord.Id}' already exists");
 
-        _context.AppRecords.Add(appRecord);
+        _context.AppRecords.Add(appRecord.ToModel());
         await _context.SaveChangesAsync();
 
         return appRecord;
@@ -62,7 +71,7 @@ public class AppRecordsService : IAppRecordsService
     /// <summary>
     /// Delete
     /// </summary>
-    /// <param name="appRecordId"></param>
+    /// <param name="id"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
     public async Task<int> DeleteAppRecord(string id)
@@ -86,21 +95,21 @@ public class AppRecordsService : IAppRecordsService
     /// <param name="appRecord"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
-    public async Task<AppRecord> UpdateAppRecord(AppRecord appRecord)
+    public async Task<AppRecordDto> UpdateAppRecord(AppRecordDto appRecord)
     {
         if (appRecord == null ||
             string.IsNullOrEmpty(appRecord.Id) ||
             string.IsNullOrEmpty(appRecord.Title))
             throw new ArgumentException();
-        
+
         var dbAppRecord = await _context.AppRecords.FirstOrDefaultAsync(x => x.Id.ToUpper() == appRecord.Id.ToUpper());
         if (dbAppRecord == null)
             throw new ArgumentException($"Element with Id == '{appRecord.Id}' not found");
 
-        dbAppRecord.Fill(appRecord);
+        dbAppRecord.Fill(appRecord.ToModel());
 
         await _context.SaveChangesAsync();
 
-        return dbAppRecord;
+        return appRecord;
     }
 }
