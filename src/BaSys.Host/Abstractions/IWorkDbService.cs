@@ -2,5 +2,5 @@
 
 public interface IWorkDbService
 {
-    Task<bool> InitWorkDb();
+    Task<bool> InitWorkDb(string adminLogin, string adminPassword);
 }

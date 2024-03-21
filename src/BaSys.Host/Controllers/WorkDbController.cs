@@ -1,5 +1,6 @@
 ﻿using BaSys.Common.Infrastructure;
 using BaSys.Host.Abstractions;
+using BaSys.Host.DTO;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BaSys.Host.Controllers;
@@ -16,13 +17,16 @@ public class WorkDbController : ControllerBase
     }
     
     [HttpPost("{id}/initdb")]
-    public async Task<IActionResult> InitDb(int id)
+    public async Task<IActionResult> InitDb([FromRoute]int id, [FromBody]InitDbRequestDto dto)
     {
+        if (string.IsNullOrEmpty(dto.AdminLogin) || string.IsNullOrEmpty(dto.AdminPassword))
+            throw new ArgumentException("Admin login and admin password cannot be empty!");
+        
         var result = new ResultWrapper<bool>();
 
         try
         {
-            var state = await _workDbService.InitWorkDb();
+            var state = await _workDbService.InitWorkDb(dto.AdminLogin, dto.AdminPassword);
             result.Success(state);
         }
         catch (Exception ex)

@@ -21,13 +21,16 @@ public class WorkDbService : IWorkDbService
         _configuration = configuration;
     }
 
-    public async Task<bool> InitWorkDb()
+    public async Task<bool> InitWorkDb(string adminLogin, string adminPassword)
     {
         try
         {
             var initAppSettings = _configuration.GetSection("InitAppSettings").Get<InitAppSettings>();
-            if (initAppSettings == null)
+            if (initAppSettings?.MainDb == null)
                 return false;
+
+            initAppSettings.MainDb.AdminLogin = adminLogin;
+            initAppSettings.MainDb.AdminPassword = adminPassword;
             
             // get context for service with the required connection from request parameter in DI
             await _mainDbCheckService.Check(initAppSettings);
