@@ -8,10 +8,13 @@ namespace BaSys.SuperAdmin.Services;
 public class DbInfoRecordsService : IDbInfoRecordsService
 {
     private readonly SuperAdminDbContext _context;
+    private readonly IDbInfoRecordsProvider _dbInfoRecordsProvider;
 
-    public DbInfoRecordsService(SuperAdminDbContext context)
+    public DbInfoRecordsService(SuperAdminDbContext context,
+        IDbInfoRecordsProvider dbInfoRecordsProvider)
     {
         _context = context;
+        _dbInfoRecordsProvider = dbInfoRecordsProvider;
     }
 
     public async Task<IEnumerable<DbInfoRecordDto>> GetDbInfoRecords()
@@ -20,21 +23,6 @@ public class DbInfoRecordsService : IDbInfoRecordsService
                 .AsNoTracking()
                 .ToListAsync())
             .Select(x => new DbInfoRecordDto(x));
-    }
-
-    public async Task<DbInfoRecordDto?> GetDbInfoRecordByDbName(string dbName)
-    {
-        if (string.IsNullOrEmpty(dbName))
-            return null;
-        
-        var item = await _context.DbInfoRecords
-            .AsNoTracking()
-            .FirstOrDefaultAsync(x => x.Name.ToUpper() == dbName.ToUpper());
-
-        if (item == null)
-            return null;
-        
-        return new DbInfoRecordDto(item);
     }
 
     public async Task<IEnumerable<DbInfoRecordDto>> GetDbInfoRecordsByAppId(string appId)
@@ -71,6 +59,7 @@ public class DbInfoRecordsService : IDbInfoRecordsService
         _context.DbInfoRecords.Add(item);
 
         await _context.SaveChangesAsync();
+        await _dbInfoRecordsProvider.Update();
 
         return new DbInfoRecordDto(item);
     }
@@ -84,6 +73,7 @@ public class DbInfoRecordsService : IDbInfoRecordsService
         dbItem.Fill(dbInfoRecord.ToModel());
 
         await _context.SaveChangesAsync();
+        await _dbInfoRecordsProvider.Update();
 
         return new DbInfoRecordDto(dbItem);
     }
@@ -96,6 +86,7 @@ public class DbInfoRecordsService : IDbInfoRecordsService
 
         _context.DbInfoRecords.Remove(dbItem);
         var deletedCount = await _context.SaveChangesAsync();
+        await _dbInfoRecordsProvider.Update();
 
         return deletedCount;
     }
@@ -109,6 +100,7 @@ public class DbInfoRecordsService : IDbInfoRecordsService
         dbItem.IsDeleted = !dbItem.IsDeleted;
         _context.Update(dbItem);
         await _context.SaveChangesAsync();
+        await _dbInfoRecordsProvider.Update();
 
         return new DbInfoRecordDto(dbItem);
     }

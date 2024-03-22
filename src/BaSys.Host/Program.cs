@@ -181,6 +181,9 @@ namespace BaSys.Host
                 await mainDbCheckService.Check(initAppSettings);
             };
             await systemDbService.CheckDbs();
+            
+            var dbInfoRecordsProvider = serviceScope.ServiceProvider.GetRequiredService<IDbInfoRecordsProvider>();
+            await dbInfoRecordsProvider.Update();
 
             app.Run();
         }

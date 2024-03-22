@@ -4,6 +4,7 @@ using BaSys.SuperAdmin.DAL;
 using BaSys.SuperAdmin.DAL.MsSqlContext;
 using BaSys.SuperAdmin.DAL.PgSqlContext;
 using BaSys.SuperAdmin.Infrastructure.Models;
+using BaSys.SuperAdmin.Providers;
 using BaSys.SuperAdmin.Services;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.EntityFrameworkCore;
@@ -52,6 +53,8 @@ public static class SuperAdminExtension
             .ApplicationParts
             .Add(new AssemblyPart(typeof(SuperAdminExtension).Assembly));
 
+        services.AddSingleton<IDbInfoRecordsProvider, DbInfoRecordsProvider>();
+            
         services.AddTransient<IAppRecordsService, AppRecordsService>();
         services.AddTransient<IDbInfoRecordsService, DbInfoRecordsService>();
         services.AddTransient<ICheckSystemDbService, CheckSystemDbService>();
