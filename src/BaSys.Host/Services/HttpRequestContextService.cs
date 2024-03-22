@@ -23,8 +23,6 @@ public class HttpRequestContextService : IHttpRequestContextService
 
     public ConnectionItem? GetConnectionItem(DbKinds? dbKind = null)
     {
-        var userId = _httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault()?.Value;
-
         ConnectionItem? item;
         
         // if init work db
@@ -37,6 +35,7 @@ public class HttpRequestContextService : IHttpRequestContextService
         }
         
         // From user
+        var userId = _httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault()?.Value;
         if (!string.IsNullOrEmpty(userId))
             return _dataSourceProvider.GetCurrentConnectionItemByUser(userId);
         

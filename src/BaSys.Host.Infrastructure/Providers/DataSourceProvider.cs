@@ -1,7 +1,9 @@
 ﻿using System.Collections.Concurrent;
 using BaSys.Common.Enums;
+using BaSys.Host.Identity.Models;
 using BaSys.Host.Infrastructure.Abstractions;
 using BaSys.SuperAdmin.DAL;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BaSys.Host.Infrastructure.Providers;
@@ -28,8 +30,8 @@ public class DataSourceProvider : IDataSourceProvider
 
     public ConnectionItem? GetCurrentConnectionItemByUser(string? userId)
     {
-        if (!string.IsNullOrEmpty(userId) && _userConnectionDict.TryGetValue(userId, out var connectionName))
-            return _connectionItems.FirstOrDefault(x => x.Name == connectionName);
+        if (!string.IsNullOrEmpty(userId) && _userConnectionDict.TryGetValue(userId, out var dbName))
+            return _connectionItems.FirstOrDefault(x => x.Name == dbName);
 
         return _connectionItems.FirstOrDefault();
     }
