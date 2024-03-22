@@ -88,7 +88,7 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
             public bool RememberMe { get; set; }
         }
 
-        public async Task OnGetAsync(string returnUrl = null)
+        public async Task OnGetAsync(string dbName, string returnUrl = null)
         {
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -103,6 +103,14 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
             ReturnUrl = returnUrl;
+
+            if (!string.IsNullOrEmpty(dbName))
+            {
+                Input = new InputModel
+                {
+                    DbName = dbName
+                };
+            }
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
