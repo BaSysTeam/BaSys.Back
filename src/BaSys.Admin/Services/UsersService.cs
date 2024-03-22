@@ -5,10 +5,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
 using System.Text;
+using BaSys.Admin.Abstractions;
 
 namespace BaSys.Admin.Services
 {
-    public sealed class UsersService
+    public sealed class UsersService : IUsersService
     {
         private readonly UserManager<IdentityUser> _userManager;
 

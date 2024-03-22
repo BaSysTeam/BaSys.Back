@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc.ApplicationParts;
+﻿using BaSys.Admin.Abstractions;
+using BaSys.Admin.Services;
+using Microsoft.AspNetCore.Mvc.ApplicationParts;
 
 namespace BaSys.Admin.Infrastructure
 {
@@ -11,6 +13,8 @@ namespace BaSys.Admin.Infrastructure
                 .PartManager
                 .ApplicationParts
                 .Add(new AssemblyPart(typeof(AdminExtension).Assembly));
+
+            services.AddTransient<IUsersService, UsersService>();
 
             return services;
         }

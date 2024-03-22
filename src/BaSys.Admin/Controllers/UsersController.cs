@@ -1,4 +1,5 @@
-﻿using BaSys.Admin.DTO;
+﻿using BaSys.Admin.Abstractions;
+using BaSys.Admin.DTO;
 using BaSys.Common.Infrastructure;
 using BaSys.Admin.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -19,13 +20,11 @@ namespace BaSys.Admin.Controllers
 #endif
     public class UsersController : ControllerBase
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly UsersService _usersService;
+        private readonly IUsersService _usersService;
 
-        public UsersController(UserManager<IdentityUser> userManager)
+        public UsersController(IUsersService userService)
         {
-            _userManager = userManager;
-            _usersService = new UsersService(_userManager);
+            _usersService = userService;
         }
 
         /// <summary>
