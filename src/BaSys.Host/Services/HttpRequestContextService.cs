@@ -7,58 +7,64 @@ namespace BaSys.Host.Services;
 
 public class HttpRequestContextService : IHttpRequestContextService
 {
-    private readonly IServiceProvider _serviceProvider;
+    private readonly IDataSourceProvider _dataSourceProvider;
+    private readonly IHttpContextAccessor _httpContextAccessor;
     
-    public HttpRequestContextService(IServiceProvider serviceProvider)
+    public HttpRequestContextService(IDataSourceProvider dataSourceProvider, IHttpContextAccessor httpContextAccessor)
     {
-        _serviceProvider = serviceProvider;
+        _dataSourceProvider = dataSourceProvider;
+        _httpContextAccessor = httpContextAccessor;
     }
-    
+
+    public DbKinds? GetConnectionKind()
+    {
+        return GetConnectionItem()?.DbKind;
+    }
+
     public ConnectionItem? GetConnectionItem(DbKinds? dbKind = null)
     {
-        var httpContextAccessor = _serviceProvider.GetRequiredService<IHttpContextAccessor>();
-        var userId = httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault()?.Value;
+        var userId = _httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault()?.Value;
 
         ConnectionItem? item;
         
         // if init work db
-        if (IsInitDbRequest(httpContextAccessor.HttpContext?.Request.RouteValues))
+        if (IsInitDbRequest(_httpContextAccessor.HttpContext?.Request.RouteValues))
         {
-            var value = httpContextAccessor.HttpContext?.Request.RouteValues["id"];
+            var value = _httpContextAccessor.HttpContext?.Request.RouteValues["id"];
             int.TryParse(value?.ToString(), out var dbInfoId);
-            item = _serviceProvider.GetRequiredService<IDataSourceProvider>().GetConnectionItemByDbInfoId(dbInfoId);
+            item = _dataSourceProvider.GetConnectionItemByDbInfoId(dbInfoId);
             return item;
         }
         
         // From user
         if (!string.IsNullOrEmpty(userId))
         {
-            item = _serviceProvider.GetRequiredService<IDataSourceProvider>().GetCurrentConnectionItemByUser(userId);
+            item = _dataSourceProvider.GetCurrentConnectionItemByUser(userId);
             return item;
         }
         
         // auth from Login form
-        if (httpContextAccessor.HttpContext?.Request.HasFormContentType == true &&
-                 httpContextAccessor.HttpContext?.Request.ContentType != null && 
-                 httpContextAccessor.HttpContext?.Request.Form?.TryGetValue("Input.DbName", out var dbId) == true)
+        if (_httpContextAccessor.HttpContext?.Request.HasFormContentType == true &&
+                 _httpContextAccessor.HttpContext?.Request.ContentType != null && 
+                 _httpContextAccessor.HttpContext?.Request.Form?.TryGetValue("Input.DbName", out var dbId) == true)
         {
-            item = _serviceProvider.GetRequiredService<IDataSourceProvider>().GetConnectionItemByDbId(dbId);
+            item = _dataSourceProvider.GetConnectionItemByDbId(dbId);
             return item;
         }
         
         // auth from auth endpoint
-        if (httpContextAccessor.HttpContext?.Request.Path == "/api/auth" &&
-            httpContextAccessor.HttpContext?.Request.Query.TryGetValue("dbid", out var val) == true)
+        if (_httpContextAccessor.HttpContext?.Request.Path == "/api/auth" &&
+            _httpContextAccessor.HttpContext?.Request.Query.TryGetValue("dbid", out var val) == true)
         {
             var dbIdParam = val.FirstOrDefault();
             if (string.IsNullOrEmpty(dbIdParam))
                 throw new ArgumentException("DbId not set in auth query!");
 
-            item = _serviceProvider.GetRequiredService<IDataSourceProvider>().GetConnectionItemByDbId(dbIdParam);
+            item = _dataSourceProvider.GetConnectionItemByDbId(dbIdParam);
             return item;
         }
         
-        item = _serviceProvider.GetRequiredService<IDataSourceProvider>().GetDefaultConnectionItem(dbKind);
+        item = _dataSourceProvider.GetDefaultConnectionItem(dbKind);
         
         return item;
     }

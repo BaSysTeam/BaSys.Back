@@ -39,17 +39,18 @@ namespace BaSys.Host
                 return sp.GetRequiredService<SuperAdminDbContext>();
             });
 
+            // Add WorkDb base context
             builder.Services.AddScoped<ApplicationDbContext>(sp =>
             {
-                var item = sp.GetRequiredService<IHttpRequestContextService>().GetConnectionItem();
-                switch (item?.DbKind)
+                var dbKind = sp.GetRequiredService<IHttpRequestContextService>().GetConnectionKind();
+                switch (dbKind)
                 {
                     case DbKinds.MsSql:
                         return sp.GetRequiredService<MsSqlDbContext>();
                     case DbKinds.PgSql:
                         return sp.GetRequiredService<PgSqlDbContext>();
                     default:
-                        throw new NotImplementedException($"Not implemented DbContext for type {item?.DbKind.ToString()}");
+                        throw new NotImplementedException($"Not implemented DbContext for type {dbKind.ToString()}");
                 }
             });
 
