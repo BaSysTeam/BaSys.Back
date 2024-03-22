@@ -1,4 +1,5 @@
-﻿using BaSys.Common.Enums;
+﻿using System.Collections.Concurrent;
+using BaSys.Common.Enums;
 using BaSys.Host.Infrastructure.Interfaces;
 using BaSys.SuperAdmin.DAL;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,7 +9,7 @@ namespace BaSys.Host.Infrastructure;
 public class DataSourceProvider : IDataSourceProvider
 {
     private readonly List<ConnectionItem> _connectionItems;
-    private Dictionary<string, string> _userConnectionDict = new();
+    private ConcurrentDictionary<string, string> _userConnectionDict = new();
     private readonly IServiceProvider _serviceProvider;
 
     public DataSourceProvider(IServiceProvider serviceProvider)
@@ -64,8 +65,8 @@ public class DataSourceProvider : IDataSourceProvider
 
     public ConnectionItem? GetCurrentConnectionItemByUser(string? userId)
     {
-        if (!string.IsNullOrEmpty(userId) && _userConnectionDict.TryGetValue(userId, out var connId))
-            return _connectionItems.FirstOrDefault(x => x.Name == connId);
+        if (!string.IsNullOrEmpty(userId) && _userConnectionDict.TryGetValue(userId, out var connectionName))
+            return _connectionItems.FirstOrDefault(x => x.Name == connectionName);
 
         return _connectionItems.FirstOrDefault();
     }
@@ -77,11 +78,6 @@ public class DataSourceProvider : IDataSourceProvider
 
         var item = _connectionItems.FirstOrDefault(x => x.Name.ToUpper() == dbId.ToUpper());
         return item;
-    }
-
-    public void SetConnection(string connId, string userId)
-    {
-        _userConnectionDict[userId] = connId;
     }
 
     public ConnectionItem? GetConnectionItemByDbInfoId(int dbInfoId)
@@ -105,5 +101,15 @@ public class DataSourceProvider : IDataSourceProvider
         _connectionItems.Add(item);
 
         return item;
+    }
+    
+    public void SetConnection(string connectionName, string userId)
+    {
+        _userConnectionDict[userId] = connectionName;
+    }
+
+    public void RemoveConnection(string userId)
+    {
+        _userConnectionDict.TryRemove(userId, out _);
     }
 }

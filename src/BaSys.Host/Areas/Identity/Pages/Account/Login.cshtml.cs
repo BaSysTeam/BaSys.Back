@@ -3,10 +3,12 @@
 #nullable disable
 
 using System.ComponentModel.DataAnnotations;
+using BaSys.Host.Infrastructure.Interfaces;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 
 namespace BaSys.Host.Areas.Identity.Pages.Account
 {
@@ -14,12 +16,18 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
     {
         private readonly ILogger<LoginModel> _logger;
         private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly IDataSourceProvider _dataSourceProvider;
 
         public LoginModel(ILogger<LoginModel> logger,
-            SignInManager<IdentityUser> signInManager)
+            SignInManager<IdentityUser> signInManager,
+            UserManager<IdentityUser> userManager,
+            IDataSourceProvider dataSourceProvider)
         {
             _logger = logger;
             _signInManager = signInManager;
+            _userManager = userManager;
+            _dataSourceProvider = dataSourceProvider;
         }
 
         /// <summary>
@@ -110,6 +118,9 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
                 var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
+                    var currentUser = await _userManager.Users.FirstAsync(x => x.Email.ToUpper() == Input.Email.ToUpper());
+                    _dataSourceProvider.SetConnection(Input.DbName, currentUser.Id);
+                    
                     _logger.LogInformation("User logged in.");
                     return LocalRedirect(returnUrl);
                 }

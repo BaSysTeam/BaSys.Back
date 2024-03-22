@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using BaSys.Host.Infrastructure.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace BaSys.Host.Controllers
 {
@@ -16,10 +18,16 @@ namespace BaSys.Host.Controllers
     public class AccountController : ControllerBase
     {
         private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly IDataSourceProvider _dataSourceProvider;
 
-        public AccountController(SignInManager<IdentityUser> signInManager)
+        public AccountController(SignInManager<IdentityUser> signInManager,
+            UserManager<IdentityUser> userManager,
+            IDataSourceProvider dataSourceProvider)
         {
             _signInManager = signInManager;
+            _userManager = userManager;
+            _dataSourceProvider = dataSourceProvider;
         }
 
         /// <summary>
@@ -60,7 +68,11 @@ namespace BaSys.Host.Controllers
             var result = new ResultWrapper<bool>();
             try
             {
+                var email = GetCurrentUserEmail();
                 await _signInManager.SignOutAsync();
+                
+                var currentUser = await _userManager.Users.FirstAsync(x => x.Email.ToUpper() == email.ToUpper());
+                _dataSourceProvider.RemoveConnection(currentUser.Id);
 
                 result.Success(true, "User loged out.");
             }

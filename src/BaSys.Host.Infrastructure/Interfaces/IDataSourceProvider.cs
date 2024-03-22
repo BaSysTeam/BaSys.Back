@@ -10,6 +10,7 @@ public interface IDataSourceProvider
     ConnectionItem? GetDefaultConnectionItem(DbKinds? dbKind = null);
     ConnectionItem? GetCurrentConnectionItemByUser(string? userId);
     ConnectionItem? GetConnectionItemByDbId(string? dbId);
-    void SetConnection(string connId, string userId);
+    void SetConnection(string connectionName, string userId);
+    void RemoveConnection(string userId);
     ConnectionItem? GetConnectionItemByDbInfoId(int dbInfoId);
 }
