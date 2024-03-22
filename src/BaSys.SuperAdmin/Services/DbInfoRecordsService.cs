@@ -22,6 +22,21 @@ public class DbInfoRecordsService : IDbInfoRecordsService
             .Select(x => new DbInfoRecordDto(x));
     }
 
+    public async Task<DbInfoRecordDto?> GetDbInfoRecordByDbName(string dbName)
+    {
+        if (string.IsNullOrEmpty(dbName))
+            return null;
+        
+        var item = await _context.DbInfoRecords
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Name.ToUpper() == dbName.ToUpper());
+
+        if (item == null)
+            return null;
+        
+        return new DbInfoRecordDto(item);
+    }
+
     public async Task<IEnumerable<DbInfoRecordDto>> GetDbInfoRecordsByAppId(string appId)
     {
         if (string.IsNullOrEmpty(appId))

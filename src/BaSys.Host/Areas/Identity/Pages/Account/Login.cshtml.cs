@@ -5,7 +5,7 @@
 using System.ComponentModel.DataAnnotations;
 using BaSys.Host.Identity;
 using BaSys.Host.Identity.Models;
-using BaSys.Host.Infrastructure.Interfaces;
+using BaSys.Host.Infrastructure.Abstractions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;

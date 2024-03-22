@@ -7,6 +7,7 @@ namespace BaSys.SuperAdmin.Abstractions;
 public interface IDbInfoRecordsService
 {
     Task<IEnumerable<DbInfoRecordDto>> GetDbInfoRecords();
+    Task<DbInfoRecordDto?> GetDbInfoRecordByDbName(string dbName);
     Task<DbInfoRecordDto?> GetDbInfoRecord(int id);
     Task<IEnumerable<DbInfoRecordDto>> GetDbInfoRecordsByAppId(string appId);
     Task<DbInfoRecordDto> AddDbInfoRecord(DbInfoRecordDto dbInfoRecord);

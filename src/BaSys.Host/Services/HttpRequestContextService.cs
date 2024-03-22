@@ -1,7 +1,7 @@
 ﻿using BaSys.Common.Enums;
 using BaSys.Host.Abstractions;
 using BaSys.Host.Infrastructure;
-using BaSys.Host.Infrastructure.Interfaces;
+using BaSys.Host.Infrastructure.Abstractions;
 
 namespace BaSys.Host.Services;
 
@@ -38,29 +38,26 @@ public class HttpRequestContextService : IHttpRequestContextService
         
         // From user
         if (!string.IsNullOrEmpty(userId))
-        {
-            item = _dataSourceProvider.GetCurrentConnectionItemByUser(userId);
-            return item;
-        }
+            return _dataSourceProvider.GetCurrentConnectionItemByUser(userId);
         
         // auth from Login form
         if (_httpContextAccessor.HttpContext?.Request.HasFormContentType == true &&
                  _httpContextAccessor.HttpContext?.Request.ContentType != null && 
-                 _httpContextAccessor.HttpContext?.Request.Form?.TryGetValue("Input.DbName", out var dbId) == true)
+                 _httpContextAccessor.HttpContext?.Request.Form?.TryGetValue("Input.DbName", out var dbName) == true)
         {
-            item = _dataSourceProvider.GetConnectionItemByDbId(dbId);
+            item = _dataSourceProvider.GetConnectionItemByDbName(dbName);
             return item;
         }
         
         // auth from auth endpoint
         if (_httpContextAccessor.HttpContext?.Request.Path == "/api/auth" &&
-            _httpContextAccessor.HttpContext?.Request.Query.TryGetValue("dbid", out var val) == true)
+            _httpContextAccessor.HttpContext?.Request.Query.TryGetValue("dbname", out var val) == true)
         {
-            var dbIdParam = val.FirstOrDefault();
-            if (string.IsNullOrEmpty(dbIdParam))
+            dbName = val.FirstOrDefault();
+            if (string.IsNullOrEmpty(dbName))
                 throw new ArgumentException("DbId not set in auth query!");
 
-            item = _dataSourceProvider.GetConnectionItemByDbId(dbIdParam);
+            item = _dataSourceProvider.GetConnectionItemByDbName(dbName);
             return item;
         }
         

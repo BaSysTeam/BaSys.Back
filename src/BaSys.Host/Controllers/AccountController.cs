@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using BaSys.Host.Identity;
 using BaSys.Host.Identity.Models;
-using BaSys.Host.Infrastructure.Interfaces;
+using BaSys.Host.Infrastructure.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace BaSys.Host.Controllers
