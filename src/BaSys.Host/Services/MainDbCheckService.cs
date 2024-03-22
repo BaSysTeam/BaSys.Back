@@ -1,6 +1,7 @@
 ﻿using BaSys.Common.Infrastructure;
 using BaSys.Host.Abstractions;
 using BaSys.Host.DAL;
+using BaSys.Host.DAL.Identity;
 using BaSys.SuperAdmin.Data.Identity;
 using BaSys.SuperAdmin.Infrastructure.Models;
 using Microsoft.AspNetCore.Identity;
@@ -10,12 +11,12 @@ namespace BaSys.Host.Services;
 
 public class MainDbCheckService : IMainDbCheckService
 {
-    private readonly UserManager<IdentityUser> _userManager;
-    private readonly RoleManager<IdentityRole> _roleManager;
+    private readonly UserManager<WorkDbUser> _userManager;
+    private readonly RoleManager<WorkDbRole> _roleManager;
     private readonly ApplicationDbContext _context;
     
-    public MainDbCheckService(UserManager<IdentityUser> userManager,
-        RoleManager<IdentityRole> roleManager,
+    public MainDbCheckService(UserManager<WorkDbUser> userManager,
+        RoleManager<WorkDbRole> roleManager,
         ApplicationDbContext context)
     {
         _userManager = userManager;
@@ -67,7 +68,7 @@ public class MainDbCheckService : IMainDbCheckService
         {
             if (!await _userManager.Users.AnyAsync(x => x.NormalizedEmail == adminLogin.ToUpper()))
             {
-                await _userManager.CreateAsync(new IdentityUser()
+                await _userManager.CreateAsync(new WorkDbUser()
                 {
                     UserName = adminLogin,
                     Email = adminLogin
@@ -83,7 +84,7 @@ public class MainDbCheckService : IMainDbCheckService
         foreach (var role in ApplicationRole.AllApplicationRoles())
         {
             if (!await _roleManager.RoleExistsAsync(role.Name))
-                await _roleManager.CreateAsync(new SaDbRole(role.Name));
+                await _roleManager.CreateAsync(new WorkDbRole(role.Name));
         }
     }
 }

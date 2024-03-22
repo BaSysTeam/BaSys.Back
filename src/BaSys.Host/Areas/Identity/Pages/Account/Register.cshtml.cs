@@ -11,6 +11,7 @@ using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
 using BaSys.Common.Infrastructure;
+using BaSys.Host.DAL.Identity;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -24,19 +25,19 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
 {
     public class RegisterModel : PageModel
     {
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly IUserStore<IdentityUser> _userStore;
-        private readonly IUserEmailStore<IdentityUser> _emailStore;
+        private readonly SignInManager<WorkDbUser> _signInManager;
+        private readonly UserManager<WorkDbUser> _userManager;
+        private readonly RoleManager<WorkDbRole> _roleManager;
+        private readonly IUserStore<WorkDbUser> _userStore;
+        private readonly IUserEmailStore<WorkDbUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
 
         public RegisterModel(
-            UserManager<IdentityUser> userManager,
-            IUserStore<IdentityUser> userStore,
-            SignInManager<IdentityUser> signInManager,
-            RoleManager<IdentityRole> roleManager,
+            UserManager<WorkDbUser> userManager,
+            IUserStore<WorkDbUser> userStore,
+            SignInManager<WorkDbUser> signInManager,
+            RoleManager<WorkDbRole> roleManager,
             ILogger<RegisterModel> logger,
             IEmailSender emailSender)
         {
@@ -162,39 +163,39 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
             return Page();
         }
 
-        private IdentityUser CreateUser()
+        private WorkDbUser CreateUser()
         {
             try
             {
-                return Activator.CreateInstance<IdentityUser>();
+                return Activator.CreateInstance<WorkDbUser>();
             }
             catch
             {
-                throw new InvalidOperationException($"Can't create an instance of '{nameof(IdentityUser)}'. " +
-                    $"Ensure that '{nameof(IdentityUser)}' is not an abstract class and has a parameterless constructor, or alternatively " +
+                throw new InvalidOperationException($"Can't create an instance of '{nameof(WorkDbUser)}'. " +
+                    $"Ensure that '{nameof(WorkDbUser)}' is not an abstract class and has a parameterless constructor, or alternatively " +
                     $"override the register page in /Areas/Identity/Pages/Account/Register.cshtml");
             }
         }
 
-        private IUserEmailStore<IdentityUser> GetEmailStore()
+        private IUserEmailStore<WorkDbUser> GetEmailStore()
         {
             if (!_userManager.SupportsUserEmail)
             {
                 throw new NotSupportedException("The default UI requires a user store with email support.");
             }
-            return (IUserEmailStore<IdentityUser>)_userStore;
+            return (IUserEmailStore<WorkDbUser>)_userStore;
         }
 
         private async Task CheckCreateRoleAsync(string roleName)
         {
             if (!_roleManager.Roles.Any(x => x.Name.ToUpper() == roleName.ToUpper()))
             {
-                await _roleManager.CreateAsync(new IdentityRole(roleName));
+                await _roleManager.CreateAsync(new WorkDbRole(roleName));
 
             }
         }
 
-        private async Task AddRolesAsync(IdentityUser user)
+        private async Task AddRolesAsync(WorkDbUser user)
         {
             // Administrator.
             await CheckCreateRoleAsync(ApplicationRole.Administrator);

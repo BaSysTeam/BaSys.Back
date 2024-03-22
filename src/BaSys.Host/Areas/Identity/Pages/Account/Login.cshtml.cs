@@ -3,6 +3,7 @@
 #nullable disable
 
 using System.ComponentModel.DataAnnotations;
+using BaSys.Host.DAL.Identity;
 using BaSys.Host.Infrastructure.Interfaces;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
@@ -15,13 +16,13 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
     public class LoginModel : PageModel
     {
         private readonly ILogger<LoginModel> _logger;
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly SignInManager<WorkDbUser> _signInManager;
+        private readonly UserManager<WorkDbUser> _userManager;
         private readonly IDataSourceProvider _dataSourceProvider;
 
         public LoginModel(ILogger<LoginModel> logger,
-            SignInManager<IdentityUser> signInManager,
-            UserManager<IdentityUser> userManager,
+            SignInManager<WorkDbUser> signInManager,
+            UserManager<WorkDbUser> userManager,
             IDataSourceProvider dataSourceProvider)
         {
             _logger = logger;

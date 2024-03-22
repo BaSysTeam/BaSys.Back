@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using BaSys.Host.DAL.Identity;
 using BaSys.Host.Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,12 +18,12 @@ namespace BaSys.Host.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly SignInManager<WorkDbUser> _signInManager;
+        private readonly UserManager<WorkDbUser> _userManager;
         private readonly IDataSourceProvider _dataSourceProvider;
 
-        public AccountController(SignInManager<IdentityUser> signInManager,
-            UserManager<IdentityUser> userManager,
+        public AccountController(SignInManager<WorkDbUser> signInManager,
+            UserManager<WorkDbUser> userManager,
             IDataSourceProvider dataSourceProvider)
         {
             _signInManager = signInManager;

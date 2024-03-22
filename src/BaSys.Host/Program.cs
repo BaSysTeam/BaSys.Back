@@ -4,19 +4,17 @@ using BaSys.Common.Enums;
 using BaSys.Common.Infrastructure;
 using BaSys.Host.Abstractions;
 using BaSys.Host.DAL;
+using BaSys.Host.DAL.Identity;
 using BaSys.Host.DAL.MsSqlContext;
 using BaSys.Host.DAL.PgSqlContext;
-using BaSys.Host.Helpers;
 using BaSys.Host.Infrastructure;
 using BaSys.Host.Infrastructure.Interfaces;
 using BaSys.Host.Infrastructure.JwtAuth;
 using BaSys.Host.Services;
 using BaSys.SuperAdmin.Abstractions;
 using BaSys.SuperAdmin.DAL;
-using BaSys.SuperAdmin.Data;
 using BaSys.SuperAdmin.Data.Identity;
 using BaSys.SuperAdmin.Infrastructure;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -30,7 +28,7 @@ namespace BaSys.Host
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.AddScoped<IdentityDbContext>(sp =>
+            builder.Services.AddScoped<IdentityDbContext<WorkDbUser, WorkDbRole, string>>(sp =>
             {
                 return sp.GetRequiredService<ApplicationDbContext>();
             });
@@ -43,7 +41,6 @@ namespace BaSys.Host
             builder.Services.AddScoped<ApplicationDbContext>(sp =>
             {
                 var item = sp.GetRequiredService<IHttpRequestContextService>().GetConnectionItem();
-                // var item = ContextHelper.GetConnectionItem(sp);
                 switch (item?.DbKind)
                 {
                     case DbKinds.MsSql:
@@ -64,7 +61,6 @@ namespace BaSys.Host
             // Add mssql context
             builder.Services.AddDbContext<MsSqlDbContext>((sp, options) =>
             {
-                // var item = ContextHelper.GetConnectionItem(sp, DbKinds.MsSql);
                 var item = sp.GetRequiredService<IHttpRequestContextService>().GetConnectionItem(DbKinds.MsSql);
                 if (item != null)
                     options.UseSqlServer(item.ConnectionString);
@@ -72,14 +68,13 @@ namespace BaSys.Host
             // Add pgsql context
             builder.Services.AddDbContext<PgSqlDbContext>((sp, options) =>
             {
-                // var item = ContextHelper.GetConnectionItem(sp, DbKinds.PgSql);
                 var item = sp.GetRequiredService<IHttpRequestContextService>().GetConnectionItem(DbKinds.PgSql);
                 if (item != null)
                     options.UseNpgsql(item.ConnectionString);
             });
 
             // Add default identity
-            builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
+            builder.Services.AddIdentity<WorkDbUser, WorkDbRole>(options =>
                 {
                     options.SignIn.RequireConfirmedAccount = false;
                     options.Password.RequireDigit = false;
@@ -88,7 +83,7 @@ namespace BaSys.Host
                     options.Password.RequireUppercase = false;
                     options.Password.RequireNonAlphanumeric = false;
                 })
-                .AddEntityFrameworkStores<IdentityDbContext>();
+                .AddEntityFrameworkStores<IdentityDbContext<WorkDbUser, WorkDbRole, string>>();
 
             // Add sa identity
             builder.Services.AddIdentityCore<SaDbUser>(options =>
@@ -118,9 +113,8 @@ namespace BaSys.Host
                 })
                 .AddCookie(options =>
                 {
-                    options.LoginPath = new Microsoft.AspNetCore.Http.PathString("/Identity/Account/Login");
-                    
-                })             
+                    options.LoginPath = new PathString("/Identity/Account/Login");
+                })
                 .AddJwtBearer(
                     opt =>
                     {
