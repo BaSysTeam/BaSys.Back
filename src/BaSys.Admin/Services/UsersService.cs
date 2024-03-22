@@ -3,10 +3,10 @@ using BaSys.Common.Infrastructure;
 using BaSys.Translation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System.Data;
 using System.Text;
 using BaSys.Admin.Abstractions;
-using BaSys.Host.DAL.Identity;
+using BaSys.Host.Identity;
+using BaSys.Host.Identity.Models;
 
 namespace BaSys.Admin.Services
 {

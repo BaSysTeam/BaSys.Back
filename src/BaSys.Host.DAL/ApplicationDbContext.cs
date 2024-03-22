@@ -1,4 +1,5 @@
-﻿using BaSys.Host.DAL.Identity;
+﻿using BaSys.Host.Identity;
+using BaSys.Host.Identity.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 

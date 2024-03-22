@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace BaSys.Host.DAL.Identity;
+namespace BaSys.Host.Identity.Models;
 
 public class WorkDbUser : IdentityUser
 {

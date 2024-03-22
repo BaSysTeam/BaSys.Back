@@ -1,11 +1,11 @@
 ﻿using BaSys.Admin.DTO;
 using BaSys.Common.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using BaSys.Host.DAL.Identity;
+using BaSys.Host.Identity;
+using BaSys.Host.Identity.Models;
 using BaSys.Host.Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
 

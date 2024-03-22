@@ -3,7 +3,8 @@
 #nullable disable
 
 using System.ComponentModel.DataAnnotations;
-using BaSys.Host.DAL.Identity;
+using BaSys.Host.Identity;
+using BaSys.Host.Identity.Models;
 using BaSys.Host.Infrastructure.Interfaces;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
