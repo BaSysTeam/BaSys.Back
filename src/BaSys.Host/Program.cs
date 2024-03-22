@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Text;
 using BaSys.Admin.Infrastructure;
 using BaSys.Common.Enums;
@@ -144,7 +145,17 @@ namespace BaSys.Host
             builder.Services.AddTransient<IWorkDbService, WorkDbService>();
             builder.Services.AddTransient<IHttpRequestContextService, HttpRequestContextService>();
 
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(options =>
+            {
+                var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+                //
+                var superAdminPath = @"C:\repos\BaSys\BaSys.Back\src\BaSys.SuperAdmin\bin\Debug\net8.0";
+                var superAdminXmlFileName = "BaSys.SuperAdmin.xml";
+                var filePath = Path.Combine(superAdminPath, superAdminXmlFileName);
+                options.IncludeXmlComments(filePath);
+                //
+            });
 
             var app = builder.Build();
 
