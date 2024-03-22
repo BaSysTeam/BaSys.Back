@@ -62,15 +62,13 @@ namespace BaSys.Host
             builder.Services.AddDbContext<MsSqlDbContext>((sp, options) =>
             {
                 var item = sp.GetRequiredService<IHttpRequestContextService>().GetConnectionItem(DbKinds.MsSql);
-                if (item != null)
-                    options.UseSqlServer(item.ConnectionString);
+                options.UseSqlServer(item?.ConnectionString ?? string.Empty);
             });
             // Add pgsql context
             builder.Services.AddDbContext<PgSqlDbContext>((sp, options) =>
             {
                 var item = sp.GetRequiredService<IHttpRequestContextService>().GetConnectionItem(DbKinds.PgSql);
-                if (item != null)
-                    options.UseNpgsql(item.ConnectionString);
+                options.UseNpgsql(item?.ConnectionString ?? string.Empty);
             });
 
             // Add default identity
@@ -105,16 +103,13 @@ namespace BaSys.Host
             builder.Services.AddCors();
 
             builder.Services.AddAuthentication(
-                options =>
-                {
-                   // options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                   // options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                   // options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                })
-                .AddCookie(options =>
-                {
-                    options.LoginPath = new PathString("/Identity/Account/Login");
-                })
+                    options =>
+                    {
+                        // options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                        // options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                        // options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                    })
+                .AddCookie(options => { options.LoginPath = new PathString("/Identity/Account/Login"); })
                 .AddJwtBearer(
                     opt =>
                     {
@@ -129,7 +124,7 @@ namespace BaSys.Host
                             RequireExpirationTime = true
                         };
                     });
-                
+
 
             builder.Services.AddTransient<IJwtAuthService, JwtAuthService>();
 
