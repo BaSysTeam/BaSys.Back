@@ -34,7 +34,9 @@ namespace BaSys.FluentQueries.UnitTests
             Console.WriteLine("PG SQL:");
             Console.WriteLine(pgSqlQuery.Text);
 
-            Assert.Pass();
+            Assert.That(msSqlQuery.Text, Is.EqualTo(Texts.CreateTableMetadataGroupMsSql));
+            Assert.That(pgSqlQuery.Text, Is.EqualTo(Texts.CreateTableMetadataGroupPgSql));  
+           
         }
     }
 }

@@ -56,7 +56,7 @@ namespace BaSys.FluentQueries.QueryBuilders
                 n++;
             }
             sb.AppendLine();
-            sb.AppendLine(");");
+            sb.Append(");");
            
             query.Text = sb.ToString();
             return query;
