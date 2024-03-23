@@ -8,30 +8,27 @@ using System.Text;
 
 namespace BaSys.FluentQueries.QueryBuilders
 {
-    public sealed class CreateTableConstructor
+    public sealed class CreateTableBuilder
     {
         private readonly CreateTableModel _model;
-        private DbKinds _dbKind;
 
-        public CreateTableConstructor(DbKinds dbKind)
+        public CreateTableBuilder()
         {
             _model = new CreateTableModel();
-            _dbKind = dbKind;
         }
 
-        public CreateTableConstructor(CreateTableModel model, DbKinds dbKind)
+        public CreateTableBuilder(CreateTableModel model)
         {
             _model = model;
-            _dbKind = dbKind;
         }
 
-        public CreateTableConstructor Table(string tableName)
+        public CreateTableBuilder Table(string tableName)
         {
             _model.TableName = tableName;
             return this;
         }
 
-        public CreateTableConstructor PrimaryKey(string name, DbType dbType)
+        public CreateTableBuilder PrimaryKey(string name, DbType dbType)
         {
             var newColumn = new TableColumn() { Name = name, DbType = dbType, PrimaryKey = true };
             _model.AddColumn(newColumn);
@@ -39,7 +36,7 @@ namespace BaSys.FluentQueries.QueryBuilders
             return this;
         }
 
-        public CreateTableConstructor Column(string name, DbType dbType, bool required = true, bool unique = false)
+        public CreateTableBuilder Column(string name, DbType dbType, bool required = true, bool unique = false)
         {
             var newColumn = new TableColumn()
             {
@@ -54,8 +51,7 @@ namespace BaSys.FluentQueries.QueryBuilders
             return this;
         }
 
-        public CreateTableConstructor StringColumn(string name,
-            DbType dbType,
+        public CreateTableBuilder StringColumn(string name,
             int stringLength,
             bool required = true,
             bool unique = false)
@@ -63,7 +59,7 @@ namespace BaSys.FluentQueries.QueryBuilders
             var newColumn = new TableColumn()
             {
                 Name = name,
-                DbType = dbType,
+                DbType = DbType.String,
                 StringLength = stringLength,
                 Required = required,
                 Unique = unique
@@ -74,8 +70,7 @@ namespace BaSys.FluentQueries.QueryBuilders
             return this;
         }
 
-        public CreateTableConstructor NumberColumn(string name,
-           DbType dbType,
+        public CreateTableBuilder DecimalColumn(string name,
            int numberDigits,
            bool required = true,
            bool unique = false)
@@ -83,7 +78,7 @@ namespace BaSys.FluentQueries.QueryBuilders
             var newColumn = new TableColumn()
             {
                 Name = name,
-                DbType = dbType,
+                DbType = DbType.Decimal,
                 NumberDigits = numberDigits,
                 Required = required,
                 Unique = unique
@@ -94,7 +89,7 @@ namespace BaSys.FluentQueries.QueryBuilders
             return this;
         }
 
-        public IQuery Query()
+        public IQuery Query(DbKinds dbKind)
         {
             ///TODO:
             ///Implement validation
@@ -104,18 +99,18 @@ namespace BaSys.FluentQueries.QueryBuilders
 
             IQuery query = null;
 
-            switch (_dbKind)
+            switch (dbKind)
             {
                 case DbKinds.MsSql:
-                    var msSqlBuilder = new MsSqlCreateTableBuilder(_model);
+                    var msSqlBuilder = new MsSqlCreateTableQueryBuilder(_model);
                     query = msSqlBuilder.Build();
                     break;
                 case DbKinds.PgSql:
-                    var pgSqlBuilder = new PgSqlCreateTableBuilder(_model);
+                    var pgSqlBuilder = new PgSqlCreateTableQueryBuilder(_model);
                     query = pgSqlBuilder.Build();
                     break;
                 default:
-                    throw new NotImplementedException($"{GetType().Name} not implemented for DbKind {_dbKind}.");
+                    throw new NotImplementedException($"{GetType().Name} not implemented for DbKind {dbKind}.");
 
             }
 
@@ -123,9 +118,9 @@ namespace BaSys.FluentQueries.QueryBuilders
 
         }
   
-        public static CreateTableConstructor Make(DbKinds dbKind)
+        public static CreateTableBuilder Make()
         {
-            return new CreateTableConstructor(dbKind);
+            return new CreateTableBuilder();
         }
     }
 }

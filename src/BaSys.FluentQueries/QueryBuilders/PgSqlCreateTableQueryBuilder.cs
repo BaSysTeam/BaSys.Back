@@ -7,32 +7,15 @@ using System.Text;
 
 namespace BaSys.FluentQueries.QueryBuilders
 {
-    internal class PgSqlCreateTableBuilder
-    {
-        private readonly CreateTableModel _model;
+    internal class PgSqlCreateTableQueryBuilder: CreateTableQueryBuilderBase
+    {    
 
-        public PgSqlCreateTableBuilder(CreateTableModel model)
+        public PgSqlCreateTableQueryBuilder(CreateTableModel model):base(model)
         {
-            _model = model;
+           
         }
 
-        public IQuery Build()
-        {
-            var query = new Query();
-
-            var sb = new StringBuilder();
-            sb.AppendLine($"CREATE TABLE {_model.TableName}(");
-            foreach (var column in _model.Columns)
-            {
-                AddColumnQuery(sb, column);
-            }
-            sb.AppendLine(");");
-
-            query.Text = sb.ToString();
-            return query;
-        }
-
-        private string GetDataType(DbType dbType, int stringLength)
+        protected override string GetDataType(DbType dbType, int stringLength)
         {
             var dataType = string.Empty;
             // In PostgreSQL, there is no 'MAX' keyword like in SQL Server. 
@@ -138,26 +121,5 @@ namespace BaSys.FluentQueries.QueryBuilders
 
             return dataType;
         }
-
-        private void AddColumnQuery(StringBuilder sb, TableColumn column)
-        {
-            sb.Append(column.Name);
-            sb.Append(' ');
-            sb.Append(GetDataType(column.DbType, column.StringLength));
-            sb.Append(' ');
-            if (column.PrimaryKey)
-            {
-                sb.Append("PRIMARY KEY");
-            }
-            if (column.Required)
-            {
-                sb.Append("NOT NULL");
-            }
-            else
-            {
-                sb.Append("NULL");
-            }
-        }
-
     }
 }
