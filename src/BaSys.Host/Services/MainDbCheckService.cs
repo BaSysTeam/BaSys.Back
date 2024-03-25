@@ -66,7 +66,7 @@ public class MainDbCheckService : IMainDbCheckService
         
         if (!string.IsNullOrEmpty(adminLogin) && !string.IsNullOrEmpty(adminPassword))
         {
-            if (!await _userManager.Users.AnyAsync(x => x.NormalizedEmail == adminLogin.ToUpper()))
+            if (!await _userManager.Users.AnyAsync(x => x.Email != null && x.Email.ToUpper() == adminLogin.ToUpper()))
             {
                 await _userManager.CreateAsync(new WorkDbUser()
                 {
