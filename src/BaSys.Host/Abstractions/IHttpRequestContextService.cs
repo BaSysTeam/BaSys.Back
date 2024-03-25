@@ -5,5 +5,6 @@ namespace BaSys.Host.Abstractions;
 
 public interface IHttpRequestContextService
 {
+    DbKinds? GetConnectionKind();
     ConnectionItem? GetConnectionItem(DbKinds? dbKind = null);
 }

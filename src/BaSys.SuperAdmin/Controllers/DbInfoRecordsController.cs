@@ -13,7 +13,7 @@ namespace BaSys.SuperAdmin.Controllers;
 [Route("api/sa/v1/[controller]")]
 [ApiController]
 #if !DEBUG
-[Authorize(ApplicationRole.SuperAdministrator)]
+[Authorize(Roles = ApplicationRole.SuperAdministrator)]
 #endif
 public class DbInfoRecordsController : ControllerBase
 {

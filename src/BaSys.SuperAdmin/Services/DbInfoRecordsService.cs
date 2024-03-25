@@ -1,5 +1,6 @@
 ﻿using BaSys.SuperAdmin.Abstractions;
 using BaSys.SuperAdmin.DAL;
+using BaSys.SuperAdmin.DAL.Abstractions;
 using BaSys.SuperAdmin.DTO;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,10 +9,13 @@ namespace BaSys.SuperAdmin.Services;
 public class DbInfoRecordsService : IDbInfoRecordsService
 {
     private readonly SuperAdminDbContext _context;
+    private readonly IDbInfoRecordsProvider _dbInfoRecordsProvider;
 
-    public DbInfoRecordsService(SuperAdminDbContext context)
+    public DbInfoRecordsService(SuperAdminDbContext context,
+        IDbInfoRecordsProvider dbInfoRecordsProvider)
     {
         _context = context;
+        _dbInfoRecordsProvider = dbInfoRecordsProvider;
     }
 
     public async Task<IEnumerable<DbInfoRecordDto>> GetDbInfoRecords()
@@ -56,6 +60,7 @@ public class DbInfoRecordsService : IDbInfoRecordsService
         _context.DbInfoRecords.Add(item);
 
         await _context.SaveChangesAsync();
+        await _dbInfoRecordsProvider.Update();
 
         return new DbInfoRecordDto(item);
     }
@@ -69,6 +74,7 @@ public class DbInfoRecordsService : IDbInfoRecordsService
         dbItem.Fill(dbInfoRecord.ToModel());
 
         await _context.SaveChangesAsync();
+        await _dbInfoRecordsProvider.Update();
 
         return new DbInfoRecordDto(dbItem);
     }
@@ -81,6 +87,7 @@ public class DbInfoRecordsService : IDbInfoRecordsService
 
         _context.DbInfoRecords.Remove(dbItem);
         var deletedCount = await _context.SaveChangesAsync();
+        await _dbInfoRecordsProvider.Update();
 
         return deletedCount;
     }
@@ -94,6 +101,7 @@ public class DbInfoRecordsService : IDbInfoRecordsService
         dbItem.IsDeleted = !dbItem.IsDeleted;
         _context.Update(dbItem);
         await _context.SaveChangesAsync();
+        await _dbInfoRecordsProvider.Update();
 
         return new DbInfoRecordDto(dbItem);
     }
