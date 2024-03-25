@@ -16,7 +16,7 @@ namespace BaSys.Admin.Controllers
     [Route("api/admin/v1/[controller]")]
     [ApiController]
 #if !DEBUG
-    [Authorize(ApplicationRole.Administrator)]
+    [Authorize(Roles = ApplicationRole.Administrator)]
 #endif
     public class UsersController : ControllerBase
     {
