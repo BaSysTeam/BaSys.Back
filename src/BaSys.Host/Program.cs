@@ -15,6 +15,7 @@ using BaSys.Host.Infrastructure.Providers;
 using BaSys.Host.Services;
 using BaSys.SuperAdmin.Abstractions;
 using BaSys.SuperAdmin.DAL;
+using BaSys.SuperAdmin.DAL.Abstractions;
 using BaSys.SuperAdmin.Data.Identity;
 using BaSys.SuperAdmin.Infrastructure;
 using Microsoft.AspNetCore.Identity;

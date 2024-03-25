@@ -1,5 +1,6 @@
 ﻿using BaSys.SuperAdmin.Abstractions;
 using BaSys.SuperAdmin.DAL;
+using BaSys.SuperAdmin.DAL.Abstractions;
 using BaSys.SuperAdmin.DTO;
 using Microsoft.EntityFrameworkCore;
 

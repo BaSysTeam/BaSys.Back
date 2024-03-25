@@ -1,10 +1,10 @@
 ﻿using System.Collections.Concurrent;
-using BaSys.SuperAdmin.Abstractions;
-using BaSys.SuperAdmin.DAL;
+using BaSys.SuperAdmin.DAL.Abstractions;
 using BaSys.SuperAdmin.DAL.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace BaSys.SuperAdmin.Providers;
+namespace BaSys.SuperAdmin.DAL.Providers;
 
 public class DbInfoRecordsProvider : IDbInfoRecordsProvider
 {

@@ -1,6 +1,6 @@
 ﻿using BaSys.SuperAdmin.DAL.Models;
 
-namespace BaSys.SuperAdmin.Abstractions;
+namespace BaSys.SuperAdmin.DAL.Abstractions;
 
 public interface IDbInfoRecordsProvider
 {

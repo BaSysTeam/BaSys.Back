@@ -1,10 +1,11 @@
 ﻿using BaSys.Common.Enums;
 using BaSys.SuperAdmin.Abstractions;
 using BaSys.SuperAdmin.DAL;
+using BaSys.SuperAdmin.DAL.Abstractions;
 using BaSys.SuperAdmin.DAL.MsSqlContext;
 using BaSys.SuperAdmin.DAL.PgSqlContext;
+using BaSys.SuperAdmin.DAL.Providers;
 using BaSys.SuperAdmin.Infrastructure.Models;
-using BaSys.SuperAdmin.Providers;
 using BaSys.SuperAdmin.Services;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.EntityFrameworkCore;
