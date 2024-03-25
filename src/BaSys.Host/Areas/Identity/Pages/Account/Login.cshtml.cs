@@ -3,7 +3,9 @@
 #nullable disable
 
 using System.ComponentModel.DataAnnotations;
-using BaSys.Host.Infrastructure.Interfaces;
+using BaSys.Host.Identity;
+using BaSys.Host.Identity.Models;
+using BaSys.Host.Infrastructure.Abstractions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -15,13 +17,13 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
     public class LoginModel : PageModel
     {
         private readonly ILogger<LoginModel> _logger;
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly SignInManager<WorkDbUser> _signInManager;
+        private readonly UserManager<WorkDbUser> _userManager;
         private readonly IDataSourceProvider _dataSourceProvider;
 
         public LoginModel(ILogger<LoginModel> logger,
-            SignInManager<IdentityUser> signInManager,
-            UserManager<IdentityUser> userManager,
+            SignInManager<WorkDbUser> signInManager,
+            UserManager<WorkDbUser> userManager,
             IDataSourceProvider dataSourceProvider)
         {
             _logger = logger;
@@ -127,6 +129,9 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     var currentUser = await _userManager.Users.FirstAsync(x => x.Email.ToUpper() == Input.Email.ToUpper());
+                    currentUser.DbName = Input.DbName;
+                    await _userManager.UpdateAsync(currentUser);
+                    
                     _dataSourceProvider.SetConnection(Input.DbName, currentUser.Id);
                     
                     _logger.LogInformation("User logged in.");

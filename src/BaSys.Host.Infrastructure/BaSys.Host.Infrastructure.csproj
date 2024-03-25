@@ -7,6 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\BaSys.Host.Identity\BaSys.Host.Identity.csproj" />
       <ProjectReference Include="..\BaSys.Shared\BaSys.Shared.csproj" />
       <ProjectReference Include="..\BaSys.SuperAdmin.DAL\BaSys.SuperAdmin.DAL.csproj" />
     </ItemGroup>
