@@ -137,7 +137,7 @@ namespace BaSys.Host
             builder.Services.AddTransient<IWorkDbService, WorkDbService>();
             builder.Services.AddTransient<IHttpRequestContextService, HttpRequestContextService>();
 
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(options => IncludeXmlCommentsHelper.IncludeXmlComments(options));
 
             var app = builder.Build();
 

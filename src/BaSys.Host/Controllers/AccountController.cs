@@ -59,7 +59,7 @@ namespace BaSys.Host.Controllers
             return Ok(result);
         }
 
-        // <summary>
+        /// <summary>
         /// Logs out the currently authenticated user.
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> indicating the success or failure of the logout operation.</returns>
