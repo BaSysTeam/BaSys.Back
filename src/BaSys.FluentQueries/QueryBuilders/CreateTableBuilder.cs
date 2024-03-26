@@ -89,7 +89,7 @@ namespace BaSys.FluentQueries.QueryBuilders
             return this;
         }
 
-        public IQuery Query(DbKinds dbKind)
+        public IQuery Query(SqlDialectKinds dbKind)
         {
             ///TODO:
             ///Implement validation
@@ -101,11 +101,11 @@ namespace BaSys.FluentQueries.QueryBuilders
 
             switch (dbKind)
             {
-                case DbKinds.MsSql:
+                case SqlDialectKinds.MsSql:
                     var msSqlBuilder = new MsSqlCreateTableQueryBuilder(_model);
                     query = msSqlBuilder.Build();
                     break;
-                case DbKinds.PgSql:
+                case SqlDialectKinds.PgSql:
                     var pgSqlBuilder = new PgSqlCreateTableQueryBuilder(_model);
                     query = pgSqlBuilder.Build();
                     break;

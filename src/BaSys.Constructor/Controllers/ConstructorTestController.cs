@@ -4,6 +4,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using BaSys.SuperAdmin.DAL.Providers;
+using Microsoft.Data.SqlClient;
+using Npgsql;
+using System.Data;
+using BaSys.Common.Enums;
+using Microsoft.AspNetCore.Connections;
+using BaSys.Host.DAL;
+using BaSys.Host.DAL.TableManagers;
 
 namespace BaSys.Constructor.Controllers
 {
@@ -34,11 +41,11 @@ namespace BaSys.Constructor.Controllers
             return Ok(result);  
         }
 
-        [HttpPost("MetadataGroupTable")]
-        public IActionResult CreateMetadataGroupTable()
+        [HttpPost("CreateMetadataGroupTable")]
+        public async Task<IActionResult> CreateMetadataGroupTable()
         {
             //var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var result = new ResultWrapper<string>();
+            var result = new ResultWrapper<int>();
             var dbName = User.Claims.FirstOrDefault(c => c.Type == "DbName")?.Value;
 
             if(string.IsNullOrEmpty(dbName) )
@@ -56,16 +63,34 @@ namespace BaSys.Constructor.Controllers
             //    return Ok(result);
             //}
 
-            var mainDbConnectionString = _configuration.GetSection("InitAppSettings:MainDb:ConnectionString").Value;
+            var connectionString = _configuration.GetSection("InitAppSettings:MainDb:ConnectionString").Value;
+            var dbKindStr = _configuration.GetSection("InitAppSettings:MainDb:DbKind").Value;
 
-            if (string.IsNullOrEmpty(mainDbConnectionString))
+            if (string.IsNullOrEmpty(connectionString))
             {
                 result.Error(-1, $"Cannot get connectionSring.");
                 return Ok(result);
             }
 
-            result.Success(dbName);
+            var dbKindInt = int.Parse(dbKindStr);
+            var dbKind = (DbKinds)dbKindInt;
 
+            var factory = new ConnectionFactory();
+            using(IDbConnection connection = factory.CreateConnection(connectionString, dbKind))
+            {
+                var tableManager = new MetadataGroupManager(connection);
+
+                try
+                {
+                    var tablesCreated = await tableManager.CreateTableAsync(null);
+                    result.Success(tablesCreated, $"Metadata group table created");
+                }
+                catch(Exception ex)
+                {
+                    result.Error(0, ex.Message );
+                }
+            }
+           
          
 
             return Ok(result);
