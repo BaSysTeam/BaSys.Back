@@ -11,6 +11,8 @@ using BaSys.Common.Enums;
 using Microsoft.AspNetCore.Connections;
 using BaSys.Host.DAL;
 using BaSys.Host.DAL.TableManagers;
+using BaSys.SuperAdmin.DAL.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace BaSys.Constructor.Controllers
 {
@@ -38,7 +40,7 @@ namespace BaSys.Constructor.Controllers
             var result = new ResultWrapper<DateTime>();
             result.Success(DateTime.Now);
 
-            return Ok(result);  
+            return Ok(result);
         }
 
         [HttpPost("CreateMetadataGroupTable")]
@@ -48,7 +50,7 @@ namespace BaSys.Constructor.Controllers
             var result = new ResultWrapper<int>();
             var dbName = User.Claims.FirstOrDefault(c => c.Type == "DbName")?.Value;
 
-            if(string.IsNullOrEmpty(dbName) )
+            if (string.IsNullOrEmpty(dbName))
             {
                 result.Error(-1, $"Cannot get dbName.");
                 return Ok(result);
@@ -63,37 +65,74 @@ namespace BaSys.Constructor.Controllers
             //    return Ok(result);
             //}
 
-            var connectionString = _configuration.GetSection("InitAppSettings:MainDb:ConnectionString").Value;
-            var dbKindStr = _configuration.GetSection("InitAppSettings:MainDb:DbKind").Value;
-
-            if (string.IsNullOrEmpty(connectionString))
-            {
-                result.Error(-1, $"Cannot get connectionSring.");
-                return Ok(result);
-            }
-
-            var dbKindInt = int.Parse(dbKindStr);
-            var dbKind = (DbKinds)dbKindInt;
+            var dbInfoRecord = GetDbInfoRecordTmp();
 
             var factory = new ConnectionFactory();
-            using(IDbConnection connection = factory.CreateConnection(connectionString, dbKind))
+            using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
             {
                 var tableManager = new MetadataGroupManager(connection);
 
                 try
                 {
-                    var tablesCreated = await tableManager.CreateTableAsync(null);
-                    result.Success(tablesCreated, $"Metadata group table created");
+                    await tableManager.CreateTableAsync(null);
+                    result.Success(1, $"Metadata group table created");
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
-                    result.Error(0, ex.Message );
+                    result.Error(-1, ex.Message);
                 }
             }
-           
-         
+
+
 
             return Ok(result);
+        }
+
+        [HttpPost("DeleteMetadataGroupTable")]
+        public async Task<IActionResult> DeleteMetadataGroupTable()
+        {
+            var result = new ResultWrapper<int>();
+            var dbInfoRecord = GetDbInfoRecordTmp();
+
+            var factory = new ConnectionFactory();
+            using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
+            {
+                var tableManager = new MetadataGroupManager(connection);
+
+                try
+                {
+                    await tableManager.DropTableAsync(null);
+                    result.Success(1, $"Metadata group table dropped");
+                }
+                catch (Exception ex)
+                {
+                    result.Error(0, ex.Message);
+                }
+            }
+
+            return Ok(result);
+        }
+
+        private DbInfoRecord GetDbInfoRecordTmp()
+        {
+            var connectionString = _configuration.GetSection("InitAppSettings:MainDb:ConnectionString").Value;
+            var dbKindStr = _configuration.GetSection("InitAppSettings:MainDb:DbKind").Value;
+
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                return null;
+            }
+
+            var dbKindInt = int.Parse(dbKindStr);
+            var dbKind = (DbKinds)dbKindInt;
+
+            var dbInfoRecord = new DbInfoRecord()
+            {
+                DbKind = dbKind,
+                ConnectionString = connectionString
+            };
+
+            return dbInfoRecord;
         }
     }
 }
