@@ -7,16 +7,18 @@ using BaSys.Host.DAL;
 using BaSys.Host.DAL.MsSqlContext;
 using BaSys.Host.DAL.PgSqlContext;
 using BaSys.Host.Helpers;
+using BaSys.Host.Identity;
+using BaSys.Host.Identity.Models;
 using BaSys.Host.Infrastructure;
-using BaSys.Host.Infrastructure.Interfaces;
+using BaSys.Host.Infrastructure.Abstractions;
 using BaSys.Host.Infrastructure.JwtAuth;
+using BaSys.Host.Infrastructure.Providers;
 using BaSys.Host.Services;
 using BaSys.SuperAdmin.Abstractions;
 using BaSys.SuperAdmin.DAL;
-using BaSys.SuperAdmin.Data;
+using BaSys.SuperAdmin.DAL.Abstractions;
 using BaSys.SuperAdmin.Data.Identity;
 using BaSys.SuperAdmin.Infrastructure;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -30,7 +32,7 @@ namespace BaSys.Host
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.AddScoped<IdentityDbContext>(sp =>
+            builder.Services.AddScoped<IdentityDbContext<WorkDbUser, WorkDbRole, string>>(sp =>
             {
                 return sp.GetRequiredService<ApplicationDbContext>();
             });
@@ -40,18 +42,18 @@ namespace BaSys.Host
                 return sp.GetRequiredService<SuperAdminDbContext>();
             });
 
+            // Add WorkDb base context
             builder.Services.AddScoped<ApplicationDbContext>(sp =>
             {
-                var item = sp.GetRequiredService<IHttpRequestContextService>().GetConnectionItem();
-                // var item = ContextHelper.GetConnectionItem(sp);
-                switch (item?.DbKind)
+                var dbKind = sp.GetRequiredService<IHttpRequestContextService>().GetConnectionKind();
+                switch (dbKind)
                 {
                     case DbKinds.MsSql:
                         return sp.GetRequiredService<MsSqlDbContext>();
                     case DbKinds.PgSql:
                         return sp.GetRequiredService<PgSqlDbContext>();
                     default:
-                        throw new NotImplementedException($"Not implemented DbContext for type {item?.DbKind.ToString()}");
+                        throw new NotImplementedException($"Not implemented DbContext for type {dbKind.ToString()}");
                 }
             });
 
@@ -64,22 +66,18 @@ namespace BaSys.Host
             // Add mssql context
             builder.Services.AddDbContext<MsSqlDbContext>((sp, options) =>
             {
-                // var item = ContextHelper.GetConnectionItem(sp, DbKinds.MsSql);
                 var item = sp.GetRequiredService<IHttpRequestContextService>().GetConnectionItem(DbKinds.MsSql);
-                if (item != null)
-                    options.UseSqlServer(item.ConnectionString);
+                options.UseSqlServer(item?.ConnectionString ?? string.Empty);
             });
             // Add pgsql context
             builder.Services.AddDbContext<PgSqlDbContext>((sp, options) =>
             {
-                // var item = ContextHelper.GetConnectionItem(sp, DbKinds.PgSql);
                 var item = sp.GetRequiredService<IHttpRequestContextService>().GetConnectionItem(DbKinds.PgSql);
-                if (item != null)
-                    options.UseNpgsql(item.ConnectionString);
+                options.UseNpgsql(item?.ConnectionString ?? string.Empty);
             });
 
             // Add default identity
-            builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
+            builder.Services.AddIdentity<WorkDbUser, WorkDbRole>(options =>
                 {
                     options.SignIn.RequireConfirmedAccount = false;
                     options.Password.RequireDigit = false;
@@ -88,7 +86,7 @@ namespace BaSys.Host
                     options.Password.RequireUppercase = false;
                     options.Password.RequireNonAlphanumeric = false;
                 })
-                .AddEntityFrameworkStores<IdentityDbContext>();
+                .AddEntityFrameworkStores<IdentityDbContext<WorkDbUser, WorkDbRole, string>>();
 
             // Add sa identity
             builder.Services.AddIdentityCore<SaDbUser>(options =>
@@ -110,17 +108,13 @@ namespace BaSys.Host
             builder.Services.AddCors();
 
             builder.Services.AddAuthentication(
-                options =>
-                {
-                   // options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                   // options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                   // options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                })
-                .AddCookie(options =>
-                {
-                    options.LoginPath = new Microsoft.AspNetCore.Http.PathString("/Identity/Account/Login");
-                    
-                })             
+                    options =>
+                    {
+                        // options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                        // options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                        // options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                    })
+                .AddCookie(options => { options.LoginPath = new PathString("/Identity/Account/Login"); })
                 .AddJwtBearer(
                     opt =>
                     {
@@ -135,7 +129,7 @@ namespace BaSys.Host
                             RequireExpirationTime = true
                         };
                     });
-                
+
 
             builder.Services.AddTransient<IJwtAuthService, JwtAuthService>();
 
@@ -144,7 +138,7 @@ namespace BaSys.Host
             builder.Services.AddTransient<IWorkDbService, WorkDbService>();
             builder.Services.AddTransient<IHttpRequestContextService, HttpRequestContextService>();
 
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(options => IncludeXmlCommentsHelper.IncludeXmlComments(options));
 
             var app = builder.Build();
 
@@ -189,6 +183,9 @@ namespace BaSys.Host
                 await mainDbCheckService.Check(initAppSettings);
             };
             await systemDbService.CheckDbs();
+            
+            var dbInfoRecordsProvider = serviceScope.ServiceProvider.GetRequiredService<IDbInfoRecordsProvider>();
+            await dbInfoRecordsProvider.Update();
 
             app.Run();
         }

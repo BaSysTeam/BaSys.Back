@@ -1,11 +1,12 @@
 ﻿using BaSys.Admin.DTO;
 using BaSys.Common.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using BaSys.Host.Infrastructure.Interfaces;
+using BaSys.Host.Identity;
+using BaSys.Host.Identity.Models;
+using BaSys.Host.Infrastructure.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace BaSys.Host.Controllers
@@ -17,12 +18,12 @@ namespace BaSys.Host.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly SignInManager<WorkDbUser> _signInManager;
+        private readonly UserManager<WorkDbUser> _userManager;
         private readonly IDataSourceProvider _dataSourceProvider;
 
-        public AccountController(SignInManager<IdentityUser> signInManager,
-            UserManager<IdentityUser> userManager,
+        public AccountController(SignInManager<WorkDbUser> signInManager,
+            UserManager<WorkDbUser> userManager,
             IDataSourceProvider dataSourceProvider)
         {
             _signInManager = signInManager;
@@ -58,7 +59,7 @@ namespace BaSys.Host.Controllers
             return Ok(result);
         }
 
-        // <summary>
+        /// <summary>
         /// Logs out the currently authenticated user.
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> indicating the success or failure of the logout operation.</returns>
@@ -72,6 +73,9 @@ namespace BaSys.Host.Controllers
                 await _signInManager.SignOutAsync();
                 
                 var currentUser = await _userManager.Users.FirstAsync(x => x.Email.ToUpper() == email.ToUpper());
+                currentUser.DbName = null;
+                await _userManager.UpdateAsync(currentUser);
+                
                 _dataSourceProvider.RemoveConnection(currentUser.Id);
 
                 result.Success(true, "User loged out.");

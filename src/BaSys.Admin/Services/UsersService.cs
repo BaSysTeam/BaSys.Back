@@ -3,17 +3,18 @@ using BaSys.Common.Infrastructure;
 using BaSys.Translation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System.Data;
 using System.Text;
 using BaSys.Admin.Abstractions;
+using BaSys.Host.Identity;
+using BaSys.Host.Identity.Models;
 
 namespace BaSys.Admin.Services
 {
     public sealed class UsersService : IUsersService
     {
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<WorkDbUser> _userManager;
 
-        public UsersService(UserManager<IdentityUser> userManager)
+        public UsersService(UserManager<WorkDbUser> userManager)
         {
             _userManager = userManager;
         }
@@ -386,16 +387,16 @@ namespace BaSys.Admin.Services
             return result;
         }
 
-        private IdentityUser CreateUserInstance()
+        private WorkDbUser CreateUserInstance()
         {
             try
             {
-                return Activator.CreateInstance<IdentityUser>();
+                return Activator.CreateInstance<WorkDbUser>();
             }
             catch
             {
-                throw new InvalidOperationException($"Can't create an instance of '{nameof(IdentityUser)}'. " +
-                    $"Ensure that '{nameof(IdentityUser)}' is not an abstract class and has a parameterless constructor, or alternatively " +
+                throw new InvalidOperationException($"Can't create an instance of '{nameof(WorkDbUser)}'. " +
+                    $"Ensure that '{nameof(WorkDbUser)}' is not an abstract class and has a parameterless constructor, or alternatively " +
                     $"override the register page in /Areas/Identity/Pages/Account/Register.cshtml");
             }
         }

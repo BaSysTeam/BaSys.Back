@@ -3,7 +3,10 @@
 #nullable disable
 
 using System.ComponentModel.DataAnnotations;
-using BaSys.Host.Infrastructure.Interfaces;
+using BaSys.Host.Identity;
+using BaSys.Host.Identity.Models;
+using BaSys.Host.Infrastructure.Abstractions;
+using BaSys.SuperAdmin.DAL.Abstractions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -15,19 +18,22 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
     public class LoginModel : PageModel
     {
         private readonly ILogger<LoginModel> _logger;
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly SignInManager<WorkDbUser> _signInManager;
+        private readonly UserManager<WorkDbUser> _userManager;
         private readonly IDataSourceProvider _dataSourceProvider;
+        private readonly IDbInfoRecordsProvider _dbInfoRecordsProvider;
 
         public LoginModel(ILogger<LoginModel> logger,
-            SignInManager<IdentityUser> signInManager,
-            UserManager<IdentityUser> userManager,
-            IDataSourceProvider dataSourceProvider)
+            SignInManager<WorkDbUser> signInManager,
+            UserManager<WorkDbUser> userManager,
+            IDataSourceProvider dataSourceProvider,
+            IDbInfoRecordsProvider dbInfoRecordsProvider)
         {
             _logger = logger;
             _signInManager = signInManager;
             _userManager = userManager;
             _dataSourceProvider = dataSourceProvider;
+            _dbInfoRecordsProvider = dbInfoRecordsProvider;
         }
 
         /// <summary>
@@ -88,7 +94,7 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
             public bool RememberMe { get; set; }
         }
 
-        public async Task OnGetAsync(string returnUrl = null)
+        public async Task OnGetAsync(string dbName, string returnUrl = null)
         {
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -103,6 +109,14 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
             ReturnUrl = returnUrl;
+
+            if (!string.IsNullOrEmpty(dbName))
+            {
+                Input = new InputModel
+                {
+                    DbName = dbName
+                };
+            }
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
@@ -115,10 +129,20 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
             {
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
+                var dbInfoRecord = _dbInfoRecordsProvider.GetDbInfoRecordByDbName(Input.DbName);
+                if (dbInfoRecord?.IsDeleted == true)
+                {
+                    ModelState.AddModelError(string.Empty, $"Database with name '{Input.DbName}' is disabled.");
+                    return Page();
+                }
+                
                 var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
                     var currentUser = await _userManager.Users.FirstAsync(x => x.Email.ToUpper() == Input.Email.ToUpper());
+                    currentUser.DbName = Input.DbName;
+                    await _userManager.UpdateAsync(currentUser);
+                    
                     _dataSourceProvider.SetConnection(Input.DbName, currentUser.Id);
                     
                     _logger.LogInformation("User logged in.");

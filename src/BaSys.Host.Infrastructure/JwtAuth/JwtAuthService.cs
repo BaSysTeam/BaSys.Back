@@ -1,6 +1,8 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using BaSys.Host.Identity;
+using BaSys.Host.Identity.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -9,12 +11,12 @@ namespace BaSys.Host.Infrastructure.JwtAuth;
 
 public class JwtAuthService : IJwtAuthService
 {
-    private readonly SignInManager<IdentityUser> _signInManager;
-    private readonly UserManager<IdentityUser> _userManager;
+    private readonly SignInManager<WorkDbUser> _signInManager;
+    private readonly UserManager<WorkDbUser> _userManager;
     private readonly IConfiguration _configuration;
     
-    public JwtAuthService(SignInManager<IdentityUser> signInManager,
-        UserManager<IdentityUser> userManager,
+    public JwtAuthService(SignInManager<WorkDbUser> signInManager,
+        UserManager<WorkDbUser> userManager,
         IConfiguration configuration)
     {
         _signInManager = signInManager;

@@ -1,16 +1,13 @@
 ﻿using BaSys.Common.Enums;
 
-namespace BaSys.Host.Infrastructure.Interfaces;
+namespace BaSys.Host.Infrastructure.Abstractions;
 
 public interface IDataSourceProvider
 {
-    void Init();
-    string? GetConnectionString(string? userId);
-    List<ConnectionItem> GetConnectionItems();
     ConnectionItem? GetDefaultConnectionItem(DbKinds? dbKind = null);
     ConnectionItem? GetCurrentConnectionItemByUser(string? userId);
-    ConnectionItem? GetConnectionItemByDbId(string? dbId);
+    ConnectionItem? GetConnectionItemByDbName(string? dbName);
+    ConnectionItem? GetConnectionItemByDbInfoId(int dbInfoId);
     void SetConnection(string connectionName, string userId);
     void RemoveConnection(string userId);
-    ConnectionItem? GetConnectionItemByDbInfoId(int dbInfoId);
 }

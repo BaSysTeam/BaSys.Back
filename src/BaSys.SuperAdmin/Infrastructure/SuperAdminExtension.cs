@@ -1,8 +1,10 @@
 ﻿using BaSys.Common.Enums;
 using BaSys.SuperAdmin.Abstractions;
 using BaSys.SuperAdmin.DAL;
+using BaSys.SuperAdmin.DAL.Abstractions;
 using BaSys.SuperAdmin.DAL.MsSqlContext;
 using BaSys.SuperAdmin.DAL.PgSqlContext;
+using BaSys.SuperAdmin.DAL.Providers;
 using BaSys.SuperAdmin.Infrastructure.Models;
 using BaSys.SuperAdmin.Services;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
@@ -52,6 +54,8 @@ public static class SuperAdminExtension
             .ApplicationParts
             .Add(new AssemblyPart(typeof(SuperAdminExtension).Assembly));
 
+        services.AddSingleton<IDbInfoRecordsProvider, DbInfoRecordsProvider>();
+            
         services.AddTransient<IAppRecordsService, AppRecordsService>();
         services.AddTransient<IDbInfoRecordsService, DbInfoRecordsService>();
         services.AddTransient<ICheckSystemDbService, CheckSystemDbService>();
