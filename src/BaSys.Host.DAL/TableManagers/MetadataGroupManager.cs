@@ -21,7 +21,7 @@ namespace BaSys.Host.DAL.TableManagers
         {
             _connection = connection;
             _sqlDialectKind = GetDialectKind(_connection);
-            _tableName = "MetadataGroup";
+            _tableName = "MetadataGroups";
         }
 
         public async Task<int> CreateTableAsync(IDbTransaction transaction = null)
