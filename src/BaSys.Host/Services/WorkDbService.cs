@@ -8,15 +8,14 @@ namespace BaSys.Host.Services;
 
 public class WorkDbService : IWorkDbService
 {
-    private readonly IServiceProvider _serviceProvider;
+    // private readonly IServiceProvider _serviceProvider;
     private readonly IMainDbCheckService _mainDbCheckService;
     private readonly IConfiguration _configuration;
 
-    public WorkDbService(IServiceProvider serviceProvider,
-        IMainDbCheckService mainDbCheckService,
+    public WorkDbService(IMainDbCheckService mainDbCheckService,
         IConfiguration configuration)
     {
-        _serviceProvider = serviceProvider;
+        // _serviceProvider = serviceProvider;
         _mainDbCheckService = mainDbCheckService;
         _configuration = configuration;
     }
