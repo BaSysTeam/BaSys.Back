@@ -29,6 +29,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BaSys.Shared\BaSys.Shared.csproj" />
+    <ProjectReference Include="..\BaSys.SuperAdmin.DAL\BaSys.SuperAdmin.DAL.csproj" />
   </ItemGroup>
 
 </Project>
