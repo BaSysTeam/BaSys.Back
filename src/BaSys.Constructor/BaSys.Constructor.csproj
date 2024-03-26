@@ -27,4 +27,8 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\BaSys.Shared\BaSys.Shared.csproj" />
+  </ItemGroup>
+
 </Project>
