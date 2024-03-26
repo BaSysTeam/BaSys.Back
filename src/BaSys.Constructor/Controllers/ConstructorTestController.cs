@@ -72,10 +72,17 @@ namespace BaSys.Constructor.Controllers
             {
                 var tableManager = new MetadataGroupManager(connection);
 
+                var isTable = await tableManager.TableExistsAsync();
+                if(isTable)
+                {
+                    result.Error(-1, $"Table {tableManager.TableName} already exists");
+                    return Ok(result);
+                }
+
                 try
                 {
-                    await tableManager.CreateTableAsync(null);
-                    result.Success(1, $"Metadata group table created");
+                    await tableManager.CreateTableAsync();
+                    result.Success(1, $"Table  {tableManager.TableName} created");
                 }
                 catch (Exception ex)
                 {
@@ -101,8 +108,8 @@ namespace BaSys.Constructor.Controllers
 
                 try
                 {
-                    await tableManager.DropTableAsync(null);
-                    result.Success(1, $"Metadata group table dropped");
+                    await tableManager.DropTableAsync();
+                    result.Success(1, $"Table  {tableManager.TableName}  dropped");
                 }
                 catch (Exception ex)
                 {

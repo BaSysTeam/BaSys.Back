@@ -1,5 +1,6 @@
 ﻿using BaSys.FluentQueries.Enums;
 using BaSys.FluentQueries.QueryBuilders;
+using BaSys.Host.DAL.QueryResults;
 using Dapper;
 using Npgsql;
 using System;
@@ -16,6 +17,8 @@ namespace BaSys.Host.DAL.TableManagers
         private readonly IDbConnection _connection;
         private readonly SqlDialectKinds _sqlDialectKind;
         private string _tableName;
+
+        public string TableName => _tableName;
 
         public MetadataGroupManager(IDbConnection connection)
         {
@@ -36,7 +39,7 @@ namespace BaSys.Host.DAL.TableManagers
                .Column("IsStandard", DbType.Boolean, true)
                .Query(_sqlDialectKind);
 
-            var result = await _connection.ExecuteAsync(query.Text, transaction);
+            var result = await _connection.ExecuteAsync(query.Text, null, transaction);
 
             return result;
         }
@@ -45,10 +48,19 @@ namespace BaSys.Host.DAL.TableManagers
         {
             var query = DropTableBuilder.Make().Table(_tableName).Query(_sqlDialectKind);
 
-            var result = await _connection.ExecuteAsync(query.Text, transaction);
+            var result = await _connection.ExecuteAsync(query.Text, null, transaction);
 
             return result;
 
+        }
+
+        public async Task<bool> TableExistsAsync(IDbTransaction transaction = null)
+        {
+            var query = TableExistsBuilder.Make().Table(_tableName).Query(_sqlDialectKind);
+
+            var result = await _connection.QueryFirstOrDefaultAsync<TableExistsResult>(query.Text,null, transaction);
+
+            return result.Exists;
         }
 
         private SqlDialectKinds GetDialectKind(IDbConnection connection)
