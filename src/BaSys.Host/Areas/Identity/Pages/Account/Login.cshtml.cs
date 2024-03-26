@@ -146,6 +146,7 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
                     
                     _dataSourceProvider.SetConnection(Input.DbName, currentUser.Id);
 
+                    // TODO: Why DbName claim save after add DbNameNew claim 
                     var claims = await _userManager.GetClaimsAsync(currentUser);
                     // Add DbName as a new claim, if it's not already a claim
                     if (!claims.Any(c => c.Type == "DbNameNew"))
