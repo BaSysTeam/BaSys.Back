@@ -20,7 +20,8 @@ namespace BaSys.FluentQueries.QueryBuilders
 
         public IQuery Query(SqlDialectKinds dbKind)
         {
-         
+            Validate();
+
             IQuery query = new Query();
 
             switch (dbKind)
@@ -43,6 +44,13 @@ namespace BaSys.FluentQueries.QueryBuilders
             return new DropTableBuilder();
         }
 
+        private void Validate()
+        {
+            if (string.IsNullOrWhiteSpace(_tableName))
+            {
+                throw new ArgumentException($"{GetType().Name}. Table name is empty.");
+            }
+        }
       
     }
 }
