@@ -12,6 +12,8 @@ namespace BaSys.Host.DAL.Abstractions
         string TableName { get; }
         Task<int> CreateTableAsync(IDbTransaction transaction = null);
         Task<int> DropTableAsync(IDbTransaction transaction = null);
+        Task<int> TruncateTableAsync(IDbTransaction transaction = null);
         Task<bool> TableExistsAsync(IDbTransaction transaction = null);
+        Task<bool> ColumnExistsAsync(IDbTransaction transaction = null);
     }
 }

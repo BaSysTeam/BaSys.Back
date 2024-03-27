@@ -42,6 +42,16 @@ namespace BaSys.Host.DAL.Abstractions
             return result.Exists;
         }
 
+        public Task<bool> ColumnExistsAsync(IDbTransaction transaction = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<int> TruncateTableAsync(IDbTransaction transaction = null)
+        {
+            throw new NotImplementedException();
+        }
+
         private SqlDialectKinds GetDialectKind(IDbConnection connection)
         {
             var dialectKind = SqlDialectKinds.MsSql;
