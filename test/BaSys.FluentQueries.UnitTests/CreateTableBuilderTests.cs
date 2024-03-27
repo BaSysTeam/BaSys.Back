@@ -24,8 +24,8 @@ namespace BaSys.FluentQueries.UnitTests
                 .StringColumn("Memo", 300, false)
                 .Column("IsStandard", DbType.Boolean, true);
 
-            var msSqlQuery = builder.Query(DbKinds.MsSql);
-            var pgSqlQuery = builder.Query(DbKinds.PgSql);
+            var msSqlQuery = builder.Query(SqlDialectKinds.MsSql);
+            var pgSqlQuery = builder.Query(SqlDialectKinds.PgSql);
 
             Console.WriteLine("MS SQL:");
             Console.WriteLine(msSqlQuery.Text);
