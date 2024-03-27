@@ -13,26 +13,29 @@ using BaSys.Host.DAL;
 using BaSys.Host.DAL.TableManagers;
 using BaSys.SuperAdmin.DAL.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Authorization;
+using BaSys.SuperAdmin.DAL.Abstractions;
 
 namespace BaSys.Constructor.Controllers
 {
     [Route("api/constructor/v1/[controller]")]
     [ApiController]
+    [Authorize]
     public class ConstructorTestController : ControllerBase
     {
         private readonly IConfiguration _configuration;
-        private readonly DbInfoRecordsProvider _dbInfoRecordsProvider;
+        private readonly IDbInfoRecordsProvider _dbInfoRecordsProvider;
 
-        //public ConstructorTestController(IConfiguration configuration, DbInfoRecordsProvider dbInfoRecordsProvider)
-        //{
-        //    _configuration = configuration;
-        //    _dbInfoRecordsProvider = dbInfoRecordsProvider; 
-        //}
-
-        public ConstructorTestController(IConfiguration configuration)
+        public ConstructorTestController(IConfiguration configuration, IDbInfoRecordsProvider dbInfoRecordsProvider)
         {
             _configuration = configuration;
+            _dbInfoRecordsProvider = dbInfoRecordsProvider;
         }
+
+        //public ConstructorTestController(IConfiguration configuration)
+        //{
+        //    _configuration = configuration;
+        //}
 
         [HttpGet("Ping")]
         public IActionResult Ping()
@@ -57,15 +60,15 @@ namespace BaSys.Constructor.Controllers
             }
 
             // TODO: Get connection strings via service.
-            //var dbInfoRecord = _dbInfoRecordsProvider.GetDbInfoRecordByDbName(dbName);
+            var dbInfoRecord = _dbInfoRecordsProvider.GetDbInfoRecordByDbName(dbName);
 
-            //if ( dbInfoRecord == null )
-            //{
-            //    result.Error(-1, $"Cannot get DbInfoRecord.");
-            //    return Ok(result);
-            //}
+            if (dbInfoRecord == null)
+            {
+                result.Error(-1, $"Cannot get DbInfoRecord.");
+                return Ok(result);
+            }
 
-            var dbInfoRecord = GetDbInfoRecordTmp();
+           // var dbInfoRecord = GetDbInfoRecordTmp();
 
             var factory = new ConnectionFactory();
             using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
