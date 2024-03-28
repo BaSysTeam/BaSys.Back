@@ -1,4 +1,5 @@
 ﻿using BaSys.Admin.Infrastructure;
+using BaSys.Constructor.Infrastructure;
 using BaSys.SuperAdmin.Infrastructure;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
@@ -21,6 +22,7 @@ namespace BaSys.Host.Helpers
                 executingAssemblyName ?? "",
                 Assembly.GetAssembly(typeof(SuperAdminExtension))?.GetName().Name ?? "",
                 Assembly.GetAssembly(typeof(AdminExtension))?.GetName().Name ?? "",
+                Assembly.GetAssembly(typeof(ConstructorExtension))?.GetName().Name ?? ""
             };
 
             foreach (var assemblyName in assemblyNameList)

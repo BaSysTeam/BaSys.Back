@@ -1,6 +1,4 @@
-﻿using BaSys.SuperAdmin.DAL.Abstractions;
-using BaSys.SuperAdmin.DAL.Providers;
-using Microsoft.AspNetCore.Mvc.ApplicationParts;
+﻿using Microsoft.AspNetCore.Mvc.ApplicationParts;
 
 namespace BaSys.Constructor.Infrastructure
 {
@@ -13,7 +11,6 @@ namespace BaSys.Constructor.Infrastructure
                 .PartManager
                 .ApplicationParts
                 .Add(new AssemblyPart(typeof(ConstructorExtension).Assembly));
-
 
             return services;
         }

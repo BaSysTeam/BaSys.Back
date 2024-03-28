@@ -9,6 +9,11 @@
     <LangVersion>12</LangVersion>
   </PropertyGroup>
 
+  <PropertyGroup>
+  	<GenerateDocumentationFile>true</GenerateDocumentationFile>
+  	<NoWarn>$(NoWarn);1591</NoWarn>
+  </PropertyGroup>
+
   <ItemGroup>
     <SupportedPlatform Include="browser" />
   </ItemGroup>
@@ -34,6 +39,11 @@
     <ProjectReference Include="..\BaSys.Host.DAL\BaSys.Host.DAL.csproj" />
     <ProjectReference Include="..\BaSys.Shared\BaSys.Shared.csproj" />
     <ProjectReference Include="..\BaSys.SuperAdmin.DAL\BaSys.SuperAdmin.DAL.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BaSys.Metadata\BaSys.Metadata.csproj" />
+    <ProjectReference Include="..\BaSys.Shared\BaSys.Shared.csproj" />
   </ItemGroup>
 
 </Project>
