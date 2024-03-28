@@ -12,6 +12,7 @@ namespace BaSys.FluentQueries.Models
         private readonly List<QueryParameter> _parameters;
 
         public string TableName { get; set; } = string.Empty;
+        public bool FillValuesByColumnNames { get; set; }
         public IReadOnlyCollection<string> Columns => _columns;
         public IReadOnlyCollection<List<string>> Values => _values;
         public IReadOnlyCollection<QueryParameter> Parameters => _parameters;

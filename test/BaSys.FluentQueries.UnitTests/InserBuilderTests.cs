@@ -31,5 +31,26 @@ namespace BaSys.FluentQueries.UnitTests
 
             Assert.Pass();
         }
+
+        [Test]
+        public void InsereBuilder_FillValuesByColumnNames_Query()
+        {
+            var builder = InsertBuilder.Make()
+                .Table("metadata_groups")
+                .Column("uid").Column("parentuid")
+                .FillValuesByColumnNames(true);
+
+            var msSqlQuery = builder.Query(SqlDialectKinds.MsSql);
+            var pgSqlQuery = builder.Query(SqlDialectKinds.PgSql);
+
+            Console.WriteLine("MS SQL:");
+            Console.WriteLine(msSqlQuery.Text);
+
+            Console.WriteLine("===================");
+            Console.WriteLine("PG SQL:");
+            Console.WriteLine(pgSqlQuery.Text);
+
+            Assert.Pass();
+        }
     }
 }

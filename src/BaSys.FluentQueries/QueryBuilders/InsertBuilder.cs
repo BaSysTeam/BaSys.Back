@@ -34,6 +34,12 @@ namespace BaSys.FluentQueries.QueryBuilders
             return this;
         }
 
+        public InsertBuilder FillValuesByColumnNames(bool fillValuesByColumnNames)
+        {
+            _model.FillValuesByColumnNames = true;
+            return this;
+        }
+
         public InsertBuilder Value(string parameterName)
         {
             _model.AddParameter(parameterName, null);
@@ -55,8 +61,12 @@ namespace BaSys.FluentQueries.QueryBuilders
             switch (dbKind)
             {
                 case SqlDialectKinds.MsSql:
+                    var msGenerator = new InsertScriptGenerator(_model, dbKind);
+                    query = msGenerator.Build();
+                    break;
                 case SqlDialectKinds.PgSql:
-                    query = GenerateScript(dbKind);
+                    var pgGenerator = new InsertScriptGenerator(_model, dbKind);
+                    query = pgGenerator.Build();
                     break;
                 default:
                     throw new NotImplementedException($"{GetType().Name} not implemented for DbKind {dbKind}.");
@@ -65,78 +75,6 @@ namespace BaSys.FluentQueries.QueryBuilders
 
             return query;
 
-        }
-
-        private IQuery GenerateScript(SqlDialectKinds dbKind)
-        {
-            var wOpen = NameWrapperOpen(dbKind);
-            var wClosed = NameWrapperClosed(dbKind); 
-
-            IQuery query = new Query();
-
-            var sb = new StringBuilder();
-            sb.AppendLine($"INSERT INTO {wOpen}{_model.TableName}{wClosed}");
-
-            sb.Append("(");
-            var n = 1;
-            foreach(var column in _model.Columns)
-            {
-                if (n > 1)
-                    sb.Append(", ");
-                sb.Append(wOpen);
-                sb.Append(column);
-                sb.Append(wClosed);
-                n++;
-            }
-            sb.AppendLine(")");
-            sb.AppendLine("VALUES");
-
-            foreach(var row in _model.Values)
-            {
-                n = 1;
-                sb.Append('(');
-                foreach (var value in row) {
-
-                    if (n > 1)
-                        sb.Append(", ");
-
-                    sb.Append('@');
-                    sb.Append(value);
-                    n++;
-                }
-                sb.AppendLine(")");
-            }
-            sb.Append(";");
-
-            query.Text = sb.ToString();
-
-            return query;
-        }
-
-        private char NameWrapperOpen(SqlDialectKinds dialectKind)
-        {
-            switch (dialectKind)
-            {
-                case SqlDialectKinds.MsSql:
-                    return '[';
-                case SqlDialectKinds.PgSql:
-                    return '"';
-                default:
-                    throw new NotImplementedException();
-            }
-        }
-
-        private char NameWrapperClosed(SqlDialectKinds dialectKind)
-        {
-            switch (dialectKind)
-            {
-                case SqlDialectKinds.MsSql:
-                    return ']';
-                case SqlDialectKinds.PgSql:
-                    return '"';
-                default:
-                    throw new NotImplementedException();
-            }
         }
 
         public static InsertBuilder Make()
