@@ -1,6 +1,7 @@
 ﻿using BaSys.FluentQueries.Abstractions;
 using BaSys.FluentQueries.Enums;
 using BaSys.FluentQueries.Models;
+using BaSys.FluentQueries.ScriptGenerators;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -99,11 +100,11 @@ namespace BaSys.FluentQueries.QueryBuilders
             switch (dbKind)
             {
                 case SqlDialectKinds.MsSql:
-                    var msSqlBuilder = new MsSqlCreateTableQueryBuilder(_model);
+                    var msSqlBuilder = new MsSqlCreateTableScriptGenerator(_model);
                     query = msSqlBuilder.Build();
                     break;
                 case SqlDialectKinds.PgSql:
-                    var pgSqlBuilder = new PgSqlCreateTableQueryBuilder(_model);
+                    var pgSqlBuilder = new PgSqlCreateTableScriptGenerator(_model);
                     query = pgSqlBuilder.Build();
                     break;
                 default:
