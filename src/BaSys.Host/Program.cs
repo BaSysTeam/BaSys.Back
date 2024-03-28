@@ -2,6 +2,7 @@ using System.Text;
 using BaSys.Admin.Infrastructure;
 using BaSys.Common.Enums;
 using BaSys.Common.Infrastructure;
+using BaSys.Constructor.Infrastructure;
 using BaSys.Host.Abstractions;
 using BaSys.Host.DAL;
 using BaSys.Host.DAL.MsSqlContext;
@@ -62,6 +63,9 @@ namespace BaSys.Host
 
             // Add admin module
             builder.Services.AddAdmin();
+
+            // Add constructor module
+            builder.Services.AddConstructor();
 
             // Add mssql context
             builder.Services.AddDbContext<MsSqlDbContext>((sp, options) =>

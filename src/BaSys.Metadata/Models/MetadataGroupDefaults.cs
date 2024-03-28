@@ -23,12 +23,21 @@ namespace BaSys.Metadata.Models
             IsStandard = true,
         };
 
+        public static readonly MetadataGroup DataTypesGroup = new MetadataGroup
+        {
+            Uid = new Guid("3F759B11-6F67-42D7-8FB7-967ED93D87AC"),
+            ParentUid = SystemGroup.Uid,
+            Title = "DataTypes",
+            IsStandard = true,
+        };
+
         public static IList<MetadataGroup> AllGroups()
         {
             var collection = new List<MetadataGroup>()
             {
                 MetadataGroup,
-                SystemGroup
+                SystemGroup,
+                DataTypesGroup
             }; 
 
             return collection;
