@@ -4,6 +4,7 @@ using BaSys.FluentQueries.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Text;
 
 namespace BaSys.FluentQueries.QueryBuilders
@@ -121,6 +122,18 @@ namespace BaSys.FluentQueries.QueryBuilders
         public static CreateTableBuilder Make()
         {
             return new CreateTableBuilder();
+        }
+
+        private void Validate()
+        {
+            if (string.IsNullOrWhiteSpace(_model.TableName))
+                throw new InvalidOperationException("Table name cannot be null or whitespace.");
+
+            if (_model.Columns.Count(c => c.PrimaryKey) > 1)
+                throw new InvalidOperationException("There can only be one primary key.");
+
+            if (_model.Columns.GroupBy(c => c.Name).Any(g => g.Count() > 1))
+                throw new InvalidOperationException("Column names must be unique.");
         }
     }
 }
