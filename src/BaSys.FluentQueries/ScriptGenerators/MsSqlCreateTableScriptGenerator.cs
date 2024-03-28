@@ -5,14 +5,14 @@ using System.Collections.Generic;
 using System.Data;
 using System.Text;
 
-namespace BaSys.FluentQueries.QueryBuilders
+namespace BaSys.FluentQueries.ScriptGenerators
 {
-    internal class MsSqlCreateTableQueryBuilder: CreateTableQueryBuilderBase
+    internal class MsSqlCreateTableScriptGenerator : CreateTableQueryScriptGenerator
     {
-    
-        public MsSqlCreateTableQueryBuilder(CreateTableModel model):base(model)
+
+        public MsSqlCreateTableScriptGenerator(CreateTableModel model) : base(model)
         {
-           
+
         }
 
         protected override string GetDataType(DbType dbType, int stringLength)

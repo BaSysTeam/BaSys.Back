@@ -19,6 +19,8 @@ namespace BaSys.FluentQueries.QueryBuilders
 
         public IQuery Query(SqlDialectKinds dialectKind)
         {
+            Validate();
+
             var query = new Query();
 
             _tableName = _tableName.ToLower();
@@ -44,6 +46,14 @@ namespace BaSys.FluentQueries.QueryBuilders
         public static TableExistsBuilder Make()
         {
             return new TableExistsBuilder();
+        }
+
+        private void Validate()
+        {
+            if (string.IsNullOrWhiteSpace(_tableName))
+            {
+                throw new ArgumentException($"{GetType().Name}. Table name is empty.");
+            }
         }
     }
 }

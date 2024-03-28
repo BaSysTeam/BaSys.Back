@@ -5,14 +5,14 @@ using System.Collections.Generic;
 using System.Data;
 using System.Text;
 
-namespace BaSys.FluentQueries.QueryBuilders
+namespace BaSys.FluentQueries.ScriptGenerators
 {
-    internal class PgSqlCreateTableQueryBuilder: CreateTableQueryBuilderBase
-    {    
+    internal class PgSqlCreateTableScriptGenerator : CreateTableQueryScriptGenerator
+    {
 
-        public PgSqlCreateTableQueryBuilder(CreateTableModel model):base(model)
+        public PgSqlCreateTableScriptGenerator(CreateTableModel model) : base(model)
         {
-           
+
         }
 
         protected override string GetDataType(DbType dbType, int stringLength)

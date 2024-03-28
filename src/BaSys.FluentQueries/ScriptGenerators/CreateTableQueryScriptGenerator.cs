@@ -5,13 +5,13 @@ using System.Collections.Generic;
 using System.Data;
 using System.Text;
 
-namespace BaSys.FluentQueries.QueryBuilders
+namespace BaSys.FluentQueries.ScriptGenerators
 {
-    public abstract class CreateTableQueryBuilderBase : IQueryBuilder
+    public abstract class CreateTableQueryScriptGenerator : IQueryBuilder
     {
         protected readonly CreateTableModel _model;
 
-        protected CreateTableQueryBuilderBase(CreateTableModel model)
+        protected CreateTableQueryScriptGenerator(CreateTableModel model)
         {
             _model = model;
         }
@@ -57,7 +57,7 @@ namespace BaSys.FluentQueries.QueryBuilders
             }
             sb.AppendLine();
             sb.Append(");");
-           
+
             query.Text = sb.ToString();
             return query;
         }
