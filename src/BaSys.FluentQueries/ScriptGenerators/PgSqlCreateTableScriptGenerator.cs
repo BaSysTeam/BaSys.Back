@@ -7,7 +7,7 @@ using System.Text;
 
 namespace BaSys.FluentQueries.ScriptGenerators
 {
-    internal class PgSqlCreateTableScriptGenerator : CreateTableQueryScriptGenerator
+    internal class PgSqlCreateTableScriptGenerator : CreateTableScriptGenerator
     {
 
         public PgSqlCreateTableScriptGenerator(CreateTableModel model) : base(model)

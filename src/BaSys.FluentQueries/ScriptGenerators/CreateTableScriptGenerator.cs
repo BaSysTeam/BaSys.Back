@@ -7,11 +7,11 @@ using System.Text;
 
 namespace BaSys.FluentQueries.ScriptGenerators
 {
-    public abstract class CreateTableQueryScriptGenerator : IQueryBuilder
+    public abstract class CreateTableScriptGenerator : IQueryBuilder
     {
         protected readonly CreateTableModel _model;
 
-        protected CreateTableQueryScriptGenerator(CreateTableModel model)
+        protected CreateTableScriptGenerator(CreateTableModel model)
         {
             _model = model;
         }

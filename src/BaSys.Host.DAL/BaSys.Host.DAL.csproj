@@ -7,6 +7,12 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <Compile Remove="Identity\**" />
+      <EmbeddedResource Remove="Identity\**" />
+      <None Remove="Identity\**" />
+    </ItemGroup>
+
+    <ItemGroup>
       <PackageReference Include="Dapper" Version="2.1.35" />
       <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.2" />
       <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.0" />
@@ -20,6 +26,7 @@
       <ProjectReference Include="..\BaSys.FluentQueries\BaSys.FluentQueries.csproj" />
       <ProjectReference Include="..\BaSys.Host.Identity\BaSys.Host.Identity.csproj" />
       <ProjectReference Include="..\BaSys.Host.Infrastructure\BaSys.Host.Infrastructure.csproj" />
+      <ProjectReference Include="..\BaSys.Metadata\BaSys.Metadata.csproj" />
       <ProjectReference Include="..\BaSys.Shared\BaSys.Shared.csproj" />
     </ItemGroup>
 
@@ -30,7 +37,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Identity\" />
       <Folder Include="MsSqlContext\Migrations\" />
       <Folder Include="PgSqlContext\Migrations\" />
     </ItemGroup>

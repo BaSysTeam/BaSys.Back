@@ -15,6 +15,9 @@ using BaSys.SuperAdmin.DAL.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Authorization;
 using BaSys.SuperAdmin.DAL.Abstractions;
+using BaSys.Host.DAL.DataProviders;
+using BaSys.Metadata.Models;
+using BaSys.Metadata.DTOs;
 
 namespace BaSys.Constructor.Controllers
 {
@@ -111,6 +114,32 @@ namespace BaSys.Constructor.Controllers
                 catch (Exception ex)
                 {
                     result.Error(0, ex.Message);
+                }
+            }
+
+            return Ok(result);
+        }
+
+        [HttpPost("InsertMetadataGroup")]
+        public async Task<IActionResult> InsertMetadataGroup([FromBody] MetadataGroupDto dto)
+        {
+            var result = new ResultWrapper<int>();
+            var dbInfoRecord = GetDbInfoRecord();
+
+            var factory = new ConnectionFactory();
+            using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
+            {
+                var provider = new MetadataGroupProvider(connection);
+
+                try
+                {
+                    var item = new MetadataGroup(dto);
+                    var rowsAffected = await provider.InsertAsync(item, null);
+                    result.Success(rowsAffected, $"Item inserted");
+                }
+                catch (Exception ex)
+                {
+                    result.Error(-1, "Cannot insert item", ex.Message);
                 }
             }
 

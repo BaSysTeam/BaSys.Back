@@ -7,7 +7,7 @@ using System.Text;
 
 namespace BaSys.FluentQueries.ScriptGenerators
 {
-    internal class MsSqlCreateTableScriptGenerator : CreateTableQueryScriptGenerator
+    internal class MsSqlCreateTableScriptGenerator : CreateTableScriptGenerator
     {
 
         public MsSqlCreateTableScriptGenerator(CreateTableModel model) : base(model)
