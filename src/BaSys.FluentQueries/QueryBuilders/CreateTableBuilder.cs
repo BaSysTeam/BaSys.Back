@@ -92,11 +92,7 @@ namespace BaSys.FluentQueries.QueryBuilders
 
         public IQuery Query(SqlDialectKinds dbKind)
         {
-            ///TODO:
-            ///Implement validation
-            ///Check TableName is not empty
-            ///Check only one PrimaryKey
-            ///Check unique name of columns
+            Validate();
 
             IQuery query = null;
 
@@ -127,13 +123,13 @@ namespace BaSys.FluentQueries.QueryBuilders
         private void Validate()
         {
             if (string.IsNullOrWhiteSpace(_model.TableName))
-                throw new InvalidOperationException("Table name cannot be null or whitespace.");
+                throw new InvalidOperationException($"{GetType().Name}. Table name cannot be null or whitespace.");
 
             if (_model.Columns.Count(c => c.PrimaryKey) > 1)
-                throw new InvalidOperationException("There can only be one primary key.");
+                throw new InvalidOperationException($"{GetType().Name} . Table name cannot be null or whitespace.ey.");
 
             if (_model.Columns.GroupBy(c => c.Name).Any(g => g.Count() > 1))
-                throw new InvalidOperationException("Column names must be unique.");
+                throw new InvalidOperationException($"{GetType().Name} . Table name cannot be null or whitespace.e.");
         }
     }
 }

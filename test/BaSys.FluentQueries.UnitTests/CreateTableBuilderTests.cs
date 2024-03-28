@@ -13,7 +13,7 @@ namespace BaSys.FluentQueries.UnitTests
     public class CreateTableBuilderTests
     {
         [Test]
-        public void CreateTableQuery()
+        public void CreateTable_MetadataGroup_Query()
         {
             var builder = CreateTableBuilder.Make()
                 .Table("MetadataGroup")
@@ -35,8 +35,42 @@ namespace BaSys.FluentQueries.UnitTests
             Console.WriteLine(pgSqlQuery.Text);
 
             Assert.That(msSqlQuery.Text, Is.EqualTo(Texts.CreateTableMetadataGroupMsSql));
-            Assert.That(pgSqlQuery.Text, Is.EqualTo(Texts.CreateTableMetadataGroupPgSql));  
-           
+            Assert.That(pgSqlQuery.Text, Is.EqualTo(Texts.CreateTableMetadataGroupPgSql));
+
+        }
+
+        [Test]
+        public void CreateTable_WithMultiplePrimaryKeys_ShouldThrow()
+        {
+            // Setup
+            var builder = CreateTableBuilder.Make().Table("Users").PrimaryKey("Id1", DbType.Int32).PrimaryKey("Id2", DbType.Int32);
+
+            // Exercise & Verify
+            Assert.Throws<InvalidOperationException>(() => builder.Query(SqlDialectKinds.PgSql));
+        }
+
+        [Test]
+        public void CreateTable_WithDoubleColumns_ShouldThrow()
+        {
+            // Setup
+            var builder = CreateTableBuilder.Make().Table("Users")
+                .PrimaryKey("Title", DbType.String)
+                .PrimaryKey("Title", DbType.String);
+
+            // Exercise & Verify
+            Assert.Throws<InvalidOperationException>(() => builder.Query(SqlDialectKinds.PgSql));
+        }
+
+        [Test]
+        public void CreateTable_WithEmptyTableName_ShouldThrow()
+        {
+            // Setup
+            var builder = CreateTableBuilder.Make()
+                .PrimaryKey("Title", DbType.String)
+                .PrimaryKey("Title", DbType.String);
+
+            // Exercise & Verify
+            Assert.Throws<InvalidOperationException>(() => builder.Query(SqlDialectKinds.PgSql));
         }
     }
 }
