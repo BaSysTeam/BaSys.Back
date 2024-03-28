@@ -3,9 +3,11 @@
 #nullable disable
 
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 using BaSys.Host.Identity;
 using BaSys.Host.Identity.Models;
 using BaSys.Host.Infrastructure.Abstractions;
+using BaSys.SuperAdmin.DAL.Abstractions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -20,16 +22,19 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
         private readonly SignInManager<WorkDbUser> _signInManager;
         private readonly UserManager<WorkDbUser> _userManager;
         private readonly IDataSourceProvider _dataSourceProvider;
+        private readonly IDbInfoRecordsProvider _dbInfoRecordsProvider;
 
         public LoginModel(ILogger<LoginModel> logger,
             SignInManager<WorkDbUser> signInManager,
             UserManager<WorkDbUser> userManager,
-            IDataSourceProvider dataSourceProvider)
+            IDataSourceProvider dataSourceProvider,
+            IDbInfoRecordsProvider dbInfoRecordsProvider)
         {
             _logger = logger;
             _signInManager = signInManager;
             _userManager = userManager;
             _dataSourceProvider = dataSourceProvider;
+            _dbInfoRecordsProvider = dbInfoRecordsProvider;
         }
 
         /// <summary>
@@ -125,6 +130,13 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
             {
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
+                var dbInfoRecord = _dbInfoRecordsProvider.GetDbInfoRecordByDbName(Input.DbName);
+                if (dbInfoRecord?.IsDeleted == true)
+                {
+                    ModelState.AddModelError(string.Empty, $"Database with name '{Input.DbName}' is disabled.");
+                    return Page();
+                }
+                
                 var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
@@ -133,7 +145,16 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
                     await _userManager.UpdateAsync(currentUser);
                     
                     _dataSourceProvider.SetConnection(Input.DbName, currentUser.Id);
-                    
+
+                    // TODO: Why DbName claim save after add DbNameNew claim 
+                    var claims = await _userManager.GetClaimsAsync(currentUser);
+                    // Add DbName as a new claim, if it's not already a claim
+                    if (!claims.Any(c => c.Type == "DbNameNew"))
+                    {
+                        var dbNameClaim = new Claim("DbNameNew", currentUser.DbName);
+                        await _userManager.AddClaimAsync(currentUser, dbNameClaim);
+                    }
+
                     _logger.LogInformation("User logged in.");
                     return LocalRedirect(returnUrl);
                 }
