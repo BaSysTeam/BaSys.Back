@@ -1,4 +1,5 @@
-﻿using BaSys.Admin.DTO;
+﻿using System.Security.Claims;
+using BaSys.Admin.DTO;
 using BaSys.Common.Infrastructure;
 using BaSys.Translation;
 using Microsoft.AspNetCore.Identity;
@@ -103,7 +104,7 @@ namespace BaSys.Admin.Services
             return result;
         }
 
-        public async Task<ResultWrapper<UserDto>> CreateUserAsync(UserDto userDto)
+        public async Task<ResultWrapper<UserDto>> CreateUserAsync(UserDto userDto, string? dbName = null)
         {
             var result = new ResultWrapper<UserDto>();
 
@@ -144,6 +145,9 @@ namespace BaSys.Admin.Services
                     await _userManager.AddToRolesAsync(newUser, userDto.CheckedRoles);
 
                     var getUserResult = await GetUserByEmailAsync(userDto.Email);
+
+                    if (!string.IsNullOrEmpty(dbName))
+                        await _userManager.AddClaimAsync(newUser, new Claim("DbName", dbName));
 
                     if (getUserResult.IsOK)
                     {
