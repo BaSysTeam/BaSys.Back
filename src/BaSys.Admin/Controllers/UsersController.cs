@@ -15,9 +15,9 @@ namespace BaSys.Admin.Controllers
     /// </summary>
     [Route("api/admin/v1/[controller]")]
     [ApiController]
-#if !DEBUG
+// #if !DEBUG
     [Authorize(Roles = ApplicationRole.Administrator)]
-#endif
+// #endif
     public class UsersController : ControllerBase
     {
         private readonly IUsersService _usersService;

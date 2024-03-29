@@ -23,19 +23,13 @@ namespace BaSys.Constructor.Controllers
     [Authorize]
     public class ConstructorTestController : ControllerBase
     {
-        private readonly IConfiguration _configuration;
         private readonly IDbInfoRecordsProvider _dbInfoRecordsProvider;
 
-        public ConstructorTestController(IConfiguration configuration, IDbInfoRecordsProvider dbInfoRecordsProvider)
+        public ConstructorTestController(IDbInfoRecordsProvider dbInfoRecordsProvider)
         {
-            _configuration = configuration;
             _dbInfoRecordsProvider = dbInfoRecordsProvider;
         }
-
-        //public ConstructorTestController(IConfiguration configuration)
-        //{
-        //    _configuration = configuration;
-        //}
+      
 
         [HttpGet("Ping")]
         public IActionResult Ping()
@@ -51,24 +45,24 @@ namespace BaSys.Constructor.Controllers
         {
             //var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var result = new ResultWrapper<int>();
-            var dbName = User.Claims.FirstOrDefault(c => c.Type == "DbName")?.Value;
+            var dbInfoRecord = GetDbInfoRecord();
+            //var dbName = User.Claims.FirstOrDefault(c => c.Type == "DbName")?.Value;
 
-            if (string.IsNullOrEmpty(dbName))
-            {
-                result.Error(-1, $"Cannot get dbName.");
-                return Ok(result);
-            }
+            //if (string.IsNullOrEmpty(dbName))
+            //{
+            //    result.Error(-1, $"Cannot get dbName.");
+            //    return Ok(result);
+            //}
 
-            // TODO: Get connection strings via service.
-            var dbInfoRecord = _dbInfoRecordsProvider.GetDbInfoRecordByDbName(dbName);
+            //var dbInfoRecord = _dbInfoRecordsProvider.GetDbInfoRecordByDbName(dbName);
 
-            if (dbInfoRecord == null)
-            {
-                result.Error(-1, $"Cannot get DbInfoRecord.");
-                return Ok(result);
-            }
+            //if (dbInfoRecord == null)
+            //{
+            //    result.Error(-1, $"Cannot get DbInfoRecord.");
+            //    return Ok(result);
+            //}
 
-           // var dbInfoRecord = GetDbInfoRecordTmp();
+            // var dbInfoRecord = GetDbInfoRecordTmp();
 
             var factory = new ConnectionFactory();
             using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
@@ -102,7 +96,7 @@ namespace BaSys.Constructor.Controllers
         public async Task<IActionResult> DeleteMetadataGroupTable()
         {
             var result = new ResultWrapper<int>();
-            var dbInfoRecord = GetDbInfoRecordTmp();
+            var dbInfoRecord = GetDbInfoRecord();
 
             var factory = new ConnectionFactory();
             using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
@@ -123,24 +117,21 @@ namespace BaSys.Constructor.Controllers
             return Ok(result);
         }
 
-        private DbInfoRecord GetDbInfoRecordTmp()
+        private DbInfoRecord GetDbInfoRecord()
         {
-            var connectionString = _configuration.GetSection("InitAppSettings:MainDb:ConnectionString").Value;
-            var dbKindStr = _configuration.GetSection("InitAppSettings:MainDb:DbKind").Value;
+            var dbName = User.Claims.FirstOrDefault(c => c.Type == "DbName")?.Value;
 
-            if (string.IsNullOrEmpty(connectionString))
+            if (string.IsNullOrEmpty(dbName))
             {
                 return null;
             }
 
-            var dbKindInt = int.Parse(dbKindStr);
-            var dbKind = (DbKinds)dbKindInt;
+            var dbInfoRecord = _dbInfoRecordsProvider.GetDbInfoRecordByDbName(dbName);
 
-            var dbInfoRecord = new DbInfoRecord()
+            if (dbInfoRecord == null)
             {
-                DbKind = dbKind,
-                ConnectionString = connectionString
-            };
+                return null;
+            }
 
             return dbInfoRecord;
         }

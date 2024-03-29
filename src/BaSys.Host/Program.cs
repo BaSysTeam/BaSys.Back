@@ -14,6 +14,7 @@ using BaSys.Host.Infrastructure;
 using BaSys.Host.Infrastructure.Abstractions;
 using BaSys.Host.Infrastructure.JwtAuth;
 using BaSys.Host.Infrastructure.Providers;
+using BaSys.Host.Middlewares;
 using BaSys.Host.Services;
 using BaSys.SuperAdmin.Abstractions;
 using BaSys.SuperAdmin.DAL;
@@ -176,6 +177,10 @@ namespace BaSys.Host
             app.UseAuthentication(); // Ensure authentication is used
             app.UseAuthorization();
 
+#if DEBUG
+            app.UseMiddleware<CustomAuthorizationMiddleware>();
+#endif
+
             app.MapRazorPages();
 
             using var serviceScope = app.Services.CreateScope();
@@ -187,7 +192,7 @@ namespace BaSys.Host
                 await mainDbCheckService.Check(initAppSettings);
             };
             await systemDbService.CheckDbs();
-            
+
             var dbInfoRecordsProvider = serviceScope.ServiceProvider.GetRequiredService<IDbInfoRecordsProvider>();
             await dbInfoRecordsProvider.Update();
 

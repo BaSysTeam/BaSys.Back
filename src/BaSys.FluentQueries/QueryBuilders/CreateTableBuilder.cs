@@ -1,9 +1,11 @@
 ﻿using BaSys.FluentQueries.Abstractions;
 using BaSys.FluentQueries.Enums;
 using BaSys.FluentQueries.Models;
+using BaSys.FluentQueries.ScriptGenerators;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Text;
 
 namespace BaSys.FluentQueries.QueryBuilders
@@ -91,22 +93,18 @@ namespace BaSys.FluentQueries.QueryBuilders
 
         public IQuery Query(SqlDialectKinds dbKind)
         {
-            ///TODO:
-            ///Implement validation
-            ///Check TableName is not empty
-            ///Check only one PrimaryKey
-            ///Check unique name of columns
+            Validate();
 
             IQuery query = null;
 
             switch (dbKind)
             {
                 case SqlDialectKinds.MsSql:
-                    var msSqlBuilder = new MsSqlCreateTableQueryBuilder(_model);
+                    var msSqlBuilder = new MsSqlCreateTableScriptGenerator(_model);
                     query = msSqlBuilder.Build();
                     break;
                 case SqlDialectKinds.PgSql:
-                    var pgSqlBuilder = new PgSqlCreateTableQueryBuilder(_model);
+                    var pgSqlBuilder = new PgSqlCreateTableScriptGenerator(_model);
                     query = pgSqlBuilder.Build();
                     break;
                 default:
@@ -121,6 +119,18 @@ namespace BaSys.FluentQueries.QueryBuilders
         public static CreateTableBuilder Make()
         {
             return new CreateTableBuilder();
+        }
+
+        private void Validate()
+        {
+            if (string.IsNullOrWhiteSpace(_model.TableName))
+                throw new InvalidOperationException($"{GetType().Name}. Table name cannot be null or whitespace.");
+
+            if (_model.Columns.Count(c => c.PrimaryKey) > 1)
+                throw new InvalidOperationException($"{GetType().Name} . Table name cannot be null or whitespace.ey.");
+
+            if (_model.Columns.GroupBy(c => c.Name).Any(g => g.Count() > 1))
+                throw new InvalidOperationException($"{GetType().Name} . Table name cannot be null or whitespace.e.");
         }
     }
 }
