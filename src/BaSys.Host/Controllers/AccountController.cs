@@ -73,7 +73,6 @@ namespace BaSys.Host.Controllers
                 await _signInManager.SignOutAsync();
                 
                 var currentUser = await _userManager.Users.FirstAsync(x => x.Email.ToUpper() == email.ToUpper());
-                currentUser.DbName = null;
                 await _userManager.UpdateAsync(currentUser);
                 
                 _dataSourceProvider.RemoveConnection(currentUser.Id);
