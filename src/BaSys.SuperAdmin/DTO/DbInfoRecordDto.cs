@@ -13,7 +13,6 @@ public class DbInfoRecordDto
     public string? ConnectionString { get; set; }
     public string? Memo { get; set; }
     public bool IsDeleted { get; set; }
-    public bool? IsExists { get; set; }
     
     public DbInfoRecordDto()
     {

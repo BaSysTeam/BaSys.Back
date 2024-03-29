@@ -29,11 +29,6 @@ public class DbInfoRecordsService : IDbInfoRecordsService
             .Select(x => new DbInfoRecordDto(x))
             .ToList();
 
-        foreach (var dbInfoRecord in dbInfoRecords)
-        {
-            dbInfoRecord.IsExists = await _checkDbExistsService.IsExists(dbInfoRecord);
-        }
-
         return dbInfoRecords;
     }
 
@@ -115,5 +110,29 @@ public class DbInfoRecordsService : IDbInfoRecordsService
         await _dbInfoRecordsProvider.Update();
 
         return new DbInfoRecordDto(dbItem);
+    }
+
+    public async Task<IEnumerable<ExistsDbResponseDto>> CheckDbExists(IEnumerable<int> dbInfoRecordIds)
+    {
+        var dbInfoRecordsDict = await _context.DbInfoRecords
+            .AsNoTracking()
+            .Where(x => dbInfoRecordIds.Contains(x.Id))
+            .ToDictionaryAsync(k => k.Id, v => v);
+            
+        var list = new List<ExistsDbResponseDto>();
+        foreach (var dbInfoRecordId in dbInfoRecordIds)
+        {
+            if (!dbInfoRecordsDict.TryGetValue(dbInfoRecordId, out var item))
+                continue;
+
+            var isExists = await _checkDbExistsService.IsExists(item);
+            list.Add(new ExistsDbResponseDto
+            {
+                DbInfoRecordId = dbInfoRecordId,
+                IsExists = isExists
+            });
+        }
+
+        return list;
     }
 }

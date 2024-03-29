@@ -1,6 +1,6 @@
 ﻿using BaSys.Common.Enums;
 using BaSys.SuperAdmin.Abstractions;
-using BaSys.SuperAdmin.DTO;
+using BaSys.SuperAdmin.DAL.Models;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using Npgsql;
@@ -9,7 +9,7 @@ namespace BaSys.SuperAdmin.Services;
 
 public class CheckDbExistsService : ICheckDbExistsService
 {
-    public async Task<bool?> IsExists(DbInfoRecordDto dbInfoRecord)
+    public async Task<bool?> IsExists(DbInfoRecord dbInfoRecord)
     {
         if (string.IsNullOrEmpty(dbInfoRecord.ConnectionString))
             return null;
