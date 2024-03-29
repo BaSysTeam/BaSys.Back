@@ -7,33 +7,29 @@ using System.Text;
 
 namespace BaSys.FluentQueries.ScriptGenerators
 {
-    internal class InsertScriptGenerator: IQueryBuilder
+    internal class InsertScriptGenerator: ScriptGeneratorBase
     {
         private readonly InsertModel _model;
-        private SqlDialectKinds _sqlDialect;
 
-        public InsertScriptGenerator(InsertModel model, SqlDialectKinds sqlDialect)
+        public InsertScriptGenerator(InsertModel model, SqlDialectKinds sqlDialect):base(sqlDialect)
         {
             _model = model;
-            _sqlDialect = sqlDialect;
         }
 
         public IQuery Build()
         {
-            var query = GenerateScript(_sqlDialect);
+            var query = GenerateScript();
 
             return query;
         }
 
-        private IQuery GenerateScript(SqlDialectKinds dbKind)
+        private IQuery GenerateScript()
         {
-            var wOpen = NameWrapperOpen(dbKind);
-            var wClosed = NameWrapperClosed(dbKind);
 
             IQuery query = new Query();
 
             var sb = new StringBuilder();
-            sb.AppendLine($"INSERT INTO {wOpen}{_model.TableName}{wClosed}");
+            sb.AppendLine($"INSERT INTO {_wrapperOpen}{_model.TableName}{_wrapperClose}");
 
             sb.Append("(");
             var n = 1;
@@ -41,9 +37,9 @@ namespace BaSys.FluentQueries.ScriptGenerators
             {
                 if (n > 1)
                     sb.Append(", ");
-                sb.Append(wOpen);
+                sb.Append(_wrapperOpen);
                 sb.Append(column);
-                sb.Append(wClosed);
+                sb.Append(_wrapperClose);
                 n++;
             }
             sb.AppendLine(")");
@@ -92,30 +88,6 @@ namespace BaSys.FluentQueries.ScriptGenerators
             return query;
         }
 
-        private char NameWrapperOpen(SqlDialectKinds dialectKind)
-        {
-            switch (dialectKind)
-            {
-                case SqlDialectKinds.MsSql:
-                    return '[';
-                case SqlDialectKinds.PgSql:
-                    return '"';
-                default:
-                    throw new NotImplementedException();
-            }
-        }
-
-        private char NameWrapperClosed(SqlDialectKinds dialectKind)
-        {
-            switch (dialectKind)
-            {
-                case SqlDialectKinds.MsSql:
-                    return ']';
-                case SqlDialectKinds.PgSql:
-                    return '"';
-                default:
-                    throw new NotImplementedException();
-            }
-        }
+     
     }
 }

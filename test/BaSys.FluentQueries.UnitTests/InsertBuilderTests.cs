@@ -9,10 +9,10 @@ using System.Threading.Tasks;
 namespace BaSys.FluentQueries.UnitTests
 {
     [TestFixture]
-    public class InserBuilderTests
+    public class InsertBuilderTests
     {
         [Test]
-        public void InsereBuilder_OneRowExample_Query()
+        public void InsertBuilder_OneRowExample_Query()
         {
             var builder = InsertBuilder.Make()
                 .Table("metadata_groups")
@@ -33,7 +33,7 @@ namespace BaSys.FluentQueries.UnitTests
         }
 
         [Test]
-        public void InsereBuilder_FillValuesByColumnNames_Query()
+        public void InsertBuilder_FillValuesByColumnNames_Query()
         {
             var builder = InsertBuilder.Make()
                 .Table("metadata_groups")
