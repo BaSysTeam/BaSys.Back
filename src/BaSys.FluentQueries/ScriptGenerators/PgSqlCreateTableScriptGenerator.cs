@@ -7,12 +7,35 @@ using System.Text;
 
 namespace BaSys.FluentQueries.ScriptGenerators
 {
-    internal class PgSqlCreateTableScriptGenerator : CreateTableQueryScriptGenerator
+    internal class PgSqlCreateTableScriptGenerator : CreateTableScriptGeneratorBase
     {
 
         public PgSqlCreateTableScriptGenerator(CreateTableModel model) : base(model)
         {
 
+        }
+
+        protected override string GeneratePrimaryKey(TableColumn column)
+        {
+            string expression = $"{column.Name} ";
+            switch (column.DbType)
+            {
+                case DbType.Int16:
+                case DbType.Int32:
+                    expression += "SERIAL PRIMARY KEY";
+                    break;
+                case DbType.Int64:
+                    expression += "BIGSERIAL PRIMARY KEY";
+                    break;
+                case DbType.Guid:
+                    expression += $"UUID PRIMARY KEY DEFAULT uuid_generate_v4()";
+                    break;
+                default:
+                    expression = $"{GetDataType(column.DbType, column.StringLength)} PRIMARY KEY";
+                    break;
+            }
+
+            return expression;
         }
 
         protected override string GetDataType(DbType dbType, int stringLength)

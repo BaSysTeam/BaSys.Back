@@ -22,7 +22,12 @@ namespace BaSys.Host.DAL.Abstractions
 
         public string TableName => _tableName;
 
-        public abstract Task<int> CreateTableAsync(IDbTransaction transaction = null);
+        public virtual async Task<int> CreateTableAsync(IDbTransaction transaction = null)
+        {
+            var result = await CreateExtensionUuidOsspAsync(transaction);
+
+            return result;
+        }
 
         public virtual async Task<int> DropTableAsync(IDbTransaction transaction = null)
         {
@@ -50,6 +55,23 @@ namespace BaSys.Host.DAL.Abstractions
         public Task<int> TruncateTableAsync(IDbTransaction transaction = null)
         {
             throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Creates extension uuid-ossp for GUID generating. Only for PG SQL.
+        /// </summary>
+        /// <param name="transaction"></param>
+        /// <returns></returns>
+        public async Task<int> CreateExtensionUuidOsspAsync(IDbTransaction transaction)
+        {
+            if (_sqlDialectKind != SqlDialectKinds.PgSql)
+            {
+                return 0;
+            }
+
+            var result = await _connection.ExecuteAsync("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";", null, transaction);
+
+            return result;
         }
 
         private SqlDialectKinds GetDialectKind(IDbConnection connection)

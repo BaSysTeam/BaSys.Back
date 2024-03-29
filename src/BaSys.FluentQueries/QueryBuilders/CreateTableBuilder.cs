@@ -38,7 +38,7 @@ namespace BaSys.FluentQueries.QueryBuilders
             return this;
         }
 
-        public CreateTableBuilder Column(string name, DbType dbType, bool required = true, bool unique = false)
+        public CreateTableBuilder Column(string name, DbType dbType, bool required, bool unique = false)
         {
             var newColumn = new TableColumn()
             {
@@ -55,7 +55,7 @@ namespace BaSys.FluentQueries.QueryBuilders
 
         public CreateTableBuilder StringColumn(string name,
             int stringLength,
-            bool required = true,
+            bool required,
             bool unique = false)
         {
             var newColumn = new TableColumn()
@@ -74,7 +74,7 @@ namespace BaSys.FluentQueries.QueryBuilders
 
         public CreateTableBuilder DecimalColumn(string name,
            int numberDigits,
-           bool required = true,
+           bool required,
            bool unique = false)
         {
             var newColumn = new TableColumn()

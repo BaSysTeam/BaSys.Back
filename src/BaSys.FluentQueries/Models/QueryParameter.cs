@@ -30,9 +30,6 @@ namespace BaSys.FluentQueries.Models
             Value = value;
             DbType = dbType;
         }
-
-      
-
         public static DbType DbTypeByValue(object value)
         {
             var dbType = DbType.Object;

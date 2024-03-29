@@ -7,37 +7,43 @@ using System.Text;
 
 namespace BaSys.FluentQueries.ScriptGenerators
 {
-    public abstract class CreateTableQueryScriptGenerator : IQueryBuilder
+    public abstract class CreateTableScriptGeneratorBase : IQueryBuilder
     {
         protected readonly CreateTableModel _model;
 
-        protected CreateTableQueryScriptGenerator(CreateTableModel model)
+        protected CreateTableScriptGeneratorBase(CreateTableModel model)
         {
             _model = model;
         }
 
         protected abstract string GetDataType(DbType dbType, int stringLenght);
+        protected abstract string GeneratePrimaryKey(TableColumn column);
 
         protected virtual void AddColumnQuery(StringBuilder sb, TableColumn column)
         {
-            sb.Append(column.Name);
-            sb.Append(' ');
-            sb.Append(GetDataType(column.DbType, column.StringLength));
 
             if (column.PrimaryKey)
             {
-                sb.Append(" PRIMARY KEY");
-                return;
-            }
-
-            if (column.Required)
-            {
-                sb.Append(" NOT NULL");
+                var primaryKeyExpression = GeneratePrimaryKey(column);
+                sb.Append(primaryKeyExpression);
             }
             else
             {
-                sb.Append(" NULL");
+                sb.Append(column.Name);
+                sb.Append(' ');
+                sb.Append(GetDataType(column.DbType, column.StringLength));
+
+                if (column.Required)
+                {
+                    sb.Append(" NOT NULL");
+                }
+                else
+                {
+                    sb.Append(" NULL");
+                }
             }
+
+          
         }
 
         public virtual IQuery Build()
