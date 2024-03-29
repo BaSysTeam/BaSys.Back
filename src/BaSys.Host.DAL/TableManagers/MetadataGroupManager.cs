@@ -22,11 +22,13 @@ namespace BaSys.Host.DAL.TableManagers
 
         public override async Task<int> CreateTableAsync(IDbTransaction transaction = null)
         {
+            await base.CreateTableAsync(transaction);
+
             var query = CreateTableBuilder.Make()
                .Table(_tableName)
                .PrimaryKey("Uid", DbType.Guid)
-               .Column("ParentUid", DbType.Guid)
-               .StringColumn("Title", 100)
+               .Column("ParentUid", DbType.Guid, false)
+               .StringColumn("Title", 100, true)
                .StringColumn("IconClass", 20, false)
                .StringColumn("Memo", 300, false)
                .Column("IsStandard", DbType.Boolean, true)

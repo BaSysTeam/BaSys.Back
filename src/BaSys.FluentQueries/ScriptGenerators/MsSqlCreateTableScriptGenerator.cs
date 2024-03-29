@@ -7,12 +7,34 @@ using System.Text;
 
 namespace BaSys.FluentQueries.ScriptGenerators
 {
-    internal class MsSqlCreateTableScriptGenerator : CreateTableScriptGenerator
+    internal class MsSqlCreateTableScriptGenerator : CreateTableScriptGeneratorBase
     {
 
         public MsSqlCreateTableScriptGenerator(CreateTableModel model) : base(model)
         {
 
+        }
+
+        protected override string GeneratePrimaryKey(TableColumn column)
+        {
+            
+            string expression = $"{column.Name} {GetDataType(column.DbType, column.StringLength)} ";
+            switch (column.DbType)
+            {
+                case DbType.Int16:
+                case DbType.Int32:
+                case DbType.Int64:
+                    expression += "IDENTITY(1,1) PRIMARY KEY";
+                    break;
+                case DbType.Guid:
+                    expression += $"DEFAULT NEWID() PRIMARY KEY";
+                    break;
+                default:
+                    expression += $"PRIMARY KEY";
+                    break;
+            }
+
+            return expression;
         }
 
         protected override string GetDataType(DbType dbType, int stringLength)

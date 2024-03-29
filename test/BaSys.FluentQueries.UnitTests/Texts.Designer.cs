@@ -62,8 +62,8 @@ namespace BaSys.FluentQueries.UnitTests {
         
         /// <summary>
         ///   Looks up a localized string similar to CREATE TABLE MetadataGroup (
-        ///Uid UNIQUEIDENTIFIER PRIMARY KEY,
-        ///ParentUid UNIQUEIDENTIFIER NOT NULL,
+        ///Uid UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
+        ///ParentUid UNIQUEIDENTIFIER NULL,
         ///Title NVARCHAR(100) NOT NULL,
         ///IconClass NVARCHAR(20) NULL,
         ///Memo NVARCHAR(300) NULL,
@@ -78,8 +78,8 @@ namespace BaSys.FluentQueries.UnitTests {
         
         /// <summary>
         ///   Looks up a localized string similar to CREATE TABLE MetadataGroup (
-        ///Uid uuid PRIMARY KEY,
-        ///ParentUid uuid NOT NULL,
+        ///Uid UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        ///ParentUid uuid NULL,
         ///Title varchar(100) NOT NULL,
         ///IconClass varchar(20) NULL,
         ///Memo varchar(300) NULL,
