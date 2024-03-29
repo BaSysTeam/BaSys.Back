@@ -10,20 +10,26 @@ public class DbInfoRecordsService : IDbInfoRecordsService
 {
     private readonly SuperAdminDbContext _context;
     private readonly IDbInfoRecordsProvider _dbInfoRecordsProvider;
+    private readonly ICheckDbExistsService _checkDbExistsService;
 
     public DbInfoRecordsService(SuperAdminDbContext context,
-        IDbInfoRecordsProvider dbInfoRecordsProvider)
+        IDbInfoRecordsProvider dbInfoRecordsProvider,
+        ICheckDbExistsService checkDbExistsService)
     {
         _context = context;
         _dbInfoRecordsProvider = dbInfoRecordsProvider;
+        _checkDbExistsService = checkDbExistsService;
     }
 
     public async Task<IEnumerable<DbInfoRecordDto>> GetDbInfoRecords()
     {
-        return (await _context.DbInfoRecords
+        var dbInfoRecords = (await _context.DbInfoRecords
                 .AsNoTracking()
                 .ToListAsync())
-            .Select(x => new DbInfoRecordDto(x));
+            .Select(x => new DbInfoRecordDto(x))
+            .ToList();
+
+        return dbInfoRecords;
     }
 
     public async Task<IEnumerable<DbInfoRecordDto>> GetDbInfoRecordsByAppId(string appId)
@@ -104,5 +110,29 @@ public class DbInfoRecordsService : IDbInfoRecordsService
         await _dbInfoRecordsProvider.Update();
 
         return new DbInfoRecordDto(dbItem);
+    }
+
+    public async Task<IEnumerable<ExistsDbResponseDto>> CheckDbExists(IEnumerable<int> dbInfoRecordIds)
+    {
+        var dbInfoRecordsDict = await _context.DbInfoRecords
+            .AsNoTracking()
+            .Where(x => dbInfoRecordIds.Contains(x.Id))
+            .ToDictionaryAsync(k => k.Id, v => v);
+            
+        var list = new List<ExistsDbResponseDto>();
+        foreach (var dbInfoRecordId in dbInfoRecordIds)
+        {
+            if (!dbInfoRecordsDict.TryGetValue(dbInfoRecordId, out var item))
+                continue;
+
+            var isExists = await _checkDbExistsService.IsExists(item);
+            list.Add(new ExistsDbResponseDto
+            {
+                DbInfoRecordId = dbInfoRecordId,
+                IsExists = isExists
+            });
+        }
+
+        return list;
     }
 }

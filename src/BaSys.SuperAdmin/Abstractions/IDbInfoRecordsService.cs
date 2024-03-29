@@ -13,4 +13,5 @@ public interface IDbInfoRecordsService
     Task<DbInfoRecordDto> EditDbInfoRecord(DbInfoRecordDto dbInfoRecord);
     Task<int> DeleteDbInfoRecord(int dbInfoRecordId);
     Task<DbInfoRecordDto> SwitchActivityDbInfoRecord(int dbInfoRecordId);
+    Task<IEnumerable<ExistsDbResponseDto>> CheckDbExists(IEnumerable<int> dbInfoRecordIds);
 }

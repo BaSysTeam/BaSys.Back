@@ -171,4 +171,20 @@ public class DbInfoRecordsController : ControllerBase
 
         return Ok(result);
     }
+
+    /// <summary>
+    /// Check db exists by DbInfoRecord id
+    /// </summary>
+    /// <param name="dbInfoRecordIds"></param>
+    /// <returns></returns>
+    [HttpPost("CheckDbExistsByDbInfoRecordIds")]
+    public async Task<IActionResult> CheckDbExistsByDbInfoRecordIds([FromBody] IEnumerable<int> dbInfoRecordIds)
+    {
+        var result = new ResultWrapper<IEnumerable<ExistsDbResponseDto>>();
+        
+        var items = await _dbInfoRecordsService.CheckDbExists(dbInfoRecordIds);
+        result.Success(items);
+        
+        return Ok(result);
+    }
 }

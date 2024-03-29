@@ -30,7 +30,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Identity\" />
       <Folder Include="MsSqlContext\Migrations\" />
       <Folder Include="PgSqlContext\Migrations\" />
     </ItemGroup>
