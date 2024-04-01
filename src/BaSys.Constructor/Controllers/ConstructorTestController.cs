@@ -139,7 +139,33 @@ namespace BaSys.Constructor.Controllers
                 }
                 catch (Exception ex)
                 {
-                    result.Error(-1, "Cannot insert item", ex.Message);
+                    result.Error(-1, "Cannot insert item", $"Message: {ex.Message}, Query: {provider.LastQuery}");
+                }
+            }
+
+            return Ok(result);
+        }
+
+        [HttpPost("UpdateMetadataGroup")]
+        public async Task<IActionResult> UpdateMetadataGroup([FromBody] MetadataGroupDto dto)
+        {
+            var result = new ResultWrapper<int>();
+            var dbInfoRecord = GetDbInfoRecord();
+
+            var factory = new ConnectionFactory();
+            using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
+            {
+                var provider = new MetadataGroupProvider(connection);
+
+                try
+                {
+                    var item = new MetadataGroup(dto);
+                    var rowsAffected = await provider.UpdateAsync(item, null);
+                    result.Success(rowsAffected, $"Item updated");
+                }
+                catch (Exception ex)
+                {
+                    result.Error(-1, "Cannot update item", $"Message: {ex.Message}, Query: {provider.LastQuery}");
                 }
             }
 

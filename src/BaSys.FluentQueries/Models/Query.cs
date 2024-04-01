@@ -16,5 +16,15 @@ namespace BaSys.FluentQueries.Models
         {
             _parameters.AddRange(parameters);
         }
+
+        public override string ToString()
+        {
+           var sb = new StringBuilder();
+
+            sb.AppendLine("Query:");
+            sb.AppendLine(Text);
+
+            return sb.ToString();   
+        }
     }
 }

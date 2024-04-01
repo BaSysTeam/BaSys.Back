@@ -1,4 +1,5 @@
-﻿using BaSys.FluentQueries.Enums;
+﻿using BaSys.FluentQueries.Abstractions;
+using BaSys.FluentQueries.Enums;
 using BaSys.FluentQueries.QueryBuilders;
 using BaSys.Metadata.Models;
 using Dapper;
@@ -19,6 +20,9 @@ namespace BaSys.Host.DAL.DataProviders
         protected readonly IDbConnection _dbConnection;
         protected SqlDialectKinds _sqlDialect;
         protected string _tableName;
+        protected IQuery _lastQuery;
+
+        public IQuery LastQuery => _lastQuery;
 
         public MetadataGroupProvider(IDbConnection dbConnection)
         {
@@ -39,6 +43,29 @@ namespace BaSys.Host.DAL.DataProviders
                 .Column("memo")
                 .Column("isstandard")
                 .FillValuesByColumnNames(true).Query(_sqlDialect);
+
+            _lastQuery = query;
+
+            result = await _dbConnection.ExecuteAsync(query.Text, item, transaction);
+
+            return result;
+        }
+
+        public async Task<int> UpdateAsync(MetadataGroup item, IDbTransaction transaction)
+        {
+            var result = 0;
+
+            var query = UpdateBuilder.Make()
+                .Table(_tableName)
+                .Set("parentuid")
+                .Set("title")
+                .Set("iconclass")
+                .Set("memo")
+                .Set("isstandard")
+                .WhereAnd("uid = @uid")
+                .Query(_sqlDialect);
+
+            _lastQuery = query; 
 
             result = await _dbConnection.ExecuteAsync(query.Text, item, transaction);
 
