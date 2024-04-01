@@ -52,9 +52,12 @@ namespace BaSys.Host.DAL.Abstractions
             throw new NotImplementedException();
         }
 
-        public Task<int> TruncateTableAsync(IDbTransaction transaction = null)
+        public async Task<int> TruncateTableAsync(IDbTransaction transaction = null)
         {
-            throw new NotImplementedException();
+            var query = TruncateTableBuilder.Make().Table(_tableName).Query(_sqlDialectKind);
+            var result = await _connection.ExecuteAsync(query.Text, null, transaction);
+
+            return result;
         }
 
         /// <summary>

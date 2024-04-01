@@ -172,6 +172,38 @@ namespace BaSys.Constructor.Controllers
             return Ok(result);
         }
 
+        [HttpPost("TruncateMetadataGroupTable")]
+        public async Task<IActionResult> TruncateMetadataGroupTable()
+        {
+            var result = new ResultWrapper<int>();
+            var dbInfoRecord = GetDbInfoRecord();
+            var factory = new ConnectionFactory();
+
+            using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
+            {
+                var tableManager = new MetadataGroupManager(connection);
+
+                var isTable = await tableManager.TableExistsAsync();
+                if (!isTable)
+                {
+                    result.Error(-1, $"Table {tableManager.TableName} doesn't exists");
+                    return Ok(result);
+                }
+
+                try
+                {
+                    await tableManager.TruncateTableAsync();
+                    result.Success(1, $"Table {tableManager.TableName} truncated");
+                }
+                catch (Exception ex)
+                {
+                    result.Error(0, ex.Message);
+                }
+            }
+
+            return Ok(result);
+        }
+
         private DbInfoRecord GetDbInfoRecord()
         {
             var dbName = User.Claims.FirstOrDefault(c => c.Type == "DbName")?.Value;
