@@ -143,7 +143,7 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
                     var currentUser = await _userManager.Users.FirstAsync(x => x.Email.ToUpper() == Input.Email.ToUpper());
                     await _userManager.UpdateAsync(currentUser);
                     
-                    _dataSourceProvider.SetConnection(Input.DbName, currentUser.Id);
+                    // _dataSourceProvider.SetConnection(Input.DbName, currentUser.Id);
 
                     // var claims = await _userManager.GetClaimsAsync(currentUser);
                     // // Add DbName as a new claim, if it's not already a claim
