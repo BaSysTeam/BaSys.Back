@@ -141,6 +141,7 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     var currentUser = await _userManager.Users.FirstAsync(x => x.Email.ToUpper() == Input.Email.ToUpper());
+
                     currentUser.DbName = Input.DbName;
                     await _userManager.UpdateAsync(currentUser);
                     

@@ -25,6 +25,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
+using Serilog.Sinks.MSSqlServer;
 
 namespace BaSys.Host
 {
@@ -144,6 +146,17 @@ namespace BaSys.Host
             builder.Services.AddTransient<IHttpRequestContextService, HttpRequestContextService>();
 
             builder.Services.AddSwaggerGen(options => IncludeXmlCommentsHelper.IncludeXmlComments(options));
+
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo
+                //.Console()
+                .MSSqlServer(
+                    connectionString: "Data Source=OCEANSHIVERBOOK\\SQLEXPRESS;Initial Catalog=__Serilog;Persist Security Info=True;User ID=sa;Password=QAZwsx!@#;TrustServerCertificate=True;",
+                    sinkOptions: new MSSqlServerSinkOptions { TableName = "LogEvents" })
+                .CreateLogger();
+
+            builder.Host.UseSerilog();
+            builder.Logging.AddSerilog();
 
             var app = builder.Build();
 
