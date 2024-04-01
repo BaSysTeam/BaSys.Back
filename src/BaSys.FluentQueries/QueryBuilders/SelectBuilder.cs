@@ -1,4 +1,7 @@
-﻿using BaSys.FluentQueries.Models;
+﻿using BaSys.FluentQueries.Abstractions;
+using BaSys.FluentQueries.Enums;
+using BaSys.FluentQueries.Models;
+using BaSys.FluentQueries.ScriptGenerators;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -58,7 +61,29 @@ namespace BaSys.FluentQueries.QueryBuilders
             return this;
         }
 
-        public static SelectBuilder Create()
+        public IQuery Query(SqlDialectKinds sqlDialect)
+        {
+            // Validate();
+
+            IQuery query = null;
+
+            switch (sqlDialect)
+            {
+                case SqlDialectKinds.MsSql:
+                case SqlDialectKinds.PgSql:
+                    var generator = new SelectScriptGenerator(_model, sqlDialect);
+                    query = generator.Build();
+                    break;
+                default:
+                    throw new NotImplementedException($"{GetType().Name} not implemented for DbKind {sqlDialect}.");
+
+            }
+
+            return query;
+
+        }
+
+        public static SelectBuilder Make()
         {
             return new SelectBuilder();
         }

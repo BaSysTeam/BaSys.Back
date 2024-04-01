@@ -172,6 +172,31 @@ namespace BaSys.Constructor.Controllers
             return Ok(result);
         }
 
+        [HttpGet("SelectMetadataGroups")]
+        public async Task<IActionResult> SelectMetadataGroups()
+        {
+            var result = new ResultWrapper<IEnumerable<MetadataGroup>>();
+            var dbInfoRecord = GetDbInfoRecord();
+
+            var factory = new ConnectionFactory();
+            using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
+            {
+                var provider = new MetadataGroupProvider(connection);
+
+                try
+                {
+                    var collection = await provider.GetCollectionAsync(null);
+                    result.Success(collection);
+                }
+                catch (Exception ex)
+                {
+                    result.Error(0, $"Message: {ex.Message}, Query: {provider.LastQuery}");
+                }
+            }
+
+            return Ok(result);
+        }
+
         private DbInfoRecord GetDbInfoRecord()
         {
             var dbName = User.Claims.FirstOrDefault(c => c.Type == "DbName")?.Value;

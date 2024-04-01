@@ -17,6 +17,12 @@ namespace BaSys.FluentQueries.Models
         public IReadOnlyCollection<string> SelectExpressions => _selectExpressions;
         public IReadOnlyCollection<QueryParameter> Parameters => _parameters;
 
+        public SelectModel()
+        {
+            _selectExpressions = new List<string>();
+            _parameters = new List<QueryParameter>();
+        }
+
         public void WhereAnd(string whereExpression)
         {
             ConcatenateWhereExpression(whereExpression, "AND");
