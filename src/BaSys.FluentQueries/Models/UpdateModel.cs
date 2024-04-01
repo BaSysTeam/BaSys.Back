@@ -15,6 +15,7 @@ namespace BaSys.FluentQueries.Models
         public string WhereExpression { get; set; } = string.Empty;
 
         public IReadOnlyCollection<QueryParameter> Parameters => _parameters;
+        public IDictionary<string, string> SetExpressions => _setExpressions;   
 
         public void WhereAnd(string whereExpression)
         {

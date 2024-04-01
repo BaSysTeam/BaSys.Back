@@ -21,6 +21,39 @@ namespace BaSys.FluentQueries.ScriptGenerators
         {
             var query = new Query();
 
+            var sb = new StringBuilder();
+
+            sb.AppendLine($"UPDATE {_model.TableName}");
+            sb.AppendLine("SET");
+
+            var n = 1;
+            foreach(var kvp in _model.SetExpressions)
+            {
+                if(n > 1)
+                {
+                    sb.AppendLine(", ");
+                }
+
+                var leftExpression = kvp.Key;
+                var rightExpression = kvp.Value;
+
+                if (string.IsNullOrEmpty(rightExpression))
+                {
+                    rightExpression = "@" + leftExpression;
+                }
+
+                sb.Append($"{leftExpression} = {rightExpression}");
+                n++;
+            }
+            sb.AppendLine();
+          
+
+            // Where
+            sb.AppendLine("WHERE");
+            sb.Append(_model.WhereExpression);
+            sb.Append(";");
+
+            query.Text = sb.ToString();
             return query;
         }
 

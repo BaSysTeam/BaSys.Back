@@ -1,4 +1,7 @@
-﻿using BaSys.FluentQueries.Models;
+﻿using BaSys.FluentQueries.Abstractions;
+using BaSys.FluentQueries.Enums;
+using BaSys.FluentQueries.Models;
+using BaSys.FluentQueries.ScriptGenerators;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -62,6 +65,31 @@ namespace BaSys.FluentQueries.QueryBuilders
             _model.WhereAnd(whereExpression);
 
             return this;
+        }
+
+        public IQuery Query(SqlDialectKinds dbKind)
+        {
+            // Validate();
+
+            IQuery query = null;
+
+            switch (dbKind)
+            {
+                case SqlDialectKinds.MsSql:
+                    var msGenerator = new UpdateScriptGenerator(_model, dbKind);
+                    query = msGenerator.Build();
+                    break;
+                case SqlDialectKinds.PgSql:
+                    var pgGenerator = new UpdateScriptGenerator(_model, dbKind);
+                    query = pgGenerator.Build();
+                    break;
+                default:
+                    throw new NotImplementedException($"{GetType().Name} not implemented for DbKind {dbKind}.");
+
+            }
+
+            return query;
+
         }
 
         public static UpdateBuilder Make() { 
