@@ -34,7 +34,7 @@ namespace BaSys.Metadata.Models
 
             if (!string.IsNullOrEmpty(source.ParentUid))
             {
-                Uid = Guid.Parse(source.ParentUid);
+                ParentUid = Guid.Parse(source.ParentUid);
             }
 
             Title = source.Title;   
