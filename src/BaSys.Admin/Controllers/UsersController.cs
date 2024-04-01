@@ -60,7 +60,8 @@ namespace BaSys.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateUser(UserDto userDto)
         {
-            var result = await _usersService.CreateUserAsync(userDto);
+            var authUserDbNameClaim = User.Claims.FirstOrDefault(x => x.Type == "DbName");
+            var result = await _usersService.CreateUserAsync(userDto, authUserDbNameClaim?.Value);
 
             return Ok(result);
         }
