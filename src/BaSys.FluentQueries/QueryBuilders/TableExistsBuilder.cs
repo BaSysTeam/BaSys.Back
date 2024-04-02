@@ -29,7 +29,7 @@ namespace BaSys.FluentQueries.QueryBuilders
             {
                 case SqlDialectKinds.MsSql:
                     query.Text = $"IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = N'{_tableName}')"
-                        + "SELECT 1 AS Exists ELSE SELECT 0 AS Exists";
+                        + "SELECT 1 AS [Exists] ELSE SELECT 0 AS [Exists]";
 
                     break;
                 case SqlDialectKinds.PgSql:
