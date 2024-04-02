@@ -95,5 +95,10 @@ namespace BaSys.FluentQueries.Models
 
             return dbType;
         }
+
+        public override string ToString()
+        {
+            return $"{Name}:{DbType}:{Value}";
+        }
     }
 }
