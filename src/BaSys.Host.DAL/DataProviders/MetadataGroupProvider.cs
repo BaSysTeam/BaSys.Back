@@ -20,9 +20,9 @@ namespace BaSys.Host.DAL.DataProviders
         protected readonly IDbConnection _dbConnection;
         protected SqlDialectKinds _sqlDialect;
         protected string _tableName;
-        protected IQuery _lastQuery;
+        protected IQuery? _lastQuery;
 
-        public IQuery LastQuery => _lastQuery;
+        public IQuery? LastQuery => _lastQuery;
 
         public MetadataGroupProvider(IDbConnection dbConnection)
         {
