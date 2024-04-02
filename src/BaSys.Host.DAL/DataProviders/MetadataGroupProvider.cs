@@ -1,6 +1,7 @@
 ﻿using BaSys.FluentQueries.Abstractions;
 using BaSys.FluentQueries.Enums;
 using BaSys.FluentQueries.QueryBuilders;
+using BaSys.Host.DAL.Abstractions;
 using BaSys.Metadata.Models;
 using Dapper;
 using Npgsql;
@@ -13,25 +14,15 @@ using System.Threading.Tasks;
 
 namespace BaSys.Host.DAL.DataProviders
 {
-    public sealed class MetadataGroupProvider
+    public sealed class MetadataGroupProvider : SystemObjectProviderBase<MetadataGroup>
     {
 
-
-        protected readonly IDbConnection _dbConnection;
-        protected SqlDialectKinds _sqlDialect;
-        protected string _tableName;
-        protected IQuery? _lastQuery;
-
-        public IQuery? LastQuery => _lastQuery;
-
-        public MetadataGroupProvider(IDbConnection dbConnection)
+        public MetadataGroupProvider(IDbConnection dbConnection):base(dbConnection, "sys_metadata_groups")
         {
-            _dbConnection = dbConnection;
-            _sqlDialect = GetDialectKind(dbConnection);
-            _tableName = "sys_metadata_groups";
+           
         }
 
-        public async Task<IEnumerable<MetadataGroup>> GetCollectionAsync(IDbTransaction transaction)
+        public override async Task<IEnumerable<MetadataGroup>> GetCollectionAsync(IDbTransaction transaction)
         {
             var query = SelectBuilder.Make().From(_tableName).Select("*").Query(_sqlDialect);
 
@@ -42,7 +33,7 @@ namespace BaSys.Host.DAL.DataProviders
             return result;
         }
 
-        public async Task<MetadataGroup> GetItemAsync(Guid uid, IDbTransaction transaction)
+        public override async Task<MetadataGroup> GetItemAsync(Guid uid, IDbTransaction transaction)
         {
             var query = SelectBuilder.Make()
                 .From(_tableName)
@@ -58,7 +49,7 @@ namespace BaSys.Host.DAL.DataProviders
             return result;
         }
 
-        public async Task<int> InsertAsync(MetadataGroup item, IDbTransaction transaction)
+        public override async Task<int> InsertAsync(MetadataGroup item, IDbTransaction transaction)
         {
             var result = 0;
 
@@ -78,7 +69,7 @@ namespace BaSys.Host.DAL.DataProviders
             return result;
         }
 
-        public async Task<int> UpdateAsync(MetadataGroup item, IDbTransaction transaction)
+        public override async Task<int> UpdateAsync(MetadataGroup item, IDbTransaction transaction)
         {
             var result = 0;
 
@@ -98,32 +89,6 @@ namespace BaSys.Host.DAL.DataProviders
 
             return result;
         }
-
-        public async Task<int> DeleteAsync(Guid uid, IDbTransaction transaction)
-        {
-
-            var query = DeleteBuilder.Make()
-                .Table(_tableName)
-                .WhereAnd("uid = @uid")
-                .Parameter("uid", uid)
-                .Query(_sqlDialect);
-
-            _lastQuery = query;
-
-            var result = await _dbConnection.ExecuteAsync(query.Text, query.DynamicParameters, transaction);
-
-            return result;
-        }
-
-        private SqlDialectKinds GetDialectKind(IDbConnection connection)
-        {
-            var dialectKind = SqlDialectKinds.MsSql;
-            if (connection is NpgsqlConnection)
-            {
-                dialectKind = SqlDialectKinds.PgSql;
-            }
-
-            return dialectKind;
-        }
+       
     }
 }
