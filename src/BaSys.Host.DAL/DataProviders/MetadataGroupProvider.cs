@@ -15,7 +15,7 @@ namespace BaSys.Host.DAL.DataProviders
 {
     public sealed class MetadataGroupProvider
     {
-       
+
 
         protected readonly IDbConnection _dbConnection;
         protected SqlDialectKinds _sqlDialect;
@@ -26,7 +26,7 @@ namespace BaSys.Host.DAL.DataProviders
 
         public MetadataGroupProvider(IDbConnection dbConnection)
         {
-            _dbConnection = dbConnection;  
+            _dbConnection = dbConnection;
             _sqlDialect = GetDialectKind(dbConnection);
             _tableName = "sys_metadata_groups";
         }
@@ -92,9 +92,25 @@ namespace BaSys.Host.DAL.DataProviders
                 .WhereAnd("uid = @uid")
                 .Query(_sqlDialect);
 
-            _lastQuery = query; 
+            _lastQuery = query;
 
             result = await _dbConnection.ExecuteAsync(query.Text, item, transaction);
+
+            return result;
+        }
+
+        public async Task<int> DeleteAsync(Guid uid, IDbTransaction transaction)
+        {
+
+            var query = DeleteBuilder.Make()
+                .Table(_tableName)
+                .WhereAnd("uid = @uid")
+                .Parameter("uid", uid)
+                .Query(_sqlDialect);
+
+            _lastQuery = query;
+
+            var result = await _dbConnection.ExecuteAsync(query.Text, query.DynamicParameters, transaction);
 
             return result;
         }

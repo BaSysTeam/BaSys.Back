@@ -172,6 +172,31 @@ namespace BaSys.Constructor.Controllers
             return Ok(result);
         }
 
+        [HttpPost("DeleteMetadataGroup/{uid}")]
+        public async Task<IActionResult> DeleteMetadataGroup(Guid uid)
+        {
+            var result = new ResultWrapper<int>();
+            var dbInfoRecord = GetDbInfoRecord();
+
+            var factory = new ConnectionFactory();
+            using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
+            {
+                var provider = new MetadataGroupProvider(connection);
+
+                try
+                {
+                    var rowsAffected = await provider.DeleteAsync(uid, null);
+                    result.Success(rowsAffected, $"Item deleted");
+                }
+                catch (Exception ex)
+                {
+                    result.Error(-1, "Cannot delete item", $"Message: {ex.Message}, Query: {provider.LastQuery}");
+                }
+            }
+
+            return Ok(result);
+        }
+
         [HttpGet("SelectMetadataGroups")]
         public async Task<IActionResult> SelectMetadataGroups()
         {
