@@ -42,6 +42,22 @@ namespace BaSys.Host.DAL.DataProviders
             return result;
         }
 
+        public async Task<MetadataGroup> GetItemAsync(Guid uid, IDbTransaction transaction)
+        {
+            var query = SelectBuilder.Make()
+                .From(_tableName)
+                .Select("*")
+                .WhereAnd("uid = @uid")
+                .Parameter("uid", uid)
+                .Query(_sqlDialect);
+
+            _lastQuery = query;
+
+            var result = await _dbConnection.QueryFirstOrDefaultAsync<MetadataGroup>(query.Text, query.DynamicParameters, transaction);
+
+            return result;
+        }
+
         public async Task<int> InsertAsync(MetadataGroup item, IDbTransaction transaction)
         {
             var result = 0;
