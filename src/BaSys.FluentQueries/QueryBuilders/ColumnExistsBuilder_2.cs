@@ -31,5 +31,10 @@ namespace BaSys.FluentQueries.QueryBuilders
 
             return query;
         }
+
+        public override ColumnExistsBuilder_2 Validate()
+        {
+            return base.Validate();
+        }
     }
 }
