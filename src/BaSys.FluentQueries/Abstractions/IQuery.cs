@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Dapper;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -11,5 +12,6 @@ namespace BaSys.FluentQueries.Abstractions
         IEnumerable<IQueryParameter> Parameters { get; }
 
         void AddParameters(IEnumerable<IQueryParameter> parameters);
+        DynamicParameters DynamicParameters { get; }
     }
 }
