@@ -48,7 +48,6 @@ namespace BaSys.FluentQueries.ScriptGenerators
 
 
             query.Text = sb.ToString();
-
             query.AddParameters(_model.Parameters);
 
             return query;
