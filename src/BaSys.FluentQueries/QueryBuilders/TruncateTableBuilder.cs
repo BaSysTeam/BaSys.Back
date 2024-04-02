@@ -7,45 +7,44 @@ using System.Text;
 
 namespace BaSys.FluentQueries.QueryBuilders
 {
-    public sealed class TableExistsBuilder
+    public sealed class TruncateTableBuilder
     {
         private string _tableName;
 
-        public TableExistsBuilder Table(string tableName)
+        public TruncateTableBuilder Table(string tableName)
         {
             _tableName = tableName;
             return this;
         }
 
-        public IQuery Query(SqlDialectKinds dialectKind)
+        public IQuery Query(SqlDialectKinds dbKind)
         {
             Validate();
 
-            var query = new Query();
+            IQuery query = new Query();
 
             _tableName = _tableName.ToLower();
 
-            switch (dialectKind)
+            switch (dbKind)
             {
                 case SqlDialectKinds.MsSql:
-                    query.Text = $"IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = N'{_tableName}')"
-                        + "SELECT 1 AS [Exists] ELSE SELECT 0 AS [Exists]";
-
+                    query.Text = $"TRUNCATE TABLE {_tableName};";
                     break;
                 case SqlDialectKinds.PgSql:
-                    query.Text = $"SELECT CASE WHEN EXISTS (SELECT FROM information_schema.tables WHERE table_type = 'BASE TABLE' AND table_name = '{_tableName}') "
-                        + "THEN 1 ELSE 0 END AS Exists;";
+                    query.Text = $"TRUNCATE {_tableName};";
                     break;
                 default:
-                    throw new NotImplementedException($"{GetType().Name} not implemented for DbKind {dialectKind}.");
+                    throw new NotImplementedException($"{GetType().Name} not implemented for DbKind {dbKind}.");
+
             }
 
             return query;
+
         }
 
-        public static TableExistsBuilder Make()
+        public static TruncateTableBuilder Make()
         {
-            return new TableExistsBuilder();
+            return new TruncateTableBuilder();
         }
 
         private void Validate()

@@ -7,13 +7,20 @@ using System.Text;
 
 namespace BaSys.FluentQueries.QueryBuilders
 {
-    public sealed class TableExistsBuilder
+    public sealed class ColumnExistsBuilder
     {
         private string _tableName;
+        private string _columnName;
 
-        public TableExistsBuilder Table(string tableName)
+        public ColumnExistsBuilder Table(string tableName)
         {
             _tableName = tableName;
+            return this;
+        }
+
+        public ColumnExistsBuilder Column(string columnName)
+        {
+            _columnName = columnName; 
             return this;
         }
 
@@ -24,17 +31,15 @@ namespace BaSys.FluentQueries.QueryBuilders
             var query = new Query();
 
             _tableName = _tableName.ToLower();
+            _columnName = _columnName.ToLower();
 
             switch (dialectKind)
             {
                 case SqlDialectKinds.MsSql:
-                    query.Text = $"IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = N'{_tableName}')"
-                        + "SELECT 1 AS [Exists] ELSE SELECT 0 AS [Exists]";
-
+                    query.Text = $"IF EXISTS(SELECT 1 FROM sys.columns WHERE Name = N'{_columnName}' AND Object_ID = Object_ID(N'{_tableName}')) SELECT 1 AS [Exists] ELSE SELECT 0 AS [Exists]";
                     break;
                 case SqlDialectKinds.PgSql:
-                    query.Text = $"SELECT CASE WHEN EXISTS (SELECT FROM information_schema.tables WHERE table_type = 'BASE TABLE' AND table_name = '{_tableName}') "
-                        + "THEN 1 ELSE 0 END AS Exists;";
+                    query.Text = $"SELECT EXISTS (SELECT 1 FROM information_schema.columns WHERE lower(table_name)='{_tableName}' AND lower(column_name)='{_columnName}');";
                     break;
                 default:
                     throw new NotImplementedException($"{GetType().Name} not implemented for DbKind {dialectKind}.");
@@ -43,9 +48,9 @@ namespace BaSys.FluentQueries.QueryBuilders
             return query;
         }
 
-        public static TableExistsBuilder Make()
+        public static ColumnExistsBuilder Make()
         {
-            return new TableExistsBuilder();
+            return new ColumnExistsBuilder();
         }
 
         private void Validate()

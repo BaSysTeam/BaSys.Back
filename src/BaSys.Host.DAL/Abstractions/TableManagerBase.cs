@@ -47,14 +47,20 @@ namespace BaSys.Host.DAL.Abstractions
             return result.Exists;
         }
 
-        public Task<bool> ColumnExistsAsync(IDbTransaction transaction = null)
+        public async Task<bool> ColumnExistsAsync(string columnName, IDbTransaction transaction = null)
         {
-            throw new NotImplementedException();
+            var query = ColumnExistsBuilder.Make().Table(_tableName).Column(columnName).Query(_sqlDialectKind);
+            var result = await _connection.QueryFirstOrDefaultAsync<bool>(query.Text, null, transaction);
+
+            return result;
         }
 
-        public Task<int> TruncateTableAsync(IDbTransaction transaction = null)
+        public async Task<int> TruncateTableAsync(IDbTransaction transaction = null)
         {
-            throw new NotImplementedException();
+            var query = TruncateTableBuilder.Make().Table(_tableName).Query(_sqlDialectKind);
+            var result = await _connection.ExecuteAsync(query.Text, null, transaction);
+
+            return result;
         }
 
         /// <summary>
