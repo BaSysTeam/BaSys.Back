@@ -7,11 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Abstractions\" />
+    <PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />
+    <ProjectReference Include="..\src\BaSys.Logging.MsSql\BaSys.Logging.MsSql.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Enums\" />
   </ItemGroup>
 
 </Project>

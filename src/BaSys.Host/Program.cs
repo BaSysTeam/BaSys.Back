@@ -16,6 +16,7 @@ using BaSys.Host.Infrastructure.JwtAuth;
 using BaSys.Host.Infrastructure.Providers;
 using BaSys.Host.Middlewares;
 using BaSys.Host.Services;
+using BaSys.Logging.Infrastructure;
 using BaSys.SuperAdmin.Abstractions;
 using BaSys.SuperAdmin.DAL;
 using BaSys.SuperAdmin.DAL.Abstractions;
@@ -27,6 +28,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using Serilog.Sinks.MSSqlServer;
+using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace BaSys.Host
 {
@@ -69,6 +71,9 @@ namespace BaSys.Host
 
             // Add constructor module
             builder.Services.AddConstructor();
+
+            // Add logging module
+            builder.Services.AddLog();
 
             // Add mssql context
             builder.Services.AddDbContext<MsSqlDbContext>((sp, options) =>
@@ -144,6 +149,7 @@ namespace BaSys.Host
             builder.Services.AddTransient<IMainDbCheckService, MainDbCheckService>();
             builder.Services.AddTransient<IWorkDbService, WorkDbService>();
             builder.Services.AddTransient<IHttpRequestContextService, HttpRequestContextService>();
+
 
             builder.Services.AddSwaggerGen(options => IncludeXmlCommentsHelper.IncludeXmlComments(options));
 
