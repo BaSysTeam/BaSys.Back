@@ -23,6 +23,8 @@ namespace BaSys.FluentQueries.QueryBuilders
 
             IQuery query = new Query();
 
+            _tableName = _tableName.ToLower();
+
             switch (dbKind)
             {
                 case SqlDialectKinds.MsSql:

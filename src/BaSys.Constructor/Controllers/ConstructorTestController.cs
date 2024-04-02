@@ -197,7 +197,41 @@ namespace BaSys.Constructor.Controllers
                 }
                 catch (Exception ex)
                 {
-                    result.Error(0, ex.Message);
+                    result.Error(-1, ex.Message);
+                }
+            }
+
+            return Ok(result);
+        }
+
+        [HttpGet("ColumnExists/{columnName}")]
+        public async Task<IActionResult> ColumnExists(string columnName)
+        {
+            var result = new ResultWrapper<int>();
+            var dbInfoRecord = GetDbInfoRecord();
+            var factory = new ConnectionFactory();
+
+            using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
+            {
+                var tableManager = new MetadataGroupManager(connection);
+                var isTableExists = await tableManager.TableExistsAsync();
+                if (!isTableExists)
+                {
+                    result.Error(-1, $"Table {tableManager.TableName} doesn't exists");
+                    return Ok(result);
+                }
+
+                try
+                {
+                    var isColumnExists = await tableManager.ColumnExistsAsync(columnName);
+                    var msg = $"Column {tableManager.TableName} ";
+                    msg += isColumnExists ? "exists" : "doesn't exists";
+
+                    result.Success(1, msg);
+                }
+                catch (Exception ex)
+                {
+                    result.Error(-1, ex.Message);
                 }
             }
 
