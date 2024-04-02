@@ -55,6 +55,14 @@ namespace BaSys.Host.DAL.Abstractions
             return result;
         }
 
+        public async Task<bool> ColumnExistsAsync_2(string columnName, IDbTransaction transaction = null)
+        {
+            var query = BaseTableBuilder<ColumnExistsBuilder_2>.Make().Table(_tableName).Column(columnName).Query(_sqlDialectKind);
+            var result = await _connection.QueryFirstOrDefaultAsync<bool>(query.Text, null, transaction);
+
+            return result;
+        }
+
         public async Task<int> TruncateTableAsync(IDbTransaction transaction = null)
         {
             var query = TruncateTableBuilder.Make().Table(_tableName).Query(_sqlDialectKind);
