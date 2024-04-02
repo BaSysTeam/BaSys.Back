@@ -11,7 +11,7 @@ namespace BaSys.Host.Infrastructure.Providers;
 public class DataSourceProvider : IDataSourceProvider
 {
     private readonly List<ConnectionItem> _connectionItems = new();
-    private ConcurrentDictionary<string, string> _userConnectionDict = new();
+    // private ConcurrentDictionary<string, string> _userConnectionDict = new();
     private readonly IServiceProvider _serviceProvider;
 
     public DataSourceProvider(IServiceProvider serviceProvider)
@@ -28,9 +28,10 @@ public class DataSourceProvider : IDataSourceProvider
         return _connectionItems.FirstOrDefault(x => x.DbKind == dbKind);
     }
 
-    public ConnectionItem? GetCurrentConnectionItemByUser(string? userId)
+    public ConnectionItem? GetCurrentConnectionItemByUser(string? userId, string? dbName)
     {
-        if (!string.IsNullOrEmpty(userId) && _userConnectionDict.TryGetValue(userId, out var dbName))
+        // if (!string.IsNullOrEmpty(userId) && _userConnectionDict.TryGetValue(userId, out var dbName))
+        if (!string.IsNullOrEmpty(userId) && !string.IsNullOrEmpty(dbName))
             return _connectionItems.FirstOrDefault(x => x.Name == dbName);
 
         return _connectionItems.FirstOrDefault();
@@ -68,15 +69,15 @@ public class DataSourceProvider : IDataSourceProvider
         return item;
     }
     
-    public void SetConnection(string connectionName, string userId)
-    {
-        _userConnectionDict[userId] = connectionName;
-    }
-
-    public void RemoveConnection(string userId)
-    {
-        _userConnectionDict.TryRemove(userId, out _);
-    }
+    // public void SetConnection(string connectionName, string userId)
+    // {
+    //     _userConnectionDict[userId] = connectionName;
+    // }
+    //
+    // public void RemoveConnection(string userId)
+    // {
+    //     _userConnectionDict.TryRemove(userId, out _);
+    // }
     
     #region private methods
     private void Init()

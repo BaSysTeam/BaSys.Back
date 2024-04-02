@@ -1,4 +1,5 @@
-﻿using BaSys.Common.Enums;
+﻿using System.Security.Claims;
+using BaSys.Common.Enums;
 using BaSys.Host.Abstractions;
 using BaSys.Host.Infrastructure;
 using BaSys.Host.Infrastructure.Abstractions;
@@ -35,9 +36,10 @@ public class HttpRequestContextService : IHttpRequestContextService
         }
         
         // From user
-        var userId = _httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault()?.Value;
+        var userId = _httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+        var userDbName = _httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(x => x.Type == "DbName")?.Value;
         if (!string.IsNullOrEmpty(userId))
-            return _dataSourceProvider.GetCurrentConnectionItemByUser(userId);
+            return _dataSourceProvider.GetCurrentConnectionItemByUser(userId, userDbName);
         
         // auth from Login form
         if (_httpContextAccessor.HttpContext?.Request.HasFormContentType == true &&

@@ -141,20 +141,17 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     var currentUser = await _userManager.Users.FirstAsync(x => x.Email.ToUpper() == Input.Email.ToUpper());
-
-                    currentUser.DbName = Input.DbName;
                     await _userManager.UpdateAsync(currentUser);
                     
-                    _dataSourceProvider.SetConnection(Input.DbName, currentUser.Id);
+                    // _dataSourceProvider.SetConnection(Input.DbName, currentUser.Id);
 
-                    // TODO: Why DbName claim save after add DbNameNew claim 
-                    var claims = await _userManager.GetClaimsAsync(currentUser);
-                    // Add DbName as a new claim, if it's not already a claim
-                    if (!claims.Any(c => c.Type == "DbNameNew"))
-                    {
-                        var dbNameClaim = new Claim("DbNameNew", currentUser.DbName);
-                        await _userManager.AddClaimAsync(currentUser, dbNameClaim);
-                    }
+                    // var claims = await _userManager.GetClaimsAsync(currentUser);
+                    // // Add DbName as a new claim, if it's not already a claim
+                    // if (!claims.Any(c => c.Type == "DbNameNew"))
+                    // {
+                    //     var dbNameClaim = new Claim("DbNameNew", currentUser.DbName);
+                    //     await _userManager.AddClaimAsync(currentUser, dbNameClaim);
+                    // }
 
                     _logger.LogInformation("User logged in.");
                     return LocalRedirect(returnUrl);

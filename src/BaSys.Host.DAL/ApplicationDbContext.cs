@@ -14,12 +14,12 @@ public class ApplicationDbContext : IdentityDbContext<WorkDbUser, WorkDbRole, st
     {
     }
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        base.OnModelCreating(modelBuilder);
-        
-        modelBuilder.Entity<WorkDbUser>()
-            .Property(x => x.DbName)
-            .HasMaxLength(50);
-    }
+    // protected override void OnModelCreating(ModelBuilder modelBuilder)
+    // {
+    //     base.OnModelCreating(modelBuilder);
+    //     
+    //     modelBuilder.Entity<WorkDbUser>()
+    //         .Property(x => x.DbName)
+    //         .HasMaxLength(50);
+    // }
 }

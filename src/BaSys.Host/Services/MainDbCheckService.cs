@@ -1,4 +1,5 @@
-﻿using BaSys.Common.Infrastructure;
+﻿using System.Security.Claims;
+using BaSys.Common.Infrastructure;
 using BaSys.Host.Abstractions;
 using BaSys.Host.DAL;
 using BaSys.Host.Identity;
@@ -73,6 +74,15 @@ public class MainDbCheckService : IMainDbCheckService
                     UserName = adminLogin,
                     Email = adminLogin
                 }, adminPassword);
+            }
+
+            // add DbName claim
+            var currentUser = await _userManager.Users.FirstAsync(x => x.Email != null && x.Email.ToUpper() == adminLogin.ToUpper());
+            var claims = await _userManager.GetClaimsAsync(currentUser);
+            if (!claims.Any(c => c.Type == "DbName") && !string.IsNullOrEmpty(initAppSettings.MainDb?.Name))
+            {
+                var dbNameClaim = new Claim("DbName", initAppSettings.MainDb.Name);
+                await _userManager.AddClaimAsync(currentUser, dbNameClaim);
             }
         }
 

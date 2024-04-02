@@ -8,7 +8,7 @@ public interface IUsersService
     Task<ResultWrapper<IEnumerable<UserDto>>> GetAllUsers();
     Task<ResultWrapper<UserDto>> GetUserAsync(string id);
     Task<ResultWrapper<UserDto>> GetUserByEmailAsync(string email);
-    Task<ResultWrapper<UserDto>> CreateUserAsync(UserDto userDto);
+    Task<ResultWrapper<UserDto>> CreateUserAsync(UserDto userDto, string? dbName = null);
     Task<ResultWrapper<UserDto>> UpdateUser(UserDto userDto);
     Task<ResultWrapper<string>> DisableUserAsync(string id);
     Task<ResultWrapper<string>> EnableUserAsync(string id);
