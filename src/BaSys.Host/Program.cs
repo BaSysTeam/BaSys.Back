@@ -5,6 +5,7 @@ using BaSys.Common.Infrastructure;
 using BaSys.Constructor.Infrastructure;
 using BaSys.Host.Abstractions;
 using BaSys.Host.DAL;
+using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.MsSqlContext;
 using BaSys.Host.DAL.PgSqlContext;
 using BaSys.Host.Helpers;
@@ -142,6 +143,12 @@ namespace BaSys.Host
             builder.Services.AddTransient<IMainDbCheckService, MainDbCheckService>();
             builder.Services.AddTransient<IWorkDbService, WorkDbService>();
             builder.Services.AddTransient<IHttpRequestContextService, HttpRequestContextService>();
+
+            // Factory to create DB connection by connection string and db kind.
+            builder.Services.AddSingleton<IConnectionFactory, ConnectionFactory>();
+
+            // Service to create system tables and fill constants when DB created.
+            builder.Services.AddTransient<IDbInitService, DbInitService>();
 
             builder.Services.AddSwaggerGen(options => IncludeXmlCommentsHelper.IncludeXmlComments(options));
 
