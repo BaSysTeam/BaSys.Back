@@ -7,7 +7,7 @@ namespace BaSys.Common.Models
     public sealed class AppConstantsRecord
     {
         public Guid Uid { get; set; }
-        public Guid BaseUid { get; set; }
+        public Guid DataBaseUid { get; set; }
         public string ApplicationTitle { get; set; }
     }
 }
