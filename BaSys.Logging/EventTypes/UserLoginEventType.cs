@@ -1,4 +1,4 @@
-﻿using BaSys.Logging.Infrastructure;
+﻿using BaSys.Logging.Abstractions;
 
 namespace BaSys.Logging.EventTypes;
 public class UserLoginEventType : EventType

@@ -5,6 +5,9 @@
 using System.ComponentModel.DataAnnotations;
 using BaSys.Host.Identity.Models;
 using BaSys.Host.Infrastructure.Abstractions;
+using BaSys.Logging.Abstractions;
+using BaSys.Logging.Abstractions.Enums;
+using BaSys.Logging.EventTypes;
 using BaSys.SuperAdmin.DAL.Abstractions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
@@ -146,7 +149,7 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
                     var currentUser = await _userManager.Users.FirstAsync(x => x.Email.ToUpper() == Input.Email.ToUpper());
 
                     using var logger = await _loggerFactory.GetLogger();
-                    logger.Write("foo");
+                    logger.Write("foo", EventTypeLevels.Info, new UserLoginEventType());
                     
                     // ToDo: remove?
                     // await _userManager.UpdateAsync(currentUser);

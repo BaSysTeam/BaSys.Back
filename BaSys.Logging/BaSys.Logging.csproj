@@ -8,14 +8,11 @@
 
   <ItemGroup>
     <PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />
+    <PackageReference Include="Serilog.Sinks.MSSqlServer" Version="6.6.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\BaSys.Logging.MsSql\BaSys.Logging.MsSql.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Enums\" />
+    <ProjectReference Include="..\src\BaSys.Logging.Infrastructure\BaSys.Logging.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,4 @@
-﻿namespace BaSys.Logging.Infrastructure;
+﻿namespace BaSys.Logging.Abstractions;
 
 public abstract class EventType
 {
