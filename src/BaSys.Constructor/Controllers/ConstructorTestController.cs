@@ -67,7 +67,7 @@ namespace BaSys.Constructor.Controllers
 
             // var dbInfoRecord = GetDbInfoRecordTmp();
 
-            var factory = new ConnectionFactory();
+            var factory = new BaSysConnectionFactory();
             using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
             {
                 var tableManager = new MetadataGroupManager(connection);
@@ -101,7 +101,7 @@ namespace BaSys.Constructor.Controllers
             var result = new ResultWrapper<int>();
             var dbInfoRecord = GetDbInfoRecord();
 
-            var factory = new ConnectionFactory();
+            var factory = new BaSysConnectionFactory();
             using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
             {
                 var tableManager = new MetadataGroupManager(connection);
@@ -126,7 +126,7 @@ namespace BaSys.Constructor.Controllers
             var result = new ResultWrapper<int>();
             var dbInfoRecord = GetDbInfoRecord();
 
-            var factory = new ConnectionFactory();
+            var factory = new BaSysConnectionFactory();
             using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
             {
                 var provider = new MetadataGroupProvider(connection);
@@ -152,7 +152,7 @@ namespace BaSys.Constructor.Controllers
             var result = new ResultWrapper<int>();
             var dbInfoRecord = GetDbInfoRecord();
 
-            var factory = new ConnectionFactory();
+            var factory = new BaSysConnectionFactory();
             using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
             {
                 var provider = new MetadataGroupProvider(connection);
@@ -178,7 +178,7 @@ namespace BaSys.Constructor.Controllers
             var result = new ResultWrapper<int>();
             var dbInfoRecord = GetDbInfoRecord();
 
-            var factory = new ConnectionFactory();
+            var factory = new BaSysConnectionFactory();
             using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
             {
                 var provider = new MetadataGroupProvider(connection);
@@ -203,7 +203,7 @@ namespace BaSys.Constructor.Controllers
             var result = new ResultWrapper<IEnumerable<MetadataGroup>>();
             var dbInfoRecord = GetDbInfoRecord();
 
-            var factory = new ConnectionFactory();
+            var factory = new BaSysConnectionFactory();
             using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
             {
                 var provider = new MetadataGroupProvider(connection);
@@ -228,7 +228,7 @@ namespace BaSys.Constructor.Controllers
             var result = new ResultWrapper<MetadataGroup>();
             var dbInfoRecord = GetDbInfoRecord();
 
-            var factory = new ConnectionFactory();
+            var factory = new BaSysConnectionFactory();
             using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
             {
                 var provider = new MetadataGroupProvider(connection);
@@ -252,7 +252,7 @@ namespace BaSys.Constructor.Controllers
         {
             var result = new ResultWrapper<int>();
             var dbInfoRecord = GetDbInfoRecord();
-            var factory = new ConnectionFactory();
+            var factory = new BaSysConnectionFactory();
 
             using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
             {
@@ -284,7 +284,7 @@ namespace BaSys.Constructor.Controllers
         {
             var result = new ResultWrapper<int>();
             var dbInfoRecord = GetDbInfoRecord();
-            var factory = new ConnectionFactory();
+            var factory = new BaSysConnectionFactory();
 
             using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
             {

@@ -6,6 +6,9 @@ using System.Diagnostics;
 
 namespace BaSys.Host.Services
 {
+    /// <summary>
+    /// Creates required tables and fill neccessary data when DB created. Use Dapper.
+    /// </summary>
     public sealed class DbInitService: IDbInitService
     {
         private IDbConnection? _connection;

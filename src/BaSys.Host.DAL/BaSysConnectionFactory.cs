@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace BaSys.Host.DAL
 {
-    public sealed class ConnectionFactory: IConnectionFactory
+    public sealed class BaSysConnectionFactory: IBaSysConnectionFactory
     {
         public IDbConnection CreateConnection(string connectionString, DbKinds dbKind)
         {

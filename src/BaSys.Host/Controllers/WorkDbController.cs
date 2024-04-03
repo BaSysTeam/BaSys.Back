@@ -17,12 +17,12 @@ public class WorkDbController : ControllerBase
 {
     private readonly IWorkDbService _workDbService;
     private readonly IDataSourceProvider _dataSourceProvider;
-    private readonly IConnectionFactory _connectionFactory;
+    private readonly IBaSysConnectionFactory _connectionFactory;
     private readonly IDbInitService _dbInitService;
 
     public WorkDbController(IWorkDbService workDbService,
         IDataSourceProvider dataSourceProvider,
-        IConnectionFactory connectionFactory, 
+        IBaSysConnectionFactory connectionFactory, 
         IDbInitService dbInitService)
     {
         _workDbService = workDbService;
@@ -31,6 +31,13 @@ public class WorkDbController : ControllerBase
         _dbInitService = dbInitService;
     }
 
+    /// <summary>
+    /// Creates new DB. Create required tables and fill neccessary values when db created.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="dto"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
     [HttpPost("{id}/initdb")]
     public async Task<IActionResult> InitDb([FromRoute] int id, [FromBody] InitDbRequestDto dto)
     {
@@ -49,8 +56,10 @@ public class WorkDbController : ControllerBase
 
         try
         {
+            // Initialization by EF Context. Create users, roles etc.
             var state = await _workDbService.InitWorkDb(dto.AdminLogin, dto.AdminPassword);
 
+            // Initialization by Dapper. Create system tables and fill neccessary data when DB created.
             using (IDbConnection connection = _connectionFactory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
             {
                 _dbInitService.SetUp(connection);

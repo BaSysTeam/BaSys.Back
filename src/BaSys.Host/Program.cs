@@ -1,3 +1,4 @@
+using System.Data;
 using System.Text;
 using BaSys.Admin.Infrastructure;
 using BaSys.Common.Enums;
@@ -20,8 +21,10 @@ using BaSys.Host.Services;
 using BaSys.SuperAdmin.Abstractions;
 using BaSys.SuperAdmin.DAL;
 using BaSys.SuperAdmin.DAL.Abstractions;
+using BaSys.SuperAdmin.DAL.Models;
 using BaSys.SuperAdmin.Data.Identity;
 using BaSys.SuperAdmin.Infrastructure;
+using Microsoft.AspNetCore.Connections;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -145,7 +148,7 @@ namespace BaSys.Host
             builder.Services.AddTransient<IHttpRequestContextService, HttpRequestContextService>();
 
             // Factory to create DB connection by connection string and db kind.
-            builder.Services.AddSingleton<IConnectionFactory, ConnectionFactory>();
+            builder.Services.AddSingleton<IBaSysConnectionFactory, BaSysConnectionFactory>();
 
             // Service to create system tables and fill constants when DB created.
             builder.Services.AddTransient<IDbInitService, DbInitService>();
@@ -196,7 +199,20 @@ namespace BaSys.Host
             {
                 using var serviceScopeInner = app.Services.CreateScope();
                 var mainDbCheckService = serviceScopeInner.ServiceProvider.GetRequiredService<IMainDbCheckService>();
+                // Initialization by EF Context. Create users, roles etc.
                 await mainDbCheckService.Check(initAppSettings);
+
+                // Initialization by Dapper. Create system tables and fill neccessary data when DB created.
+                var connectionFactory = serviceScopeInner.ServiceProvider.GetRequiredService<IBaSysConnectionFactory>();
+                var dbInitService = serviceScopeInner.ServiceProvider.GetRequiredService<IDbInitService>();
+
+                var dbKind = initAppSettings.MainDb.DbKind ?? DbKinds.PgSql;
+                using (IDbConnection connection = connectionFactory.CreateConnection(initAppSettings.MainDb.ConnectionString, dbKind))
+                {
+                    dbInitService.SetUp(connection);
+                    await dbInitService.ExecuteAsync();
+                }
+
             };
             await systemDbService.CheckDbs();
 
