@@ -1,5 +1,6 @@
 ﻿using BaSys.Common.Enums;
 using BaSys.FluentQueries.Enums;
+using BaSys.Host.DAL.Abstractions;
 using Microsoft.Data.SqlClient;
 using Npgsql;
 using System;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace BaSys.Host.DAL
 {
-    public sealed class ConnectionFactory
+    public sealed class BaSysConnectionFactory: IBaSysConnectionFactory
     {
         public IDbConnection CreateConnection(string connectionString, DbKinds dbKind)
         {

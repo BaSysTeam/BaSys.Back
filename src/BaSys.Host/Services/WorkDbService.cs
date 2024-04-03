@@ -6,6 +6,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BaSys.Host.Services;
 
+/// <summary>
+/// Creates tables, users and roles when DB created. Uses EF DbContext.
+/// </summary>
 public class WorkDbService : IWorkDbService
 {
     // private readonly IServiceProvider _serviceProvider;
