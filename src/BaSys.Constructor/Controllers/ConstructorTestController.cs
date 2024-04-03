@@ -313,6 +313,95 @@ namespace BaSys.Constructor.Controllers
             return Ok(result);
         }
 
+        [HttpPost("CreateAppConstantsRecordTable")]
+        public async Task<IActionResult> CreateAppConstantsRecordTable()
+        {
+            var result = new ResultWrapper<int>();
+            var dbInfoRecord = GetDbInfoRecord();
+            var factory = new ConnectionFactory();
+            
+            using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
+            {
+                var tableManager = new AppConstantsRecordManager(connection);
+
+                var isTable = await tableManager.TableExistsAsync();
+                if (isTable)
+                {
+                    result.Error(-1, $"Table {tableManager.TableName} already exists");
+                    return Ok(result);
+                }
+
+                try
+                {
+                    await tableManager.CreateTableAsync();
+                    result.Success(1, $"Table  {tableManager.TableName} created");
+                }
+                catch (Exception ex)
+                {
+                    result.Error(-1, ex.Message);
+                }
+            }
+
+            return Ok(result);
+        }
+
+        [HttpPost("TruncateAppConstantsRecordTable")]
+        public async Task<IActionResult> TruncateAppConstantsRecordTable()
+        {
+            var result = new ResultWrapper<int>();
+            var dbInfoRecord = GetDbInfoRecord();
+            var factory = new ConnectionFactory();
+
+            using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
+            {
+                var tableManager = new AppConstantsRecordManager(connection);
+
+                var isTable = await tableManager.TableExistsAsync();
+                if (!isTable)
+                {
+                    result.Error(-1, $"Table {tableManager.TableName} doesn't exists");
+                    return Ok(result);
+                }
+
+                try
+                {
+                    await tableManager.TruncateTableAsync();
+                    result.Success(1, $"Table {tableManager.TableName} truncated");
+                }
+                catch (Exception ex)
+                {
+                    result.Error(-1, ex.Message);
+                }
+            }
+
+            return Ok(result);
+        }
+
+        [HttpPost("DeleteAppConstantsRecordTable")]
+        public async Task<IActionResult> DeleteAppConstantsRecordTable()
+        {
+            var result = new ResultWrapper<int>();
+            var dbInfoRecord = GetDbInfoRecord();
+
+            var factory = new ConnectionFactory();
+            using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
+            {
+                var tableManager = new AppConstantsRecordManager(connection);
+
+                try
+                {
+                    await tableManager.DropTableAsync();
+                    result.Success(1, $"Table  {tableManager.TableName}  dropped");
+                }
+                catch (Exception ex)
+                {
+                    result.Error(0, ex.Message);
+                }
+            }
+
+            return Ok(result);
+        }
+
         private DbInfoRecord GetDbInfoRecord()
         {
             var dbName = User.Claims.FirstOrDefault(c => c.Type == "DbName")?.Value;

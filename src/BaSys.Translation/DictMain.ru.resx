@@ -117,11 +117,26 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AppConstantsRecordCreated" xml:space="preserve">
+    <value>Запись констант приложения создана</value>
+  </data>
+  <data name="AppConstantsRecordDeleted" xml:space="preserve">
+    <value>Запись констант приложения удалена</value>
+  </data>
+  <data name="AppConstantsRecordUpdated" xml:space="preserve">
+    <value>Запись констант приложения сохранена</value>
+  </data>
   <data name="CannotChangePassword" xml:space="preserve">
     <value>Ошибка изменения пароля</value>
   </data>
+  <data name="CannotCreateAppConstantsRecord" xml:space="preserve">
+    <value>Ошибка создания записи констант приложения</value>
+  </data>
   <data name="CannotCreateUser" xml:space="preserve">
     <value>Ошибка создания пользователя</value>
+  </data>
+  <data name="CannotDeleteAppConstantsRecord" xml:space="preserve">
+    <value>Ошибка удаления записи констант приложения</value>
   </data>
   <data name="CannotDeleteUser" xml:space="preserve">
     <value>Ошибка удаления пользователя</value>
@@ -132,11 +147,20 @@
   <data name="CannotEnableUser" xml:space="preserve">
     <value>Ошибка включения пользователя</value>
   </data>
+  <data name="CannotFindAppConstantsRecord" xml:space="preserve">
+    <value>Запись констант приложения не найдена</value>
+  </data>
   <data name="CannotFindUser" xml:space="preserve">
     <value>Пользователь не найден</value>
   </data>
+  <data name="CannotGetAppConstantsRecordsList" xml:space="preserve">
+    <value>Ошибка получения записей констант приложения</value>
+  </data>
   <data name="CannotGetUsersList" xml:space="preserve">
     <value>Ошибка получения списка пользователей</value>
+  </data>
+  <data name="CannotUpdateAppConstantsRecord" xml:space="preserve">
+    <value>Ошибка сохранения записи констант приложения</value>
   </data>
   <data name="CannotUpdateUser" xml:space="preserve">
     <value>Ошибка сохранения пользователя</value>
