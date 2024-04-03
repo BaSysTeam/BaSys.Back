@@ -318,7 +318,7 @@ namespace BaSys.Constructor.Controllers
         {
             var result = new ResultWrapper<int>();
             var dbInfoRecord = GetDbInfoRecord();
-            var factory = new ConnectionFactory();
+            var factory = new BaSysConnectionFactory();
             
             using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
             {
@@ -350,7 +350,7 @@ namespace BaSys.Constructor.Controllers
         {
             var result = new ResultWrapper<int>();
             var dbInfoRecord = GetDbInfoRecord();
-            var factory = new ConnectionFactory();
+            var factory = new BaSysConnectionFactory();
 
             using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
             {
@@ -383,7 +383,7 @@ namespace BaSys.Constructor.Controllers
             var result = new ResultWrapper<int>();
             var dbInfoRecord = GetDbInfoRecord();
 
-            var factory = new ConnectionFactory();
+            var factory = new BaSysConnectionFactory();
             using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
             {
                 var tableManager = new AppConstantsRecordManager(connection);
