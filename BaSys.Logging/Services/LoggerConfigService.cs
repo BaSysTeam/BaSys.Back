@@ -13,7 +13,7 @@ public class LoggerConfigService : ILoggerConfigService
         return new LoggerConfig
         {
             LoggerType = LoggerTypes.MsSql,
-            MinimumLogLevel = EventTypeLevels.Info,
+            MinimumLogLevel = EventTypeLevels.Error,
             ConnectionString = "Data Source=OSPC\\SQLEXPRESS19;Initial Catalog=__Serilog;Persist Security Info=True;User ID=sa;Password=QAZwsx!@#;TrustServerCertificate=True;",
             DbUid = dbUid,
             TableName = tableName

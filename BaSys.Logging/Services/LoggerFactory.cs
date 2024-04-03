@@ -1,5 +1,4 @@
-﻿using BaSys.Logging.Abstractions;
-using BaSys.Logging.Abstractions.Abstractions;
+﻿using BaSys.Logging.Abstractions.Abstractions;
 using BaSys.Logging.Abstractions.Enums;
 using BaSys.Logging.LogServices;
 
@@ -14,14 +13,14 @@ public class LoggerFactory : ILoggerFactory
         _loggerConfigService = loggerConfigService;
     }
     
-    public async Task<ILoggerService> GetLogger()
+    public async Task<LoggerService> GetLogger()
     {
         var loggerConfig = await _loggerConfigService.GetLoggerConfig();
 
         switch (loggerConfig.LoggerType)
         {
             case LoggerTypes.MsSql:
-                return new MsSqlLoggerService(loggerConfig.ConnectionString, loggerConfig.TableName);
+                return new MsSqlLoggerService(loggerConfig);
             default:
                 throw new ApplicationException();
         }

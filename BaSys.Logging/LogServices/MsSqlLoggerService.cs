@@ -8,15 +8,15 @@ using Serilog.Sinks.MSSqlServer;
 
 namespace BaSys.Logging.LogServices;
 
-public class MsSqlLoggerService : ILoggerService
+public class MsSqlLoggerService : LoggerService
 {
     private readonly Logger _logger;
 
-    public MsSqlLoggerService(string? connectionString, string? tableName)
+    public MsSqlLoggerService(LoggerConfig loggerConfig) : base(loggerConfig)
     {
         var sinkOpts = new MSSqlServerSinkOptions();
         sinkOpts.AutoCreateSqlTable = true;
-        sinkOpts.TableName = tableName;
+        sinkOpts.TableName = loggerConfig.TableName;
         
         var columnOptions = new ColumnOptions();
         columnOptions.Store.Remove(StandardColumn.Level);
@@ -49,11 +49,11 @@ public class MsSqlLoggerService : ILoggerService
 
         _logger = new LoggerConfiguration()
             .WriteTo
-            .MSSqlServer(connectionString: connectionString, sinkOptions: sinkOpts, columnOptions: columnOptions)
+            .MSSqlServer(connectionString: loggerConfig.ConnectionString, sinkOptions: sinkOpts, columnOptions: columnOptions)
             .CreateLogger();
     }
     
-    public void Write(string message, EventTypeLevels level, EventType eventType)
+    protected override void WriteInner(string message, EventTypeLevels level, EventType eventType)
     {
         _logger.Information("{message} {Level} {EventTypeName} {EventTypeUid} {Module}",
             message,
@@ -63,5 +63,5 @@ public class MsSqlLoggerService : ILoggerService
             eventType.Module);
     }
 
-    public void Dispose() => _logger.Dispose();
+    public override void Dispose() => _logger.Dispose();
 }

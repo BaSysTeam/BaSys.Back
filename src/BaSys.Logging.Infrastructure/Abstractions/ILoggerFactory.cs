@@ -2,5 +2,5 @@
 
 public interface ILoggerFactory
 {
-    Task<ILoggerService> GetLogger();
+    Task<LoggerService> GetLogger();
 }
