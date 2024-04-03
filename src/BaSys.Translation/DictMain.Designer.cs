@@ -61,6 +61,33 @@ namespace BaSys.Translation {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to App constants record created.
+        /// </summary>
+        public static string AppConstantsRecordCreated {
+            get {
+                return ResourceManager.GetString("AppConstantsRecordCreated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to App constants record deleted.
+        /// </summary>
+        public static string AppConstantsRecordDeleted {
+            get {
+                return ResourceManager.GetString("AppConstantsRecordDeleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to App constants record updated.
+        /// </summary>
+        public static string AppConstantsRecordUpdated {
+            get {
+                return ResourceManager.GetString("AppConstantsRecordUpdated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cannot change password.
         /// </summary>
         public static string CannotChangePassword {
@@ -70,11 +97,29 @@ namespace BaSys.Translation {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot create app constants record.
+        /// </summary>
+        public static string CannotCreateAppConstantsRecord {
+            get {
+                return ResourceManager.GetString("CannotCreateAppConstantsRecord", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cannot create user.
         /// </summary>
         public static string CannotCreateUser {
             get {
                 return ResourceManager.GetString("CannotCreateUser", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot delete app constants record.
+        /// </summary>
+        public static string CannotDeleteAppConstantsRecord {
+            get {
+                return ResourceManager.GetString("CannotDeleteAppConstantsRecord", resourceCulture);
             }
         }
         
@@ -106,6 +151,15 @@ namespace BaSys.Translation {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot find app constants record.
+        /// </summary>
+        public static string CannotFindAppConstantsRecord {
+            get {
+                return ResourceManager.GetString("CannotFindAppConstantsRecord", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cannot find user.
         /// </summary>
         public static string CannotFindUser {
@@ -115,11 +169,29 @@ namespace BaSys.Translation {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot get app constants records list.
+        /// </summary>
+        public static string CannotGetAppConstantsRecordsList {
+            get {
+                return ResourceManager.GetString("CannotGetAppConstantsRecordsList", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cannot get users list.
         /// </summary>
         public static string CannotGetUsersList {
             get {
                 return ResourceManager.GetString("CannotGetUsersList", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot update app constants record.
+        /// </summary>
+        public static string CannotUpdateAppConstantsRecord {
+            get {
+                return ResourceManager.GetString("CannotUpdateAppConstantsRecord", resourceCulture);
             }
         }
         
