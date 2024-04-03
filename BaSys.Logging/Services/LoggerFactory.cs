@@ -21,6 +21,10 @@ public class LoggerFactory : ILoggerFactory
         {
             case LoggerTypes.MsSql:
                 return new MsSqlLoggerService(loggerConfig);
+            case LoggerTypes.PgSql:
+                return new PgSqlLoggerService(loggerConfig);
+            case LoggerTypes.MongoDb:
+                return new MongoLoggerService(loggerConfig);
             default:
                 throw new ApplicationException();
         }

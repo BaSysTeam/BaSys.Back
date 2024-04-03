@@ -1,10 +1,13 @@
 ﻿using BaSys.Logging.Abstractions.Enums;
+using Serilog.Core;
 
 namespace BaSys.Logging.Abstractions.Abstractions;
 
 public abstract class LoggerService : IDisposable
 {
     private readonly EventTypeLevels _minimumLogLevel;
+    protected Logger _logger;
+    
     public LoggerService(LoggerConfig loggerConfig)
     {
         _minimumLogLevel = loggerConfig.MinimumLogLevel;

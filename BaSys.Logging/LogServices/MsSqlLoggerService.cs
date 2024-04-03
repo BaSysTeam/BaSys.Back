@@ -3,15 +3,12 @@ using BaSys.Logging.Abstractions;
 using BaSys.Logging.Abstractions.Abstractions;
 using BaSys.Logging.Abstractions.Enums;
 using Serilog;
-using Serilog.Core;
 using Serilog.Sinks.MSSqlServer;
 
 namespace BaSys.Logging.LogServices;
 
 public class MsSqlLoggerService : LoggerService
 {
-    private readonly Logger _logger;
-
     public MsSqlLoggerService(LoggerConfig loggerConfig) : base(loggerConfig)
     {
         var sinkOpts = new MSSqlServerSinkOptions();

@@ -12,13 +12,15 @@ public class LoggerConfigService : ILoggerConfigService
         var tableName = GetTableName(dbUid);
         return new LoggerConfig
         {
-            LoggerType = LoggerTypes.MsSql,
-            MinimumLogLevel = EventTypeLevels.Error,
-            ConnectionString = "Data Source=OSPC\\SQLEXPRESS19;Initial Catalog=__Serilog;Persist Security Info=True;User ID=sa;Password=QAZwsx!@#;TrustServerCertificate=True;",
+            // LoggerType = LoggerTypes.MsSql,
+            LoggerType = LoggerTypes.MongoDb,
+            MinimumLogLevel = EventTypeLevels.Info,
+            // ConnectionString = "Data Source=OSPC\\SQLEXPRESS19;Initial Catalog=__Serilog;Persist Security Info=True;User ID=sa;Password=QAZwsx!@#;TrustServerCertificate=True;",
+            ConnectionString = "mongodb://localhost:27017/Serilog",
             DbUid = dbUid,
             TableName = tableName
         };
     }
 
-    private string GetTableName(Guid dbUid) => $"Logs-{dbUid}";
+    private string GetTableName(Guid dbUid) => $"logs-{dbUid}";
 }
