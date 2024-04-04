@@ -3,6 +3,7 @@ using BaSys.Admin.DTO;
 using BaSys.Common.Infrastructure;
 using BaSys.Common.Models;
 using BaSys.Host.DAL;
+using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
 using BaSys.Host.Identity.Models;
 using BaSys.SuperAdmin.DAL.Abstractions;
@@ -19,20 +20,23 @@ namespace BaSys.Admin.Services
     public sealed class AppConstantsRecordsService : IAppConstantsRecordsService
     {
         private readonly IDbInfoRecordsProvider _dbInfoRecordsProvider;
-        public AppConstantsRecordsService(IDbInfoRecordsProvider dbInfoRecordsProvider)
+        private readonly IBaSysConnectionFactory _baSysConnectionFactory;
+        public AppConstantsRecordsService(
+            IDbInfoRecordsProvider dbInfoRecordsProvider, 
+            IBaSysConnectionFactory baSysConnectionFactory)
         {
             _dbInfoRecordsProvider = dbInfoRecordsProvider;
+            _baSysConnectionFactory = baSysConnectionFactory;
         }
 
         public async Task<ResultWrapper<int>> CreateAppConstantsRecordAsync(AppConstantsRecordDto appConstant, string dbName)
         {
             var result = new ResultWrapper<int>();
             var dbInfoRecord = _dbInfoRecordsProvider.GetDbInfoRecordByDbName(dbName);
-            var factory = new ConnectionFactory();
 
             try
             {
-                using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
+                using (IDbConnection connection = _baSysConnectionFactory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
                 {
                     var appConstantsRecord = new AppConstantsRecord(appConstant);
                     appConstantsRecord.Uid = Guid.NewGuid();
@@ -67,11 +71,10 @@ namespace BaSys.Admin.Services
         {
             var result = new ResultWrapper<int>();
             var dbInfoRecord = _dbInfoRecordsProvider.GetDbInfoRecordByDbName(dbName);
-            var factory = new ConnectionFactory();
 
             try
             {
-                using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
+                using (IDbConnection connection = _baSysConnectionFactory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
                 {
                     var provider = new AppConstantsRecordProvider(connection);
                     var deletionResult = await provider.DeleteAsync(uid, null);
@@ -91,11 +94,10 @@ namespace BaSys.Admin.Services
         {
             var result = new ResultWrapper<IEnumerable<AppConstantsRecordDto>>();
             var dbInfoRecord = _dbInfoRecordsProvider.GetDbInfoRecordByDbName(dbName);
-            var factory = new ConnectionFactory();
 
             try
             {
-                using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
+                using (IDbConnection connection = _baSysConnectionFactory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
                 {
                     var provider = new AppConstantsRecordProvider(connection);
                     var collection = await provider.GetCollectionAsync(null);
@@ -116,11 +118,10 @@ namespace BaSys.Admin.Services
         {
             var result = new ResultWrapper<AppConstantsRecordDto>();
             var dbInfoRecord = _dbInfoRecordsProvider.GetDbInfoRecordByDbName(dbName);
-            var factory = new ConnectionFactory();
 
             try
             {
-                using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
+                using (IDbConnection connection = _baSysConnectionFactory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
                 {
                     var provider = new AppConstantsRecordProvider(connection);
                     var appConstantsRecord = await provider.GetItemAsync(uid, null);
@@ -147,11 +148,10 @@ namespace BaSys.Admin.Services
         {
             var result = new ResultWrapper<int>();
             var dbInfoRecord = _dbInfoRecordsProvider.GetDbInfoRecordByDbName(dbName);
-            var factory = new ConnectionFactory();
 
             try
             {
-                using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
+                using (IDbConnection connection = _baSysConnectionFactory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
                 {
                     var appConstantsRecord = new AppConstantsRecord(appConstant);
                     var provider = new AppConstantsRecordProvider(connection);
