@@ -1,4 +1,3 @@
-using System.Data;
 using System.Text;
 using BaSys.Admin.Infrastructure;
 using BaSys.Common.Enums;
@@ -18,6 +17,7 @@ using BaSys.Host.Infrastructure.JwtAuth;
 using BaSys.Host.Infrastructure.Providers;
 using BaSys.Host.Middlewares;
 using BaSys.Host.Services;
+using BaSys.Logging.Infrastructure;
 using BaSys.SuperAdmin.Abstractions;
 using BaSys.SuperAdmin.DAL;
 using BaSys.SuperAdmin.DAL.Abstractions;
@@ -29,6 +29,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
+using Serilog.Sinks.MSSqlServer;
+using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace BaSys.Host
 {
@@ -71,6 +74,9 @@ namespace BaSys.Host
 
             // Add constructor module
             builder.Services.AddConstructor();
+
+            // Add logging module
+            builder.Services.AddLog();
 
             // Add mssql context
             builder.Services.AddDbContext<MsSqlDbContext>((sp, options) =>
@@ -154,6 +160,17 @@ namespace BaSys.Host
             builder.Services.AddTransient<IDbInitService, DbInitService>();
 
             builder.Services.AddSwaggerGen(options => IncludeXmlCommentsHelper.IncludeXmlComments(options));
+
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo
+                //.Console()
+                .MSSqlServer(
+                    connectionString: "Data Source=OCEANSHIVERBOOK\\SQLEXPRESS;Initial Catalog=__Serilog;Persist Security Info=True;User ID=sa;Password=QAZwsx!@#;TrustServerCertificate=True;",
+                    sinkOptions: new MSSqlServerSinkOptions { TableName = "LogEvents" })
+                .CreateLogger();
+
+            builder.Host.UseSerilog();
+            builder.Logging.AddSerilog();
 
             var app = builder.Build();
 

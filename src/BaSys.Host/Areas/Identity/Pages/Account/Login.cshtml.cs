@@ -3,16 +3,19 @@
 #nullable disable
 
 using System.ComponentModel.DataAnnotations;
-using System.Security.Claims;
-using BaSys.Host.Identity;
 using BaSys.Host.Identity.Models;
 using BaSys.Host.Infrastructure.Abstractions;
+using BaSys.Logging.Abstractions;
+using BaSys.Logging.Abstractions.Enums;
+using BaSys.Logging.EventTypes;
 using BaSys.SuperAdmin.DAL.Abstractions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using Serilog.Events;
+using ILoggerFactory = BaSys.Logging.Abstractions.Abstractions.ILoggerFactory;
 
 namespace BaSys.Host.Areas.Identity.Pages.Account
 {
@@ -23,18 +26,21 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
         private readonly UserManager<WorkDbUser> _userManager;
         private readonly IDataSourceProvider _dataSourceProvider;
         private readonly IDbInfoRecordsProvider _dbInfoRecordsProvider;
+        private readonly ILoggerFactory _loggerFactory;
 
         public LoginModel(ILogger<LoginModel> logger,
             SignInManager<WorkDbUser> signInManager,
             UserManager<WorkDbUser> userManager,
             IDataSourceProvider dataSourceProvider,
-            IDbInfoRecordsProvider dbInfoRecordsProvider)
+            IDbInfoRecordsProvider dbInfoRecordsProvider,
+            ILoggerFactory loggerFactory)
         {
             _logger = logger;
             _signInManager = signInManager;
             _userManager = userManager;
             _dataSourceProvider = dataSourceProvider;
             _dbInfoRecordsProvider = dbInfoRecordsProvider;
+            _loggerFactory = loggerFactory;
         }
 
         /// <summary>
@@ -141,17 +147,12 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     var currentUser = await _userManager.Users.FirstAsync(x => x.Email.ToUpper() == Input.Email.ToUpper());
-                    await _userManager.UpdateAsync(currentUser);
-                    
-                    // _dataSourceProvider.SetConnection(Input.DbName, currentUser.Id);
 
-                    // var claims = await _userManager.GetClaimsAsync(currentUser);
-                    // // Add DbName as a new claim, if it's not already a claim
-                    // if (!claims.Any(c => c.Type == "DbNameNew"))
-                    // {
-                    //     var dbNameClaim = new Claim("DbNameNew", currentUser.DbName);
-                    //     await _userManager.AddClaimAsync(currentUser, dbNameClaim);
-                    // }
+                    // using var logger = await _loggerFactory.GetLogger();
+                    // logger.Write("foo", EventTypeLevels.Info, new UserLoginEventType());
+                    
+                    // ToDo: remove?
+                    // await _userManager.UpdateAsync(currentUser);
 
                     _logger.LogInformation("User logged in.");
                     return LocalRedirect(returnUrl);
