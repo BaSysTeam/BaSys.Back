@@ -21,6 +21,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\BaSys.FluentQueries\BaSys.FluentQueries.csproj" />
+    <ProjectReference Include="..\..\src\BaSys.Host.DAL\BaSys.Host.DAL.csproj" />
+    <ProjectReference Include="..\..\src\BaSys.Shared\BaSys.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Using Include="NUnit.Framework" />
   </ItemGroup>
 
