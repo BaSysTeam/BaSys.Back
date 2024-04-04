@@ -1,4 +1,5 @@
 ﻿using BaSys.Common.Enums;
+using BaSys.FluentQueries.IntegrationTests.Infrastructure;
 using BaSys.Host.DAL;
 using BaSys.Host.DAL.TableManagers;
 using Microsoft.Extensions.Configuration;
@@ -12,25 +13,21 @@ using System.Threading.Tasks;
 namespace BaSys.FluentQueries.IntegrationTests
 {
     [TestFixture]
-    public class CreateTableBuilderTests
+    public class MetadataGroupTableManagerTests
     {
-        private IConfigurationRoot _configuration;
+        private ConnectionStringService _connectionStringService;
 
         [SetUp]
         public void Setup()
         {
-            // Build configuration
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory()) // Set the base path to the current directory
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
-            _configuration = builder.Build();
+            _connectionStringService = new ConnectionStringService();   
         }
 
         [TearDown]
         public async Task Teardown()
         {
-            string pgConnectionString = _configuration?.GetConnectionString("pg_test_base");
-            string msConnectionString = _configuration?.GetConnectionString("ms_test_base");
+            string pgConnectionString = _connectionStringService.PgConnectionString;
+            string msConnectionString = _connectionStringService.MsConnectionString;
 
             var factory = new BaSysConnectionFactory();
 
@@ -53,25 +50,25 @@ namespace BaSys.FluentQueries.IntegrationTests
         public void GetConnectionStrings(string connectionStringName)
         {
             // Retrieve the connection string
-            string connectionString = _configuration?.GetConnectionString(connectionStringName) ?? string.Empty;
+            string connectionString = _connectionStringService.GetConnectionString(connectionStringName) ?? string.Empty;
 
             Console.WriteLine($"{connectionStringName}:{connectionString}");
 
             Assert.IsNotNull(connectionString);
         }
 
-        [TestCase("pg_test_base", DbKinds.PgSql)]
-        [TestCase("ms_test_base", DbKinds.MsSql)]
-        public async Task CreateTable_MetadataGroup(string connectionStringName, DbKinds dbKind)
+        [TestCase("pg_test_base")]
+        [TestCase("ms_test_base")]
+        public async Task CreateTable_MetadataGroup(string connectionStringName)
         {
 
             var tableExists = false;
 
             var factory = new BaSysConnectionFactory();
 
-            string connectionString = _configuration?.GetConnectionString(connectionStringName) ?? string.Empty;
+            var dbInfoRecord = _connectionStringService.GetDbInfoRecord(connectionStringName);
 
-            using(IDbConnection connection = factory.CreateConnection(connectionString, dbKind))
+            using(IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
             {
                 var manager = new MetadataGroupManager(connection);
                 await manager.CreateTableAsync();
