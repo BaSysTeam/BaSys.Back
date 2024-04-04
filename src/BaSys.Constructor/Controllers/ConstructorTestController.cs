@@ -67,7 +67,7 @@ namespace BaSys.Constructor.Controllers
 
             // var dbInfoRecord = GetDbInfoRecordTmp();
 
-            var factory = new ConnectionFactory();
+            var factory = new BaSysConnectionFactory();
             using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
             {
                 var tableManager = new MetadataGroupManager(connection);
@@ -101,7 +101,7 @@ namespace BaSys.Constructor.Controllers
             var result = new ResultWrapper<int>();
             var dbInfoRecord = GetDbInfoRecord();
 
-            var factory = new ConnectionFactory();
+            var factory = new BaSysConnectionFactory();
             using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
             {
                 var tableManager = new MetadataGroupManager(connection);
@@ -126,7 +126,7 @@ namespace BaSys.Constructor.Controllers
             var result = new ResultWrapper<int>();
             var dbInfoRecord = GetDbInfoRecord();
 
-            var factory = new ConnectionFactory();
+            var factory = new BaSysConnectionFactory();
             using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
             {
                 var provider = new MetadataGroupProvider(connection);
@@ -152,7 +152,7 @@ namespace BaSys.Constructor.Controllers
             var result = new ResultWrapper<int>();
             var dbInfoRecord = GetDbInfoRecord();
 
-            var factory = new ConnectionFactory();
+            var factory = new BaSysConnectionFactory();
             using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
             {
                 var provider = new MetadataGroupProvider(connection);
@@ -172,13 +172,38 @@ namespace BaSys.Constructor.Controllers
             return Ok(result);
         }
 
+        [HttpPost("DeleteMetadataGroup/{uid}")]
+        public async Task<IActionResult> DeleteMetadataGroup(Guid uid)
+        {
+            var result = new ResultWrapper<int>();
+            var dbInfoRecord = GetDbInfoRecord();
+
+            var factory = new BaSysConnectionFactory();
+            using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
+            {
+                var provider = new MetadataGroupProvider(connection);
+
+                try
+                {
+                    var rowsAffected = await provider.DeleteAsync(uid, null);
+                    result.Success(rowsAffected, $"Item deleted");
+                }
+                catch (Exception ex)
+                {
+                    result.Error(-1, "Cannot delete item", $"Message: {ex.Message}, Query: {provider.LastQuery}");
+                }
+            }
+
+            return Ok(result);
+        }
+
         [HttpGet("SelectMetadataGroups")]
         public async Task<IActionResult> SelectMetadataGroups()
         {
             var result = new ResultWrapper<IEnumerable<MetadataGroup>>();
             var dbInfoRecord = GetDbInfoRecord();
 
-            var factory = new ConnectionFactory();
+            var factory = new BaSysConnectionFactory();
             using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
             {
                 var provider = new MetadataGroupProvider(connection);
@@ -191,6 +216,186 @@ namespace BaSys.Constructor.Controllers
                 catch (Exception ex)
                 {
                     result.Error(0, $"Message: {ex.Message}, Query: {provider.LastQuery}");
+                }
+            }
+
+            return Ok(result);
+        }
+
+        [HttpGet("SelectMetadataGroupItem")]
+        public async Task<IActionResult> SelectMetadataGroupItem([FromQuery] Guid uid)
+        {
+            var result = new ResultWrapper<MetadataGroup>();
+            var dbInfoRecord = GetDbInfoRecord();
+
+            var factory = new BaSysConnectionFactory();
+            using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
+            {
+                var provider = new MetadataGroupProvider(connection);
+
+                try
+                {
+                    var item = await provider.GetItemAsync(uid, null);
+                    result.Success(item);
+                }
+                catch (Exception ex)
+                {
+                    result.Error(0, $"Message: {ex.Message}, Query: {provider.LastQuery}");
+                }
+            }
+
+            return Ok(result);
+        }
+
+        [HttpPost("TruncateMetadataGroupTable")]
+        public async Task<IActionResult> TruncateMetadataGroupTable()
+        {
+            var result = new ResultWrapper<int>();
+            var dbInfoRecord = GetDbInfoRecord();
+            var factory = new BaSysConnectionFactory();
+
+            using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
+            {
+                var tableManager = new MetadataGroupManager(connection);
+
+                var isTable = await tableManager.TableExistsAsync();
+                if (!isTable)
+                {
+                    result.Error(-1, $"Table {tableManager.TableName} doesn't exists");
+                    return Ok(result);
+                }
+
+                try
+                {
+                    await tableManager.TruncateTableAsync();
+                    result.Success(1, $"Table {tableManager.TableName} truncated");
+                }
+                catch (Exception ex)
+                {
+                    result.Error(-1, ex.Message);
+                }
+            }
+
+            return Ok(result);
+        }
+
+        [HttpGet("ColumnExists/{columnName}")]
+        public async Task<IActionResult> ColumnExists(string columnName)
+        {
+            var result = new ResultWrapper<int>();
+            var dbInfoRecord = GetDbInfoRecord();
+            var factory = new BaSysConnectionFactory();
+
+            using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
+            {
+                var tableManager = new MetadataGroupManager(connection);
+                var isTableExists = await tableManager.TableExistsAsync();
+                if (!isTableExists)
+                {
+                    result.Error(-1, $"Table {tableManager.TableName} doesn't exists");
+                    return Ok(result);
+                }
+
+                try
+                {
+                    var isColumnExists = await tableManager.ColumnExistsAsync(columnName);
+                    var msg = $"Column {tableManager.TableName} ";
+                    msg += isColumnExists ? "exists" : "doesn't exists";
+
+                    result.Success(1, msg);
+                }
+                catch (Exception ex)
+                {
+                    result.Error(-1, ex.Message);
+                }
+            }
+
+            return Ok(result);
+        }
+
+        [HttpPost("CreateAppConstantsRecordTable")]
+        public async Task<IActionResult> CreateAppConstantsRecordTable()
+        {
+            var result = new ResultWrapper<int>();
+            var dbInfoRecord = GetDbInfoRecord();
+            var factory = new BaSysConnectionFactory();
+            
+            using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
+            {
+                var tableManager = new AppConstantsRecordManager(connection);
+
+                var isTable = await tableManager.TableExistsAsync();
+                if (isTable)
+                {
+                    result.Error(-1, $"Table {tableManager.TableName} already exists");
+                    return Ok(result);
+                }
+
+                try
+                {
+                    await tableManager.CreateTableAsync();
+                    result.Success(1, $"Table  {tableManager.TableName} created");
+                }
+                catch (Exception ex)
+                {
+                    result.Error(-1, ex.Message);
+                }
+            }
+
+            return Ok(result);
+        }
+
+        [HttpPost("TruncateAppConstantsRecordTable")]
+        public async Task<IActionResult> TruncateAppConstantsRecordTable()
+        {
+            var result = new ResultWrapper<int>();
+            var dbInfoRecord = GetDbInfoRecord();
+            var factory = new BaSysConnectionFactory();
+
+            using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
+            {
+                var tableManager = new AppConstantsRecordManager(connection);
+
+                var isTable = await tableManager.TableExistsAsync();
+                if (!isTable)
+                {
+                    result.Error(-1, $"Table {tableManager.TableName} doesn't exists");
+                    return Ok(result);
+                }
+
+                try
+                {
+                    await tableManager.TruncateTableAsync();
+                    result.Success(1, $"Table {tableManager.TableName} truncated");
+                }
+                catch (Exception ex)
+                {
+                    result.Error(-1, ex.Message);
+                }
+            }
+
+            return Ok(result);
+        }
+
+        [HttpPost("DeleteAppConstantsRecordTable")]
+        public async Task<IActionResult> DeleteAppConstantsRecordTable()
+        {
+            var result = new ResultWrapper<int>();
+            var dbInfoRecord = GetDbInfoRecord();
+
+            var factory = new BaSysConnectionFactory();
+            using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
+            {
+                var tableManager = new AppConstantsRecordManager(connection);
+
+                try
+                {
+                    await tableManager.DropTableAsync();
+                    result.Success(1, $"Table  {tableManager.TableName}  dropped");
+                }
+                catch (Exception ex)
+                {
+                    result.Error(0, ex.Message);
                 }
             }
 

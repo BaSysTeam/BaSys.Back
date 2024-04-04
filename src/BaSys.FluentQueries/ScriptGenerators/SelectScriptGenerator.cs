@@ -37,10 +37,19 @@ namespace BaSys.FluentQueries.ScriptGenerators
 
             sb.Append("FROM ");
             sb.Append(_model.FromExpression);
+
+            if (!string.IsNullOrEmpty(_model.WhereExpression))
+            {
+                sb.AppendLine();
+                sb.Append("WHERE ");
+                sb.Append(_model.WhereExpression);
+            }
             sb.Append(";");
 
 
             query.Text = sb.ToString();
+            query.AddParameters(_model.Parameters);
+
             return query;
         }
     }
