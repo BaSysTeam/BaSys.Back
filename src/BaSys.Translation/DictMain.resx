@@ -165,6 +165,9 @@
   <data name="CannotUpdateUser" xml:space="preserve">
     <value>Cannot update user</value>
   </data>
+  <data name="EmptyAppConstantsRecordList" xml:space="preserve">
+    <value>Empty app constants record list</value>
+  </data>
   <data name="EmptyUsersList" xml:space="preserve">
     <value>Empty users list</value>
   </data>

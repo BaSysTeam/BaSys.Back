@@ -205,6 +205,15 @@ namespace BaSys.Translation {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Empty app constants record list.
+        /// </summary>
+        public static string EmptyAppConstantsRecordList {
+            get {
+                return ResourceManager.GetString("EmptyAppConstantsRecordList", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Empty users list.
         /// </summary>
         public static string EmptyUsersList {

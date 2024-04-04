@@ -165,6 +165,9 @@
   <data name="CannotUpdateUser" xml:space="preserve">
     <value>Ошибка сохранения пользователя</value>
   </data>
+  <data name="EmptyAppConstantsRecordList" xml:space="preserve">
+    <value>Список записей констант приложения пуст</value>
+  </data>
   <data name="EmptyUsersList" xml:space="preserve">
     <value>Список пользователей пуст</value>
   </data>

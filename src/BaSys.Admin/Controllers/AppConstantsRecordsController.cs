@@ -26,28 +26,14 @@ namespace BaSys.Admin.Controllers
         }
 
         /// <summary>
-        /// Retrieve all app constants records.
+        /// Retrieve app constants record.
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<IActionResult> GetAllAppConstantsRecords()
+        public async Task<IActionResult> GetAppConstantsRecord()
         {
             var authUserDbNameClaim = User.Claims.FirstOrDefault(x => x.Type == "DbName");
-            var result = await _appConstantsRecordsService.GetAllAppConstantsRecordsAsync(authUserDbNameClaim?.Value);
-
-            return Ok(result);
-        }
-
-        /// <summary>
-        /// Retrieve app constants record by Uid.
-        /// </summary>
-        /// <param name="uid">Uid</param>
-        /// <returns></returns>
-        [HttpGet("{uid}")]
-        public async Task<IActionResult> GetAppConstantsRecord(Guid uid)
-        {
-            var authUserDbNameClaim = User.Claims.FirstOrDefault(x => x.Type == "DbName");
-            var result = await _appConstantsRecordsService.GetAppConstantsRecordAsync(uid, authUserDbNameClaim?.Value);
+            var result = await _appConstantsRecordsService.GetAppConstantsRecordAsync(authUserDbNameClaim?.Value);
 
             return Ok(result);
         }

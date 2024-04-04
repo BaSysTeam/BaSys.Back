@@ -90,31 +90,7 @@ namespace BaSys.Admin.Services
             return result;
         }
 
-        public async Task<ResultWrapper<IEnumerable<AppConstantsRecordDto>>> GetAllAppConstantsRecordsAsync(string dbName)
-        {
-            var result = new ResultWrapper<IEnumerable<AppConstantsRecordDto>>();
-            var dbInfoRecord = _dbInfoRecordsProvider.GetDbInfoRecordByDbName(dbName);
-
-            try
-            {
-                using (IDbConnection connection = _baSysConnectionFactory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
-                {
-                    var provider = new AppConstantsRecordProvider(connection);
-                    var collection = await provider.GetCollectionAsync(null);
-                    var dtoList = collection.Select(s => new AppConstantsRecordDto(s));
-
-                    result.Success(dtoList);
-                }
-            }
-            catch (Exception ex)
-            {
-                result.Error(-1, DictMain.CannotGetAppConstantsRecordsList, ex.Message);
-            }
-
-            return result;
-        }
-
-        public async Task<ResultWrapper<AppConstantsRecordDto>> GetAppConstantsRecordAsync(Guid uid, string dbName)
+        public async Task<ResultWrapper<AppConstantsRecordDto>> GetAppConstantsRecordAsync(string dbName)
         {
             var result = new ResultWrapper<AppConstantsRecordDto>();
             var dbInfoRecord = _dbInfoRecordsProvider.GetDbInfoRecordByDbName(dbName);
@@ -124,21 +100,16 @@ namespace BaSys.Admin.Services
                 using (IDbConnection connection = _baSysConnectionFactory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
                 {
                     var provider = new AppConstantsRecordProvider(connection);
-                    var appConstantsRecord = await provider.GetItemAsync(uid, null);
-                    if (appConstantsRecord != null)
-                    {
-                        var dto = new AppConstantsRecordDto(appConstantsRecord);
-                        result.Success(dto);
-                    }
-                    else
-                    {
-                        result.Error(-1, DictMain.CannotFindAppConstantsRecord, uid.ToString());
-                    }
+                    var collection = await provider.GetCollectionAsync(null);
+                    var appConstantsRecord = collection.FirstOrDefault();
+                    var dto = new AppConstantsRecordDto(appConstantsRecord);
+
+                    result.Success(dto);
                 }
             }
             catch (Exception ex)
             {
-                result.Error(-1, $"{DictMain.CannotFindAppConstantsRecord}: {uid}.", ex.Message);
+                result.Error(-1, DictMain.CannotFindAppConstantsRecord, ex.Message);
             }
 
             return result;
@@ -155,22 +126,8 @@ namespace BaSys.Admin.Services
                 {
                     var appConstantsRecord = new AppConstantsRecord(appConstant);
                     var provider = new AppConstantsRecordProvider(connection);
-                    var collection = await provider.GetCollectionAsync(null);
-
-                    var res = collection.FirstOrDefault(x => 
-                        x.Uid != appConstantsRecord.Uid &&
-                        (x.DataBaseUid == appConstantsRecord.DataBaseUid || 
-                         x.ApplicationTitle == appConstantsRecord.ApplicationTitle));
-
-                    if (res == null)
-                    {
-                        var updateResult = await provider.UpdateAsync(appConstantsRecord, null);
-                        result.Success(updateResult, DictMain.AppConstantsRecordUpdated);
-                    }
-                    else
-                    {
-                        result.Error(-1, DictMain.CannotUpdateAppConstantsRecord);
-                    }
+                    var updateResult = await provider.UpdateAsync(appConstantsRecord, null);
+                    result.Success(updateResult, DictMain.AppConstantsRecordUpdated);
                 }
             }
             catch (Exception ex)
