@@ -148,8 +148,8 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
                 {
                     var currentUser = await _userManager.Users.FirstAsync(x => x.Email.ToUpper() == Input.Email.ToUpper());
 
-                    using var logger = await _loggerFactory.GetLogger();
-                    logger.Write("foo", EventTypeLevels.Info, new UserLoginEventType());
+                    // using var logger = await _loggerFactory.GetLogger();
+                    // logger.Write("foo", EventTypeLevels.Info, new UserLoginEventType());
                     
                     // ToDo: remove?
                     // await _userManager.UpdateAsync(currentUser);
