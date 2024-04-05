@@ -168,6 +168,9 @@
   <data name="EmptyAppConstantsRecordList" xml:space="preserve">
     <value>Список записей констант приложения пуст</value>
   </data>
+  <data name="EmptyApplicationTitle" xml:space="preserve">
+    <value>Заголовок приложения не должен быть пустым</value>
+  </data>
   <data name="EmptyUsersList" xml:space="preserve">
     <value>Список пользователей пуст</value>
   </data>
@@ -194,6 +197,9 @@
   </data>
   <data name="UserUpdated" xml:space="preserve">
     <value>Пользователь сохранен</value>
+  </data>
+  <data name="WrongDataBaseUidFormat" xml:space="preserve">
+    <value>Неверный формат идентификатора базы данных</value>
   </data>
   <data name="WrongPasswordFormat" xml:space="preserve">
     <value>Неверный формат пароля</value>
