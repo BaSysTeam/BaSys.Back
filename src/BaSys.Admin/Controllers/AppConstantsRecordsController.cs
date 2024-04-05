@@ -58,7 +58,7 @@ namespace BaSys.Admin.Controllers
         /// <param name="appConstantsRecord"></param>
         /// <returns></returns>
         [HttpPut]
-        public async Task<IActionResult> UpdateAppConstantsRecordDto(AppConstantsRecordDto appConstantsRecord)
+        public async Task<IActionResult> UpdateAppConstantsRecord(AppConstantsRecordDto appConstantsRecord)
         {
             var authUserDbNameClaim = User.Claims.FirstOrDefault(x => x.Type == "DbName");
             var result = await _appConstantsRecordsService.UpdateAppConstantsRecordAsync(appConstantsRecord, authUserDbNameClaim?.Value);

@@ -168,6 +168,9 @@
   <data name="EmptyAppConstantsRecordList" xml:space="preserve">
     <value>Empty app constants record list</value>
   </data>
+  <data name="EmptyApplicationTitle" xml:space="preserve">
+    <value>The application title should not be empty</value>
+  </data>
   <data name="EmptyUsersList" xml:space="preserve">
     <value>Empty users list</value>
   </data>
@@ -194,6 +197,9 @@
   </data>
   <data name="UserUpdated" xml:space="preserve">
     <value>User updated</value>
+  </data>
+  <data name="WrongDataBaseUidFormat" xml:space="preserve">
+    <value>Invalid database uid format</value>
   </data>
   <data name="WrongPasswordFormat" xml:space="preserve">
     <value>Wrong password format</value>

@@ -214,6 +214,15 @@ namespace BaSys.Translation {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The application title should not be empty.
+        /// </summary>
+        public static string EmptyApplicationTitle {
+            get {
+                return ResourceManager.GetString("EmptyApplicationTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Empty users list.
         /// </summary>
         public static string EmptyUsersList {
@@ -291,6 +300,15 @@ namespace BaSys.Translation {
         public static string UserUpdated {
             get {
                 return ResourceManager.GetString("UserUpdated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid database uid format.
+        /// </summary>
+        public static string WrongDataBaseUidFormat {
+            get {
+                return ResourceManager.GetString("WrongDataBaseUidFormat", resourceCulture);
             }
         }
         

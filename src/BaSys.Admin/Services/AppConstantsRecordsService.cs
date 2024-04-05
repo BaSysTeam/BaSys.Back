@@ -40,18 +40,24 @@ namespace BaSys.Admin.Services
                 {
                     var appConstantsRecord = new AppConstantsRecord(appConstant);
                     appConstantsRecord.Uid = Guid.NewGuid();
+                    if (appConstantsRecord.DataBaseUid == Guid.Empty)
+                    {
+                        result.Error(-1, DictMain.WrongDataBaseUidFormat);
+                        return result;
+                    }
+                    if (string.IsNullOrEmpty(appConstantsRecord.ApplicationTitle))
+                    {
+                        result.Error(-1, DictMain.EmptyApplicationTitle);
+                        return result;
+                    }
 
                     var provider = new AppConstantsRecordProvider(connection);
                     var collection = await provider.GetCollectionAsync(null);
 
-                    var res = collection.FirstOrDefault(x =>
-                        x.DataBaseUid == appConstantsRecord.DataBaseUid ||
-                        x.ApplicationTitle == appConstantsRecord.ApplicationTitle);
-
-                    if (res == null)
+                    if (!collection.Any())
                     {
-                        var updateResult = await provider.InsertAsync(appConstantsRecord, null);
-                        result.Success(updateResult, DictMain.AppConstantsRecordCreated);
+                        var insertResult = await provider.InsertAsync(appConstantsRecord, null);
+                        result.Success(insertResult, DictMain.AppConstantsRecordCreated);
                     }
                     else
                     {
@@ -125,6 +131,17 @@ namespace BaSys.Admin.Services
                 using (IDbConnection connection = _baSysConnectionFactory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
                 {
                     var appConstantsRecord = new AppConstantsRecord(appConstant);
+                    if (appConstantsRecord.DataBaseUid == Guid.Empty)
+                    {
+                        result.Error(-1, DictMain.WrongDataBaseUidFormat);
+                        return result;
+                    }
+                    if (string.IsNullOrEmpty(appConstantsRecord.ApplicationTitle))
+                    {
+                        result.Error(-1, DictMain.EmptyApplicationTitle);
+                        return result;
+                    }
+
                     var provider = new AppConstantsRecordProvider(connection);
                     var updateResult = await provider.UpdateAsync(appConstantsRecord, null);
                     result.Success(updateResult, DictMain.AppConstantsRecordUpdated);
