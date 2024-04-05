@@ -109,6 +109,7 @@ namespace BaSys.Admin.Services
                     var collection = await provider.GetCollectionAsync(null);
                     var appConstantsRecord = collection.FirstOrDefault();
                     var dto = new AppConstantsRecordDto(appConstantsRecord);
+                    dto.AppVersion = GetType()?.Assembly?.GetName()?.Version?.ToString();
 
                     result.Success(dto);
                 }

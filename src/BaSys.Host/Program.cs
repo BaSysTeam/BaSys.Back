@@ -229,6 +229,7 @@ namespace BaSys.Host
                 {
                     dbInitService.SetUp(connection);
                     await dbInitService.ExecuteAsync();
+                    await dbInitService.CheckTablesAsync();
                 }
 
             };
