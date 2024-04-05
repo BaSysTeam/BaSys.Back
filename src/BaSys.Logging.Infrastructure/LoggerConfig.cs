@@ -9,4 +9,5 @@ public class LoggerConfig
     public string? ConnectionString { get; set; }
     public Guid DbUid { get; set; }
     public string? TableName { get; set; }
+    public AutoClearInterval AutoClearInterval { get; set; } = AutoClearInterval.Month;
 }
