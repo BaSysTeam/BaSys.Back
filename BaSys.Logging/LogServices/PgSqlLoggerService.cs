@@ -41,6 +41,4 @@ public class PgSqlLoggerService : LoggerService
             eventType.Uid,
             eventType.Module);
     }
-
-    public override void Dispose() => _logger.Dispose();
 }

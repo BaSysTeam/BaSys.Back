@@ -59,6 +59,4 @@ public class MsSqlLoggerService : LoggerService
             eventType.Uid,
             eventType.Module);
     }
-
-    public override void Dispose() => _logger.Dispose();
 }
