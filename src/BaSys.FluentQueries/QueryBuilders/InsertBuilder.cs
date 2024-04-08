@@ -22,6 +22,11 @@ namespace BaSys.FluentQueries.QueryBuilders
             _model = model;
         }
 
+        public InsertBuilder(IDataModelConfiguration config)
+        {
+            _model = new InsertModel(config);
+        }
+
         public InsertBuilder Table(string tableName)
         {
             _model.TableName = tableName;
@@ -80,6 +85,11 @@ namespace BaSys.FluentQueries.QueryBuilders
         public static InsertBuilder Make()
         {
             return new InsertBuilder();
+        }
+
+        public static InsertBuilder Make(IDataModelConfiguration config)
+        {
+            return new InsertBuilder(config);
         }
     }
 }
