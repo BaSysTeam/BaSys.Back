@@ -16,7 +16,7 @@ namespace BaSys.Host.DAL.ModelConfigurations
 
             Column("uid").IsPrimaryKey();
             Column("title").MaxLength(100);
-            Column("iconclass").MaxLength(20);
+            Column("iconclass").MaxLength(20).IsOptional();
             Column("memo").MaxLength(300).IsOptional();
         }
     }

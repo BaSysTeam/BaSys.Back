@@ -2,6 +2,7 @@
 using BaSys.FluentQueries.Enums;
 using BaSys.FluentQueries.QueryBuilders;
 using BaSys.Host.DAL.Abstractions;
+using BaSys.Host.DAL.ModelConfigurations;
 using BaSys.Metadata.Models;
 using Dapper;
 using Npgsql;
@@ -16,10 +17,11 @@ namespace BaSys.Host.DAL.DataProviders
 {
     public sealed class MetadataGroupProvider : SystemObjectProviderBase<MetadataGroup>
     {
+        private readonly MetadataGroupConfiguration _config;
 
-        public MetadataGroupProvider(IDbConnection dbConnection):base(dbConnection, "sys_metadata_groups")
+        public MetadataGroupProvider(IDbConnection dbConnection) : base(dbConnection, "sys_metadata_groups")
         {
-           
+            _config = new MetadataGroupConfiguration();
         }
 
         public override async Task<IEnumerable<MetadataGroup>> GetCollectionAsync(IDbTransaction transaction)
@@ -53,14 +55,17 @@ namespace BaSys.Host.DAL.DataProviders
         {
             var result = 0;
 
-            var query = InsertBuilder.Make()
-                .Table(_tableName)
-                .Column("parentuid")
-                .Column("title")
-                .Column("iconclass")
-                .Column("memo")
-                .Column("isstandard")
-                .FillValuesByColumnNames(true).Query(_sqlDialect);
+            //var query = InsertBuilder.Make()
+            //    .Table(_tableName)
+            //    .Column("parentuid")
+            //    .Column("title")
+            //    .Column("iconclass")
+            //    .Column("memo")
+            //    .Column("isstandard")
+            //    .FillValuesByColumnNames(true).Query(_sqlDialect);
+
+            var query = InsertBuilder.Make(_config)
+              .FillValuesByColumnNames(true).Query(_sqlDialect);
 
             _lastQuery = query;
 
@@ -73,15 +78,19 @@ namespace BaSys.Host.DAL.DataProviders
         {
             var result = 0;
 
-            var query = UpdateBuilder.Make()
-                .Table(_tableName)
-                .Set("parentuid")
-                .Set("title")
-                .Set("iconclass")
-                .Set("memo")
-                .Set("isstandard")
-                .WhereAnd("uid = @uid")
-                .Query(_sqlDialect);
+            //var query = UpdateBuilder.Make()
+            //    .Table(_tableName)
+            //    .Set("parentuid")
+            //    .Set("title")
+            //    .Set("iconclass")
+            //    .Set("memo")
+            //    .Set("isstandard")
+            //    .WhereAnd("uid = @uid")
+            //    .Query(_sqlDialect);
+
+            var query = UpdateBuilder.Make(_config)
+              .WhereAnd("uid = @uid")
+              .Query(_sqlDialect);
 
             _lastQuery = query;
 
@@ -89,6 +98,6 @@ namespace BaSys.Host.DAL.DataProviders
 
             return result;
         }
-       
+
     }
 }
