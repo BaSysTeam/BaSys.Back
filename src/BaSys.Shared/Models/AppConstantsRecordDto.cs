@@ -7,6 +7,7 @@ namespace BaSys.Common.Models
         public string Uid { get; set; } = string.Empty;
         public string DataBaseUid { get; set; } = string.Empty;
         public string ApplicationTitle { get; set; } = string.Empty;
+        public string AppVersion { get; set; } = string.Empty;
 
         public AppConstantsRecordDto()
         {

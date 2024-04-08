@@ -15,7 +15,7 @@ namespace BaSys.Admin.Controllers
     /// </summary>
     [Route("api/admin/v1/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(Roles = ApplicationRole.Administrator)]
     public class AppConstantsRecordsController : ControllerBase
     {
         private readonly IAppConstantsRecordsService _appConstantsRecordsService;
@@ -32,22 +32,8 @@ namespace BaSys.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAppConstantsRecord()
         {
-            var authUserDbNameClaim = User.Claims.FirstOrDefault(x => x.Type == "DbName");
-            var result = await _appConstantsRecordsService.GetAppConstantsRecordAsync(authUserDbNameClaim?.Value);
-
-            return Ok(result);
-        }
-
-        /// <summary>
-        /// Creates new app constants record.
-        /// </summary>
-        /// <param name="appConstantsRecord"></param>
-        /// <returns></returns>
-        [HttpPost]
-        public async Task<IActionResult> CreateAppConstantsRecord(AppConstantsRecordDto appConstantsRecord)
-        {
-            var authUserDbNameClaim = User.Claims.FirstOrDefault(x => x.Type == "DbName");
-            var result = await _appConstantsRecordsService.CreateAppConstantsRecordAsync(appConstantsRecord, authUserDbNameClaim?.Value);
+            var dbName = GetDbName();
+            var result = await _appConstantsRecordsService.GetAppConstantsRecordAsync(dbName);
 
             return Ok(result);
         }
@@ -60,24 +46,16 @@ namespace BaSys.Admin.Controllers
         [HttpPut]
         public async Task<IActionResult> UpdateAppConstantsRecord(AppConstantsRecordDto appConstantsRecord)
         {
-            var authUserDbNameClaim = User.Claims.FirstOrDefault(x => x.Type == "DbName");
-            var result = await _appConstantsRecordsService.UpdateAppConstantsRecordAsync(appConstantsRecord, authUserDbNameClaim?.Value);
+            var dbName = GetDbName();
+            var result = await _appConstantsRecordsService.UpdateAppConstantsRecordAsync(appConstantsRecord, dbName);
 
             return Ok(result);
         }
 
-        /// <summary>
-        /// Delete app constants record by Uid.
-        /// </summary>
-        /// <param name="uid">Uid</param>
-        /// <returns></returns>
-        [HttpDelete("{uid}")]
-        public async Task<IActionResult> DeleteAppConstantsRecord(Guid uid)
+        private string? GetDbName()
         {
             var authUserDbNameClaim = User.Claims.FirstOrDefault(x => x.Type == "DbName");
-            var result = await _appConstantsRecordsService.DeleteAppConstantsRecordAsync(uid, authUserDbNameClaim?.Value);
-
-            return Ok(result);
+            return authUserDbNameClaim?.Value;
         }
     }
 }
