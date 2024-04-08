@@ -6,7 +6,7 @@ namespace BaSys.Logging.Abstractions.Abstractions;
 public abstract class LoggerService : IDisposable
 {
     private readonly LoggerConfig _loggerConfig;
-    protected Logger _logger;
+    protected Logger? _logger;
     
     public LoggerService(LoggerConfig loggerConfig)
     {

@@ -15,7 +15,6 @@ public class MongoLoggerService : LoggerService
 
         _logger = new LoggerConfiguration()
             .WriteTo
-            // .MongoDBBson(loggerConfig.ConnectionString, loggerConfig.TableName)
             .MongoDBBson(cfg =>
             {
                 cfg.SetMongoUrl(loggerConfig.ConnectionString);
@@ -27,7 +26,7 @@ public class MongoLoggerService : LoggerService
 
     protected override void WriteInner(string message, EventTypeLevels level, EventType eventType)
     {
-        _logger.Information("{message} {Level} {EventTypeName} {EventTypeUid} {Module}",
+        _logger?.Information("{message} {Level} {EventTypeName} {EventTypeUid} {Module}",
             message,
             (int) level,
             eventType.EventName,

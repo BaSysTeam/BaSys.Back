@@ -12,6 +12,7 @@ public class MsSqlLoggerService : LoggerService
     public MsSqlLoggerService(LoggerConfig loggerConfig) : base(loggerConfig)
     {
         var sinkOpts = new MSSqlServerSinkOptions();
+        sinkOpts.AutoCreateSqlDatabase = true;
         sinkOpts.AutoCreateSqlTable = true;
         sinkOpts.TableName = loggerConfig.TableName;
         
@@ -44,15 +45,21 @@ public class MsSqlLoggerService : LoggerService
             DataLength = 100
         });
 
-        _logger = new LoggerConfiguration()
-            .WriteTo
-            .MSSqlServer(connectionString: loggerConfig.ConnectionString, sinkOptions: sinkOpts, columnOptions: columnOptions)
-            .CreateLogger();
+        try
+        {
+            _logger = new LoggerConfiguration()
+                .WriteTo
+                .MSSqlServer(connectionString: loggerConfig.ConnectionString, sinkOptions: sinkOpts, columnOptions: columnOptions)
+                .CreateLogger();
+        }
+        catch
+        {
+        }
     }
     
     protected override void WriteInner(string message, EventTypeLevels level, EventType eventType)
     {
-        _logger.Information("{message} {Level} {EventTypeName} {EventTypeUid} {Module}",
+        _logger?.Information("{message} {Level} {EventTypeName} {EventTypeUid} {Module}",
             message,
             (int)level,
             eventType.EventName,
