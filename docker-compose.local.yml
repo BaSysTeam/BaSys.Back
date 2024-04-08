@@ -1,0 +1,26 @@
+﻿version: '3'
+
+services:
+  basys:
+    container_name: basys.app
+    image: oceanshiver/basys:latest
+    restart: always
+    ports:
+      - 8080:8080
+    environment:
+      #      CurrentApp
+      InitAppSettings:CurrentApp:Id: main
+      InitAppSettings:CurrentApp:Title: Main
+      #      Sa
+      InitAppSettings:Sa:Login: sa@mail.ru
+      InitAppSettings:Sa:Password: 111111
+      InitAppSettings:Sa:DbKind: 1
+      InitAppSettings:Sa:ConnectionString: Server=host.docker.internal;Port=5432;Database=SystemDb;User ID=postgres;Password=QAZwsx!@#;Timeout=60;
+      #      MainDb
+      InitAppSettings:MainDb:Name: db1
+      InitAppSettings:MainDb:DbKind: 1
+      InitAppSettings:MainDb:ConnectionString: Server=host.docker.internal;Port=5432;Database=MainDb;User ID=postgres;Password=QAZwsx!@#;Timeout=60;
+      InitAppSettings:MainDb:AdminLogin: admin@mail.ru
+      InitAppSettings:MainDb:AdminPassword: 111111
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

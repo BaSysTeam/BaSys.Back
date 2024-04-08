@@ -3,23 +3,43 @@
 #nullable disable
 
 using System.ComponentModel.DataAnnotations;
+using BaSys.Host.Identity.Models;
+using BaSys.Host.Infrastructure.Abstractions;
+using BaSys.Logging.Abstractions;
+using BaSys.Logging.EventTypes;
+using BaSys.SuperAdmin.DAL.Abstractions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
+using Serilog.Events;
+using ILoggerFactory = BaSys.Logging.Abstractions.Abstractions.ILoggerFactory;
 
 namespace BaSys.Host.Areas.Identity.Pages.Account
 {
     public class LoginModel : PageModel
     {
         private readonly ILogger<LoginModel> _logger;
-        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly SignInManager<WorkDbUser> _signInManager;
+        private readonly UserManager<WorkDbUser> _userManager;
+        private readonly IDataSourceProvider _dataSourceProvider;
+        private readonly IDbInfoRecordsProvider _dbInfoRecordsProvider;
+        private readonly ILoggerFactory _loggerFactory;
 
         public LoginModel(ILogger<LoginModel> logger,
-            SignInManager<IdentityUser> signInManager)
+            SignInManager<WorkDbUser> signInManager,
+            UserManager<WorkDbUser> userManager,
+            IDataSourceProvider dataSourceProvider,
+            IDbInfoRecordsProvider dbInfoRecordsProvider,
+            ILoggerFactory loggerFactory)
         {
             _logger = logger;
             _signInManager = signInManager;
+            _userManager = userManager;
+            _dataSourceProvider = dataSourceProvider;
+            _dbInfoRecordsProvider = dbInfoRecordsProvider;
+            _loggerFactory = loggerFactory;
         }
 
         /// <summary>
@@ -80,7 +100,7 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
             public bool RememberMe { get; set; }
         }
 
-        public async Task OnGetAsync(string returnUrl = null)
+        public async Task OnGetAsync(string dbName, string returnUrl = null)
         {
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -95,11 +115,19 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
             ReturnUrl = returnUrl;
+
+            if (!string.IsNullOrEmpty(dbName))
+            {
+                Input = new InputModel
+                {
+                    DbName = dbName
+                };
+            }
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
-            returnUrl ??= Url.Content("~/");
+            returnUrl ??= Url.Content("~/app");
 
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
@@ -107,9 +135,24 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
             {
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
+                var dbInfoRecord = _dbInfoRecordsProvider.GetDbInfoRecordByDbName(Input.DbName);
+                if (dbInfoRecord?.IsDeleted == true)
+                {
+                    ModelState.AddModelError(string.Empty, $"Database with name '{Input.DbName}' is disabled.");
+                    return Page();
+                }
+                
                 var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
+                    var currentUser = await _userManager.Users.FirstAsync(x => x.Email.ToUpper() == Input.Email.ToUpper());
+
+                    // using var logger = await _loggerFactory.GetLogger();
+                    // logger.Write("foo", EventTypeLevels.Info, new UserLoginEventType());
+                    
+                    // ToDo: remove?
+                    // await _userManager.UpdateAsync(currentUser);
+
                     _logger.LogInformation("User logged in.");
                     return LocalRedirect(returnUrl);
                 }

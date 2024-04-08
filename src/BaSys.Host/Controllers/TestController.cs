@@ -1,13 +1,23 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Serilog;
 
 namespace BaSys.Host.Controllers;
-
-[Route("api/[controller]")]
+[Route("api/v1/[controller]")]
+[ApiController]
 public class TestController : ControllerBase
 {
-    [HttpGet]
-    public string GetTest()
+    private readonly Serilog.ILogger _logger;
+    public TestController()
     {
-        return "Test!";
+        _logger = Log.Logger;
+    }
+
+    [HttpGet]
+    public IActionResult Test()
+    {
+        _logger.Information("foo bar test");
+        return Ok("foo");
     }
 }

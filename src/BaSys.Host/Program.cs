@@ -1,81 +1,177 @@
-using BaSys.Host.Data;
-using BaSys.Host.Data.MsSqlContext;
-using BaSys.Host.Data.PgSqlContext;
+using System.Data;
+using System.Text;
+using BaSys.Admin.Infrastructure;
+using BaSys.Common.Enums;
+using BaSys.Common.Infrastructure;
+using BaSys.Constructor.Infrastructure;
+using BaSys.Host.Abstractions;
+using BaSys.Host.DAL;
+using BaSys.Host.DAL.Abstractions;
+using BaSys.Host.DAL.MsSqlContext;
+using BaSys.Host.DAL.PgSqlContext;
 using BaSys.Host.Helpers;
+using BaSys.Host.Identity;
+using BaSys.Host.Identity.Models;
 using BaSys.Host.Infrastructure;
-using BaSys.Host.Providers;
-using BaSys.SuperAdmin.Data;
+using BaSys.Host.Infrastructure.Abstractions;
+using BaSys.Host.Infrastructure.JwtAuth;
+using BaSys.Host.Infrastructure.Providers;
+using BaSys.Host.Middlewares;
+using BaSys.Host.Services;
+using BaSys.Logging.Infrastructure;
+using BaSys.SuperAdmin.Abstractions;
+using BaSys.SuperAdmin.DAL;
+using BaSys.SuperAdmin.DAL.Abstractions;
+using BaSys.SuperAdmin.DAL.Models;
+using BaSys.SuperAdmin.Data.Identity;
 using BaSys.SuperAdmin.Infrastructure;
-using BaSys.SuperAdmin.Infrastructure.Models;
+using Microsoft.AspNetCore.Connections;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Serilog;
+using Serilog.Sinks.MSSqlServer;
+using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace BaSys.Host
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.AddScoped<IdentityDbContext>(sp =>
+            builder.Services.AddScoped<IdentityDbContext<WorkDbUser, WorkDbRole, string>>(sp =>
             {
-                var httpContextAccessor = sp.GetRequiredService<IHttpContextAccessor>();
-                // if sa
-                if (httpContextAccessor.HttpContext?.Request?.Method == "POST" &&
-                    httpContextAccessor.HttpContext?.Request?.Path.Value.StartsWith("/sa/Account/") == true)
-                    return sp.GetRequiredService<SuperAdminDbContext>();
-                else
-                    return sp.GetRequiredService<ApplicationDbContext>();
+                return sp.GetRequiredService<ApplicationDbContext>();
             });
-            
+
+            builder.Services.AddScoped<IdentityDbContext<SaDbUser, SaDbRole, string>>(sp =>
+            {
+                return sp.GetRequiredService<SuperAdminDbContext>();
+            });
+
+            // Add WorkDb base context
             builder.Services.AddScoped<ApplicationDbContext>(sp =>
             {
-                var item = ContextHelper.GetConnectionItem(sp);
-                switch (item.DbKind)
+                var dbKind = sp.GetRequiredService<IHttpRequestContextService>().GetConnectionKind();
+                switch (dbKind)
                 {
                     case DbKinds.MsSql:
                         return sp.GetRequiredService<MsSqlDbContext>();
                     case DbKinds.PgSql:
                         return sp.GetRequiredService<PgSqlDbContext>();
                     default:
-                        throw new NotImplementedException();
-                }   
+                        throw new NotImplementedException($"Not implemented DbContext for type {dbKind.ToString()}");
+                }
             });
-            
-            // Add sa context
-            builder.Services.AddSuperAdmin(builder.Configuration.GetConnectionString("SystemDbConnection")!);
+
+            // Add sa module
+            builder.Services.AddSuperAdmin(builder.Configuration.GetSection("InitAppSettings"));
+
+            // Add admin module
+            builder.Services.AddAdmin();
+
+            // Add constructor module
+            builder.Services.AddConstructor();
+
+            // Add logging module
+            builder.Services.AddLog();
+
             // Add mssql context
             builder.Services.AddDbContext<MsSqlDbContext>((sp, options) =>
             {
-                var item = ContextHelper.GetConnectionItem(sp, DbKinds.MsSql);
-                options.UseSqlServer(item.ConnectionString);
+                var item = sp.GetRequiredService<IHttpRequestContextService>().GetConnectionItem(DbKinds.MsSql);
+                options.UseSqlServer(item?.ConnectionString ?? string.Empty);
             });
             // Add pgsql context
             builder.Services.AddDbContext<PgSqlDbContext>((sp, options) =>
             {
-                var item = ContextHelper.GetConnectionItem(sp, DbKinds.PgSql);
-                options.UseNpgsql(item.ConnectionString);
+                var item = sp.GetRequiredService<IHttpRequestContextService>().GetConnectionItem(DbKinds.PgSql);
+                options.UseNpgsql(item?.ConnectionString ?? string.Empty);
             });
-            
-            builder.Services.AddDefaultIdentity<IdentityUser>(options =>
+
+            // Add default identity
+            builder.Services.AddIdentity<WorkDbUser, WorkDbRole>(options =>
                 {
-                    options.SignIn.RequireConfirmedAccount = true;
+                    options.SignIn.RequireConfirmedAccount = false;
                     options.Password.RequireDigit = false;
-                    options.Password.RequiredLength = 5;
+                    options.Password.RequiredLength = GlobalConstants.PasswordMinLength;
                     options.Password.RequireLowercase = false;
                     options.Password.RequireUppercase = false;
                     options.Password.RequireNonAlphanumeric = false;
                 })
-                .AddEntityFrameworkStores<IdentityDbContext>();
-            
+                .AddEntityFrameworkStores<IdentityDbContext<WorkDbUser, WorkDbRole, string>>();
+
+            // Add sa identity
+            builder.Services.AddIdentityCore<SaDbUser>(options =>
+                {
+                    options.SignIn.RequireConfirmedAccount = false;
+                    options.Password.RequireDigit = false;
+                    options.Password.RequiredLength = GlobalConstants.PasswordMinLength;
+                    options.Password.RequireLowercase = false;
+                    options.Password.RequireUppercase = false;
+                    options.Password.RequireNonAlphanumeric = false;
+                })
+                .AddRoles<SaDbRole>()
+                .AddSignInManager()
+                .AddEntityFrameworkStores<SuperAdminDbContext>();
+
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
             builder.Services.AddRazorPages();
-            
+
+            builder.Services.AddCors();
+
+            builder.Services.AddAuthentication(
+                    options =>
+                    {
+                        // options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                        // options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                        // options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                    })
+                .AddCookie(options => { options.LoginPath = new PathString("/Identity/Account/Login"); })
+                .AddJwtBearer(
+                    opt =>
+                    {
+                        opt.TokenValidationParameters = new TokenValidationParameters
+                        {
+                            ValidateIssuerSigningKey = true,
+                            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
+                                builder.Configuration["Jwt:TokenKey"] ??
+                                throw new ApplicationException("Jwt:TokenKey is not set in the config!"))),
+                            ValidateAudience = false,
+                            ValidateIssuer = false,
+                            RequireExpirationTime = true
+                        };
+                    });
+
+
+            builder.Services.AddTransient<IJwtAuthService, JwtAuthService>();
+
             builder.Services.AddSingleton<IDataSourceProvider, DataSourceProvider>();
-            builder.Services.AddTransient<IContextFactory, ContextFactory>();
-            
+            builder.Services.AddTransient<IMainDbCheckService, MainDbCheckService>();
+            builder.Services.AddTransient<IWorkDbService, WorkDbService>();
+            builder.Services.AddTransient<IHttpRequestContextService, HttpRequestContextService>();
+
+            // Factory to create DB connection by connection string and db kind.
+            builder.Services.AddSingleton<IBaSysConnectionFactory, BaSysConnectionFactory>();
+
+            // Service to create system tables and fill constants when DB created.
+            builder.Services.AddTransient<IDbInitService, DbInitService>();
+
+            builder.Services.AddSwaggerGen(options => IncludeXmlCommentsHelper.IncludeXmlComments(options));
+
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo
+                //.Console()
+                .MSSqlServer(
+                    connectionString: "Data Source=OCEANSHIVERBOOK\\SQLEXPRESS;Initial Catalog=__Serilog;Persist Security Info=True;User ID=sa;Password=QAZwsx!@#;TrustServerCertificate=True;",
+                    sinkOptions: new MSSqlServerSinkOptions { TableName = "LogEvents" })
+                .CreateLogger();
+
+            builder.Host.UseSerilog();
+            builder.Logging.AddSerilog();
 
             var app = builder.Build();
 
@@ -83,6 +179,9 @@ namespace BaSys.Host
             if (app.Environment.IsDevelopment())
             {
                 app.UseMigrationsEndPoint();
+
+                app.UseSwagger();
+                app.UseSwaggerUI();
             }
             else
             {
@@ -91,6 +190,11 @@ namespace BaSys.Host
                 app.UseHsts();
             }
 
+            app.UseCors(builder => builder
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader());
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
@@ -98,9 +202,41 @@ namespace BaSys.Host
 
             app.UseRouting();
 
+            app.UseAuthentication(); // Ensure authentication is used
             app.UseAuthorization();
 
+#if DEBUG
+            app.UseMiddleware<CustomAuthorizationMiddleware>();
+#endif
+
             app.MapRazorPages();
+
+            using var serviceScope = app.Services.CreateScope();
+            var systemDbService = serviceScope.ServiceProvider.GetRequiredService<ICheckSystemDbService>();
+            systemDbService.CheckAdminRolesEvent += async (initAppSettings) =>
+            {
+                using var serviceScopeInner = app.Services.CreateScope();
+                var mainDbCheckService = serviceScopeInner.ServiceProvider.GetRequiredService<IMainDbCheckService>();
+                // Initialization by EF Context. Create users, roles etc.
+                await mainDbCheckService.Check(initAppSettings);
+
+                // Initialization by Dapper. Create system tables and fill neccessary data when DB created.
+                var connectionFactory = serviceScopeInner.ServiceProvider.GetRequiredService<IBaSysConnectionFactory>();
+                var dbInitService = serviceScopeInner.ServiceProvider.GetRequiredService<IDbInitService>();
+
+                var dbKind = initAppSettings.MainDb.DbKind ?? DbKinds.PgSql;
+                using (IDbConnection connection = connectionFactory.CreateConnection(initAppSettings.MainDb.ConnectionString, dbKind))
+                {
+                    dbInitService.SetUp(connection);
+                    await dbInitService.ExecuteAsync();
+                    await dbInitService.CheckTablesAsync();
+                }
+
+            };
+            await systemDbService.CheckDbs();
+
+            var dbInfoRecordsProvider = serviceScope.ServiceProvider.GetRequiredService<IDbInfoRecordsProvider>();
+            await dbInfoRecordsProvider.Update();
 
             app.Run();
         }
