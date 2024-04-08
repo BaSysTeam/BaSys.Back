@@ -17,38 +17,10 @@ namespace BaSys.Host.DAL.DataProviders
 {
     public sealed class MetadataGroupProvider : SystemObjectProviderBase<MetadataGroup>
     {
-        private readonly MetadataGroupConfiguration _config;
 
-        public MetadataGroupProvider(IDbConnection dbConnection) : base(dbConnection, "sys_metadata_groups")
+        public MetadataGroupProvider(IDbConnection dbConnection) : base(dbConnection, new MetadataGroupConfiguration())
         {
             _config = new MetadataGroupConfiguration();
-        }
-
-        public override async Task<IEnumerable<MetadataGroup>> GetCollectionAsync(IDbTransaction transaction)
-        {
-            var query = SelectBuilder.Make().From(_tableName).Select("*").Query(_sqlDialect);
-
-            _lastQuery = query;
-
-            var result = await _dbConnection.QueryAsync<MetadataGroup>(query.Text, null, transaction);
-
-            return result;
-        }
-
-        public override async Task<MetadataGroup> GetItemAsync(Guid uid, IDbTransaction transaction)
-        {
-            var query = SelectBuilder.Make()
-                .From(_tableName)
-                .Select("*")
-                .WhereAnd("uid = @uid")
-                .Parameter("uid", uid)
-                .Query(_sqlDialect);
-
-            _lastQuery = query;
-
-            var result = await _dbConnection.QueryFirstOrDefaultAsync<MetadataGroup>(query.Text, query.DynamicParameters, transaction);
-
-            return result;
         }
 
         public override async Task<int> InsertAsync(MetadataGroup item, IDbTransaction transaction)
@@ -64,12 +36,10 @@ namespace BaSys.Host.DAL.DataProviders
             //    .Column("isstandard")
             //    .FillValuesByColumnNames(true).Query(_sqlDialect);
 
-            var query = InsertBuilder.Make(_config)
+            _query = InsertBuilder.Make(_config)
               .FillValuesByColumnNames(true).Query(_sqlDialect);
 
-            _lastQuery = query;
-
-            result = await _dbConnection.ExecuteAsync(query.Text, item, transaction);
+            result = await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
 
             return result;
         }
@@ -88,13 +58,11 @@ namespace BaSys.Host.DAL.DataProviders
             //    .WhereAnd("uid = @uid")
             //    .Query(_sqlDialect);
 
-            var query = UpdateBuilder.Make(_config)
+            _query = UpdateBuilder.Make(_config)
               .WhereAnd("uid = @uid")
               .Query(_sqlDialect);
 
-            _lastQuery = query;
-
-            result = await _dbConnection.ExecuteAsync(query.Text, item, transaction);
+            result = await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
 
             return result;
         }
