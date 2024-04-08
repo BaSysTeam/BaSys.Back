@@ -27,6 +27,94 @@ namespace BaSys.FluentQueries.Models
             Required = RequiredFromType(type);
         }
 
+        public TableColumn MaxLength(int length)
+        {
+            StringLength = length;
+            return this;
+        }
+
+        public TableColumn MaxDigits(int digits)
+        {
+            NumberDigits = digits;
+            return this;
+        }
+
+        public TableColumn IsPrimaryKey()
+        {
+            PrimaryKey = true;
+            return this;
+        }
+
+        public TableColumn IsUnique()
+        {
+            Unique = true;
+            return this;
+        }
+
+        public TableColumn IsRequired()
+        {
+            Required = true;
+            return this;
+        }
+
+        public TableColumn IsOptional()
+        {
+            Required = false;
+            return this;
+        }
+
+        public TableColumn ToType(DbType dbType)
+        {
+            DbType = dbType;
+            return this;
+        }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder();   
+            sb.Append(Name);
+            sb.Append(":");
+            sb.Append(DbType);
+
+            if (DbType == DbType.String)
+            {
+                sb.Append("(");
+                sb.Append(StringLength.ToString());
+                sb.Append(")");
+            }
+
+            if (DbType == DbType.Decimal)
+            {
+                sb.Append("(");
+                sb.Append(NumberDigits.ToString());
+                sb.Append(")");
+            }
+
+            sb.Append(" ");
+            if (Required)
+            {
+               
+                sb.Append("NOT NULL");
+            }
+            else
+            {
+                sb.Append("NULL");
+            }
+
+            if (Unique)
+            {
+                sb.Append(" ");
+                sb.Append("UNIQUE");
+            }
+
+            if (PrimaryKey) {
+
+                sb.Append(" ");
+                sb.Append("PK");
+            }
+
+            return sb.ToString();
+        }
         private DbType ToDbType(Type type)
         {
             if (type == typeof(byte)) return DbType.Byte;

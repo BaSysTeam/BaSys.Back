@@ -19,6 +19,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\BaSys.FluentQueries\BaSys.FluentQueries.csproj" />
+    <ProjectReference Include="..\..\src\BaSys.Host.DAL\BaSys.Host.DAL.csproj" />
+    <ProjectReference Include="..\..\src\BaSys.Metadata\BaSys.Metadata.csproj" />
   </ItemGroup>
 
   <ItemGroup>

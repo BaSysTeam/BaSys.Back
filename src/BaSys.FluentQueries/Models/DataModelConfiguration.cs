@@ -16,11 +16,31 @@ namespace BaSys.FluentQueries.Models
         public DataModelConfiguration()
         {
             InitTableName();
+            InitColumns();
         }
 
         public TableColumn Column(string name)
         {
             return _columns.FirstOrDefault(x=>x.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+        }
+
+        public void Table(string tableName)
+        {
+            TableName = tableName;
+        }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+
+            sb.AppendLine($"Table: {TableName}");
+            sb.AppendLine("Columns:");
+            foreach(var column in Columns)
+            {
+                sb.AppendLine(column.ToString());
+            }
+
+            return sb.ToString();
         }
 
         private void InitTableName()
