@@ -1,4 +1,4 @@
-﻿using BaSys.Common.Models;
+﻿using BaSys.DAL.Models.Admin;
 using BaSys.FluentQueries.QueryBuilders;
 using BaSys.Host.DAL.Abstractions;
 using Dapper;
@@ -11,13 +11,13 @@ using System.Threading.Tasks;
 
 namespace BaSys.Host.DAL.DataProviders
 {
-    public sealed class AppConstantsRecordProvider : SystemObjectProviderBase<AppConstantsRecord>
+    public sealed class AppConstantsProvider : SystemObjectProviderBase<AppConstants>
     {
-        public AppConstantsRecordProvider(IDbConnection dbConnection) : base(dbConnection, "sys_app_constants_records")
+        public AppConstantsProvider(IDbConnection dbConnection) : base(dbConnection, "sys_app_constants_records")
         {
         }
 
-        public override async Task<int> InsertAsync(AppConstantsRecord item, IDbTransaction transaction)
+        public override async Task<int> InsertAsync(AppConstants item, IDbTransaction transaction)
         {
             var query = InsertBuilder.Make()
                 .Table(_tableName)
@@ -33,7 +33,7 @@ namespace BaSys.Host.DAL.DataProviders
             return result;
         }
 
-        public override async Task<int> UpdateAsync(AppConstantsRecord item, IDbTransaction transaction)
+        public override async Task<int> UpdateAsync(AppConstants item, IDbTransaction transaction)
         {
             var query = UpdateBuilder.Make()
                 .Table(_tableName)
