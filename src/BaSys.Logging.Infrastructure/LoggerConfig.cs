@@ -1,4 +1,4 @@
-﻿using BaSys.Logging.Abstractions.Enums;
+﻿using BaSys.Common.Enums;
 
 namespace BaSys.Logging.Abstractions;
 

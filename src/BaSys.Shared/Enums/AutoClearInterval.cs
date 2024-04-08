@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BaSys.Logging.Abstractions.Enums
+namespace BaSys.Common.Enums
 {
     public enum AutoClearInterval
     {

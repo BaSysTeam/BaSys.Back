@@ -1,6 +1,6 @@
-﻿using BaSys.Logging.Abstractions;
+﻿using BaSys.Common.Enums;
+using BaSys.Logging.Abstractions;
 using BaSys.Logging.Abstractions.Abstractions;
-using BaSys.Logging.Abstractions.Enums;
 using NpgsqlTypes;
 using Serilog;
 using Serilog.Core;

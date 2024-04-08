@@ -1,4 +1,4 @@
-﻿namespace BaSys.Logging.Abstractions.Enums;
+﻿namespace BaSys.Common.Enums;
 
 public enum LoggerTypes
 {

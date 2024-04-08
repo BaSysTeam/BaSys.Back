@@ -6,7 +6,6 @@ using System.ComponentModel.DataAnnotations;
 using BaSys.Host.Identity.Models;
 using BaSys.Host.Infrastructure.Abstractions;
 using BaSys.Logging.Abstractions;
-using BaSys.Logging.Abstractions.Enums;
 using BaSys.Logging.EventTypes;
 using BaSys.SuperAdmin.DAL.Abstractions;
 using Microsoft.AspNetCore.Authentication;

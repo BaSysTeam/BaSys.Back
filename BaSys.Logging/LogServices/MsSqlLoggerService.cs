@@ -1,7 +1,7 @@
 ﻿using System.Data;
+using BaSys.Common.Enums;
 using BaSys.Logging.Abstractions;
 using BaSys.Logging.Abstractions.Abstractions;
-using BaSys.Logging.Abstractions.Enums;
 using Serilog;
 using Serilog.Sinks.MSSqlServer;
 

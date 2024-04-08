@@ -1,4 +1,4 @@
-﻿using BaSys.Logging.Abstractions.Enums;
+﻿using BaSys.Common.Enums;
 using Serilog.Core;
 
 namespace BaSys.Logging.Abstractions.Abstractions;

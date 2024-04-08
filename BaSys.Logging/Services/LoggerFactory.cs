@@ -1,5 +1,5 @@
-﻿using BaSys.Logging.Abstractions.Abstractions;
-using BaSys.Logging.Abstractions.Enums;
+﻿using BaSys.Common.Enums;
+using BaSys.Logging.Abstractions.Abstractions;
 using BaSys.Logging.LogServices;
 
 namespace BaSys.Logging.Services;
