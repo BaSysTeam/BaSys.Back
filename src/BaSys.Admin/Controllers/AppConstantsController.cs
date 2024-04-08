@@ -2,7 +2,7 @@
 using BaSys.Admin.DTO;
 using BaSys.Admin.Services;
 using BaSys.Common.Infrastructure;
-using BaSys.Common.Models;
+using BaSys.DTO.Admin;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -16,38 +16,38 @@ namespace BaSys.Admin.Controllers
     [Route("api/admin/v1/[controller]")]
     [ApiController]
     [Authorize(Roles = ApplicationRole.Administrator)]
-    public class AppConstantsRecordsController : ControllerBase
+    public class AppConstantsController : ControllerBase
     {
-        private readonly IAppConstantsRecordsService _appConstantsRecordsService;
+        private readonly IAppConstantsService _appConstantsService;
 
-        public AppConstantsRecordsController(IAppConstantsRecordsService appConstantsRecordsService)
+        public AppConstantsController(IAppConstantsService appConstantsService)
         {
-            _appConstantsRecordsService = appConstantsRecordsService;
+            _appConstantsService = appConstantsService;
         }
 
         /// <summary>
-        /// Retrieve app constants record.
+        /// Retrieve app constants item.
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<IActionResult> GetAppConstantsRecord()
+        public async Task<IActionResult> GetAppConstants()
         {
             var dbName = GetDbName();
-            var result = await _appConstantsRecordsService.GetAppConstantsRecordAsync(dbName);
+            var result = await _appConstantsService.GetAppConstantsAsync(dbName);
 
             return Ok(result);
         }
 
         /// <summary>
-        /// Update app constants record.
+        /// Update app constants item.
         /// </summary>
         /// <param name="appConstantsRecord"></param>
         /// <returns></returns>
         [HttpPut]
-        public async Task<IActionResult> UpdateAppConstantsRecord(AppConstantsRecordDto appConstantsRecord)
+        public async Task<IActionResult> UpdateAppConstants(AppConstantsDto appConstantsRecord)
         {
             var dbName = GetDbName();
-            var result = await _appConstantsRecordsService.UpdateAppConstantsRecordAsync(appConstantsRecord, dbName);
+            var result = await _appConstantsService.UpdateAppConstantsAsync(appConstantsRecord, dbName);
 
             return Ok(result);
         }

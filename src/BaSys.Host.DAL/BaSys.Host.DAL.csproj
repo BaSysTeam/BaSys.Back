@@ -23,6 +23,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\BaSys.DAL.Models\BaSys.DAL.Models.csproj" />
       <ProjectReference Include="..\BaSys.FluentQueries\BaSys.FluentQueries.csproj" />
       <ProjectReference Include="..\BaSys.Host.Identity\BaSys.Host.Identity.csproj" />
       <ProjectReference Include="..\BaSys.Host.Infrastructure\BaSys.Host.Infrastructure.csproj" />
