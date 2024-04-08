@@ -12,7 +12,7 @@ namespace BaSys.Host.DAL.ModelConfigurations
     {
         public MetadataGroupConfiguration()
         {
-            Table("sys_metadata_group");
+            Table("sys_metadata_groups");
 
             Column("uid").IsPrimaryKey();
             Column("title").MaxLength(100);

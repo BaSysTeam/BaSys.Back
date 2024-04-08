@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BaSys.FluentQueries.Abstractions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -6,7 +7,7 @@ using System.Text;
 
 namespace BaSys.FluentQueries.Models
 {
-    public abstract class DataModelConfiguration<T> where T : class
+    public abstract class DataModelConfiguration<T> : IDataModelConfiguration where T : class
     {
         private readonly List<TableColumn> _columns = new List<TableColumn>();
 
