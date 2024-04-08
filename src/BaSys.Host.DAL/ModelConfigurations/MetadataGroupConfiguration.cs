@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace BaSys.Host.DAL.ModelConfigurations
 {
-    public class MetadataGroupConfiguration: DataModelConfiguration<MetadataGroup>
+    public sealed class MetadataGroupConfiguration: DataModelConfiguration<MetadataGroup>
     {
         public MetadataGroupConfiguration()
         {

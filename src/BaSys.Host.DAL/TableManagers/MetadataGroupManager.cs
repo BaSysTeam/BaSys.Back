@@ -16,11 +16,9 @@ namespace BaSys.Host.DAL.TableManagers
 {
     public sealed class MetadataGroupManager : TableManagerBase
     {
-        private readonly MetadataGroupConfiguration _config;
-
-        public MetadataGroupManager(IDbConnection connection):base(connection, "sys_metadata_groups")
+        public MetadataGroupManager(IDbConnection connection):base(connection, new MetadataGroupConfiguration())
         {
-            _config = new MetadataGroupConfiguration();
+            
         }
 
         public override async Task<int> CreateTableAsync(IDbTransaction transaction = null)
@@ -37,9 +35,9 @@ namespace BaSys.Host.DAL.TableManagers
             //   .Column("IsStandard", DbType.Boolean, true)
             //   .Query(_sqlDialectKind);
 
-            var query = CreateTableBuilder.Make(_config).Query(_sqlDialectKind);
+            _query = CreateTableBuilder.Make(_config).Query(_sqlDialectKind);
 
-            var result = await _connection.ExecuteAsync(query.Text, null, transaction);
+            var result = await _connection.ExecuteAsync(_query.Text, null, transaction);
 
             return result;
         }

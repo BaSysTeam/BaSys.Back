@@ -21,6 +21,9 @@ namespace BaSys.Host.DAL.Abstractions
         protected string _tableName;
         protected IQuery? _lastQuery;
 
+        public IQuery? LastQuery => _lastQuery;
+
+
         protected SystemObjectProviderBase(IDbConnection dbConnection, string tableName)
         {
             _dbConnection = dbConnection;
@@ -30,8 +33,6 @@ namespace BaSys.Host.DAL.Abstractions
             if (_tableName.Substring(0, 4) != "sys_")
                 throw new ArgumentException($"Table name of system object have to start with prefix sys_");
         }
-
-        public IQuery? LastQuery => _lastQuery;
 
         public virtual async Task<IEnumerable<T>> GetCollectionAsync(IDbTransaction transaction)
         {
