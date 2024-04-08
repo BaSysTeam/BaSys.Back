@@ -28,7 +28,7 @@ public class LoggerConfigService : ILoggerConfigService
         // {
         //     LoggerType = LoggerTypes.MsSql,
         //     MinimumLogLevel = EventTypeLevels.Info,
-        //     ConnectionString = "Data Source=OSPC\\SQLEXPRESS19;Initial Catalog=__Serilog;Persist Security Info=True;User ID=saa;Password=QAZwsx!@#;TrustServerCertificate=True;",
+        //     ConnectionString = "Data Source=OSPC\\SQLEXPRESS19;Initial Catalog=__Serilog;Persist Security Info=True;User ID=sa;Password=QAZwsx!@#;TrustServerCertificate=True;",
         //     DbUid = dbUid,
         //     TableName = tableName,
         //     IsEnabled = true,

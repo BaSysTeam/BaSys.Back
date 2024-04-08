@@ -19,26 +19,17 @@ public class PgSqlLoggerService : LoggerService
         if (string.IsNullOrEmpty(loggerConfig.ConnectionString) || string.IsNullOrEmpty(loggerConfig.TableName))
             throw new ArgumentException();
 
-        // var columnOptions = new Dictionary<string, ColumnWriterBase>
-        // {
-        //     {"message", new RenderedMessageColumnWriter(NpgsqlDbType.Text)},
-        //     // {"timestamp", new TimestampColumnWriter(NpgsqlDbType.Timestamp) },
-        //     // {"exception", new ExceptionColumnWriter(NpgsqlDbType.Text) },
-        //     // {"level", new SinglePropertyColumnWriter("Level", PropertyWriteMethod.Raw, NpgsqlDbType.Integer) },
-        //     // {"event_type_uid", new SinglePropertyColumnWriter("EventTypeUid", PropertyWriteMethod.Raw, NpgsqlDbType.Uuid) },
-        //     // {"event_type_name", new SinglePropertyColumnWriter("EventTypeName", PropertyWriteMethod.ToString, NpgsqlDbType.Text) },
-        //     // {"module", new SinglePropertyColumnWriter("Module", PropertyWriteMethod.ToString, NpgsqlDbType.Text) }
-        // };
-
         CheckDbExists(loggerConfig.ConnectionString);
 
         var columnWriters = new Dictionary<string, ColumnWriterBase>
         {
             {"message", new RenderedMessageColumnWriter(NpgsqlDbType.Text)},
-            {"message_template", new MessageTemplateColumnWriter(NpgsqlDbType.Text)},
-            {"level", new LevelColumnWriter(true, NpgsqlDbType.Varchar)},
             {"raise_date", new TimestampColumnWriter(NpgsqlDbType.Timestamp)},
             {"exception", new ExceptionColumnWriter(NpgsqlDbType.Text)},
+            {"level", new SinglePropertyColumnWriter("Level", PropertyWriteMethod.Raw, NpgsqlDbType.Integer)},
+            {"event_type_uid", new SinglePropertyColumnWriter("EventTypeUid", PropertyWriteMethod.Raw, NpgsqlDbType.Uuid)},
+            {"event_type_name", new SinglePropertyColumnWriter("EventTypeName")},
+            {"module", new SinglePropertyColumnWriter("Module")},
             {"properties", new LogEventSerializedColumnWriter(NpgsqlDbType.Jsonb)}
         };
 
