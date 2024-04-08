@@ -99,7 +99,7 @@ namespace BaSys.Host.Services
             {
                 Uid = Guid.NewGuid(),
                 DataBaseUid = Guid.NewGuid(),
-                ApplicationTitle = currentApp.Title
+                ApplicationTitle = string.Empty
             };
 
             await provider.InsertAsync(appConstantsRecord, null);
