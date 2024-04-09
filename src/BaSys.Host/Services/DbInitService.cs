@@ -1,5 +1,7 @@
 ﻿using BaSys.Admin.Abstractions;
+using BaSys.Common.Enums;
 using BaSys.DAL.Models.Admin;
+using BaSys.DAL.Models.Logging;
 using BaSys.Host.Abstractions;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
@@ -39,7 +41,8 @@ namespace BaSys.Host.Services
             var tableManagers = new List<TableManagerBase>
             {
                 new MetadataGroupManager(_connection),
-                new AppConstantsRecordManager(_connection)
+                new AppConstantsManager(_connection),
+                new LoggerConfigManager(_connection)
             };
 
             foreach ( var tableManager in tableManagers )
@@ -81,6 +84,7 @@ namespace BaSys.Host.Services
         public async Task CheckTablesAsync()
         {
             await CheckAppConstantsAsync();
+            await CheckLoggerConfigAsync();
         }
 
         private async Task CheckAppConstantsAsync()
@@ -103,6 +107,22 @@ namespace BaSys.Host.Services
             };
 
             await provider.InsertAsync(appConstantsRecord, null);
+        }
+
+        private async Task CheckLoggerConfigAsync()
+        {
+            var provider = new LoggerConfigProvider(_connection);
+            var collection = await provider.GetCollectionAsync(null);
+            var loggerConfig = collection.FirstOrDefault();
+            if (loggerConfig != null)
+                return;
+
+            loggerConfig = new LoggerConfig
+            {
+                MinimumLogLevel = EventTypeLevels.Info
+            };
+
+            await provider.InsertAsync(loggerConfig, null);
         }
     }
 }

@@ -5,11 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BaSys.DAL.Models.Logging
+namespace BaSys.DTO.Admin
 {
-    public class LoggerConfig
+    public sealed class LoggerConfigDto
     {
-        public Guid Uid { get; set; }
+        public string Uid { get; set; } = string.Empty;
         public bool IsEnabled { get; set; }
         public LoggerTypes? LoggerType { get; set; }
         public EventTypeLevels MinimumLogLevel { get; set; }
