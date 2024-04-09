@@ -45,10 +45,8 @@ namespace BaSys.Host.Services
                 new LoggerConfigManager(_connection)
             };
 
-            foreach ( var tableManager in tableManagers )
+            foreach (var tableManager in tableManagers)
                 await CreateTableAsync(tableManager);
-
-
         }
 
         private async Task<int> CreateTableAsync(ITableManager tableManager)
@@ -95,10 +93,6 @@ namespace BaSys.Host.Services
             if (appConstants != null)
                 return;
             
-            var currentApp = _initAppSettings?.CurrentApp;
-            if (currentApp == null)
-                throw new ApplicationException("InitAppSettings:CurrentApp is not set in the config!");
-
             appConstants = new AppConstants
             {
                 Uid = Guid.NewGuid(),

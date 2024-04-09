@@ -1,6 +1,7 @@
 ﻿using BaSys.DAL.Models.Logging;
 using BaSys.FluentQueries.QueryBuilders;
 using BaSys.Host.DAL.Abstractions;
+using BaSys.Host.DAL.ModelConfigurations;
 using Dapper;
 using System;
 using System.Collections.Generic;
@@ -13,46 +14,26 @@ namespace BaSys.Host.DAL.DataProviders
 {
     public sealed class LoggerConfigProvider : SystemObjectProviderBase<LoggerConfig>
     {
-        public LoggerConfigProvider(IDbConnection dbConnection) : base(dbConnection, "sys_logger_config")
+        public LoggerConfigProvider(IDbConnection dbConnection) : base(dbConnection, new LoggerConfigConfiguration())
         {
         }
 
         public override async Task<int> InsertAsync(LoggerConfig item, IDbTransaction transaction)
         {
-            var query = InsertBuilder.Make()
-                .Table(_tableName)
-                .Column("isenabled")
-                .Column("loggertype")
-                .Column("minimumloglevel")
-                .Column("connectionstring")
-                .Column("autoclearinterval")
+            _query = InsertBuilder.Make(_config)
                 .FillValuesByColumnNames(true)
                 .Query(_sqlDialect);
 
-            _lastQuery = query;
-
-            var result = await _dbConnection.ExecuteAsync(query.Text, item, transaction);
-
-            return result;
+            return await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
         }
 
         public override async Task<int> UpdateAsync(LoggerConfig item, IDbTransaction transaction)
         {
-            var query = UpdateBuilder.Make()
-                .Table(_tableName)
-                .Set("isenabled")
-                .Set("loggertype")
-                .Set("minimumloglevel")
-                .Set("connectionstring")
-                .Set("autoclearinterval")
-                .WhereAnd("uid = @uid")
-                .Query(_sqlDialect);
+            _query = UpdateBuilder.Make(_config)
+               .WhereAnd("uid = @uid")
+               .Query(_sqlDialect);
 
-            _lastQuery = query;
-
-            var result = await _dbConnection.ExecuteAsync(query.Text, item, transaction);
-
-            return result;
+            return await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
         }
     }
 }

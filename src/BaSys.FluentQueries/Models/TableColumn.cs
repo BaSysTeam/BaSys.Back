@@ -151,6 +151,8 @@ namespace BaSys.FluentQueries.Models
             else if (type == typeof(Guid?)) return DbType.Guid;
             else if (type == typeof(DateTime?)) return DbType.DateTime;
             else if (type == typeof(DateTimeOffset?)) return DbType.DateTimeOffset;
+            else if (type.IsEnum) return DbType.Byte;
+            else if (IsNullableEnum(type)) return DbType.Byte;
             else throw new ArgumentException("Unsupported type");
         }
 
@@ -162,5 +164,10 @@ namespace BaSys.FluentQueries.Models
            
         }
 
+        private bool IsNullableEnum(Type type)
+        {
+            type = Nullable.GetUnderlyingType(type);
+            return (type != null) && type.IsEnum;
+        }
     }
 }

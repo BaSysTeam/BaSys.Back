@@ -1,5 +1,6 @@
 ﻿using BaSys.FluentQueries.QueryBuilders;
 using BaSys.Host.DAL.Abstractions;
+using BaSys.Host.DAL.ModelConfigurations;
 using Dapper;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ namespace BaSys.Host.DAL.TableManagers
 {
     public sealed class LoggerConfigManager : TableManagerBase
     {
-        public LoggerConfigManager(IDbConnection connection) : base(connection, "sys_logger_config")
+        public LoggerConfigManager(IDbConnection connection) : base(connection, new LoggerConfigConfiguration())
         {
         }
 
@@ -20,19 +21,9 @@ namespace BaSys.Host.DAL.TableManagers
         {
             await base.CreateTableAsync(transaction);
 
-            var query = CreateTableBuilder.Make()
-               .Table(_tableName)
-               .PrimaryKey("Uid", DbType.Guid)
-               .Column("IsEnabled", DbType.Boolean, true)
-               .Column("LoggerType", DbType.Byte, false)
-               .Column("MinimumLogLevel", DbType.Byte, true)
-               .StringColumn("ConnectionString", 300, false)
-               .Column("AutoClearInterval", DbType.Byte, true)
-               .Query(_sqlDialectKind);
+            _query = CreateTableBuilder.Make(_config).Query(_sqlDialectKind);
 
-            var result = await _connection.ExecuteAsync(query.Text, null, transaction);
-
-            return result;
+            return await _connection.ExecuteAsync(_query.Text, null, transaction);
         }
     }
 }

@@ -13,7 +13,7 @@ namespace BaSys.Host.DAL.TableManagers
 {
     public sealed class AppConstantsManager : TableManagerBase
     {
-        public AppConstantsRecordManager(IDbConnection connection) : base(connection, new AppConstantsConfiguration())
+        public AppConstantsManager(IDbConnection connection) : base(connection, new AppConstantsConfiguration())
         {
         }
 
@@ -28,7 +28,7 @@ namespace BaSys.Host.DAL.TableManagers
             //   .StringColumn("ApplicationTitle", 100, true)
             //   .Query(_sqlDialectKind);
 
-            _query = CreateTableBuilder.Make().Query(_sqlDialectKind);
+            _query = CreateTableBuilder.Make(_config).Query(_sqlDialectKind);
 
             var result = await _connection.ExecuteAsync(_query.Text, null, transaction);
 
