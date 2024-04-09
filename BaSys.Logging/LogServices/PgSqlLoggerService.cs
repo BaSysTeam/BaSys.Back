@@ -14,7 +14,8 @@ namespace BaSys.Logging.LogServices;
 
 public class PgSqlLoggerService : LoggerService
 {
-    public PgSqlLoggerService(LoggerConfig loggerConfig) : base(loggerConfig)
+    public PgSqlLoggerService(LoggerConfig loggerConfig, string? userUid, string? userName, string? ipAddress) 
+        : base(loggerConfig, userUid, userName, ipAddress)
     {
         if (string.IsNullOrEmpty(loggerConfig.ConnectionString) || string.IsNullOrEmpty(loggerConfig.TableName))
             throw new ArgumentException();
@@ -30,6 +31,9 @@ public class PgSqlLoggerService : LoggerService
             {"event_type_uid", new SinglePropertyColumnWriter("EventTypeUid", PropertyWriteMethod.Raw, NpgsqlDbType.Uuid)},
             {"event_type_name", new SinglePropertyColumnWriter("EventTypeName")},
             {"module", new SinglePropertyColumnWriter("Module")},
+            {"user_uid", new SinglePropertyColumnWriter("UserUid")},
+            {"user_name", new SinglePropertyColumnWriter("UserName")},
+            {"ip_address", new SinglePropertyColumnWriter("IpAddress")},
             {"properties", new LogEventSerializedColumnWriter(NpgsqlDbType.Jsonb)}
         };
 
@@ -82,11 +86,14 @@ public class PgSqlLoggerService : LoggerService
 
     protected override void WriteInner(string message, EventTypeLevels level, EventType eventType)
     {
-        _logger?.Information("{message} {Level} {EventTypeName} {EventTypeUid} {Module}",
+        _logger?.Information("{message} {Level} {EventTypeName} {EventTypeUid} {Module} {UserUid} {UserName} {IpAddress}",
             message,
             (int) level,
             eventType.EventName,
             eventType.Uid,
-            eventType.Module);
+            eventType.Module,
+            _userUid,
+            _userName,
+            _ipAddress);
     }
 }

@@ -11,7 +11,7 @@ public class LoggerConfigService : ILoggerConfigService
         var dbUid = new Guid("55dbda0e-4da7-4725-8520-109cb3251f57");
         var tableName = GetTableName(dbUid);
         
-        // Mongo
+        // // Mongo
         // return new LoggerConfig
         // {
         //     LoggerType = LoggerTypes.MongoDb,
@@ -24,28 +24,28 @@ public class LoggerConfigService : ILoggerConfigService
         // };
         
         // MsSql
-        // return new LoggerConfig
-        // {
-        //     LoggerType = LoggerTypes.MsSql,
-        //     MinimumLogLevel = EventTypeLevels.Info,
-        //     ConnectionString = "Data Source=OSPC\\SQLEXPRESS19;Initial Catalog=__Serilog;Persist Security Info=True;User ID=sa;Password=QAZwsx!@#;TrustServerCertificate=True;",
-        //     DbUid = dbUid,
-        //     TableName = tableName,
-        //     IsEnabled = true,
-        //     AutoClearInterval = AutoClearInterval.Month
-        // };
-        
-        // PgSql
         return new LoggerConfig
         {
-            LoggerType = LoggerTypes.PgSql,
+            LoggerType = LoggerTypes.MsSql,
             MinimumLogLevel = EventTypeLevels.Info,
-            ConnectionString = "Server=localhost;Port=5432;Database=serilog;User ID=postgres;Password=QAZwsx!@#;Timeout=60;",
+            ConnectionString = "Data Source=OSPC\\SQLEXPRESS19;Initial Catalog=__Serilog;Persist Security Info=True;User ID=sa;Password=QAZwsx!@#;TrustServerCertificate=True;",
             DbUid = dbUid,
             TableName = tableName,
             IsEnabled = true,
             AutoClearInterval = AutoClearInterval.Month
         };
+        
+        // // PgSql
+        // return new LoggerConfig
+        // {
+        //     LoggerType = LoggerTypes.PgSql,
+        //     MinimumLogLevel = EventTypeLevels.Info,
+        //     ConnectionString = "Server=localhost;Port=5432;Database=serilog;User ID=postgres;Password=QAZwsx!@#;Timeout=60;",
+        //     DbUid = dbUid,
+        //     TableName = tableName,
+        //     IsEnabled = true,
+        //     AutoClearInterval = AutoClearInterval.Month
+        // };
     }
 
     private string GetTableName(Guid dbUid) => $"logs-{dbUid}";

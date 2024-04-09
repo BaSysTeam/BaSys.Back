@@ -8,7 +8,8 @@ namespace BaSys.Logging.LogServices;
 
 public class MongoLoggerService : LoggerService
 {
-    public MongoLoggerService(LoggerConfig loggerConfig) : base(loggerConfig)
+    public MongoLoggerService(LoggerConfig loggerConfig, string? userUid, string? userName, string? ipAddress) 
+        : base(loggerConfig, userUid, userName, ipAddress)
     {
         if (string.IsNullOrEmpty(loggerConfig.ConnectionString) || string.IsNullOrEmpty(loggerConfig.TableName))
             throw new ArgumentException();
@@ -26,12 +27,15 @@ public class MongoLoggerService : LoggerService
 
     protected override void WriteInner(string message, EventTypeLevels level, EventType eventType)
     {
-        _logger?.Information("{message} {Level} {EventTypeName} {EventTypeUid} {Module}",
+        _logger?.Information("{message} {Level} {EventTypeName} {EventTypeUid} {Module} {UserUid} {UserName} {IpAddress}",
             message,
             (int) level,
             eventType.EventName,
             eventType.Uid,
-            eventType.Module);
+            eventType.Module,
+            _userUid,
+            _userName,
+            _ipAddress);
     }
 
     private TimeSpan? GetExpireTTL(LoggerConfig loggerConfig)

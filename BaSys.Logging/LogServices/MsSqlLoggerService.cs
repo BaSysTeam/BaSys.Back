@@ -9,7 +9,8 @@ namespace BaSys.Logging.LogServices;
 
 public class MsSqlLoggerService : LoggerService
 {
-    public MsSqlLoggerService(LoggerConfig loggerConfig) : base(loggerConfig)
+    public MsSqlLoggerService(LoggerConfig loggerConfig, string? userUid, string? userName, string? ipAddress) 
+        : base(loggerConfig, userUid, userName, ipAddress)
     {
         var sinkOpts = new MSSqlServerSinkOptions();
         sinkOpts.AutoCreateSqlDatabase = true;
@@ -44,6 +45,24 @@ public class MsSqlLoggerService : LoggerService
             DataType = SqlDbType.NVarChar,
             DataLength = 100
         });
+        columnOptions.AdditionalColumns.Add(new SqlColumn()
+        {
+            ColumnName = "UserUid",
+            DataType = SqlDbType.NVarChar,
+            DataLength = 100
+        });
+        columnOptions.AdditionalColumns.Add(new SqlColumn()
+        {
+            ColumnName = "UserName",
+            DataType = SqlDbType.NVarChar,
+            DataLength = 100
+        });
+        columnOptions.AdditionalColumns.Add(new SqlColumn()
+        {
+            ColumnName = "IpAddress",
+            DataType = SqlDbType.NVarChar,
+            DataLength = 100
+        });
 
         try
         {
@@ -59,11 +78,14 @@ public class MsSqlLoggerService : LoggerService
     
     protected override void WriteInner(string message, EventTypeLevels level, EventType eventType)
     {
-        _logger?.Information("{message} {Level} {EventTypeName} {EventTypeUid} {Module}",
+        _logger?.Information("{message} {Level} {EventTypeName} {EventTypeUid} {Module} {UserUid} {UserName} {IpAddress}",
             message,
             (int)level,
             eventType.EventName,
             eventType.Uid,
-            eventType.Module);
+            eventType.Module,
+            _userUid,
+            _userName,
+            _ipAddress);
     }
 }
