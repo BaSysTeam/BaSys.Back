@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 
 namespace BaSys.Host.DAL.TableManagers
 {
-    public sealed class AppConstantsRecordManager : TableManagerBase
+    public sealed class AppConstantsManager : TableManagerBase
     {
-        public AppConstantsRecordManager(IDbConnection connection) : base(connection, "sys_app_constants_records")
+        public AppConstantsManager(IDbConnection connection) : base(connection, "sys_app_constants")
         {
         }
 
@@ -23,7 +23,7 @@ namespace BaSys.Host.DAL.TableManagers
             var query = CreateTableBuilder.Make()
                .Table(_tableName)
                .PrimaryKey("Uid", DbType.Guid)
-               .Column("DataBaseUid", DbType.Guid, false)
+               .Column("DataBaseUid", DbType.Guid, true)
                .StringColumn("ApplicationTitle", 100, true)
                .Query(_sqlDialectKind);
 

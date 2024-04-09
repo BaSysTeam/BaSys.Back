@@ -13,7 +13,7 @@ namespace BaSys.Host.DAL.DataProviders
 {
     public sealed class AppConstantsProvider : SystemObjectProviderBase<AppConstants>
     {
-        public AppConstantsProvider(IDbConnection dbConnection) : base(dbConnection, "sys_app_constants_records")
+        public AppConstantsProvider(IDbConnection dbConnection) : base(dbConnection, "sys_app_constants")
         {
         }
 

@@ -91,22 +91,22 @@ namespace BaSys.Host.Services
         {
             var provider = new AppConstantsProvider(_connection);
             var collection = await provider.GetCollectionAsync(null);
-            var appConstantsRecord = collection.FirstOrDefault();
-            if (appConstantsRecord != null)
+            var appConstants = collection.FirstOrDefault();
+            if (appConstants != null)
                 return;
             
             var currentApp = _initAppSettings?.CurrentApp;
             if (currentApp == null)
                 throw new ApplicationException("InitAppSettings:CurrentApp is not set in the config!");
 
-            appConstantsRecord = new AppConstants
+            appConstants = new AppConstants
             {
                 Uid = Guid.NewGuid(),
                 DataBaseUid = Guid.NewGuid(),
                 ApplicationTitle = currentApp.Title
             };
 
-            await provider.InsertAsync(appConstantsRecord, null);
+            await provider.InsertAsync(appConstants, null);
         }
 
         private async Task CheckLoggerConfigAsync()
@@ -119,6 +119,7 @@ namespace BaSys.Host.Services
 
             loggerConfig = new LoggerConfig
             {
+                Uid = Guid.NewGuid(),
                 MinimumLogLevel = EventTypeLevels.Info
             };
 

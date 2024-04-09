@@ -40,20 +40,8 @@ namespace BaSys.Admin.Services
             {
                 using (IDbConnection connection = _baSysConnectionFactory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
                 {
-                    var appConstants = new AppConstants
-                    {
-                        Uid = Guid.NewGuid()
-                    };
-
-                    if (dto != null)
-                    {
-                        if (Guid.TryParse(dto.Uid, out var uid))
-                            appConstants.Uid = uid;
-                        if (Guid.TryParse(dto.DataBaseUid, out var dataBaseUid))
-                            appConstants.DataBaseUid = dataBaseUid;
-
-                        appConstants.ApplicationTitle = dto.ApplicationTitle;
-                    }
+                    var appConstants = dto.ToModel();
+                    appConstants.Uid = Guid.NewGuid();
 
                     if (appConstants.DataBaseUid == Guid.Empty)
                     {
@@ -129,13 +117,7 @@ namespace BaSys.Admin.Services
                         return result;
                     }
 
-                    var dto = new AppConstantsDto
-                    {
-                        Uid = appConstants.Uid.ToString(),
-                        DataBaseUid = appConstants.DataBaseUid.ToString(),
-                        ApplicationTitle = appConstants.ApplicationTitle
-                    };
-
+                    var dto = new AppConstantsDto(appConstants);
                     dto.AppVersion = GetType()?.Assembly?.GetName()?.Version?.ToString() ?? string.Empty;
 
                     result.Success(dto);
@@ -158,17 +140,7 @@ namespace BaSys.Admin.Services
             {
                 using (IDbConnection connection = _baSysConnectionFactory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
                 {
-                    var appConstants = new AppConstants();
-
-                    if (dto != null)
-                    {
-                        if (Guid.TryParse(dto.Uid, out var uid))
-                            appConstants.Uid = uid;
-                        if (Guid.TryParse(dto.DataBaseUid, out var dataBaseUid))
-                            appConstants.DataBaseUid = dataBaseUid;
-
-                        appConstants.ApplicationTitle = dto.ApplicationTitle;
-                    }
+                    var appConstants = dto.ToModel();
 
                     if (appConstants.DataBaseUid == Guid.Empty)
                     {

@@ -322,7 +322,7 @@ namespace BaSys.Constructor.Controllers
             
             using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
             {
-                var tableManager = new AppConstantsRecordManager(connection);
+                var tableManager = new AppConstantsManager(connection);
 
                 var isTable = await tableManager.TableExistsAsync();
                 if (isTable)
@@ -354,7 +354,7 @@ namespace BaSys.Constructor.Controllers
 
             using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
             {
-                var tableManager = new AppConstantsRecordManager(connection);
+                var tableManager = new AppConstantsManager(connection);
 
                 var isTable = await tableManager.TableExistsAsync();
                 if (!isTable)
@@ -386,7 +386,7 @@ namespace BaSys.Constructor.Controllers
             var factory = new BaSysConnectionFactory();
             using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
             {
-                var tableManager = new AppConstantsRecordManager(connection);
+                var tableManager = new AppConstantsManager(connection);
 
                 try
                 {

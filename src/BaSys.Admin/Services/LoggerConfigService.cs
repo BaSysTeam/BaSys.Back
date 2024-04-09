@@ -33,15 +33,8 @@ namespace BaSys.Admin.Services
             {
                 using (IDbConnection connection = _baSysConnectionFactory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
                 {
-                    var loggerConfig = new LoggerConfig
-                    {
-                        Uid = Guid.NewGuid(),
-                        ConnectionString = dto.ConnectionString,
-                        MinimumLogLevel = dto.MinimumLogLevel,
-                        LoggerType = dto.LoggerType,
-                        IsEnabled = dto.IsEnabled,
-                        AutoClearInterval = dto.AutoClearInterval
-                    };
+                    var loggerConfig = dto.ToModel();
+                    loggerConfig.Uid = Guid.NewGuid();
 
                     if (string.IsNullOrEmpty(loggerConfig.ConnectionString))
                     {
@@ -112,15 +105,7 @@ namespace BaSys.Admin.Services
                         return result;
                     }
 
-                    var dto = new LoggerConfigDto
-                    {
-                        Uid = loggerConfig.Uid.ToString(),
-                        AutoClearInterval = loggerConfig.AutoClearInterval,
-                        ConnectionString = loggerConfig.ConnectionString,
-                        IsEnabled = loggerConfig.IsEnabled,
-                        LoggerType = loggerConfig.LoggerType,
-                        MinimumLogLevel = loggerConfig.MinimumLogLevel
-                    };
+                    var dto = new LoggerConfigDto(loggerConfig);
 
                     result.Success(dto);
                 }
@@ -142,17 +127,7 @@ namespace BaSys.Admin.Services
             {
                 using (IDbConnection connection = _baSysConnectionFactory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
                 {
-                    var loggerConfig = new LoggerConfig
-                    {
-                        ConnectionString = dto.ConnectionString,
-                        MinimumLogLevel = dto.MinimumLogLevel,
-                        LoggerType = dto.LoggerType,
-                        IsEnabled = dto.IsEnabled,
-                        AutoClearInterval = dto.AutoClearInterval
-                    };
-
-                    if (Guid.TryParse(dto.Uid, out var uid))
-                        loggerConfig.Uid = uid;
+                    var loggerConfig = dto.ToModel();
 
                     if (string.IsNullOrEmpty(loggerConfig.ConnectionString))
                     {
