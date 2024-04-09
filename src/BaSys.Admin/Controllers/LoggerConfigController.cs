@@ -1,6 +1,4 @@
 ﻿using BaSys.Admin.Abstractions;
-using BaSys.Admin.DTO;
-using BaSys.Admin.Services;
 using BaSys.Common.Infrastructure;
 using BaSys.DTO.Admin;
 using Microsoft.AspNetCore.Authorization;
@@ -10,43 +8,43 @@ using Microsoft.AspNetCore.Mvc;
 namespace BaSys.Admin.Controllers
 {
     /// <summary>
-    /// This controller allow to manipulate with app constants record.
+    /// This controller allow to manipulate with logger config record.
     /// </summary>
     [Route("api/admin/v1/[controller]")]
     [ApiController]
     [Authorize(Roles = ApplicationRole.Administrator)]
-    public class AppConstantsController : ControllerBase
+    public class LoggerConfigController : ControllerBase
     {
-        private readonly IAppConstantsService _appConstantsService;
+        private readonly ILoggerConfigService _loggerConfigService;
 
-        public AppConstantsController(IAppConstantsService appConstantsService)
+        public LoggerConfigController(ILoggerConfigService loggerConfigService)
         {
-            _appConstantsService = appConstantsService;
+            _loggerConfigService = loggerConfigService;
         }
 
         /// <summary>
-        /// Retrieve app constants record.
+        /// Retrieve logger config record.
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<IActionResult> GetAppConstants()
+        public async Task<IActionResult> GetLoggerConfig()
         {
             var dbName = GetDbName();
-            var result = await _appConstantsService.GetAppConstantsAsync(dbName);
+            var result = await _loggerConfigService.GetLoggerConfigAsync(dbName);
 
             return Ok(result);
         }
 
         /// <summary>
-        /// Update app constants record.
+        /// Update logger config record.
         /// </summary>
-        /// <param name="appConstantsRecord"></param>
+        /// <param name="dto"></param>
         /// <returns></returns>
         [HttpPut]
-        public async Task<IActionResult> UpdateAppConstants(AppConstantsDto appConstantsRecord)
+        public async Task<IActionResult> UpdateLoggerConfig(LoggerConfigDto dto)
         {
             var dbName = GetDbName();
-            var result = await _appConstantsService.UpdateAppConstantsAsync(appConstantsRecord, dbName);
+            var result = await _loggerConfigService.UpdateLoggerConfigAsync(dto, dbName);
 
             return Ok(result);
         }

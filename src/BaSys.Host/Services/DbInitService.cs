@@ -1,5 +1,7 @@
 ﻿using BaSys.Admin.Abstractions;
+using BaSys.Common.Enums;
 using BaSys.DAL.Models.Admin;
+using BaSys.DAL.Models.Logging;
 using BaSys.Host.Abstractions;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
@@ -39,13 +41,12 @@ namespace BaSys.Host.Services
             var tableManagers = new List<TableManagerBase>
             {
                 new MetadataGroupManager(_connection),
-                new AppConstantsRecordManager(_connection)
+                new AppConstantsManager(_connection),
+                new LoggerConfigManager(_connection)
             };
 
-            foreach ( var tableManager in tableManagers )
+            foreach (var tableManager in tableManagers)
                 await CreateTableAsync(tableManager);
-
-
         }
 
         private async Task<int> CreateTableAsync(ITableManager tableManager)
@@ -81,28 +82,42 @@ namespace BaSys.Host.Services
         public async Task CheckTablesAsync()
         {
             await CheckAppConstantsAsync();
+            await CheckLoggerConfigAsync();
         }
 
         private async Task CheckAppConstantsAsync()
         {
             var provider = new AppConstantsProvider(_connection);
             var collection = await provider.GetCollectionAsync(null);
-            var appConstantsRecord = collection.FirstOrDefault();
-            if (appConstantsRecord != null)
+            var appConstants = collection.FirstOrDefault();
+            if (appConstants != null)
                 return;
             
-            var currentApp = _initAppSettings?.CurrentApp;
-            if (currentApp == null)
-                throw new ApplicationException("InitAppSettings:CurrentApp is not set in the config!");
-
-            appConstantsRecord = new AppConstants
+            appConstants = new AppConstants
             {
                 Uid = Guid.NewGuid(),
                 DataBaseUid = Guid.NewGuid(),
                 ApplicationTitle = string.Empty
             };
 
-            await provider.InsertAsync(appConstantsRecord, null);
+            await provider.InsertAsync(appConstants, null);
+        }
+
+        private async Task CheckLoggerConfigAsync()
+        {
+            var provider = new LoggerConfigProvider(_connection);
+            var collection = await provider.GetCollectionAsync(null);
+            var loggerConfig = collection.FirstOrDefault();
+            if (loggerConfig != null)
+                return;
+
+            loggerConfig = new LoggerConfig
+            {
+                Uid = Guid.NewGuid(),
+                MinimumLogLevel = EventTypeLevels.Info
+            };
+
+            await provider.InsertAsync(loggerConfig, null);
         }
     }
 }

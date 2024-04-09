@@ -132,11 +132,17 @@
   <data name="CannotCreateAppConstantsRecord" xml:space="preserve">
     <value>Ошибка создания записи констант приложения</value>
   </data>
+  <data name="CannotCreateLoggerConfig" xml:space="preserve">
+    <value>Ошибка создания конфигурации логгера</value>
+  </data>
   <data name="CannotCreateUser" xml:space="preserve">
     <value>Ошибка создания пользователя</value>
   </data>
   <data name="CannotDeleteAppConstantsRecord" xml:space="preserve">
     <value>Ошибка удаления записи констант приложения</value>
+  </data>
+  <data name="CannotDeleteLoggerConfig" xml:space="preserve">
+    <value>Ошибка удаления конфигурации логгера</value>
   </data>
   <data name="CannotDeleteUser" xml:space="preserve">
     <value>Ошибка удаления пользователя</value>
@@ -150,6 +156,9 @@
   <data name="CannotFindAppConstantsRecord" xml:space="preserve">
     <value>Запись констант приложения не найдена</value>
   </data>
+  <data name="CannotFindLoggerConfig" xml:space="preserve">
+    <value>Конфигурация логгера не найдена</value>
+  </data>
   <data name="CannotFindUser" xml:space="preserve">
     <value>Пользователь не найден</value>
   </data>
@@ -162,6 +171,9 @@
   <data name="CannotUpdateAppConstantsRecord" xml:space="preserve">
     <value>Ошибка сохранения записи констант приложения</value>
   </data>
+  <data name="CannotUpdateLoggerConfig" xml:space="preserve">
+    <value>Ошибка сохранения конфигурации логгера</value>
+  </data>
   <data name="CannotUpdateUser" xml:space="preserve">
     <value>Ошибка сохранения пользователя</value>
   </data>
@@ -171,8 +183,23 @@
   <data name="EmptyApplicationTitle" xml:space="preserve">
     <value>Заголовок приложения не должен быть пустым</value>
   </data>
+  <data name="EmptyConnectionString" xml:space="preserve">
+    <value>Строка подключения не должна быть пустой</value>
+  </data>
+  <data name="EmptyLoggerType" xml:space="preserve">
+    <value>Тип логгера не должен быть пустой</value>
+  </data>
   <data name="EmptyUsersList" xml:space="preserve">
     <value>Список пользователей пуст</value>
+  </data>
+  <data name="LoggerConfigCreated" xml:space="preserve">
+    <value>Конфигурация логгера создана</value>
+  </data>
+  <data name="LoggerConfigDeleted" xml:space="preserve">
+    <value>Конфигурация логгера удалена</value>
+  </data>
+  <data name="LoggerConfigUpdated" xml:space="preserve">
+    <value>Конфигурация логгера обновлена</value>
   </data>
   <data name="OnlyActiveAdministrator" xml:space="preserve">
     <value>Пользователь единственный активный администратор</value>

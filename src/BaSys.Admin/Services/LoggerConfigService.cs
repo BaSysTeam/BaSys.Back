@@ -1,37 +1,30 @@
 ﻿using BaSys.Admin.Abstractions;
-using BaSys.Admin.DTO;
 using BaSys.Common.Infrastructure;
 using BaSys.DAL.Models.Admin;
+using BaSys.DAL.Models.Logging;
 using BaSys.DTO.Admin;
-using BaSys.Host.DAL;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
-using BaSys.Host.Identity.Models;
 using BaSys.SuperAdmin.DAL.Abstractions;
-using BaSys.SuperAdmin.DAL.Models;
-using BaSys.SuperAdmin.DAL.Providers;
 using BaSys.Translation;
-using Elfie.Serialization;
-using Humanizer;
-using Microsoft.AspNetCore.Identity;
 using System.Data;
-using System.Xml.Linq;
 
 namespace BaSys.Admin.Services
 {
-    public sealed class AppConstantsService : IAppConstantsService
+    public sealed class LoggerConfigService : ILoggerConfigService
     {
         private readonly IDbInfoRecordsProvider _dbInfoRecordsProvider;
         private readonly IBaSysConnectionFactory _baSysConnectionFactory;
-        public AppConstantsService(
-            IDbInfoRecordsProvider dbInfoRecordsProvider, 
+
+        public LoggerConfigService(
+            IDbInfoRecordsProvider dbInfoRecordsProvider,
             IBaSysConnectionFactory baSysConnectionFactory)
         {
             _dbInfoRecordsProvider = dbInfoRecordsProvider;
             _baSysConnectionFactory = baSysConnectionFactory;
         }
 
-        public async Task<ResultWrapper<int>> CreateAppConstantsAsync(AppConstantsDto dto, string dbName)
+        public async Task<ResultWrapper<int>> CreateLoggerConfigAsync(LoggerConfigDto dto, string dbName)
         {
             var result = new ResultWrapper<int>();
             var dbInfoRecord = _dbInfoRecordsProvider.GetDbInfoRecordByDbName(dbName);
@@ -40,43 +33,38 @@ namespace BaSys.Admin.Services
             {
                 using (IDbConnection connection = _baSysConnectionFactory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
                 {
-                    var appConstants = dto.ToModel();
-                    appConstants.Uid = Guid.NewGuid();
+                    var loggerConfig = dto.ToModel();
+                    loggerConfig.Uid = Guid.NewGuid();
 
-                    if (appConstants.DataBaseUid == Guid.Empty)
+                    if (string.IsNullOrEmpty(loggerConfig.ConnectionString))
                     {
-                        result.Error(-1, DictMain.WrongDataBaseUidFormat);
-                        return result;
-                    }
-                    if (string.IsNullOrEmpty(appConstants.ApplicationTitle))
-                    {
-                        result.Error(-1, DictMain.EmptyApplicationTitle);
+                        result.Error(-1, DictMain.EmptyConnectionString);
                         return result;
                     }
 
-                    var provider = new AppConstantsProvider(connection);
+                    var provider = new LoggerConfigProvider(connection);
                     var collection = await provider.GetCollectionAsync(null);
 
                     if (!collection.Any())
                     {
-                        var insertResult = await provider.InsertAsync(appConstants, null);
-                        result.Success(insertResult, DictMain.AppConstantsRecordCreated);
+                        var insertResult = await provider.InsertAsync(loggerConfig, null);
+                        result.Success(insertResult, DictMain.LoggerConfigCreated);
                     }
                     else
                     {
-                        result.Error(-1, DictMain.CannotCreateAppConstantsRecord);
+                        result.Error(-1, DictMain.CannotCreateLoggerConfig);
                     }
                 }
             }
             catch (Exception ex)
             {
-                result.Error(-1, DictMain.CannotCreateAppConstantsRecord, ex.Message);
+                result.Error(-1, DictMain.CannotCreateLoggerConfig, ex.Message);
             }
 
             return result;
         }
 
-        public async Task<ResultWrapper<int>> DeleteAppConstantsAsync(Guid uid, string dbName)
+        public async Task<ResultWrapper<int>> DeleteLoggerConfigAsync(Guid uid, string dbName)
         {
             var result = new ResultWrapper<int>();
             var dbInfoRecord = _dbInfoRecordsProvider.GetDbInfoRecordByDbName(dbName);
@@ -85,53 +73,52 @@ namespace BaSys.Admin.Services
             {
                 using (IDbConnection connection = _baSysConnectionFactory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
                 {
-                    var provider = new AppConstantsProvider(connection);
+                    var provider = new LoggerConfigProvider(connection);
                     var deletionResult = await provider.DeleteAsync(uid, null);
 
-                    result.Success(deletionResult, DictMain.AppConstantsRecordDeleted);
+                    result.Success(deletionResult, DictMain.LoggerConfigDeleted);
                 }
             }
             catch (Exception ex)
             {
-                result.Error(-1, $"{DictMain.CannotDeleteAppConstantsRecord}: {uid}.", ex.Message);
+                result.Error(-1, $"{DictMain.CannotDeleteLoggerConfig}: {uid}.", ex.Message);
             }
 
             return result;
         }
 
-        public async Task<ResultWrapper<AppConstantsDto>> GetAppConstantsAsync(string dbName)
+        public async Task<ResultWrapper<LoggerConfigDto>> GetLoggerConfigAsync(string dbName)
         {
-            var result = new ResultWrapper<AppConstantsDto>();
+            var result = new ResultWrapper<LoggerConfigDto>();
             var dbInfoRecord = _dbInfoRecordsProvider.GetDbInfoRecordByDbName(dbName);
 
             try
             {
                 using (IDbConnection connection = _baSysConnectionFactory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
                 {
-                    var provider = new AppConstantsProvider(connection);
+                    var provider = new LoggerConfigProvider(connection);
                     var collection = await provider.GetCollectionAsync(null);
-                    var appConstants = collection.FirstOrDefault();
-                    if (appConstants == null)
+                    var loggerConfig = collection.FirstOrDefault();
+                    if (loggerConfig == null)
                     {
-                        result.Error(-1, DictMain.CannotFindAppConstantsRecord);
+                        result.Error(-1, DictMain.CannotFindLoggerConfig);
                         return result;
                     }
 
-                    var dto = new AppConstantsDto(appConstants);
-                    dto.AppVersion = GetType()?.Assembly?.GetName()?.Version?.ToString() ?? string.Empty;
+                    var dto = new LoggerConfigDto(loggerConfig);
 
                     result.Success(dto);
                 }
             }
             catch (Exception ex)
             {
-                result.Error(-1, DictMain.CannotFindAppConstantsRecord, ex.Message);
+                result.Error(-1, DictMain.CannotFindLoggerConfig, ex.Message);
             }
 
             return result;
         }
 
-        public async Task<ResultWrapper<int>> UpdateAppConstantsAsync(AppConstantsDto dto, string dbName)
+        public async Task<ResultWrapper<int>> UpdateLoggerConfigAsync(LoggerConfigDto dto, string dbName)
         {
             var result = new ResultWrapper<int>();
             var dbInfoRecord = _dbInfoRecordsProvider.GetDbInfoRecordByDbName(dbName);
@@ -140,27 +127,28 @@ namespace BaSys.Admin.Services
             {
                 using (IDbConnection connection = _baSysConnectionFactory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
                 {
-                    var appConstants = dto.ToModel();
+                    var loggerConfig = dto.ToModel();
 
-                    if (appConstants.DataBaseUid == Guid.Empty)
+                    if (string.IsNullOrEmpty(loggerConfig.ConnectionString))
                     {
-                        result.Error(-1, DictMain.WrongDataBaseUidFormat);
+                        result.Error(-1, DictMain.EmptyConnectionString);
                         return result;
                     }
-                    if (string.IsNullOrEmpty(appConstants.ApplicationTitle))
+                    if (loggerConfig.LoggerType == null)
                     {
-                        result.Error(-1, DictMain.EmptyApplicationTitle);
+                        result.Error(-1, DictMain.EmptyLoggerType);
                         return result;
                     }
 
-                    var provider = new AppConstantsProvider(connection);
-                    var updateResult = await provider.UpdateAsync(appConstants, null);
-                    result.Success(updateResult, DictMain.AppConstantsRecordUpdated);
+                    var provider = new LoggerConfigProvider(connection);
+                    var updateResult = await provider.UpdateAsync(loggerConfig, null);
+
+                    result.Success(updateResult, DictMain.LoggerConfigUpdated);
                 }
             }
             catch (Exception ex)
             {
-                result.Error(-1, DictMain.CannotUpdateAppConstantsRecord, ex.Message);
+                result.Error(-1, DictMain.CannotUpdateLoggerConfig, ex.Message);
             }
 
             return result;

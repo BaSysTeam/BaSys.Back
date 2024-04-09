@@ -132,11 +132,17 @@
   <data name="CannotCreateAppConstantsRecord" xml:space="preserve">
     <value>Cannot create app constants record</value>
   </data>
+  <data name="CannotCreateLoggerConfig" xml:space="preserve">
+    <value>Cannot create logger config record</value>
+  </data>
   <data name="CannotCreateUser" xml:space="preserve">
     <value>Cannot create user</value>
   </data>
   <data name="CannotDeleteAppConstantsRecord" xml:space="preserve">
     <value>Cannot delete app constants record</value>
+  </data>
+  <data name="CannotDeleteLoggerConfig" xml:space="preserve">
+    <value>Cannot delete logger config</value>
   </data>
   <data name="CannotDeleteUser" xml:space="preserve">
     <value>Cannot delete user</value>
@@ -150,6 +156,9 @@
   <data name="CannotFindAppConstantsRecord" xml:space="preserve">
     <value>Cannot find app constants record</value>
   </data>
+  <data name="CannotFindLoggerConfig" xml:space="preserve">
+    <value>Cannot find logger config record</value>
+  </data>
   <data name="CannotFindUser" xml:space="preserve">
     <value>Cannot find user</value>
   </data>
@@ -162,6 +171,9 @@
   <data name="CannotUpdateAppConstantsRecord" xml:space="preserve">
     <value>Cannot update app constants record</value>
   </data>
+  <data name="CannotUpdateLoggerConfig" xml:space="preserve">
+    <value>Cannot update logger config</value>
+  </data>
   <data name="CannotUpdateUser" xml:space="preserve">
     <value>Cannot update user</value>
   </data>
@@ -171,8 +183,23 @@
   <data name="EmptyApplicationTitle" xml:space="preserve">
     <value>The application title should not be empty</value>
   </data>
+  <data name="EmptyConnectionString" xml:space="preserve">
+    <value>The connection string should not be empty</value>
+  </data>
+  <data name="EmptyLoggerType" xml:space="preserve">
+    <value>The logger type should not be empty</value>
+  </data>
   <data name="EmptyUsersList" xml:space="preserve">
     <value>Empty users list</value>
+  </data>
+  <data name="LoggerConfigCreated" xml:space="preserve">
+    <value>Logger config created</value>
+  </data>
+  <data name="LoggerConfigDeleted" xml:space="preserve">
+    <value>Logger config deleted</value>
+  </data>
+  <data name="LoggerConfigUpdated" xml:space="preserve">
+    <value>Logger config updated</value>
   </data>
   <data name="OnlyActiveAdministrator" xml:space="preserve">
     <value>The user is the only active administrator</value>
