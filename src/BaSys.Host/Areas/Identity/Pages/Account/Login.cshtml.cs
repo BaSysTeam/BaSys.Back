@@ -24,21 +24,21 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
         private readonly UserManager<WorkDbUser> _userManager;
         private readonly IDataSourceProvider _dataSourceProvider;
         private readonly IDbInfoRecordsProvider _dbInfoRecordsProvider;
-        private readonly IBaSysLoggerFactory _baSysLoggerFactory;
+        private readonly IBaSysLoggerFactory _loggerFactory;
 
         public LoginModel(ILogger<LoginModel> logger,
             SignInManager<WorkDbUser> signInManager,
             UserManager<WorkDbUser> userManager,
             IDataSourceProvider dataSourceProvider,
             IDbInfoRecordsProvider dbInfoRecordsProvider,
-            IBaSysLoggerFactory baSysLoggerFactory)
+            IBaSysLoggerFactory loggerFactory)
         {
             _logger = logger;
             _signInManager = signInManager;
             _userManager = userManager;
             _dataSourceProvider = dataSourceProvider;
             _dbInfoRecordsProvider = dbInfoRecordsProvider;
-            _baSysLoggerFactory = baSysLoggerFactory;
+            _loggerFactory = loggerFactory;
         }
 
         /// <summary>
@@ -146,7 +146,7 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
                 {
                     var currentUser = await _userManager.Users.FirstAsync(x => x.Email.ToUpper() == Input.Email.ToUpper());
 
-                    using var logger = await _baSysLoggerFactory.GetLogger();
+                    using var logger = await _loggerFactory.GetLogger();
                     logger.Write("foo", EventTypeLevels.Info, new UserLoginEventType());
                     
                     // ToDo: remove?
