@@ -1,8 +1,11 @@
 ﻿using BaSys.Admin.Abstractions;
 using BaSys.Admin.DTO;
 using BaSys.Admin.Services;
+using BaSys.Common.Enums;
 using BaSys.Common.Infrastructure;
 using BaSys.Common.Models;
+using BaSys.Logging.Abstractions.Abstractions;
+using BaSys.Logging.EventTypes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -19,10 +22,13 @@ namespace BaSys.Admin.Controllers
     public class AppConstantsRecordsController : ControllerBase
     {
         private readonly IAppConstantsRecordsService _appConstantsRecordsService;
+        private readonly IBaSysLoggerFactory _loggerFactory;
 
-        public AppConstantsRecordsController(IAppConstantsRecordsService appConstantsRecordsService)
+        public AppConstantsRecordsController(IAppConstantsRecordsService appConstantsRecordsService,
+            IBaSysLoggerFactory loggerFactory)
         {
             _appConstantsRecordsService = appConstantsRecordsService;
+            _loggerFactory = loggerFactory;
         }
 
         /// <summary>
@@ -48,6 +54,9 @@ namespace BaSys.Admin.Controllers
         {
             var dbName = GetDbName();
             var result = await _appConstantsRecordsService.UpdateAppConstantsRecordAsync(appConstantsRecord, dbName);
+            
+            using var logger = await _loggerFactory.GetLogger();
+            logger.Write("foo", EventTypeLevels.Info, new SettingsChangedEventType());
 
             return Ok(result);
         }

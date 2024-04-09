@@ -6,12 +6,12 @@ using Microsoft.AspNetCore.Http;
 
 namespace BaSys.Logging.Services;
 
-public class LoggerFactory : ILoggerFactory
+public class BaSysLoggerFactory : IBaSysLoggerFactory
 {
     private readonly ILoggerConfigService _loggerConfigService;
     private readonly IHttpContextAccessor _httpContextAccessor;
     
-    public LoggerFactory(ILoggerConfigService loggerConfigService, IHttpContextAccessor httpContextAccessor)
+    public BaSysLoggerFactory(ILoggerConfigService loggerConfigService, IHttpContextAccessor httpContextAccessor)
     {
         _loggerConfigService = loggerConfigService;
         _httpContextAccessor = httpContextAccessor;

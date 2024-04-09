@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using BaSys.Common.Enums;
 using BaSys.Host.Identity.Models;
 using BaSys.Host.Infrastructure.Abstractions;
+using BaSys.Logging.Abstractions.Abstractions;
 using BaSys.Logging.EventTypes;
 using BaSys.SuperAdmin.DAL.Abstractions;
 using Microsoft.AspNetCore.Authentication;
@@ -13,7 +14,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using ILoggerFactory = BaSys.Logging.Abstractions.Abstractions.ILoggerFactory;
 
 namespace BaSys.Host.Areas.Identity.Pages.Account
 {
@@ -24,21 +24,21 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
         private readonly UserManager<WorkDbUser> _userManager;
         private readonly IDataSourceProvider _dataSourceProvider;
         private readonly IDbInfoRecordsProvider _dbInfoRecordsProvider;
-        private readonly ILoggerFactory _loggerFactory;
+        private readonly IBaSysLoggerFactory _baSysLoggerFactory;
 
         public LoginModel(ILogger<LoginModel> logger,
             SignInManager<WorkDbUser> signInManager,
             UserManager<WorkDbUser> userManager,
             IDataSourceProvider dataSourceProvider,
             IDbInfoRecordsProvider dbInfoRecordsProvider,
-            ILoggerFactory loggerFactory)
+            IBaSysLoggerFactory baSysLoggerFactory)
         {
             _logger = logger;
             _signInManager = signInManager;
             _userManager = userManager;
             _dataSourceProvider = dataSourceProvider;
             _dbInfoRecordsProvider = dbInfoRecordsProvider;
-            _loggerFactory = loggerFactory;
+            _baSysLoggerFactory = baSysLoggerFactory;
         }
 
         /// <summary>
@@ -146,7 +146,7 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
                 {
                     var currentUser = await _userManager.Users.FirstAsync(x => x.Email.ToUpper() == Input.Email.ToUpper());
 
-                    using var logger = await _loggerFactory.GetLogger();
+                    using var logger = await _baSysLoggerFactory.GetLogger();
                     logger.Write("foo", EventTypeLevels.Info, new UserLoginEventType());
                     
                     // ToDo: remove?
