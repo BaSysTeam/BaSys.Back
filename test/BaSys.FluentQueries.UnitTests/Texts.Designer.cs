@@ -61,13 +61,13 @@ namespace BaSys.FluentQueries.UnitTests {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to CREATE TABLE MetadataGroup (
-        ///Uid UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
-        ///ParentUid UNIQUEIDENTIFIER NULL,
-        ///Title NVARCHAR(100) NOT NULL,
-        ///IconClass NVARCHAR(20) NULL,
-        ///Memo NVARCHAR(300) NULL,
-        ///IsStandard BIT NOT NULL
+        ///   Looks up a localized string similar to CREATE TABLE sys_metadata_groups (
+        ///uid UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
+        ///parentuid UNIQUEIDENTIFIER NULL,
+        ///title NVARCHAR(100) NOT NULL,
+        ///iconclass NVARCHAR(20) NULL,
+        ///memo NVARCHAR(300) NULL,
+        ///isstandard BIT NOT NULL
         ///);.
         /// </summary>
         internal static string CreateTableMetadataGroupMsSql {
@@ -77,13 +77,13 @@ namespace BaSys.FluentQueries.UnitTests {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to CREATE TABLE MetadataGroup (
-        ///Uid UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-        ///ParentUid uuid NULL,
-        ///Title varchar(100) NOT NULL,
-        ///IconClass varchar(20) NULL,
-        ///Memo varchar(300) NULL,
-        ///IsStandard boolean NOT NULL
+        ///   Looks up a localized string similar to CREATE TABLE sys_metadata_groups (
+        ///uid UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        ///parentuid uuid NULL,
+        ///title varchar(100) NOT NULL,
+        ///iconclass varchar(20) NULL,
+        ///memo varchar(300) NULL,
+        ///isstandard boolean NOT NULL
         ///);.
         /// </summary>
         internal static string CreateTableMetadataGroupPgSql {

@@ -1,5 +1,5 @@
 ﻿using BaSys.Admin.Abstractions;
-using BaSys.Common.Models;
+using BaSys.DAL.Models.Admin;
 using BaSys.Host.Abstractions;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
@@ -85,7 +85,7 @@ namespace BaSys.Host.Services
 
         private async Task CheckAppConstantsAsync()
         {
-            var provider = new AppConstantsRecordProvider(_connection);
+            var provider = new AppConstantsProvider(_connection);
             var collection = await provider.GetCollectionAsync(null);
             var appConstantsRecord = collection.FirstOrDefault();
             if (appConstantsRecord != null)
@@ -95,11 +95,11 @@ namespace BaSys.Host.Services
             if (currentApp == null)
                 throw new ApplicationException("InitAppSettings:CurrentApp is not set in the config!");
 
-            appConstantsRecord = new AppConstantsRecord
+            appConstantsRecord = new AppConstants
             {
                 Uid = Guid.NewGuid(),
                 DataBaseUid = Guid.NewGuid(),
-                ApplicationTitle = currentApp.Title
+                ApplicationTitle = string.Empty
             };
 
             await provider.InsertAsync(appConstantsRecord, null);

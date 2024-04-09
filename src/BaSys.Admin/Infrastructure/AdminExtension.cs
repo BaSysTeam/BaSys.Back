@@ -15,7 +15,7 @@ namespace BaSys.Admin.Infrastructure
                 .Add(new AssemblyPart(typeof(AdminExtension).Assembly));
 
             services.AddTransient<IUsersService, UsersService>();
-            services.AddTransient<IAppConstantsRecordsService, AppConstantsRecordsService>();
+            services.AddTransient<IAppConstantsService, AppConstantsService>();
 
             return services;
         }

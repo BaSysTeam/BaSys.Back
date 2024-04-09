@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BaSys.FluentQueries.Abstractions;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -8,14 +9,31 @@ namespace BaSys.FluentQueries.Models
 {
     public sealed class UpdateModel
     {
-        private readonly List<QueryParameter> _parameters;
+        private readonly List<QueryParameter> _parameters = new List<QueryParameter>();
         private readonly Dictionary<string, string> _setExpressions = new Dictionary<string, string>();
 
         public string TableName { get; set; } = string.Empty;
         public string WhereExpression { get; set; } = string.Empty;
 
         public IReadOnlyCollection<QueryParameter> Parameters => _parameters;
-        public IDictionary<string, string> SetExpressions => _setExpressions;   
+        public IDictionary<string, string> SetExpressions => _setExpressions;
+
+        public UpdateModel()
+        {
+            
+        }
+
+        public UpdateModel(IDataModelConfiguration config)
+        {
+            TableName = config.TableName;
+            foreach(var configColumn in config.Columns)
+            {
+                if (configColumn.PrimaryKey)
+                    continue;
+
+                _setExpressions.Add(configColumn.Name, string.Empty);
+            }
+        }
 
         public void WhereAnd(string whereExpression)
         {
