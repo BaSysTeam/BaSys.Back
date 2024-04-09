@@ -24,6 +24,11 @@ namespace BaSys.FluentQueries.QueryBuilders
             _model = model;
         }
 
+        public CreateTableBuilder(IDataModelConfiguration config)
+        {
+            _model = new CreateTableModel(config);  
+        }
+
         public CreateTableBuilder Table(string tableName)
         {
             _model.TableName = tableName;
@@ -119,6 +124,11 @@ namespace BaSys.FluentQueries.QueryBuilders
         public static CreateTableBuilder Make()
         {
             return new CreateTableBuilder();
+        }
+
+        public static CreateTableBuilder Make(IDataModelConfiguration config)
+        {
+            return new CreateTableBuilder(config);
         }
 
         private void Validate()

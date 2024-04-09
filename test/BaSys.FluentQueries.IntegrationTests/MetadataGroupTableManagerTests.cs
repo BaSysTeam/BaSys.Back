@@ -77,6 +77,7 @@ namespace BaSys.FluentQueries.IntegrationTests
             }
 
             Assert.IsTrue(tableExists); 
+
         }
     }
 }

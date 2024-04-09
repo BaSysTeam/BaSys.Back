@@ -18,44 +18,43 @@ namespace BaSys.Host.DAL.Abstractions
     {
         protected readonly IDbConnection _dbConnection;
         protected SqlDialectKinds _sqlDialect;
-        protected string _tableName;
-        protected IQuery? _lastQuery;
+        protected IDataModelConfiguration _config;
 
-        protected SystemObjectProviderBase(IDbConnection dbConnection, string tableName)
+        protected IQuery? _query;
+
+        public IQuery? LastQuery => _query;
+
+
+        protected SystemObjectProviderBase(IDbConnection dbConnection, IDataModelConfiguration config)
         {
             _dbConnection = dbConnection;
             _sqlDialect = GetDialectKind(dbConnection);
-            _tableName = tableName;
+            _config = config;
 
-            if (_tableName.Substring(0, 4) != "sys_")
+            if (_config.TableName.Substring(0, 4) != "sys_")
                 throw new ArgumentException($"Table name of system object have to start with prefix sys_");
+            _config = config;
         }
-
-        public IQuery? LastQuery => _lastQuery;
 
         public virtual async Task<IEnumerable<T>> GetCollectionAsync(IDbTransaction transaction)
         {
-            var query = SelectBuilder.Make().From(_tableName).Select("*").Query(_sqlDialect);
+            _query = SelectBuilder.Make().From(_config.TableName).Select("*").Query(_sqlDialect);
 
-            _lastQuery = query;
-
-            var result = await _dbConnection.QueryAsync<T>(query.Text, null, transaction);
+            var result = await _dbConnection.QueryAsync<T>(_query.Text, null, transaction);
 
             return result;
         }
 
         public virtual async Task<T> GetItemAsync(Guid uid, IDbTransaction transaction)
         {
-            var query = SelectBuilder.Make()
-              .From(_tableName)
+            _query = SelectBuilder.Make()
+              .From(_config.TableName)
               .Select("*")
               .WhereAnd("uid = @uid")
               .Parameter("uid", uid)
               .Query(_sqlDialect);
 
-            _lastQuery = query;
-
-            var result = await _dbConnection.QueryFirstOrDefaultAsync<T>(query.Text, query.DynamicParameters, transaction);
+            var result = await _dbConnection.QueryFirstOrDefaultAsync<T>(_query.Text, _query.DynamicParameters, transaction);
 
             return result;
         }
@@ -66,14 +65,13 @@ namespace BaSys.Host.DAL.Abstractions
 
         public virtual async Task<int> DeleteAsync(Guid uid, IDbTransaction transaction)
         {
-            var query = DeleteBuilder.Make()
-             .Table(_tableName)
-             .WhereAnd("uid = @uid")
-             .Parameter("uid", uid)
-            .Query(_sqlDialect);
-            _lastQuery = query;
+            _query = DeleteBuilder.Make()
+            .Table(_config.TableName)
+            .WhereAnd("uid = @uid")
+            .Parameter("uid", uid)
+           .Query(_sqlDialect);
 
-            var result = await _dbConnection.ExecuteAsync(query.Text, query.DynamicParameters, transaction);
+            var result = await _dbConnection.ExecuteAsync(_query.Text, _query.DynamicParameters, transaction);
 
             return result;
         }

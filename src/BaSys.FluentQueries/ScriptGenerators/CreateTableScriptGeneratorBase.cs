@@ -48,6 +48,12 @@ namespace BaSys.FluentQueries.ScriptGenerators
 
         public virtual IQuery Build()
         {
+            _model.TableName = _model.TableName.ToLower();
+            foreach(var column in _model.Columns)
+            {
+                column.Name = column.Name.ToLower();
+            }
+
             var query = new Query();
 
             var sb = new StringBuilder();

@@ -23,6 +23,11 @@ namespace BaSys.FluentQueries.QueryBuilders
             _model = model;
         }
 
+        public UpdateBuilder(IDataModelConfiguration config)
+        {
+            _model = new UpdateModel(config);
+        }
+
         public UpdateBuilder Table(string tableName)
         {
             _model.TableName = tableName;
@@ -95,6 +100,11 @@ namespace BaSys.FluentQueries.QueryBuilders
         public static UpdateBuilder Make() { 
 
             return new UpdateBuilder();
+        }
+
+        public static UpdateBuilder Make(IDataModelConfiguration config)
+        {
+            return new UpdateBuilder(config);
         }
 
     }

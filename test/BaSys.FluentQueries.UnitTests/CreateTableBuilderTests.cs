@@ -1,5 +1,6 @@
 ﻿using BaSys.FluentQueries.Enums;
 using BaSys.FluentQueries.QueryBuilders;
+using BaSys.Host.DAL.ModelConfigurations;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -13,16 +14,39 @@ namespace BaSys.FluentQueries.UnitTests
     public class CreateTableBuilderTests
     {
         [Test]
-        public void CreateTable_MetadataGroup_Query()
+        public void CreateTable_MetadataGroupByBuilder_Query()
         {
             var builder = CreateTableBuilder.Make()
-                .Table("MetadataGroup")
+                .Table("sys_metadata_groups")
                 .PrimaryKey("Uid", DbType.Guid)
                 .Column("ParentUid", DbType.Guid, false)
                 .StringColumn("Title", 100, true)
                 .StringColumn("IconClass", 20, false)
                 .StringColumn("Memo", 300, false)
                 .Column("IsStandard", DbType.Boolean, true);
+
+            var msSqlQuery = builder.Query(SqlDialectKinds.MsSql);
+            var pgSqlQuery = builder.Query(SqlDialectKinds.PgSql);
+
+            Console.WriteLine("MS SQL:");
+            Console.WriteLine(msSqlQuery.Text);
+            Console.WriteLine("========================");
+
+            Console.WriteLine("PG SQL:");
+            Console.WriteLine(pgSqlQuery.Text);
+
+            Assert.That(msSqlQuery.Text, Is.EqualTo(Texts.CreateTableMetadataGroupMsSql));
+            Assert.That(pgSqlQuery.Text, Is.EqualTo(Texts.CreateTableMetadataGroupPgSql));
+
+        }
+
+        [Test]
+        public void CreateTable_MetadataGroupByConfig_Query()
+        {
+
+            var config = new MetadataGroupConfiguration();
+
+            var builder = CreateTableBuilder.Make(config);
 
             var msSqlQuery = builder.Query(SqlDialectKinds.MsSql);
             var pgSqlQuery = builder.Query(SqlDialectKinds.PgSql);

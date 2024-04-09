@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BaSys.FluentQueries.Abstractions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,9 +8,9 @@ namespace BaSys.FluentQueries.Models
 {
     public sealed class InsertModel
     {
-        private readonly List<string> _columns;
-        private readonly List<List<string>> _values;
-        private readonly List<QueryParameter> _parameters;
+        private readonly List<string> _columns = new List<string>();
+        private readonly List<List<string>> _values = new List<List<string>>();
+        private readonly List<QueryParameter> _parameters = new List<QueryParameter>();
 
         public string TableName { get; set; } = string.Empty;
         public bool FillValuesByColumnNames { get; set; }
@@ -19,9 +20,19 @@ namespace BaSys.FluentQueries.Models
 
         public InsertModel()
         {
-            _columns = new List<string>();
-            _values = new List<List<string>>();
-            _parameters = new List<QueryParameter>();
+           
+        }
+
+        public InsertModel(IDataModelConfiguration config)
+        {
+            TableName = config.TableName;
+            foreach(var configColumn in config.Columns)
+            {
+                if (configColumn.PrimaryKey)
+                    continue;
+
+                _columns.Add(configColumn.Name);
+            }
         }
 
         public void AddColumn(string columnName)
