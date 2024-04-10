@@ -1,6 +1,8 @@
 using System.Data;
+using System.Reflection;
 using System.Text;
 using BaSys.Admin.Infrastructure;
+using BaSys.Common;
 using BaSys.Common.Enums;
 using BaSys.Common.Infrastructure;
 using BaSys.Constructor.Infrastructure;
@@ -65,6 +67,13 @@ namespace BaSys.Host
                     default:
                         throw new NotImplementedException($"Not implemented DbContext for type {dbKind.ToString()}");
                 }
+            });
+
+            // Add host version service
+            builder.Services.AddScoped<IHostVersionService>(provider =>
+            {
+                var version = Assembly.GetAssembly(typeof(Program))?.GetName()?.Version?.ToString() ?? string.Empty;
+                return new HostVersionService(version);
             });
 
             // Add sa module

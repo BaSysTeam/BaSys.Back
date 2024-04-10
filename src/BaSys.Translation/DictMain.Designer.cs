@@ -106,6 +106,15 @@ namespace BaSys.Translation {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot create logger config record.
+        /// </summary>
+        public static string CannotCreateLoggerConfig {
+            get {
+                return ResourceManager.GetString("CannotCreateLoggerConfig", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cannot create user.
         /// </summary>
         public static string CannotCreateUser {
@@ -120,6 +129,15 @@ namespace BaSys.Translation {
         public static string CannotDeleteAppConstantsRecord {
             get {
                 return ResourceManager.GetString("CannotDeleteAppConstantsRecord", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot delete logger config.
+        /// </summary>
+        public static string CannotDeleteLoggerConfig {
+            get {
+                return ResourceManager.GetString("CannotDeleteLoggerConfig", resourceCulture);
             }
         }
         
@@ -160,6 +178,15 @@ namespace BaSys.Translation {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot find logger config record.
+        /// </summary>
+        public static string CannotFindLoggerConfig {
+            get {
+                return ResourceManager.GetString("CannotFindLoggerConfig", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cannot find user.
         /// </summary>
         public static string CannotFindUser {
@@ -196,6 +223,15 @@ namespace BaSys.Translation {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot update logger config.
+        /// </summary>
+        public static string CannotUpdateLoggerConfig {
+            get {
+                return ResourceManager.GetString("CannotUpdateLoggerConfig", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cannot update user.
         /// </summary>
         public static string CannotUpdateUser {
@@ -223,11 +259,56 @@ namespace BaSys.Translation {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The connection string should not be empty.
+        /// </summary>
+        public static string EmptyConnectionString {
+            get {
+                return ResourceManager.GetString("EmptyConnectionString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The logger type should not be empty.
+        /// </summary>
+        public static string EmptyLoggerType {
+            get {
+                return ResourceManager.GetString("EmptyLoggerType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Empty users list.
         /// </summary>
         public static string EmptyUsersList {
             get {
                 return ResourceManager.GetString("EmptyUsersList", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Logger config created.
+        /// </summary>
+        public static string LoggerConfigCreated {
+            get {
+                return ResourceManager.GetString("LoggerConfigCreated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Logger config deleted.
+        /// </summary>
+        public static string LoggerConfigDeleted {
+            get {
+                return ResourceManager.GetString("LoggerConfigDeleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Logger config updated.
+        /// </summary>
+        public static string LoggerConfigUpdated {
+            get {
+                return ResourceManager.GetString("LoggerConfigUpdated", resourceCulture);
             }
         }
         

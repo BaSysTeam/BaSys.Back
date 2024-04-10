@@ -1,5 +1,6 @@
 ﻿using BaSys.Admin.Abstractions;
 using BaSys.Admin.DTO;
+using BaSys.Common;
 using BaSys.Common.Infrastructure;
 using BaSys.DAL.Models.Admin;
 using BaSys.DTO.Admin;
@@ -15,6 +16,7 @@ using Elfie.Serialization;
 using Humanizer;
 using Microsoft.AspNetCore.Identity;
 using System.Data;
+using System.Reflection;
 using System.Xml.Linq;
 
 namespace BaSys.Admin.Services
@@ -23,12 +25,15 @@ namespace BaSys.Admin.Services
     {
         private readonly IDbInfoRecordsProvider _dbInfoRecordsProvider;
         private readonly IBaSysConnectionFactory _baSysConnectionFactory;
+        private readonly IHostVersionService _hostVersionService;
         public AppConstantsService(
             IDbInfoRecordsProvider dbInfoRecordsProvider, 
-            IBaSysConnectionFactory baSysConnectionFactory)
+            IBaSysConnectionFactory baSysConnectionFactory,
+            IHostVersionService hostVersionService)
         {
             _dbInfoRecordsProvider = dbInfoRecordsProvider;
             _baSysConnectionFactory = baSysConnectionFactory;
+            _hostVersionService = hostVersionService;
         }
 
         public async Task<ResultWrapper<int>> CreateAppConstantsAsync(AppConstantsDto dto, string dbName)
@@ -40,20 +45,8 @@ namespace BaSys.Admin.Services
             {
                 using (IDbConnection connection = _baSysConnectionFactory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
                 {
-                    var appConstants = new AppConstants
-                    {
-                        Uid = Guid.NewGuid()
-                    };
-
-                    if (dto != null)
-                    {
-                        if (Guid.TryParse(dto.Uid, out var uid))
-                            appConstants.Uid = uid;
-                        if (Guid.TryParse(dto.DataBaseUid, out var dataBaseUid))
-                            appConstants.DataBaseUid = dataBaseUid;
-
-                        appConstants.ApplicationTitle = dto.ApplicationTitle;
-                    }
+                    var appConstants = dto.ToModel();
+                    appConstants.Uid = Guid.NewGuid();
 
                     if (appConstants.DataBaseUid == Guid.Empty)
                     {
@@ -129,14 +122,8 @@ namespace BaSys.Admin.Services
                         return result;
                     }
 
-                    var dto = new AppConstantsDto
-                    {
-                        Uid = appConstants.Uid.ToString(),
-                        DataBaseUid = appConstants.DataBaseUid.ToString(),
-                        ApplicationTitle = appConstants.ApplicationTitle
-                    };
-
-                    dto.AppVersion = GetType()?.Assembly?.GetName()?.Version?.ToString() ?? string.Empty;
+                    var dto = new AppConstantsDto(appConstants);
+                    dto.AppVersion = _hostVersionService.GetVersion();
 
                     result.Success(dto);
                 }
@@ -158,17 +145,7 @@ namespace BaSys.Admin.Services
             {
                 using (IDbConnection connection = _baSysConnectionFactory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
                 {
-                    var appConstants = new AppConstants();
-
-                    if (dto != null)
-                    {
-                        if (Guid.TryParse(dto.Uid, out var uid))
-                            appConstants.Uid = uid;
-                        if (Guid.TryParse(dto.DataBaseUid, out var dataBaseUid))
-                            appConstants.DataBaseUid = dataBaseUid;
-
-                        appConstants.ApplicationTitle = dto.ApplicationTitle;
-                    }
+                    var appConstants = dto.ToModel();
 
                     if (appConstants.DataBaseUid == Guid.Empty)
                     {

@@ -16,6 +16,7 @@ namespace BaSys.Admin.Infrastructure
 
             services.AddTransient<IUsersService, UsersService>();
             services.AddTransient<IAppConstantsService, AppConstantsService>();
+            services.AddTransient<ILoggerConfigService, LoggerConfigService>();
 
             return services;
         }

@@ -13,8 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace BaSys.Admin.Controllers
 {
     /// <summary>
-    /// This controller allow to manipulate with app constants records.
-    /// Implemented CRUD operations.
+    /// This controller allow to manipulate with app constants record.
     /// </summary>
     [Route("api/admin/v1/[controller]")]
     [ApiController]
@@ -32,7 +31,7 @@ namespace BaSys.Admin.Controllers
         }
 
         /// <summary>
-        /// Retrieve app constants item.
+        /// Retrieve app constants record.
         /// </summary>
         /// <returns></returns>
         [HttpGet]
@@ -45,7 +44,7 @@ namespace BaSys.Admin.Controllers
         }
 
         /// <summary>
-        /// Update app constants item.
+        /// Update app constants record.
         /// </summary>
         /// <param name="appConstantsRecord"></param>
         /// <returns></returns>
