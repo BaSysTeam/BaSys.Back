@@ -44,12 +44,12 @@ public class LoggerConfigService : ILoggerConfigService
         var provider = new LoggerConfigProvider(connection);
         var config = (await provider.GetCollectionAsync(null))?.FirstOrDefault();
         
-        if (config == null || config.LoggerType == null)
+        if (config == null)
             throw new ArgumentException();
         
         return new LoggerConfig
         {
-            LoggerType = config.LoggerType.Value,
+            LoggerType = config.LoggerType,
             MinimumLogLevel = config.MinimumLogLevel,
             ConnectionString = config.ConnectionString,
             IsEnabled = config.IsEnabled,
