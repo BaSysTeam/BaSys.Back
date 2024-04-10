@@ -1,5 +1,6 @@
 ﻿using BaSys.Admin.Abstractions;
 using BaSys.Admin.DTO;
+using BaSys.Common;
 using BaSys.Common.Infrastructure;
 using BaSys.DAL.Models.Admin;
 using BaSys.DTO.Admin;
@@ -15,6 +16,7 @@ using Elfie.Serialization;
 using Humanizer;
 using Microsoft.AspNetCore.Identity;
 using System.Data;
+using System.Reflection;
 using System.Xml.Linq;
 
 namespace BaSys.Admin.Services
@@ -23,12 +25,15 @@ namespace BaSys.Admin.Services
     {
         private readonly IDbInfoRecordsProvider _dbInfoRecordsProvider;
         private readonly IBaSysConnectionFactory _baSysConnectionFactory;
+        private readonly IHostVersionService _hostVersionService;
         public AppConstantsService(
             IDbInfoRecordsProvider dbInfoRecordsProvider, 
-            IBaSysConnectionFactory baSysConnectionFactory)
+            IBaSysConnectionFactory baSysConnectionFactory,
+            IHostVersionService hostVersionService)
         {
             _dbInfoRecordsProvider = dbInfoRecordsProvider;
             _baSysConnectionFactory = baSysConnectionFactory;
+            _hostVersionService = hostVersionService;
         }
 
         public async Task<ResultWrapper<int>> CreateAppConstantsAsync(AppConstantsDto dto, string dbName)
@@ -118,7 +123,7 @@ namespace BaSys.Admin.Services
                     }
 
                     var dto = new AppConstantsDto(appConstants);
-                    dto.AppVersion = GetType()?.Assembly?.GetName()?.Version?.ToString() ?? string.Empty;
+                    dto.AppVersion = _hostVersionService.GetVersion();
 
                     result.Success(dto);
                 }
