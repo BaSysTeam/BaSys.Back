@@ -162,6 +162,7 @@ namespace BaSys.Host
             builder.Services.AddTransient<IMainDbCheckService, MainDbCheckService>();
             builder.Services.AddTransient<IWorkDbService, WorkDbService>();
             builder.Services.AddTransient<IHttpRequestContextService, HttpRequestContextService>();
+            builder.Services.AddTransient<IMigrationService, MigrationService>();
 
             // Factory to create DB connection by connection string and db kind.
             builder.Services.AddSingleton<IBaSysConnectionFactory, BaSysConnectionFactory>();

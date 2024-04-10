@@ -2,11 +2,11 @@
 
 namespace BaSys.Host.DAL.Migrations;
 
-public class TestMigration : Migration
+public class Migration1 : Migration
 {
     public override Guid Uid => new("28f69c13-baa2-4b1c-98fa-4752275deca5");
-    public override DateTime MigrationUtcIdentifier => new (2024, 4, 10, 12, 30, 0);
-    
+    public override DateTime MigrationUtcIdentifier => new (2024, 4, 1, 12, 30, 0);
+    public override string Name => "Migration1";
     public override async Task Up()
     {
         await Task.Delay(3000);
