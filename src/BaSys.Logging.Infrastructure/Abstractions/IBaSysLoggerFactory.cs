@@ -1,6 +1,6 @@
 ﻿namespace BaSys.Logging.Abstractions.Abstractions;
 
-public interface ILoggerFactory
+public interface IBaSysLoggerFactory
 {
     Task<LoggerService> GetLogger();
 }

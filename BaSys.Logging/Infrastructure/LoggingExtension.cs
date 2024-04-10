@@ -9,7 +9,7 @@ public static class SuperAdminExtension
 {
     public static IServiceCollection AddLog(this IServiceCollection services)
     {
-        services.AddTransient<ILoggerFactory, LoggerFactory>();
+        services.AddTransient<IBaSysLoggerFactory, BaSysLoggerFactory>();
         services.AddTransient<ILoggerConfigService, LoggerConfigService>();
         
         return services;

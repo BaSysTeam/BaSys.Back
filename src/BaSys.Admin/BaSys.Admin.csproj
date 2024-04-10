@@ -34,8 +34,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\BaSys.Logging\BaSys.Logging.csproj" />
     <ProjectReference Include="..\BaSys.DTO\BaSys.DTO.csproj" />
     <ProjectReference Include="..\BaSys.Host.DAL\BaSys.Host.DAL.csproj" />
+    <ProjectReference Include="..\BaSys.Logging.Infrastructure\BaSys.Logging.Infrastructure.csproj" />
     <ProjectReference Include="..\BaSys.Shared\BaSys.Shared.csproj" />
     <ProjectReference Include="..\BaSys.Translation\BaSys.Translation.csproj" />
   </ItemGroup>
