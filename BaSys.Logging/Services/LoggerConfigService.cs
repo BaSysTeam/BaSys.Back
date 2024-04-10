@@ -1,16 +1,65 @@
 ﻿using BaSys.Common.Enums;
+using BaSys.Host.DAL.Abstractions;
+using BaSys.Host.DAL.DataProviders;
 using BaSys.Logging.Abstractions;
 using BaSys.Logging.Abstractions.Abstractions;
+using BaSys.SuperAdmin.DAL.Abstractions;
+using Microsoft.AspNetCore.Http;
 
 namespace BaSys.Logging.Services;
 
 public class LoggerConfigService : ILoggerConfigService
 {
+    private readonly IBaSysConnectionFactory _connectionFactory;
+    private readonly IDbInfoRecordsProvider _dbInfoRecordsProvider;
+    private readonly IHttpContextAccessor _httpContextAccessor;
+
+    public LoggerConfigService(IBaSysConnectionFactory connectionFactory,
+        IDbInfoRecordsProvider dbInfoRecordsProvider,
+        IHttpContextAccessor httpContextAccessor)
+    {
+        _connectionFactory = connectionFactory;
+        _dbInfoRecordsProvider = dbInfoRecordsProvider;
+        _httpContextAccessor = httpContextAccessor;
+    }
+
     public async Task<LoggerConfig> GetLoggerConfig()
     {
-        var dbUid = new Guid("55dbda0e-4da7-4725-8520-109cb3251f57");
-        var tableName = GetTableName(dbUid);
+        var dbNameClaim = _httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(x => x.Type == "DbName");
+        if (dbNameClaim == null)
+            throw new ArgumentException();
         
+        var dbInfoRecord = _dbInfoRecordsProvider.GetDbInfoRecordByDbName(dbNameClaim.Value);
+        if (dbInfoRecord == null)
+            throw new ArgumentException();
+        
+        using var connection = _connectionFactory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind);
+        // Get db uid
+        var appConstantsProvider = new AppConstantsProvider(connection);
+        var appConstants = (await appConstantsProvider.GetCollectionAsync(null))?.FirstOrDefault();
+        if (appConstants == null)
+            throw new ArgumentException();
+        
+        // Get logger connections
+        var provider = new LoggerConfigProvider(connection);
+        var config = (await provider.GetCollectionAsync(null))?.FirstOrDefault();
+        
+        if (config == null || config.LoggerType == null)
+            throw new ArgumentException();
+        
+        return new LoggerConfig
+        {
+            LoggerType = config.LoggerType.Value,
+            MinimumLogLevel = config.MinimumLogLevel,
+            ConnectionString = config.ConnectionString,
+            IsEnabled = config.IsEnabled,
+            AutoClearInterval = config.AutoClearInterval,
+                
+            DbUid = appConstants.DataBaseUid,
+            TableName = GetTableName(appConstants.DataBaseUid)
+        };
+
+        #region hardcode for test
         // // Mongo
         // return new LoggerConfig
         // {
@@ -22,19 +71,20 @@ public class LoggerConfigService : ILoggerConfigService
         //     IsEnabled = true,
         //     AutoClearInterval = AutoClearInterval.Month
         // };
-        
-        // MsSql
-        return new LoggerConfig
-        {
-            LoggerType = LoggerTypes.MsSql,
-            MinimumLogLevel = EventTypeLevels.Info,
-            ConnectionString = "Data Source=OSPC\\SQLEXPRESS19;Initial Catalog=__Serilog;Persist Security Info=True;User ID=sa;Password=QAZwsx!@#;TrustServerCertificate=True;",
-            DbUid = dbUid,
-            TableName = tableName,
-            IsEnabled = true,
-            AutoClearInterval = AutoClearInterval.Month
-        };
-        
+
+        // // MsSql
+        // return new LoggerConfig
+        // {
+        //     LoggerType = LoggerTypes.MsSql,
+        //     MinimumLogLevel = EventTypeLevels.Info,
+        //     ConnectionString =
+        //         "Data Source=OSPC\\SQLEXPRESS19;Initial Catalog=__Serilog;Persist Security Info=True;User ID=sa;Password=QAZwsx!@#;TrustServerCertificate=True;",
+        //     DbUid = dbUid,
+        //     TableName = tableName,
+        //     IsEnabled = true,
+        //     AutoClearInterval = AutoClearInterval.Month
+        // };
+
         // // PgSql
         // return new LoggerConfig
         // {
@@ -46,6 +96,7 @@ public class LoggerConfigService : ILoggerConfigService
         //     IsEnabled = true,
         //     AutoClearInterval = AutoClearInterval.Month
         // };
+        #endregion
     }
 
     private string GetTableName(Guid dbUid) => $"logs-{dbUid}";
