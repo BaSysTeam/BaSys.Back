@@ -128,16 +128,20 @@ namespace BaSys.Admin.Services
                 using (IDbConnection connection = _baSysConnectionFactory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
                 {
                     var loggerConfig = dto.ToModel();
+                    loggerConfig.ConnectionString = loggerConfig.ConnectionString?.Replace("\n", "");
 
-                    if (string.IsNullOrEmpty(loggerConfig.ConnectionString))
+                    if (loggerConfig.IsEnabled)
                     {
-                        result.Error(-1, DictMain.EmptyConnectionString);
-                        return result;
-                    }
-                    if (loggerConfig.LoggerType == null)
-                    {
-                        result.Error(-1, DictMain.EmptyLoggerType);
-                        return result;
+                        if (string.IsNullOrEmpty(loggerConfig.ConnectionString))
+                        {
+                            result.Error(-1, DictMain.EmptyConnectionString);
+                            return result;
+                        }
+                        if (loggerConfig.LoggerType == null)
+                        {
+                            result.Error(-1, DictMain.EmptyLoggerType);
+                            return result;
+                        }
                     }
 
                     var provider = new LoggerConfigProvider(connection);
