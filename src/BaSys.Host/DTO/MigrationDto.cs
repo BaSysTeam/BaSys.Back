@@ -8,12 +8,12 @@ public class MigrationDto
     {
     }
 
-    public MigrationDto(Migration migration)
+    public MigrationDto(MigrationBase migrationBase)
     {
-        Uid = migration.Uid;
-        MigrationUtcIdentifier = migration.MigrationUtcIdentifier;
-        Name = migration.Name ?? string.Empty;
-        Description = migration.Description;
+        Uid = migrationBase.Uid;
+        MigrationUtcIdentifier = migrationBase.MigrationUtcIdentifier;
+        Name = migrationBase.Name ?? string.Empty;
+        Description = migrationBase.Description;
     }
     
     public Guid Uid { get; set; }

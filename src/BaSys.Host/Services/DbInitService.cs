@@ -42,7 +42,8 @@ namespace BaSys.Host.Services
             {
                 new MetadataGroupManager(_connection),
                 new AppConstantsManager(_connection),
-                new LoggerConfigManager(_connection)
+                new LoggerConfigManager(_connection),
+                new MigrationManager(_connection)
             };
 
             foreach (var tableManager in tableManagers)

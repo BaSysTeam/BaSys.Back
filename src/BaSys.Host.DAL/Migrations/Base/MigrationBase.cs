@@ -1,6 +1,6 @@
 ﻿namespace BaSys.Host.DAL.Migrations.Base;
 
-public abstract class Migration
+public abstract class MigrationBase
 {
     public abstract Guid Uid { get; }
     public abstract DateTime MigrationUtcIdentifier { get; }

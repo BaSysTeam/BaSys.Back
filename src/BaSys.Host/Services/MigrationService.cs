@@ -1,17 +1,30 @@
 ﻿using System.Text;
 using BaSys.Host.Abstractions;
+using BaSys.Host.DAL.Abstractions;
+using BaSys.Host.DAL.DataProviders;
 using BaSys.Host.DAL.Migrations.Base;
+using BaSys.SuperAdmin.DAL.Abstractions;
 
 namespace BaSys.Host.Services;
 
 public class MigrationService : IMigrationService
 {
-    public List<Migration>? GetMigrations()
+    private readonly IDbInfoRecordsProvider _dbInfoRecordsProvider;
+    private readonly IBaSysConnectionFactory _baSysConnectionFactory;
+    
+    public MigrationService(IDbInfoRecordsProvider dbInfoRecordsProvider,
+        IBaSysConnectionFactory baSysConnectionFactory)
     {
-        var migrations = typeof(Migration)
+        _dbInfoRecordsProvider = dbInfoRecordsProvider;
+        _baSysConnectionFactory = baSysConnectionFactory;
+    }
+    
+    public List<MigrationBase>? GetMigrations()
+    {
+        var migrations = typeof(MigrationBase)
             .Assembly.GetTypes()
-            .Where(t => t.IsSubclassOf(typeof(Migration)) && !t.IsAbstract)
-            .Select(t => (Migration)Activator.CreateInstance(t)!)
+            .Where(t => t.IsSubclassOf(typeof(MigrationBase)) && !t.IsAbstract)
+            .Select(t => (MigrationBase)Activator.CreateInstance(t)!)
             .OrderBy(x => x.MigrationUtcIdentifier)
             .ToList();
 
@@ -20,7 +33,28 @@ public class MigrationService : IMigrationService
         return migrations;
     }
 
-    private void CheckMigrations(List<Migration> migrations)
+    public async Task<List<MigrationBase>?> GetAppliedMigrations(string dbName)
+    {
+        var allMigrations = GetMigrations();
+        
+        var dbInfoRecord = _dbInfoRecordsProvider.GetDbInfoRecordByDbName(dbName);
+        using var connection = _baSysConnectionFactory.CreateConnection(dbInfoRecord!.ConnectionString, dbInfoRecord.DbKind);
+        var provider = new MigrationsProvider(connection);
+        var appliedMigrationUids = (await provider.GetCollectionAsync(null))
+            ?.Select(x => x.MigrationUid)
+            .Distinct()
+            .ToList();
+
+        if (appliedMigrationUids == null)
+            return new List<MigrationBase>();
+
+        var appliedMigrations = allMigrations?.Where(x => appliedMigrationUids.Contains(x.Uid)).ToList();
+        return appliedMigrations;
+    }
+
+    
+    #region private methods
+    private void CheckMigrations(List<MigrationBase> migrations)
     {
         // Same uids check
         var uidGroups = migrations.GroupBy(x => x.Uid);
@@ -57,4 +91,5 @@ public class MigrationService : IMigrationService
         if (emptyNameMigration != null)
             throw new ArgumentException($"Migration with uid: {emptyNameMigration.Uid} has no name!");
     }
+    #endregion
 }

@@ -24,11 +24,18 @@ public class MigrationController : ControllerBase
     {
         var result = new ResultWrapper<IEnumerable<MigrationDto>>();
 
-        var migrations = _migrationService.GetMigrations();
-        if (migrations != null)
-            result.Success(migrations.Select(x => new MigrationDto(x)));
-        else
-            result.Error(-1, "Error migration search");
+        try
+        {
+            var migrations = _migrationService.GetMigrations();
+            if (migrations != null)
+                result.Success(migrations.Select(x => new MigrationDto(x)));
+            else
+                result.Error(-1, "Error migration search");
+        }
+        catch (Exception e)
+        {
+            result.Error(-1, $"Error: {e}");
+        }
         
         return Ok(result);
     }
@@ -38,9 +45,24 @@ public class MigrationController : ControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpGet("GetAppliedMigrations")]
-    public IActionResult GetAppliedMigrations([FromBody]string dbName)
+    public async Task<IActionResult> GetAppliedMigrations([FromBody]string dbName)
     {
-        throw new NotImplementedException();
+        var result = new ResultWrapper<IEnumerable<MigrationDto>>();
+
+        try
+        {
+            var migrations = await _migrationService.GetAppliedMigrations(dbName);
+            if (migrations != null)
+                result.Success(migrations.Select(x => new MigrationDto(x)));
+            else
+                result.Error(-1, "Error migration search");
+        }
+        catch (Exception e)
+        {
+            result.Error(-1, $"Error: {e}");
+        }
+        
+        return Ok(result);
     }
     
     /// <summary>
