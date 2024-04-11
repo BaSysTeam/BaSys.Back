@@ -27,34 +27,33 @@ public class LoggerConfigService : ILoggerConfigService
     {
         var dbNameClaim = _httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(x => x.Type == "DbName");
         if (dbNameClaim == null)
-            throw new ArgumentException();
+            return new LoggerConfig();
         
         var dbInfoRecord = _dbInfoRecordsProvider.GetDbInfoRecordByDbName(dbNameClaim.Value);
         if (dbInfoRecord == null)
-            throw new ArgumentException();
+            return new LoggerConfig();
         
         using var connection = _connectionFactory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind);
         // Get db uid
         var appConstantsProvider = new AppConstantsProvider(connection);
         var appConstants = (await appConstantsProvider.GetCollectionAsync(null))?.FirstOrDefault();
         if (appConstants == null)
-            throw new ArgumentException();
+            return new LoggerConfig();
         
         // Get logger connections
         var provider = new LoggerConfigProvider(connection);
         var config = (await provider.GetCollectionAsync(null))?.FirstOrDefault();
         
-        if (config == null || config.LoggerType == null)
-            throw new ArgumentException();
+        if (config == null)
+            return new LoggerConfig();
         
         return new LoggerConfig
         {
-            LoggerType = config.LoggerType.Value,
+            LoggerType = config.LoggerType,
             MinimumLogLevel = config.MinimumLogLevel,
             ConnectionString = config.ConnectionString,
             IsEnabled = config.IsEnabled,
             AutoClearInterval = config.AutoClearInterval,
-                
             DbUid = appConstants.DataBaseUid,
             TableName = GetTableName(appConstants.DataBaseUid)
         };

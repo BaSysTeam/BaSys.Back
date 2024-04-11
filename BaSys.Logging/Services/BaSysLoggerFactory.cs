@@ -34,7 +34,7 @@ public class BaSysLoggerFactory : IBaSysLoggerFactory
             case LoggerTypes.MongoDb:
                 return new MongoLoggerService(loggerConfig, userUid, userName, ipAddress);
             default:
-                throw new ApplicationException();
+                return new StubLogger(loggerConfig, userUid, userName, ipAddress);
         }
     }
 }
