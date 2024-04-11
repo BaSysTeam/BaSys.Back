@@ -11,12 +11,15 @@ public class MigrationService : IMigrationService
 {
     private readonly IDbInfoRecordsProvider _dbInfoRecordsProvider;
     private readonly IBaSysConnectionFactory _baSysConnectionFactory;
+    private readonly string? _dbName;
     
     public MigrationService(IDbInfoRecordsProvider dbInfoRecordsProvider,
-        IBaSysConnectionFactory baSysConnectionFactory)
+        IBaSysConnectionFactory baSysConnectionFactory,
+        IHttpContextAccessor httpContextAccessor)
     {
         _dbInfoRecordsProvider = dbInfoRecordsProvider;
         _baSysConnectionFactory = baSysConnectionFactory;
+        _dbName = httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(x => x.Type == "DbName")?.Value;
     }
     
     public List<MigrationBase>? GetMigrations()
@@ -33,11 +36,14 @@ public class MigrationService : IMigrationService
         return migrations;
     }
 
-    public async Task<List<MigrationBase>?> GetAppliedMigrations(string dbName)
+    public async Task<List<MigrationBase>?> GetAppliedMigrations()
     {
+        if (string.IsNullOrEmpty(_dbName))
+            throw new ArgumentException("DbName not set!");
+        
         var allMigrations = GetMigrations();
         
-        var dbInfoRecord = _dbInfoRecordsProvider.GetDbInfoRecordByDbName(dbName);
+        var dbInfoRecord = _dbInfoRecordsProvider.GetDbInfoRecordByDbName(_dbName);
         using var connection = _baSysConnectionFactory.CreateConnection(dbInfoRecord!.ConnectionString, dbInfoRecord.DbKind);
         var provider = new MigrationsProvider(connection);
         var appliedMigrationUids = (await provider.GetCollectionAsync(null))
@@ -52,9 +58,12 @@ public class MigrationService : IMigrationService
         return appliedMigrations;
     }
 
-    public async Task<bool> MigrationDown(string dbName)
+    public async Task<bool> MigrationDown()
     {
-        var dbInfoRecord = _dbInfoRecordsProvider.GetDbInfoRecordByDbName(dbName);
+        if (string.IsNullOrEmpty(_dbName))
+            throw new ArgumentException("DbName not set!");
+        
+        var dbInfoRecord = _dbInfoRecordsProvider.GetDbInfoRecordByDbName(_dbName);
         using var connection = _baSysConnectionFactory.CreateConnection(dbInfoRecord!.ConnectionString, dbInfoRecord.DbKind);
         var provider = new MigrationsProvider(connection);
         var lastMigration = (await provider.GetCollectionAsync(null))

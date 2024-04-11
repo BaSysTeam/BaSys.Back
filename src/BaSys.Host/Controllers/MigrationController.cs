@@ -41,17 +41,17 @@ public class MigrationController : ControllerBase
     }
     
     /// <summary>
-    /// Get applied migrations by DbName
+    /// Get applied migrations
     /// </summary>
     /// <returns></returns>
     [HttpGet("GetAppliedMigrations")]
-    public async Task<IActionResult> GetAppliedMigrations([FromBody]string dbName)
+    public async Task<IActionResult> GetAppliedMigrations()
     {
         var result = new ResultWrapper<IEnumerable<MigrationDto>>();
 
         try
         {
-            var migrations = await _migrationService.GetAppliedMigrations(dbName);
+            var migrations = await _migrationService.GetAppliedMigrations();
             if (migrations != null)
                 result.Success(migrations.Select(x => new MigrationDto(x)));
             else
@@ -82,10 +82,10 @@ public class MigrationController : ControllerBase
     /// <returns></returns>
     /// <exception cref="NotImplementedException"></exception>
     [HttpPost("MigrationDown")]
-    public async Task<IActionResult> MigrationDown([FromBody]string dbName)
+    public async Task<IActionResult> MigrationDown()
     {
         var result = new ResultWrapper<bool>();
-        var state = await _migrationService.MigrationDown(dbName);
+        var state = await _migrationService.MigrationDown();
         if (state)
             result.Success(state);
         else
