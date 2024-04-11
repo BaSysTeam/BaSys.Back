@@ -31,5 +31,9 @@ public abstract class LoggerService : IDisposable
     }
     
     protected abstract void WriteInner(string message,EventTypeLevels level, EventType eventType);
-    public virtual void Dispose() => _logger?.Dispose();
+
+    public virtual void Dispose()
+    {
+        _logger?.Dispose();
+    }
 }
