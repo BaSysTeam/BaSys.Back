@@ -144,13 +144,12 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
                 var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
-                    var currentUser = await _userManager.Users.FirstAsync(x => x.Email.ToUpper() == Input.Email.ToUpper());
+                    // ToDo: remove?
+                    // var currentUser = await _userManager.Users.FirstAsync(x => x.Email.ToUpper() == Input.Email.ToUpper());
+                    // await _userManager.UpdateAsync(currentUser);
 
                     using var logger = await _loggerFactory.GetLogger();
                     logger.Write("foo", EventTypeLevels.Info, new UserLoginEventType());
-                    
-                    // ToDo: remove?
-                    // await _userManager.UpdateAsync(currentUser);
 
                     _logger.LogInformation("User logged in.");
                     return LocalRedirect(returnUrl);

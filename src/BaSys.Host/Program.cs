@@ -230,17 +230,16 @@ namespace BaSys.Host
                 // Initialization by EF Context. Create users, roles etc.
                 await mainDbCheckService.Check(initAppSettings);
 
-                // Initialization by Dapper. Create system tables and fill neccessary data when DB created.
+                // Initialization by Dapper. Create system tables and fill necessary data when DB created.
                 var connectionFactory = serviceScopeInner.ServiceProvider.GetRequiredService<IBaSysConnectionFactory>();
                 var dbInitService = serviceScopeInner.ServiceProvider.GetRequiredService<IDbInitService>();
 
-                var dbKind = initAppSettings.MainDb.DbKind ?? DbKinds.PgSql;
-                using (IDbConnection connection = connectionFactory.CreateConnection(initAppSettings.MainDb.ConnectionString, dbKind))
+                var dbKind = initAppSettings.MainDb!.DbKind ?? DbKinds.PgSql;
+                using (var connection = connectionFactory.CreateConnection(initAppSettings.MainDb.ConnectionString, dbKind))
                 {
                     dbInitService.SetUp(connection);
                     await dbInitService.ExecuteAsync();
                 }
-
             };
             await systemDbService.CheckDbs();
 

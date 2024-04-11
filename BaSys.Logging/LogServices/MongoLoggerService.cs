@@ -1,6 +1,7 @@
 ﻿using BaSys.Common.Enums;
 using BaSys.Logging.Abstractions;
 using BaSys.Logging.Abstractions.Abstractions;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Serilog;
 
@@ -8,25 +9,36 @@ namespace BaSys.Logging.LogServices;
 
 public class MongoLoggerService : LoggerService
 {
+    private readonly IMongoDatabase? _db;
+    
     public MongoLoggerService(LoggerConfig loggerConfig, string? userUid, string? userName, string? ipAddress) 
         : base(loggerConfig, userUid, userName, ipAddress)
     {
         if (string.IsNullOrEmpty(loggerConfig.ConnectionString) || string.IsNullOrEmpty(loggerConfig.TableName))
-            throw new ArgumentException();
+            return;
+        
+        var client = new MongoClient(loggerConfig.ConnectionString);
+        _db = client.GetDatabase(loggerConfig.TableName);
 
-        _logger = new LoggerConfiguration()
-            .WriteTo
-            .MongoDBBson(cfg =>
-            {
-                cfg.SetMongoUrl(loggerConfig.ConnectionString);
-                cfg.SetCollectionName(loggerConfig.TableName);
-                cfg.SetExpireTTL(GetExpireTTL(loggerConfig));
-            })
-            .CreateLogger();
+        if (IsMongoLive())
+        {
+            _logger = new LoggerConfiguration()
+                .WriteTo
+                .MongoDBBson(cfg =>
+                {
+                    cfg.SetMongoUrl(loggerConfig.ConnectionString);
+                    cfg.SetCollectionName(loggerConfig.TableName);
+                    cfg.SetExpireTTL(GetExpireTTL(loggerConfig));
+                })
+                .CreateLogger();
+        }
     }
 
     protected override void WriteInner(string message, EventTypeLevels level, EventType eventType)
     {
+        if (!IsMongoLive())
+            return;
+        
         _logger?.Information("{message} {Level} {EventTypeName} {EventTypeUid} {Module} {UserUid} {UserName} {IpAddress}",
             message,
             (int) level,
@@ -36,6 +48,12 @@ public class MongoLoggerService : LoggerService
             _userUid,
             _userName,
             _ipAddress);
+    }
+    
+    private bool IsMongoLive()
+    {
+        var isMongoLive = _db.RunCommandAsync((Command<BsonDocument>) "{ping:1}").Wait(1000);
+        return isMongoLive;
     }
 
     private TimeSpan? GetExpireTTL(LoggerConfig loggerConfig)
