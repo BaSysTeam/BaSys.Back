@@ -77,13 +77,20 @@ public class MigrationController : ControllerBase
     }
     
     /// <summary>
-    /// Rollback migration with migrationUid
+    /// Rollback last migration
     /// </summary>
-    /// <param name="migrationUid"></param>
     /// <returns></returns>
+    /// <exception cref="NotImplementedException"></exception>
     [HttpPost("MigrationDown")]
-    public IActionResult MigrationDown([FromBody]Guid migrationUid)
+    public async Task<IActionResult> MigrationDown([FromBody]string dbName)
     {
-        throw new NotImplementedException();
+        var result = new ResultWrapper<bool>();
+        var state = await _migrationService.MigrationDown(dbName);
+        if (state)
+            result.Success(state);
+        else
+            result.Error(-1, "MigrationDown false");
+        
+        return Ok(result);
     }
 }

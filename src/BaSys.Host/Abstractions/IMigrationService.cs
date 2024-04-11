@@ -6,4 +6,5 @@ public interface IMigrationService
 {
     List<MigrationBase>? GetMigrations();
     Task<List<MigrationBase>?> GetAppliedMigrations(string dbName);
+    Task<bool> MigrationDown(string dbName);
 }

@@ -52,7 +52,25 @@ public class MigrationService : IMigrationService
         return appliedMigrations;
     }
 
-    
+    public async Task<bool> MigrationDown(string dbName)
+    {
+        var dbInfoRecord = _dbInfoRecordsProvider.GetDbInfoRecordByDbName(dbName);
+        using var connection = _baSysConnectionFactory.CreateConnection(dbInfoRecord!.ConnectionString, dbInfoRecord.DbKind);
+        var provider = new MigrationsProvider(connection);
+        var lastMigration = (await provider.GetCollectionAsync(null))
+            ?.OrderByDescending(x => x.ApplyDateTime)
+            .FirstOrDefault();
+
+        if (lastMigration == null)
+            return false;
+        
+        // ToDo: execute migration down!!
+
+        var state = await provider.DeleteAsync(lastMigration.Uid, null);
+        return state == 1;
+    }
+
+
     #region private methods
     private void CheckMigrations(List<MigrationBase> migrations)
     {
