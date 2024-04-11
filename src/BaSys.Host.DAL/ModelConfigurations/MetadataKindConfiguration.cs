@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace BaSys.Host.DAL.ModelConfigurations
 {
-    public sealed class MetadataKindConfiguration: DataModelConfiguration<MetadataGroup>
+    public sealed class MetadataKindConfiguration: DataModelConfiguration<MetadataKind>
     {
         public MetadataKindConfiguration()
         {
