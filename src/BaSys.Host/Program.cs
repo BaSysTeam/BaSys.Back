@@ -20,6 +20,7 @@ using BaSys.Host.Infrastructure.JwtAuth;
 using BaSys.Host.Infrastructure.Providers;
 using BaSys.Host.Middlewares;
 using BaSys.Host.Services;
+using BaSys.Logging.Abstractions.Abstractions;
 using BaSys.Logging.Infrastructure;
 using BaSys.SuperAdmin.Abstractions;
 using BaSys.SuperAdmin.DAL;
@@ -163,6 +164,12 @@ namespace BaSys.Host
             builder.Services.AddTransient<IWorkDbService, WorkDbService>();
             builder.Services.AddTransient<IHttpRequestContextService, HttpRequestContextService>();
             builder.Services.AddTransient<IMigrationService, MigrationService>();
+            builder.Services.AddTransient<LoggerService>(sp =>
+            {
+                var loggerFactory = sp.GetRequiredService<IBaSysLoggerFactory>();
+                var logger = loggerFactory.GetLogger().GetAwaiter().GetResult();
+                return logger;
+            });
 
             // Factory to create DB connection by connection string and db kind.
             builder.Services.AddSingleton<IBaSysConnectionFactory, BaSysConnectionFactory>();

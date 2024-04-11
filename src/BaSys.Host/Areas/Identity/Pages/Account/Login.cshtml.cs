@@ -25,13 +25,15 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
         private readonly IDataSourceProvider _dataSourceProvider;
         private readonly IDbInfoRecordsProvider _dbInfoRecordsProvider;
         private readonly IBaSysLoggerFactory _loggerFactory;
+        private readonly LoggerService _basysLogger;
 
         public LoginModel(ILogger<LoginModel> logger,
             SignInManager<WorkDbUser> signInManager,
             UserManager<WorkDbUser> userManager,
             IDataSourceProvider dataSourceProvider,
             IDbInfoRecordsProvider dbInfoRecordsProvider,
-            IBaSysLoggerFactory loggerFactory)
+            IBaSysLoggerFactory loggerFactory,
+            LoggerService basysLogger)
         {
             _logger = logger;
             _signInManager = signInManager;
@@ -39,6 +41,7 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
             _dataSourceProvider = dataSourceProvider;
             _dbInfoRecordsProvider = dbInfoRecordsProvider;
             _loggerFactory = loggerFactory;
+            _basysLogger = basysLogger;
         }
 
         /// <summary>
@@ -148,8 +151,9 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
                     // var currentUser = await _userManager.Users.FirstAsync(x => x.Email.ToUpper() == Input.Email.ToUpper());
                     // await _userManager.UpdateAsync(currentUser);
 
-                    using var logger = await _loggerFactory.GetLogger();
-                    logger.Write("foo", EventTypeLevels.Info, new UserLoginEventType());
+                    // using var logger = await _loggerFactory.GetLogger();
+                    // logger.Write("foo", EventTypeLevels.Info, new UserLoginEventType());
+                    _basysLogger.Write("foo", EventTypeLevels.Info, new UserLoginEventType());
 
                     _logger.LogInformation("User logged in.");
                     return LocalRedirect(returnUrl);
