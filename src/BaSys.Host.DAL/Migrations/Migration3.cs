@@ -1,4 +1,5 @@
-﻿using BaSys.Host.DAL.Migrations.Base;
+﻿using System.Data;
+using BaSys.Host.DAL.Migrations.Base;
 
 namespace BaSys.Host.DAL.Migrations;
 
@@ -9,13 +10,13 @@ public class Migration3 : MigrationBase
     
     public override string Name => "Migration3";
     
-    public override async Task Up()
+    public override async Task Up(IDbConnection connection)
     {
-        await Task.Delay(3000);
+        await Task.Delay(1000);
     }
 
-    public override async Task Down()
+    public override async Task Down(IDbConnection connection)
     {
-        await Task.Delay(3000);
+        await Task.Delay(1000);
     }
 }
