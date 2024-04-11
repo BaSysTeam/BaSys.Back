@@ -30,4 +30,18 @@ public class MigrationsProvider : SystemObjectProviderBase<Migration>
 
         return await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
     }
+    
+    public async Task<Migration?> GetMigrationByMigrationUidAsync(Guid migrationUid, IDbTransaction transaction)
+    {
+        _query = SelectBuilder.Make()
+            .From(_config.TableName)
+            .Select("*")
+            .WhereAnd("migrationuid = @migrationuid")
+            .Parameter("migrationuid", migrationUid)
+            .Query(_sqlDialect);
+
+        var result = await _dbConnection.QueryFirstOrDefaultAsync<Migration>(_query.Text, _query.DynamicParameters, transaction);
+
+        return result;
+    }
 }

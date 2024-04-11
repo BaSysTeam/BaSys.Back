@@ -71,9 +71,25 @@ public class MigrationController : ControllerBase
     /// <param name="migrationUid"></param>
     /// <returns></returns>
     [HttpPost("MigrationUp")]
-    public IActionResult MigrationUp([FromBody]Guid migrationUid)
+    public async Task<IActionResult> MigrationUp([FromBody]Guid migrationUid)
     {
-        throw new NotImplementedException();
+        var result = new ResultWrapper<bool>();
+
+        try
+        {
+            var state = await _migrationService.MigrationUp(migrationUid);
+            if (state)
+                result.Success(state);
+            else
+                result.Error(-1, "MigrationUp false");
+        }
+        catch (Exception e)
+        {
+            result.Error(-1, $"MigrationUp false: {e.Message}");
+        }
+        
+        
+        return Ok(result);
     }
     
     /// <summary>

@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using BaSys.DAL.Models;
 using BaSys.Host.Abstractions;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
@@ -58,6 +59,44 @@ public class MigrationService : IMigrationService
         return appliedMigrations;
     }
 
+    public async Task<bool> MigrationUp(Guid migrationUid)
+    {
+        if (string.IsNullOrEmpty(_dbName))
+            throw new ArgumentException("DbName not set!");
+        
+        var dbInfoRecord = _dbInfoRecordsProvider.GetDbInfoRecordByDbName(_dbName);
+        using var connection = _baSysConnectionFactory.CreateConnection(dbInfoRecord!.ConnectionString, dbInfoRecord.DbKind);
+        var provider = new MigrationsProvider(connection);
+        var dbMigration = await provider.GetMigrationByMigrationUidAsync(migrationUid, null);
+
+        if (dbMigration != null)
+            throw new ArgumentException($"Migration with uid: '{migrationUid}' already applied!");
+        
+        var allMigrations = GetMigrations();
+        var appliedMigrationUids = (await provider.GetCollectionAsync(null))
+            ?.Select(x => x.MigrationUid)
+            .Distinct()
+            .ToList();
+
+        var notAppliedMigrations = allMigrations.Where(x => !appliedMigrationUids!.Contains(x.Uid))
+            .OrderBy(x => x.MigrationUtcIdentifier)
+            .ToList();
+
+        foreach (var migration in notAppliedMigrations)
+        {
+            // ToDo: execute migration down!!
+
+            await provider.InsertAsync(new Migration
+            {
+                Uid = Guid.NewGuid(),
+                MigrationUid = migration.Uid,
+                ApplyDateTime = DateTime.UtcNow
+            }, null);
+        }
+        
+        return true;
+        
+    }
     public async Task<bool> MigrationDown()
     {
         if (string.IsNullOrEmpty(_dbName))
@@ -78,7 +117,6 @@ public class MigrationService : IMigrationService
         var state = await provider.DeleteAsync(lastMigration.Uid, null);
         return state == 1;
     }
-
 
     #region private methods
     private void CheckMigrations(List<MigrationBase> migrations)
