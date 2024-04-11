@@ -47,6 +47,8 @@ namespace BaSys.Host.Services
 
             foreach (var tableManager in tableManagers)
                 await CreateTableAsync(tableManager);
+
+            await CheckTablesAsync();
         }
 
         private async Task<int> CreateTableAsync(ITableManager tableManager)
@@ -79,7 +81,7 @@ namespace BaSys.Host.Services
             return createdCount;
         }
 
-        public async Task CheckTablesAsync()
+        private async Task CheckTablesAsync()
         {
             await CheckAppConstantsAsync();
             await CheckLoggerConfigAsync();

@@ -17,10 +17,5 @@ namespace BaSys.Host.Abstractions
         /// </summary>
         /// <returns></returns>
         Task ExecuteAsync();
-        /// <summary>
-        /// Check tables initially data.
-        /// </summary>
-        /// <returns></returns>
-        Task CheckTablesAsync();
     }
 }
