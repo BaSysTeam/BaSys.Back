@@ -185,19 +185,22 @@ public class MigrationService : IMigrationService
     private async Task<List<MigrationBase>> GetMigrationsToApply(Guid migrationUid, MigrationsProvider provider)
     {
         var allMigrations = GetMigrations();
-        // var appliedMigrationUids = (await provider.GetCollectionAsync(null))
-        //     ?.Select(x => x.MigrationUid)
-        //     .Distinct()
-        //     .ToList();
-        //
-        // var notAppliedMigrations = allMigrations!.Where(x => !appliedMigrationUids!.Contains(x.Uid))
-        //     .OrderBy(x => x.MigrationUtcIdentifier)
-        //     .ToList();
-        //
-        // return notAppliedMigrations;
-        var l = new List<MigrationBase>();
-        l.Add(allMigrations!.First());
-        return l;
+        var appliedMigrations = (await provider.GetCollectionAsync(null))
+            .OrderBy(x => x.ApplyDateTime)
+            .ToList();
+
+        var notAppliedMigrations = new List<MigrationBase>();
+        foreach (var migration in allMigrations ?? Enumerable.Empty<MigrationBase>())
+        {
+            if (appliedMigrations.Any(x => x.MigrationUid == migration.Uid))
+                continue;
+            
+            notAppliedMigrations.Add(migration);
+            if (migration.Uid == migrationUid)
+                break;
+        }
+        
+        return notAppliedMigrations;
     }
 
     #endregion
