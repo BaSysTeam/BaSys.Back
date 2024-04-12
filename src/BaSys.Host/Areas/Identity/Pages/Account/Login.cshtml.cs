@@ -153,7 +153,8 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
 
                     // using var logger = await _loggerFactory.GetLogger();
                     // logger.Write("foo", EventTypeLevels.Info, new UserLoginEventType());
-                    _basysLogger.Write("foo", EventTypeLevels.Info, new UserLoginEventType());
+                    //
+                    // _basysLogger.Write("foo", EventTypeLevels.Info, new UserLoginEventType());
 
                     _logger.LogInformation("User logged in.");
                     return LocalRedirect(returnUrl);
