@@ -109,6 +109,15 @@ public class MigrationsController : ControllerBase
         
         return Ok(result);
     }
+    
+    [HttpGet("StopMigration")]
+    public IActionResult StopMigration()
+    {
+        var result = new ResultWrapper<bool>();
+        result.Success(_migrationService.StopMigration());
+        
+        return Ok(result);
+    }
 
     // [HttpGet("GetStatus")]
     // public IActionResult GetStatus([FromBody]Guid requestUid)
@@ -118,17 +127,5 @@ public class MigrationsController : ControllerBase
     //         result.Success(new MigrationStatusDto());
     //     
     //     return Ok(result);
-    // }
-
-    // [HttpGet("LongPollingTest")]
-    // public async Task<IActionResult> LongPollingTest()
-    // {
-    //     var task = Task.Factory.StartNew (async () =>
-    //     {
-    //         await Task.Delay(10000);
-    //         await Task.CompletedTask;
-    //     }, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
-    //     
-    //     return Ok("Started");
     // }
 }

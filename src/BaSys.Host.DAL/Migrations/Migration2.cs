@@ -10,13 +10,13 @@ public class Migration2 : MigrationBase
     
     public override string Name => "Migration2";
 
-    public override async Task Up(IDbConnection connection)
+    public override async Task Up(IDbConnection connection, CancellationToken ct)
     {
-        await Task.Delay(1000);
+        await Task.Delay(1000, ct);
     }
 
-    public override async Task Down(IDbConnection connection)
+    public override async Task Down(IDbConnection connection, CancellationToken ct)
     {
-        await Task.Delay(1000);
+        await Task.Delay(1000, ct);
     }
 }

@@ -8,13 +8,15 @@ using BaSys.SuperAdmin.DAL.Abstractions;
 
 namespace BaSys.Host.Services;
 
-internal class MigrationTask
-{
-    public Task? Task { get; set; }
-    public CancellationTokenSource? CancellationTokenSource { get; set; }
-}
+
 public class MigrationRunnerService
 {
+    internal class MigrationTask
+    {
+        public Task? Task { get; set; }
+        public CancellationTokenSource? CancellationTokenSource { get; set; }
+    }
+    
     private readonly ConcurrentDictionary<string, MigrationTask> _runDict = new();
     private readonly IServiceProvider _serviceProvider;
     private readonly IDbInfoRecordsProvider _dbInfoRecordsProvider;
@@ -47,7 +49,7 @@ public class MigrationRunnerService
             foreach (var migration in migrations)
             {
                 // execute migration
-                await migration.Up(connection);
+                await migration.Up(connection, cts.Token);
                 await migrationsProvider.InsertAsync(new Migration
                 {
                     Uid = Guid.NewGuid(),
@@ -60,7 +62,7 @@ public class MigrationRunnerService
             _runDict.TryRemove(dbName, out _);
         }, cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         
-        _runDict.TryAdd(dbName, new MigrationTask
+        _runDict.TryAdd(dbName.ToUpper(), new MigrationTask
         {
             CancellationTokenSource = cts,
             Task = task
@@ -83,7 +85,7 @@ public class MigrationRunnerService
         {
             using var connection = GetConnection(dbName);
             
-            await migration.Down(connection);
+            await migration.Down(connection, cts.Token);
             
             var migrationsProvider = new MigrationsProvider(connection);
             await migrationsProvider.DeleteByMigrationUidAsync(migration.Uid);
@@ -91,7 +93,7 @@ public class MigrationRunnerService
             _runDict.TryRemove(dbName, out _);
         }, cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         
-        _runDict.TryAdd(dbName, new MigrationTask
+        _runDict.TryAdd(dbName.ToUpper(), new MigrationTask
         {
             CancellationTokenSource = cts,
             Task = task

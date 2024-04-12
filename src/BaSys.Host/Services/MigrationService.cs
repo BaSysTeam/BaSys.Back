@@ -1,10 +1,8 @@
 ﻿using System.Text;
-using BaSys.DAL.Models;
 using BaSys.Host.Abstractions;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
 using BaSys.Host.DAL.Migrations.Base;
-using BaSys.Host.DTO;
 using BaSys.SuperAdmin.DAL.Abstractions;
 
 namespace BaSys.Host.Services;
@@ -81,26 +79,11 @@ public class MigrationService : IMigrationService
 
         var state = _migrationRunnerService.MigrationUp(notAppliedMigrations);
         return state;
-        
-        // foreach (var migration in notAppliedMigrations)
-        // {
-        //     // execute migration
-        //     await migration.Up(connection);
-        //
-        //     await provider.InsertAsync(new Migration
-        //     {
-        //         Uid = Guid.NewGuid(),
-        //         MigrationUid = migration.Uid,
-        //         MigrationName = migration.Name!,
-        //         ApplyDateTime = DateTime.UtcNow
-        //     }, null);
-        // }
-        //
-        // return new StartMigrationResultDto
-        // {
-        //     Result = true,
-        //     RequestUid = Guid.NewGuid()
-        // };
+    }
+
+    public bool StopMigration()
+    {
+        return _migrationRunnerService.StopMigration();
     }
 
     public async Task<bool> MigrationDown()
@@ -124,19 +107,6 @@ public class MigrationService : IMigrationService
         {
             var state = _migrationRunnerService.MigrationDown(downMigration);
             return state;
-            
-            // // execute down migration
-            // await downMigration.Down(connection);
-            //
-            // var state = await provider.DeleteAsync(lastMigration.Uid, null);
-            // if (state == 1)
-            //     return new StartMigrationResultDto
-            //     {
-            //         Result = true,
-            //         RequestUid = Guid.NewGuid()
-            //     };
-            // else
-            //     return new StartMigrationResultDto();
         }
 
         return false;
