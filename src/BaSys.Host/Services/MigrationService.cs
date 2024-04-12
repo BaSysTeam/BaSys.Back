@@ -92,6 +92,7 @@ public class MigrationService : IMigrationService
             {
                 Uid = Guid.NewGuid(),
                 MigrationUid = migration.Uid,
+                MigrationName = migration.Name!,
                 ApplyDateTime = DateTime.UtcNow
             }, null);
         }

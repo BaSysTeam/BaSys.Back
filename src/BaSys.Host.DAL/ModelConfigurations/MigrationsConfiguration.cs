@@ -11,6 +11,7 @@ public sealed class MigrationsConfiguration : DataModelConfiguration<Migration>
 
         Column("uid").IsPrimaryKey();
         Column("MigrationUid");
+        Column("MigrationName");
         Column("ApplyDateTime");
     }
 }

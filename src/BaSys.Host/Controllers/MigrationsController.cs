@@ -7,10 +7,10 @@ namespace BaSys.Host.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-public class MigrationController : ControllerBase
+public class MigrationsController : ControllerBase
 {
     private readonly IMigrationService _migrationService;
-    public MigrationController(IMigrationService migrationService)
+    public MigrationsController(IMigrationService migrationService)
     {
         _migrationService = migrationService;
     }
@@ -19,8 +19,8 @@ public class MigrationController : ControllerBase
     /// Get all exists migrations in system
     /// </summary>
     /// <returns></returns>
-    [HttpGet("GetMigrations")]
-    public IActionResult GetMigrations()
+    [HttpGet]
+    public IActionResult Get()
     {
         var result = new ResultWrapper<IEnumerable<MigrationDto>>();
 
@@ -70,8 +70,8 @@ public class MigrationController : ControllerBase
     /// </summary>
     /// <param name="migrationUid"></param>
     /// <returns></returns>
-    [HttpPost("MigrationUp")]
-    public async Task<IActionResult> MigrationUp([FromBody]Guid migrationUid)
+    [HttpPost("Up")]
+    public async Task<IActionResult> Up([FromBody]Guid migrationUid)
     {
         var result = new ResultWrapper<bool>();
 
@@ -97,8 +97,8 @@ public class MigrationController : ControllerBase
     /// </summary>
     /// <returns></returns>
     /// <exception cref="NotImplementedException"></exception>
-    [HttpPost("MigrationDown")]
-    public async Task<IActionResult> MigrationDown()
+    [HttpPost("Down")]
+    public async Task<IActionResult> Down()
     {
         var result = new ResultWrapper<bool>();
         var state = await _migrationService.MigrationDown();
