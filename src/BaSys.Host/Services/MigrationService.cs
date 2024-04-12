@@ -4,6 +4,7 @@ using BaSys.Host.Abstractions;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
 using BaSys.Host.DAL.Migrations.Base;
+using BaSys.Host.DTO;
 using BaSys.SuperAdmin.DAL.Abstractions;
 
 namespace BaSys.Host.Services;
@@ -13,14 +14,17 @@ public class MigrationService : IMigrationService
     private readonly IDbInfoRecordsProvider _dbInfoRecordsProvider;
     private readonly IBaSysConnectionFactory _connectionFactory;
     private readonly string? _dbName;
+    private readonly MigrationRunnerService _migrationRunnerService;
 
     public MigrationService(IDbInfoRecordsProvider dbInfoRecordsProvider,
         IBaSysConnectionFactory connectionFactory,
-        IHttpContextAccessor httpContextAccessor)
+        IHttpContextAccessor httpContextAccessor,
+        MigrationRunnerService migrationRunnerService)
     {
         _dbInfoRecordsProvider = dbInfoRecordsProvider;
         _connectionFactory = connectionFactory;
         _dbName = httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(x => x.Type == "DbName")?.Value;
+        _migrationRunnerService = migrationRunnerService;
     }
 
     public List<MigrationBase>? GetMigrations()
@@ -73,31 +77,30 @@ public class MigrationService : IMigrationService
         if (dbMigration != null)
             throw new ArgumentException($"Migration with uid: '{migrationUid}' already applied!");
 
-        var allMigrations = GetMigrations();
-        var appliedMigrationUids = (await provider.GetCollectionAsync(null))
-            ?.Select(x => x.MigrationUid)
-            .Distinct()
-            .ToList();
+        var notAppliedMigrations = await GetMigrationsToApply(migrationUid, provider);
 
-        var notAppliedMigrations = allMigrations!.Where(x => !appliedMigrationUids!.Contains(x.Uid))
-            .OrderBy(x => x.MigrationUtcIdentifier)
-            .ToList();
-
-        foreach (var migration in notAppliedMigrations)
-        {
-            // execute migration
-            await migration.Up(connection);
-
-            await provider.InsertAsync(new Migration
-            {
-                Uid = Guid.NewGuid(),
-                MigrationUid = migration.Uid,
-                MigrationName = migration.Name!,
-                ApplyDateTime = DateTime.UtcNow
-            }, null);
-        }
-
-        return true;
+        var state = _migrationRunnerService.MigrationUp(notAppliedMigrations);
+        return state;
+        
+        // foreach (var migration in notAppliedMigrations)
+        // {
+        //     // execute migration
+        //     await migration.Up(connection);
+        //
+        //     await provider.InsertAsync(new Migration
+        //     {
+        //         Uid = Guid.NewGuid(),
+        //         MigrationUid = migration.Uid,
+        //         MigrationName = migration.Name!,
+        //         ApplyDateTime = DateTime.UtcNow
+        //     }, null);
+        // }
+        //
+        // return new StartMigrationResultDto
+        // {
+        //     Result = true,
+        //     RequestUid = Guid.NewGuid()
+        // };
     }
 
     public async Task<bool> MigrationDown()
@@ -119,11 +122,21 @@ public class MigrationService : IMigrationService
         var downMigration = GetMigrations()?.FirstOrDefault(x => x.Uid == lastMigration.MigrationUid);
         if (downMigration != null)
         {
-            // execute down migration
-            await downMigration.Down(connection);
-
-            var state = await provider.DeleteAsync(lastMigration.Uid, null);
-            return state == 1;
+            var state = _migrationRunnerService.MigrationDown(downMigration);
+            return state;
+            
+            // // execute down migration
+            // await downMigration.Down(connection);
+            //
+            // var state = await provider.DeleteAsync(lastMigration.Uid, null);
+            // if (state == 1)
+            //     return new StartMigrationResultDto
+            //     {
+            //         Result = true,
+            //         RequestUid = Guid.NewGuid()
+            //     };
+            // else
+            //     return new StartMigrationResultDto();
         }
 
         return false;
@@ -167,6 +180,24 @@ public class MigrationService : IMigrationService
         var emptyNameMigration = migrations.FirstOrDefault(x => string.IsNullOrEmpty(x.Name));
         if (emptyNameMigration != null)
             throw new ArgumentException($"Migration with uid: {emptyNameMigration.Uid} has no name!");
+    }
+
+    private async Task<List<MigrationBase>> GetMigrationsToApply(Guid migrationUid, MigrationsProvider provider)
+    {
+        var allMigrations = GetMigrations();
+        // var appliedMigrationUids = (await provider.GetCollectionAsync(null))
+        //     ?.Select(x => x.MigrationUid)
+        //     .Distinct()
+        //     .ToList();
+        //
+        // var notAppliedMigrations = allMigrations!.Where(x => !appliedMigrationUids!.Contains(x.Uid))
+        //     .OrderBy(x => x.MigrationUtcIdentifier)
+        //     .ToList();
+        //
+        // return notAppliedMigrations;
+        var l = new List<MigrationBase>();
+        l.Add(allMigrations!.First());
+        return l;
     }
 
     #endregion

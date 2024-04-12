@@ -109,4 +109,26 @@ public class MigrationsController : ControllerBase
         
         return Ok(result);
     }
+
+    // [HttpGet("GetStatus")]
+    // public IActionResult GetStatus([FromBody]Guid requestUid)
+    // {
+    //     var result = new ResultWrapper<MigrationStatusDto>();
+    //     if (requestUid == Guid.Empty)
+    //         result.Success(new MigrationStatusDto());
+    //     
+    //     return Ok(result);
+    // }
+
+    // [HttpGet("LongPollingTest")]
+    // public async Task<IActionResult> LongPollingTest()
+    // {
+    //     var task = Task.Factory.StartNew (async () =>
+    //     {
+    //         await Task.Delay(10000);
+    //         await Task.CompletedTask;
+    //     }, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+    //     
+    //     return Ok("Started");
+    // }
 }

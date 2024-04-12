@@ -177,6 +177,8 @@ namespace BaSys.Host
             // Service to create system tables and fill constants when DB created.
             builder.Services.AddTransient<IDbInitService, DbInitService>();
 
+            builder.Services.AddSingleton<MigrationRunnerService>();
+
             builder.Services.AddSwaggerGen(options => IncludeXmlCommentsHelper.IncludeXmlComments(options));
 
             Log.Logger = new LoggerConfiguration()

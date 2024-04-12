@@ -1,4 +1,5 @@
 ﻿using BaSys.Host.DAL.Migrations.Base;
+using BaSys.Host.DTO;
 
 namespace BaSys.Host.Abstractions;
 

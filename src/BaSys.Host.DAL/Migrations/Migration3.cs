@@ -12,7 +12,7 @@ public class Migration3 : MigrationBase
     
     public override async Task Up(IDbConnection connection)
     {
-        await Task.Delay(1000);
+        await Task.Delay(10000);
     }
 
     public override async Task Down(IDbConnection connection)
