@@ -110,6 +110,10 @@ public class MigrationsController : ControllerBase
         return Ok(result);
     }
     
+    /// <summary>
+    /// Stop migration
+    /// </summary>
+    /// <returns></returns>
     [HttpGet("StopMigration")]
     public IActionResult StopMigration()
     {
@@ -119,13 +123,16 @@ public class MigrationsController : ControllerBase
         return Ok(result);
     }
 
-    // [HttpGet("GetStatus")]
-    // public IActionResult GetStatus([FromBody]Guid requestUid)
-    // {
-    //     var result = new ResultWrapper<MigrationStatusDto>();
-    //     if (requestUid == Guid.Empty)
-    //         result.Success(new MigrationStatusDto());
-    //     
-    //     return Ok(result);
-    // }
+    /// <summary>
+    /// Check is migrations running
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("IsMigrationRun")]
+    public IActionResult IsMigrationRun()
+    {
+        var result = new ResultWrapper<bool>();
+        result.Success(_migrationService.GetMigrationStatus());
+        
+        return Ok(result);
+    }
 }

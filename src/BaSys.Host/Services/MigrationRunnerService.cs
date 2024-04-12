@@ -116,13 +116,22 @@ public class MigrationRunnerService
         
         return true;
     }
-
-    public bool IsMigrationRun(string dbName)
+    
+    public bool IsMigrationRun()
     {
-        return _runDict.TryGetValue(dbName.ToUpper(), out _);
+        var dbName = GetDbName();
+        if (string.IsNullOrEmpty(dbName))
+            return false;
+
+        return IsMigrationRun(dbName);
     }
 
     #region private methods
+    private bool IsMigrationRun(string dbName)
+    {
+        return _runDict.TryGetValue(dbName.ToUpper(), out _);
+    }
+    
     private string? GetDbName()
     {
         var httpContextAccessor = _serviceProvider.GetService<IHttpContextAccessor>();
@@ -135,4 +144,6 @@ public class MigrationRunnerService
         return _connectionFactory.CreateConnection(dbInfoRecord!.ConnectionString, dbInfoRecord.DbKind);
     }
     #endregion
+
+    
 }

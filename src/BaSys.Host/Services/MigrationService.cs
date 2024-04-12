@@ -86,6 +86,11 @@ public class MigrationService : IMigrationService
         return _migrationRunnerService.StopMigration();
     }
 
+    public bool GetMigrationStatus()
+    {
+        return _migrationRunnerService.IsMigrationRun();
+    }
+
     public async Task<bool> MigrationDown()
     {
         if (string.IsNullOrEmpty(_dbName))
