@@ -41,13 +41,50 @@ namespace BaSys.FluentQueries.UnitTests
                 .Parameter("uid", Guid.Parse("{2DEB97F4-4971-42CD-8519-5113FA3D1768}"), DbType.Guid);
 
             var query = builder.Query(dialectKinds);
-         
+
 
             Console.WriteLine($"{dialectKinds}");
             Console.WriteLine(query);
 
             Assert.IsNotNull(query);
-            Assert.AreEqual(1, query.Parameters.Count());
+            Assert.That(query.Parameters.Count(), Is.EqualTo(1));
+        }
+
+        [TestCase(SqlDialectKinds.MsSql, "SelectTopMsSql")]
+        [TestCase(SqlDialectKinds.PgSql, "SelectTopPgSql")]
+        public void SelectBuilder_SelectTop_Query(SqlDialectKinds dialectKinds, string checkKey)
+        {
+            var builder = SelectBuilder.Make()
+                .Top(1)
+                .Select("*")
+                .From("my_table");
+
+            var query = builder.Query(dialectKinds);
+
+            Console.WriteLine($"{dialectKinds}");
+            Console.WriteLine(query);
+
+            var checkText = Texts.ResourceManager.GetString(checkKey);
+            Assert.That(query.Text, Is.EqualTo(checkText));
+        }
+
+        [TestCase(SqlDialectKinds.MsSql, "SelectTopOrderByMsSql")]
+        [TestCase(SqlDialectKinds.PgSql, "SelectTopOrderByPgSql")]
+        public void SelectBuilder_SelectTopOrderBy_Query(SqlDialectKinds dialectKinds, string checkKey)
+        {
+            var builder = SelectBuilder.Make()
+                .Top(1)
+                .Select("*")
+                .From("my_table")
+                .OrderBy("name desc");
+
+            var query = builder.Query(dialectKinds);
+
+            Console.WriteLine($"{dialectKinds}");
+            Console.WriteLine(query);
+
+            var checkText = Texts.ResourceManager.GetString(checkKey);
+            Assert.That(query.Text, Is.EqualTo(checkText));
         }
     }
 }

@@ -137,4 +137,24 @@ memo varchar(300) NULL,
 isstandard boolean NOT NULL
 );</value>
   </data>
+  <data name="SelectTopMsSql" xml:space="preserve">
+    <value>SELECT TOP 1 *
+FROM my_table;</value>
+  </data>
+  <data name="SelectTopOrderByMsSql" xml:space="preserve">
+    <value>SELECT TOP 1 *
+FROM my_table
+ORDER BY name desc;</value>
+  </data>
+  <data name="SelectTopOrderByPgSql" xml:space="preserve">
+    <value>SELECT *
+FROM my_table
+ORDER BY name desc
+LIMIT 1;</value>
+  </data>
+  <data name="SelectTopPgSql" xml:space="preserve">
+    <value>SELECT *
+FROM my_table
+LIMIT 1;</value>
+  </data>
 </root>
