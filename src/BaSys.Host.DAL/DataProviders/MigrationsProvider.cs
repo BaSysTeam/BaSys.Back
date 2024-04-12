@@ -44,4 +44,17 @@ public class MigrationsProvider : SystemObjectProviderBase<Migration>
 
         return result;
     }
+    
+    public async Task<int> DeleteByMigrationUidAsync(Guid migrationUid, IDbTransaction? transaction = null)
+    {
+        _query = DeleteBuilder.Make()
+            .Table(_config.TableName)
+            .WhereAnd("migrationuid = @migrationuid")
+            .Parameter("migrationuid", migrationUid)
+            .Query(_sqlDialect);
+
+        var result = await _dbConnection.ExecuteAsync(_query.Text, _query.DynamicParameters, transaction);
+
+        return result;
+    }
 }

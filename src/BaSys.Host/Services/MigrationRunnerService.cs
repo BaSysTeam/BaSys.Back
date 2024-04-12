@@ -86,7 +86,7 @@ public class MigrationRunnerService
             await migration.Down(connection);
             
             var migrationsProvider = new MigrationsProvider(connection);
-            await migrationsProvider.DeleteAsync(migration.Uid, null);
+            await migrationsProvider.DeleteByMigrationUidAsync(migration.Uid);
             
             _runDict.TryRemove(dbName, out _);
         }, cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
