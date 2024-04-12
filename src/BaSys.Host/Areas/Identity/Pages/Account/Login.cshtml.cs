@@ -151,10 +151,10 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
                     // var currentUser = await _userManager.Users.FirstAsync(x => x.Email.ToUpper() == Input.Email.ToUpper());
                     // await _userManager.UpdateAsync(currentUser);
 
-                    using var logger = await _loggerFactory.GetLogger();
-                    logger.Write("foo", EventTypeLevels.Info, new UserLoginEventType());
-                    
-                    _basysLogger.Write("foo", EventTypeLevels.Info, new UserLoginEventType());
+                    // using var logger = await _loggerFactory.GetLogger();
+                    // logger.Write("foo", EventTypeLevels.Info, new UserLoginEventType());
+                    //
+                    // _basysLogger.Write("foo", EventTypeLevels.Info, new UserLoginEventType());
 
                     _logger.LogInformation("User logged in.");
                     return LocalRedirect(returnUrl);
