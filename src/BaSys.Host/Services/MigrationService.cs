@@ -3,6 +3,7 @@ using BaSys.Host.Abstractions;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
 using BaSys.Host.DAL.Migrations.Base;
+using BaSys.Logging.Abstractions.Abstractions;
 using BaSys.SuperAdmin.DAL.Abstractions;
 
 namespace BaSys.Host.Services;
@@ -13,16 +14,19 @@ public class MigrationService : IMigrationService
     private readonly IBaSysConnectionFactory _connectionFactory;
     private readonly string? _dbName;
     private readonly MigrationRunnerService _migrationRunnerService;
+    private readonly LoggerService _loggerService;
 
     public MigrationService(IDbInfoRecordsProvider dbInfoRecordsProvider,
         IBaSysConnectionFactory connectionFactory,
         IHttpContextAccessor httpContextAccessor,
-        MigrationRunnerService migrationRunnerService)
+        MigrationRunnerService migrationRunnerService,
+        LoggerService loggerService)
     {
         _dbInfoRecordsProvider = dbInfoRecordsProvider;
         _connectionFactory = connectionFactory;
         _dbName = httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(x => x.Type == "DbName")?.Value;
         _migrationRunnerService = migrationRunnerService;
+        _loggerService = loggerService;
     }
 
     public List<MigrationBase>? GetMigrations()
@@ -30,7 +34,7 @@ public class MigrationService : IMigrationService
         var migrations = typeof(MigrationBase)
             .Assembly.GetTypes()
             .Where(t => t.IsSubclassOf(typeof(MigrationBase)) && !t.IsAbstract)
-            .Select(t => (MigrationBase) Activator.CreateInstance(t)!)
+            .Select(t => (MigrationBase) Activator.CreateInstance(t, _loggerService)!)
             .OrderBy(x => x.MigrationUtcIdentifier)
             .ToList();
 
