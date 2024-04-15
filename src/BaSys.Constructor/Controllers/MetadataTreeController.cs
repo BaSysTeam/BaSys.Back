@@ -1,13 +1,17 @@
-﻿using BaSys.Common.Infrastructure;
+﻿using BaSys.Common.Enums;
+using BaSys.Common.Infrastructure;
 using BaSys.Metadata.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using System.Xml.Linq;
 
 namespace BaSys.Constructor.Controllers
 {
     [Route("api/constructor/v1/[controller]")]
     [ApiController]
+    [Authorize]
     public class MetadataTreeController : ControllerBase
     {
         /// <summary>
@@ -27,29 +31,45 @@ namespace BaSys.Constructor.Controllers
         private List<MetadataTreeNode> GetMetadataTreeNodes()
         {
             var metadataGroups = MetadataGroupDefaults.AllGroups();
-            var result = GetChildrenNodes(null, metadataGroups);
-            
-            return result;
+            var nodes = GetNodes(metadataGroups.ToList());
+            var systemNode = nodes.FirstOrDefault(x => x.Label.ToLower() == "system");
+            if (systemNode != null)
+            {
+                systemNode.Children.Add(new MetadataTreeNode
+                {
+                    Key = Guid.NewGuid().ToString(),
+                    Label = "DataTypes",
+                    NodeType = MetadataTreeNodeTypes.Element
+                });
+                systemNode.Children.Add(new MetadataTreeNode
+                {
+                    Key = Guid.NewGuid().ToString(),
+                    Label = "MetadataKinds",
+                    NodeType = MetadataTreeNodeTypes.Element
+                });
+            }
+
+            return nodes;
         }
 
-        private List<MetadataTreeNode> GetChildrenNodes(Guid? parentUid, IList<MetadataGroup> source)
+        private List<MetadataTreeNode> GetNodes(List<MetadataGroup> metadataGroups)
         {
-            var nodes = new List<MetadataTreeNode>();
-            var groups = source.Where(x => x.ParentUid == parentUid);
-            foreach (var group in groups)
+            var result = new List<MetadataTreeNode>();
+
+            foreach (var group in metadataGroups)
             {
                 var node = new MetadataTreeNode
                 {
                     Key = group.Uid.ToString(),
                     Label = group.Title,
                     Icon = group.IconClass,
-                    Children = GetChildrenNodes(group.Uid, source)
+                    NodeType = MetadataTreeNodeTypes.Group
                 };
 
-                nodes.Add(node);
+                result.Add(node);
             }
 
-            return nodes;
+            return result;
         }
     }
 }

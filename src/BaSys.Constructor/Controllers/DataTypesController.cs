@@ -1,5 +1,6 @@
 ﻿using BaSys.Common.Infrastructure;
 using BaSys.Metadata.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,6 +8,7 @@ namespace BaSys.Constructor.Controllers
 {
     [Route("api/constructor/v1/[controller]")]
     [ApiController]
+    [Authorize]
     public class DataTypesController : ControllerBase
     {
         /// <summary>
