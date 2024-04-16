@@ -15,17 +15,17 @@ namespace BaSys.Constructor.Services
     {
         private IDbConnection? _connection;
         private MetadataKindProvider? _provider;
-        private string _dbName = string.Empty;
-        private bool disposedValue;
 
         public MetadataKindsService()
         {
         }
 
-        public void SetUp(IDbConnection connection)
+        public IMetadataKindsService SetUp(IDbConnection connection)
         {
             _connection = connection;
             _provider = new MetadataKindProvider(_connection);
+
+            return this;
         }
 
         public async Task<ResultWrapper<IList<MetadataKindSettings>>> GetSettingsCollectionAsync(IDbTransaction? transaction = null)
@@ -97,6 +97,14 @@ namespace BaSys.Constructor.Services
                 return result;
             }
 
+            var savedItem = await _provider.GetItemAsync(settings.Uid, transaction);
+
+            if (savedItem != null)
+            {
+                result.Error(-1, $"Item already exists.", $"Uid: {settings.Uid}");
+                return result;
+            }
+
             try
             {
                 var insertedCount = await _provider.InsertSettingsAsync(settings, transaction);
@@ -104,7 +112,7 @@ namespace BaSys.Constructor.Services
             }
             catch (Exception ex)
             {
-                result.Error(-1, $"Cannot create item", $"Message: {ex.Message}, Query: {_provider.LastQuery}");
+                result.Error(-1, $"Cannot create item.", $"Message: {ex.Message}, Query: {_provider.LastQuery}");
             }
 
             return result;
