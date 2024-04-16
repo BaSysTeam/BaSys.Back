@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MemoryPack;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -15,6 +16,34 @@ namespace BaSys.Metadata.Models
         public bool IsStandard { get; set; }
         public string Memo { get; set; } = string.Empty;
         public byte[] SettingsStorage { get; set; } = new byte[0];
+
+        public MetadataKind()
+        {
+            
+        }
+
+        public MetadataKind(MetadataKindSettings settings)
+        {
+           
+            Uid = settings.Uid;
+            Title = settings.Title;
+            Name = settings.Name;
+            Prefix = settings.Prefix;
+            StoreData = settings.StoreData;
+            IsReference = settings.IsReference;
+            IsStandard = settings.IsStandard;
+            Memo = settings.Memo;
+
+            SettingsStorage = MemoryPackSerializer.Serialize(settings);
+
+        }
+
+        public MetadataKindSettings ToSettings()
+        {
+            var settings = MemoryPackSerializer.Deserialize<MetadataKindSettings>(SettingsStorage); 
+
+            return settings;
+        }
 
     }
 }

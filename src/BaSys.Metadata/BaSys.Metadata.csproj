@@ -5,6 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MemoryPack" Version="1.21.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\BaSys.Shared\BaSys.Shared.csproj" />
   </ItemGroup>
 

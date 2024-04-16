@@ -1,10 +1,12 @@
-﻿using System;
+﻿using MemoryPack;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace BaSys.Metadata.Models
 {
-    public sealed class MetadataKindSettings
+    [MemoryPackable]
+    public sealed partial class MetadataKindSettings
     {
         public Guid Uid { get; set; }
         public string Title { get; set; } = string.Empty;

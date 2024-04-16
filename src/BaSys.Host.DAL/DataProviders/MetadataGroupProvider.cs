@@ -27,15 +27,6 @@ namespace BaSys.Host.DAL.DataProviders
         {
             var result = 0;
 
-            //var query = InsertBuilder.Make()
-            //    .Table(_tableName)
-            //    .Column("parentuid")
-            //    .Column("title")
-            //    .Column("iconclass")
-            //    .Column("memo")
-            //    .Column("isstandard")
-            //    .FillValuesByColumnNames(true).Query(_sqlDialect);
-
             _query = InsertBuilder.Make(_config)
               .FillValuesByColumnNames(true).Query(_sqlDialect);
 
@@ -47,16 +38,6 @@ namespace BaSys.Host.DAL.DataProviders
         public override async Task<int> UpdateAsync(MetadataGroup item, IDbTransaction transaction)
         {
             var result = 0;
-
-            //var query = UpdateBuilder.Make()
-            //    .Table(_tableName)
-            //    .Set("parentuid")
-            //    .Set("title")
-            //    .Set("iconclass")
-            //    .Set("memo")
-            //    .Set("isstandard")
-            //    .WhereAnd("uid = @uid")
-            //    .Query(_sqlDialect);
 
             _query = UpdateBuilder.Make(_config)
               .WhereAnd("uid = @uid")
