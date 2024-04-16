@@ -24,8 +24,11 @@ namespace BaSys.Metadata.Models
 
         public MetadataKind(MetadataKindSettings settings)
         {
-           
-            Uid = settings.Uid;
+           FillBySettings(settings);
+        }
+
+        public void FillBySettings(MetadataKindSettings settings)
+        {
             Title = settings.Title;
             Name = settings.Name;
             Prefix = settings.Prefix;
@@ -35,12 +38,12 @@ namespace BaSys.Metadata.Models
             Memo = settings.Memo;
 
             SettingsStorage = MemoryPackSerializer.Serialize(settings);
-
         }
 
         public MetadataKindSettings ToSettings()
         {
             var settings = MemoryPackSerializer.Deserialize<MetadataKindSettings>(SettingsStorage); 
+            settings.Uid = Uid;
 
             return settings;
         }
