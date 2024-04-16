@@ -19,8 +19,9 @@ namespace BaSys.Constructor.Controllers
 
         private readonly IMetadataKindsService _metadataKindsService;
 
-        public MetadataKindsController(
-            IMetadataKindsService metadataKindsService)
+        public MetadataKindsController(IBaSysConnectionFactory connectionFactory, 
+            IDbInfoRecordsProvider dbInfoRecordsProvider, 
+            IMetadataKindsService metadataKindsService) :base(connectionFactory, dbInfoRecordsProvider)
         {
             _metadataKindsService = metadataKindsService;
         }
@@ -28,7 +29,7 @@ namespace BaSys.Constructor.Controllers
         [HttpGet]
         public async Task<IActionResult> GetSettingsCollection()
         {
-            _metadataKindsService.SetUp(DbName);
+            _metadataKindsService.SetUp(_connection);
             var result = await _metadataKindsService.GetSettingsCollectionAsync(null);
 
             return Ok(result);
@@ -37,7 +38,7 @@ namespace BaSys.Constructor.Controllers
         [HttpGet("{uid}")]
         public async Task<IActionResult> GetItem(Guid uid)
         {
-            _metadataKindsService.SetUp(DbName);
+            _metadataKindsService.SetUp(_connection);
             var result = await _metadataKindsService.GetSettingsItemAsync(uid, null);
 
             return Ok(result);
@@ -46,7 +47,7 @@ namespace BaSys.Constructor.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateItem(MetadataKindSettings settings)
         {
-            _metadataKindsService.SetUp(DbName);
+            _metadataKindsService.SetUp(_connection);
             var result = await _metadataKindsService.InsertSettingsAsync(settings, null);
 
             return Ok(result);
@@ -56,7 +57,7 @@ namespace BaSys.Constructor.Controllers
         [HttpPut]
         public async Task<IActionResult> UpdateItem(MetadataKindSettings settings)
         {
-            _metadataKindsService.SetUp(DbName);
+            _metadataKindsService.SetUp(_connection);
             var result = await _metadataKindsService.UpdateSettingsAsync(settings, null);
 
             return Ok(result);
@@ -66,7 +67,7 @@ namespace BaSys.Constructor.Controllers
         [HttpDelete("{uid}")]
         public async Task<IActionResult> DeleteItem(Guid uid)
         {
-            _metadataKindsService.SetUp(DbName);
+            _metadataKindsService.SetUp(_connection);
             var result = await _metadataKindsService.DeleteAsync(uid, null);
 
             return Ok(result);

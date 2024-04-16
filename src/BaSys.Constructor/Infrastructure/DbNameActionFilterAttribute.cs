@@ -11,10 +11,9 @@ namespace BaSys.Constructor.Infrastructure
             var controller = context.Controller as ApiControllerBase;
             if (controller != null)
             {
-                var dbName = controller.User.Claims.FirstOrDefault(x => x.Type == GlobalConstants.DbNameClaim)?.Value;
-                controller.DbName = dbName;  // Assuming you add a public string DbName property on the controller
+                controller.CreateConnection();
             }
         }
-    }
 
+    }
 }

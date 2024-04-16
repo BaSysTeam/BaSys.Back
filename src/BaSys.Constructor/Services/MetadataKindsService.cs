@@ -11,31 +11,20 @@ using System.Linq;
 
 namespace BaSys.Constructor.Services
 {
-    public sealed class MetadataKindsService : IMetadataKindsService, IDisposable
+    public sealed class MetadataKindsService : IMetadataKindsService
     {
         private IDbConnection? _connection;
         private MetadataKindProvider? _provider;
         private string _dbName = string.Empty;
         private bool disposedValue;
-        private readonly IDbInfoRecordsProvider _dbInfoRecordsProvider;
-        private readonly IBaSysConnectionFactory _connectionFactory;
 
-        public MetadataKindsService(IDbInfoRecordsProvider dbInfoRecordsProvider, IBaSysConnectionFactory connectionFactory)
+        public MetadataKindsService()
         {
-            _dbInfoRecordsProvider = dbInfoRecordsProvider;
-            _connectionFactory = connectionFactory;
         }
 
-        public void SetUp(string? dbName)
+        public void SetUp(IDbConnection connection)
         {
-            if (_connection != null)
-                return;
-
-            var dbInfoRecord = _dbInfoRecordsProvider.GetDbInfoRecordByDbName(dbName);
-            if (dbInfoRecord == null)
-                throw new ArgumentNullException($"Cannog get DbInfoRecord for DB {dbName}");
-
-            _connection = _connectionFactory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind);
+            _connection = connection;
             _provider = new MetadataKindProvider(_connection);
         }
 
@@ -184,26 +173,6 @@ namespace BaSys.Constructor.Services
             return true;
 
         }
-
-        private void Dispose(bool disposing)
-        {
-            if (!disposedValue)
-            {
-                if (disposing)
-                {
-                    if (_connection != null)
-                        _connection.Dispose();
-                }
-
-                disposedValue = true;
-            }
-        }
-
-        public void Dispose()
-        {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
+       
     }
 }
