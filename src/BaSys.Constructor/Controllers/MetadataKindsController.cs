@@ -44,7 +44,7 @@ namespace BaSys.Constructor.Controllers
         [HttpGet]
         public async Task<IActionResult> GetSettingsCollection()
         {
-            var result = await _metadataKindsService.SetUp(_connection).GetSettingsCollectionAsync(null);
+            var result = await _metadataKindsService.SetUp(_connection).GetCollectionAsync(null);
 
             return Ok(result);
         }

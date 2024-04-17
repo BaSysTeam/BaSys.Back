@@ -28,9 +28,9 @@ namespace BaSys.Constructor.Services
             return this;
         }
 
-        public async Task<ResultWrapper<IList<MetadataKindSettings>>> GetSettingsCollectionAsync(IDbTransaction? transaction = null)
+        public async Task<ResultWrapper<IEnumerable<MetadataKind>>> GetCollectionAsync(IDbTransaction? transaction = null)
         {
-            var result = new ResultWrapper<IList<MetadataKindSettings>>();
+            var result = new ResultWrapper<IEnumerable<MetadataKind>>();
 
             if (!Check())
             {
@@ -41,9 +41,8 @@ namespace BaSys.Constructor.Services
             try
             {
                 var items = await _provider.GetCollectionAsync(transaction);
-                var settings = items.ToList().Select(x => x.ToSettings()).ToList();
 
-                result.Success(settings);
+                result.Success(items);
 
             }
             catch (Exception ex)
