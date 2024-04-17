@@ -7,6 +7,7 @@ public interface IMigrationService
 {
     List<MigrationBase>? GetMigrations();
     Task<List<MigrationBase>?> GetAppliedMigrations();
+    Task<List<MigrationDto>?> GetMigrationList();
     Task<bool> MigrationDown();
     Task<bool> MigrationUp(Guid migrationUid);
     bool StopMigration();

@@ -3,6 +3,7 @@ using BaSys.Host.Abstractions;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
 using BaSys.Host.DAL.Migrations.Base;
+using BaSys.Host.DTO;
 using BaSys.Logging.Abstractions.Abstractions;
 using BaSys.SuperAdmin.DAL.Abstractions;
 
@@ -29,13 +30,13 @@ public class MigrationService : IMigrationService
         _loggerService = loggerService;
     }
 
-    public List<MigrationBase>? GetMigrations()
+    public List<MigrationBase> GetMigrations()
     {
         var migrations = typeof(MigrationBase)
             .Assembly.GetTypes()
             .Where(t => t.IsSubclassOf(typeof(MigrationBase)) && !t.IsAbstract)
             .Select(t => (MigrationBase) Activator.CreateInstance(t, _loggerService)!)
-            .OrderBy(x => x.MigrationUtcIdentifier)
+            .OrderByDescending(x => x.MigrationUtcIdentifier)
             .ToList();
 
         CheckMigrations(migrations);
@@ -64,6 +65,25 @@ public class MigrationService : IMigrationService
 
         var appliedMigrations = allMigrations?.Where(x => appliedMigrationUids.Contains(x.Uid)).ToList();
         return appliedMigrations;
+    }
+    
+    public async Task<List<MigrationDto>?> GetMigrationList()
+    {
+        var allMigrations = GetMigrations()
+            ?.Select(x => new MigrationDto(x))
+            .ToList();
+        if (allMigrations == null)
+            return null;
+
+        var appliedMigrations = await GetAppliedMigrations();
+
+        foreach (var appliedMigration in appliedMigrations ?? Enumerable.Empty<MigrationBase>())
+        {
+            var migraion = allMigrations.First(x => x.Uid == appliedMigration.Uid);
+            migraion.IsApplied = true;
+        }
+        
+        return allMigrations;
     }
 
     public async Task<bool> MigrationUp(Guid migrationUid)

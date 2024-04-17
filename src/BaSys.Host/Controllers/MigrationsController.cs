@@ -15,45 +15,70 @@ public class MigrationsController : ControllerBase
         _migrationService = migrationService;
     }
     
+    // /// <summary>
+    // /// Get all exists migrations in system
+    // /// </summary>
+    // /// <returns></returns>
+    // [HttpGet]
+    // public IActionResult Get()
+    // {
+    //     var result = new ResultWrapper<IEnumerable<MigrationDto>>();
+    //
+    //     try
+    //     {
+    //         var migrations = _migrationService.GetMigrations();
+    //         if (migrations != null)
+    //             result.Success(migrations.Select(x => new MigrationDto(x)));
+    //         else
+    //             result.Error(-1, "Error migration search");
+    //     }
+    //     catch (Exception e)
+    //     {
+    //         result.Error(-1, $"Error: {e}");
+    //     }
+    //     
+    //     return Ok(result);
+    // }
+    
+    // /// <summary>
+    // /// Get applied migrations
+    // /// </summary>
+    // /// <returns></returns>
+    // [HttpGet("GetAppliedMigrations")]
+    // public async Task<IActionResult> GetAppliedMigrations()
+    // {
+    //     var result = new ResultWrapper<IEnumerable<MigrationDto>>();
+    //
+    //     try
+    //     {
+    //         var migrations = await _migrationService.GetAppliedMigrations();
+    //         if (migrations != null)
+    //             result.Success(migrations.Select(x => new MigrationDto(x)));
+    //         else
+    //             result.Error(-1, "Error migration search");
+    //     }
+    //     catch (Exception e)
+    //     {
+    //         result.Error(-1, $"Error: {e}");
+    //     }
+    //     
+    //     return Ok(result);
+    // }
+    
     /// <summary>
-    /// Get all exists migrations in system
+    /// Get migrations with statuses
     /// </summary>
     /// <returns></returns>
     [HttpGet]
-    public IActionResult Get()
+    public async Task<IActionResult> Get()
     {
         var result = new ResultWrapper<IEnumerable<MigrationDto>>();
 
         try
         {
-            var migrations = _migrationService.GetMigrations();
+            var migrations = await _migrationService.GetMigrationList();
             if (migrations != null)
-                result.Success(migrations.Select(x => new MigrationDto(x)));
-            else
-                result.Error(-1, "Error migration search");
-        }
-        catch (Exception e)
-        {
-            result.Error(-1, $"Error: {e}");
-        }
-        
-        return Ok(result);
-    }
-    
-    /// <summary>
-    /// Get applied migrations
-    /// </summary>
-    /// <returns></returns>
-    [HttpGet("GetAppliedMigrations")]
-    public async Task<IActionResult> GetAppliedMigrations()
-    {
-        var result = new ResultWrapper<IEnumerable<MigrationDto>>();
-
-        try
-        {
-            var migrations = await _migrationService.GetAppliedMigrations();
-            if (migrations != null)
-                result.Success(migrations.Select(x => new MigrationDto(x)));
+                result.Success(migrations);
             else
                 result.Error(-1, "Error migration search");
         }
