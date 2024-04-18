@@ -17,16 +17,9 @@ namespace BaSys.Host.DAL.TableManagers
         {
         }
 
-        public override async Task<int> CreateTableAsync(IDbTransaction transaction = null)
+        public override async Task<int> CreateTableAsync(IDbTransaction? transaction = null)
         {
             await base.CreateTableAsync(transaction);
-
-            //var query = CreateTableBuilder.Make()
-            //   .Table(_tableName)
-            //   .PrimaryKey("Uid", DbType.Guid)
-            //   .Column("DataBaseUid", DbType.Guid, false)
-            //   .StringColumn("ApplicationTitle", 100, true)
-            //   .Query(_sqlDialectKind);
 
             _query = CreateTableBuilder.Make(_config).Query(_sqlDialectKind);
 

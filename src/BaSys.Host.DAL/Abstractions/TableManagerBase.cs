@@ -26,14 +26,14 @@ namespace BaSys.Host.DAL.Abstractions
 
         public string TableName =>  _config.TableName;
 
-        public virtual async Task<int> CreateTableAsync(IDbTransaction transaction = null)
+        public virtual async Task<int> CreateTableAsync(IDbTransaction? transaction = null)
         {
             var result = await CreateExtensionUuidOsspAsync(transaction);
 
             return result;
         }
 
-        public virtual async Task<int> DropTableAsync(IDbTransaction transaction = null)
+        public virtual async Task<int> DropTableAsync(IDbTransaction? transaction = null)
         {
             _query = DropTableBuilder.Make().Table(_config.TableName).Query(_sqlDialectKind);
             
@@ -43,7 +43,7 @@ namespace BaSys.Host.DAL.Abstractions
             return result;
         }
 
-        public virtual async Task<bool> TableExistsAsync(IDbTransaction transaction = null)
+        public virtual async Task<bool> TableExistsAsync(IDbTransaction? transaction = null)
         {
             _query = TableExistsBuilder.Make().Table(_config.TableName).Query(_sqlDialectKind);
 
@@ -52,7 +52,7 @@ namespace BaSys.Host.DAL.Abstractions
             return result.Exists;
         }
 
-        public async Task<bool> ColumnExistsAsync(string columnName, IDbTransaction transaction = null)
+        public async Task<bool> ColumnExistsAsync(string columnName, IDbTransaction? transaction = null)
         {
             _query = ColumnExistsBuilder.Make().Table(_config.TableName).Column(columnName).Query(_sqlDialectKind);
 
@@ -61,7 +61,7 @@ namespace BaSys.Host.DAL.Abstractions
             return result;
         }
 
-        public async Task<int> TruncateTableAsync(IDbTransaction transaction = null)
+        public async Task<int> TruncateTableAsync(IDbTransaction? transaction = null)
         {
             _query = TruncateTableBuilder.Make().Table(_config.TableName).Query(_sqlDialectKind);
 
