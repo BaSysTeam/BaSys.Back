@@ -1,5 +1,7 @@
 ﻿using BaSys.Common.Enums;
 using BaSys.Common.Infrastructure;
+using BaSys.Constructor.Abstractions;
+using BaSys.Metadata.DTOs;
 using BaSys.Metadata.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -14,62 +16,72 @@ namespace BaSys.Constructor.Controllers
     [Authorize]
     public class MetadataTreeController : ControllerBase
     {
+        private readonly IMetadataTreeService _metadataTreeService;
+
+        public MetadataTreeController(IMetadataTreeService metadataTreeService)
+        {
+            _metadataTreeService = metadataTreeService;
+        }
+
         /// <summary>
-        /// Retrieve metadata tree.
+        /// Retrieves default nodes of the top level of the metadata tree.
         /// </summary>
         /// <returns></returns>
-        [HttpGet]
-        public IActionResult GetMetadataTree()
+        [HttpGet("GetDefaultNodes")]
+        public async Task<IActionResult> GetDefaultNodes()
         {
-            var metadataTree = GetMetadataTreeNodes();
-            var result = new ResultWrapper<List<MetadataTreeNode>>();
-            result.Success(metadataTree);
+            var dbName = GetDbName();
+            var result = await _metadataTreeService.GetDefaultNodesAsync(dbName);
 
             return Ok(result);
         }
 
-        private List<MetadataTreeNode> GetMetadataTreeNodes()
+        /// <summary>
+        /// Adds new metadata group.
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
+        [HttpPost("AddMetadataGroup")]
+        public async Task<IActionResult> AddMetadataGroup(MetadataGroupDto dto)
         {
-            var metadataGroups = MetadataGroupDefaults.AllGroups();
-            var nodes = GetNodes(metadataGroups.ToList());
-            var systemNode = nodes.FirstOrDefault(x => x.Label.ToLower() == "system");
-            if (systemNode != null)
-            {
-                systemNode.Children.Add(new MetadataTreeNode
-                {
-                    Key = Guid.NewGuid().ToString(),
-                    Label = "DataTypes",
-                    NodeType = MetadataTreeNodeTypes.Element
-                });
-                systemNode.Children.Add(new MetadataTreeNode
-                {
-                    Key = Guid.NewGuid().ToString(),
-                    Label = "MetadataKinds",
-                    NodeType = MetadataTreeNodeTypes.Element
-                });
-            }
+            var dbName = GetDbName();
+            var result = await _metadataTreeService.AddAsync(dto, dbName);
 
-            return nodes;
+            return Ok(result);
         }
 
-        private List<MetadataTreeNode> GetNodes(List<MetadataGroup> metadataGroups)
+        /// <summary>
+        /// Retrieves children of metadata group.
+        /// </summary>
+        /// <param name="uid"></param>
+        /// <returns></returns>
+        [HttpGet("Children/{uid}")]
+        public async Task<IActionResult> GetChildren(string uid)
         {
-            var result = new List<MetadataTreeNode>();
+            var dbName = GetDbName();
+            var result = await _metadataTreeService.GetChildrenAsync(uid, dbName);
 
-            foreach (var group in metadataGroups)
-            {
-                var node = new MetadataTreeNode
-                {
-                    Key = group.Uid.ToString(),
-                    Label = group.Title,
-                    Icon = group.IconClass,
-                    NodeType = MetadataTreeNodeTypes.Group
-                };
+            return Ok(result);
+        }
 
-                result.Add(node);
-            }
+        /// <summary>
+        /// Deletes metadata group.
+        /// </summary>
+        /// <param name="uid"></param>
+        /// <returns></returns>
+        [HttpDelete("MetadataGroup/{uid}")]
+        public async Task<IActionResult> DeleteMetadataGroup(string uid)
+        {
+            var dbName = GetDbName();
+            var result = await _metadataTreeService.DeleteAsync(uid, dbName);
 
-            return result;
+            return Ok(result);
+        }
+
+        private string? GetDbName()
+        {
+            var authUserDbNameClaim = User.Claims.FirstOrDefault(x => x.Type == "DbName");
+            return authUserDbNameClaim?.Value;
         }
     }
 }
