@@ -59,7 +59,7 @@ public class MigrationRunnerService
                 }, null);
             }
 
-            _runDict.TryRemove(dbName, out _);
+            _runDict.TryRemove(dbName.ToUpper(), out _);
         }, cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         
         _runDict.TryAdd(dbName.ToUpper(), new MigrationTask
@@ -90,7 +90,7 @@ public class MigrationRunnerService
             var migrationsProvider = new MigrationsProvider(connection);
             await migrationsProvider.DeleteByMigrationUidAsync(migration.Uid);
             
-            _runDict.TryRemove(dbName, out _);
+            _runDict.TryRemove(dbName.ToUpper(), out _);
         }, cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         
         _runDict.TryAdd(dbName.ToUpper(), new MigrationTask

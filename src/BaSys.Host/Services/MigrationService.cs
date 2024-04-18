@@ -82,6 +82,10 @@ public class MigrationService : IMigrationService
             var migraion = allMigrations.First(x => x.Uid == appliedMigration.Uid);
             migraion.IsApplied = true;
         }
+
+        var possibleRemoveMigration = allMigrations.FirstOrDefault(x => x.IsApplied);
+        if (possibleRemoveMigration != null)
+            possibleRemoveMigration.IsPossibleRemove = true;
         
         return allMigrations;
     }
@@ -183,7 +187,7 @@ public class MigrationService : IMigrationService
 
     private async Task<List<MigrationBase>> GetMigrationsToApply(Guid migrationUid, MigrationsProvider provider)
     {
-        var allMigrations = GetMigrations();
+        var allMigrations = GetMigrations().OrderBy(x => x.MigrationUtcIdentifier);
         var appliedMigrations = (await provider.GetCollectionAsync(null))
             .OrderBy(x => x.ApplyDateTime)
             .ToList();

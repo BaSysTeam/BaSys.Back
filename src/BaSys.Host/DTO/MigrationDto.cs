@@ -21,4 +21,5 @@ public class MigrationDto
     public string Name { get; set; }
     public string? Description { get; set; }
     public bool IsApplied { get; set; }
+    public bool IsPossibleRemove { get; set; }
 }

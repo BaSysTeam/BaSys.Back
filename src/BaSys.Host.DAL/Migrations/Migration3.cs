@@ -14,10 +14,11 @@ public class Migration3 : MigrationBase
     public override DateTime MigrationUtcIdentifier => new (2024, 4, 10, 12, 30, 0);
     
     public override string Name => "Migration3";
+    public override string Description => "Migration3 description";
     
     public override async Task Up(IDbConnection connection, CancellationToken ct)
     {
-        await Task.Delay(120000, ct);
+        await Task.Delay(3000, ct);
     }
 
     public override async Task Down(IDbConnection connection, CancellationToken ct)
