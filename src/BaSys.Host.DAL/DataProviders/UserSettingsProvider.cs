@@ -34,4 +34,18 @@ public class UserSettingsProvider : SystemObjectProviderBase<UserSettings>
 
         return result;
     }
+    
+    public async Task<UserSettings?> GetItemByUserIdAsync(string userId, IDbTransaction? transaction = null)
+    {
+        _query = SelectBuilder.Make()
+            .From(_config.TableName)
+            .Select("*")
+            .WhereAnd("userId = @userId")
+            .Parameter("userId", userId)
+            .Query(_sqlDialect);
+
+        var result = await _dbConnection.QueryFirstOrDefaultAsync<UserSettings>(_query.Text, _query.DynamicParameters, transaction);
+
+        return result;
+    }
 }
