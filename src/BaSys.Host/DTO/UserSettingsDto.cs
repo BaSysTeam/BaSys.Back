@@ -19,4 +19,14 @@ public class UserSettingsDto
     public Guid Uid { get; set; }
     public string UserId { get; set; } = string.Empty;
     public Languages Language { get; set; }
+
+    public UserSettings ToModel()
+    {
+        return new UserSettings
+        {
+            Uid = Uid,
+            UserId = UserId,
+            Language = Language
+        };
+    }
 }

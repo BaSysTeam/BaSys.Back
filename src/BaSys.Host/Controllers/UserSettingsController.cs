@@ -38,4 +38,21 @@ public class UserSettingsController : ControllerBase
             return Ok(result);
         }
     }
+
+    [HttpPost]
+    public async Task<IActionResult> Update([FromBody] UserSettingsDto userSettings)
+    {
+        try
+        {
+            var result = await _userSettingsService.UpdateUserSettings(userSettings);
+            return Ok(result);
+        }
+        catch (Exception e)
+        {
+            var result = new ResultWrapper<bool>();
+            result.Error(-1, $"Error: {e}");
+            
+            return Ok(result);
+        }
+    }
 }

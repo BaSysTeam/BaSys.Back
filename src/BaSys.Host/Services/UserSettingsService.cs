@@ -56,6 +56,23 @@ public class UserSettingsService : IUserSettingsService
 
     public async Task<ResultWrapper<bool>> UpdateUserSettings(UserSettingsDto userSettings)
     {
-        return null;
+        var result = new ResultWrapper<bool>();
+        if (string.IsNullOrEmpty(_dbName))
+        {
+            result.Error(-1, $"DbName is not set!");
+            return result;
+        }
+        
+        var dbInfoRecord = _dbInfoRecordsProvider.GetDbInfoRecordByDbName(_dbName);
+        using var connection = _connectionFactory.CreateConnection(dbInfoRecord!.ConnectionString, dbInfoRecord.DbKind);
+        var provider = new UserSettingsProvider(connection);
+
+        var state = await provider.UpdateAsync(userSettings.ToModel(), null);
+        if (state == 1)
+            result.Success(true);
+        else
+            result.Error(-1, "UserSettings update error");
+        
+        return result;
     }
 }
