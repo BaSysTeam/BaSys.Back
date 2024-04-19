@@ -164,6 +164,7 @@ namespace BaSys.Host
             builder.Services.AddTransient<IWorkDbService, WorkDbService>();
             builder.Services.AddTransient<IHttpRequestContextService, HttpRequestContextService>();
             builder.Services.AddTransient<IUserSettingsService, UserSettingsService>();
+            builder.Services.AddTransient<IMigrationService, MigrationService>();
             builder.Services.AddTransient<LoggerService>(sp =>
             {
                 var loggerFactory = sp.GetRequiredService<IBaSysLoggerFactory>();
@@ -176,6 +177,8 @@ namespace BaSys.Host
 
             // Service to create system tables and fill constants when DB created.
             builder.Services.AddTransient<IDbInitService, DbInitService>();
+
+            builder.Services.AddSingleton<MigrationRunnerService>();
 
             builder.Services.AddSwaggerGen(options => IncludeXmlCommentsHelper.IncludeXmlComments(options));
 

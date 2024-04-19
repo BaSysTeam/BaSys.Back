@@ -27,6 +27,7 @@
       <ProjectReference Include="..\BaSys.FluentQueries\BaSys.FluentQueries.csproj" />
       <ProjectReference Include="..\BaSys.Host.Identity\BaSys.Host.Identity.csproj" />
       <ProjectReference Include="..\BaSys.Host.Infrastructure\BaSys.Host.Infrastructure.csproj" />
+      <ProjectReference Include="..\BaSys.Logging.Infrastructure\BaSys.Logging.Infrastructure.csproj" />
       <ProjectReference Include="..\BaSys.Metadata\BaSys.Metadata.csproj" />
       <ProjectReference Include="..\BaSys.Shared\BaSys.Shared.csproj" />
     </ItemGroup>
