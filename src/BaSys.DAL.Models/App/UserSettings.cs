@@ -10,8 +10,7 @@ namespace BaSys.DAL.Models.App
     public sealed class UserSettings
     {
         public Guid Uid { get; set; }
-        public string UserId { get; set; } = string.Empty;  
+        public string UserId { get; set; } = string.Empty;
         public Languages Language { get; set; }
-
     }
 }

@@ -163,6 +163,7 @@ namespace BaSys.Host
             builder.Services.AddTransient<IMainDbCheckService, MainDbCheckService>();
             builder.Services.AddTransient<IWorkDbService, WorkDbService>();
             builder.Services.AddTransient<IHttpRequestContextService, HttpRequestContextService>();
+            builder.Services.AddTransient<IUserSettingsService, UserSettingsService>();
             builder.Services.AddTransient<LoggerService>(sp =>
             {
                 var loggerFactory = sp.GetRequiredService<IBaSysLoggerFactory>();
