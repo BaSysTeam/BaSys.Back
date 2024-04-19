@@ -13,9 +13,9 @@ using System.Threading.Tasks;
 
 namespace BaSys.Host.DAL.DataProviders
 {
-    public sealed class MetadataKindProvider : SystemObjectProviderBase<MetadataKind>
+    public sealed class MetadataKindsProvider : SystemObjectProviderBase<MetadataKind>
     {
-        public MetadataKindProvider(IDbConnection connection) : base(connection, new MetadataKindConfiguration())
+        public MetadataKindsProvider(IDbConnection connection) : base(connection, new MetadataKindConfiguration())
         {
         }
 
@@ -24,7 +24,7 @@ namespace BaSys.Host.DAL.DataProviders
             _query = InsertBuilder.Make(_config)
            .FillValuesByColumnNames(true).Query(_sqlDialect);
 
-           var result = await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
+            var result = await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
 
             return result;
         }
@@ -48,6 +48,21 @@ namespace BaSys.Host.DAL.DataProviders
             result = await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
 
             return result;
+        }
+
+        public async Task<MetadataKindSettings?> GetSettingsByNameAsync(string name, IDbTransaction? transaction = null)
+        {
+            _query = SelectBuilder.Make()
+              .From(_config.TableName)
+              .Select("*")
+              .WhereAnd("name = @name")
+              .Parameter("name", name)
+              .Query(_sqlDialect);
+
+            var item = await _dbConnection.QueryFirstOrDefaultAsync<MetadataKind>(_query.Text, _query.DynamicParameters, transaction);
+
+            return item?.ToSettings();
+
         }
     }
 }
