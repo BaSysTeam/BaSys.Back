@@ -18,7 +18,7 @@ public class Migration3 : MigrationBase
     
     public override async Task Up(IDbConnection connection, CancellationToken ct)
     {
-        await Task.Delay(3000, ct);
+        await Task.Delay(1000, ct);
     }
 
     public override async Task Down(IDbConnection connection, CancellationToken ct)

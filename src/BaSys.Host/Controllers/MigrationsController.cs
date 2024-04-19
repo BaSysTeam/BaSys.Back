@@ -1,12 +1,14 @@
 ﻿using BaSys.Common.Infrastructure;
 using BaSys.Host.Abstractions;
 using BaSys.Host.DTO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BaSys.Host.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
+[Authorize(Roles = ApplicationRole.Administrator)]
 public class MigrationsController : ControllerBase
 {
     private readonly IMigrationService _migrationService;
@@ -62,7 +64,6 @@ public class MigrationsController : ControllerBase
         {
             result.Error(-1, $"MigrationUp false: {e.Message}");
         }
-        
         
         return Ok(result);
     }
