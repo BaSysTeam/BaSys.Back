@@ -18,7 +18,7 @@ public class PgSqlLoggerService : LoggerService
         : base(loggerConfig, userUid, userName, ipAddress)
     {
         if (string.IsNullOrEmpty(loggerConfig.ConnectionString) || string.IsNullOrEmpty(loggerConfig.TableName))
-            throw new ArgumentException();
+            return;
 
         CheckDbExists(loggerConfig.ConnectionString);
 
