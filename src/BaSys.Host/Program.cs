@@ -71,7 +71,7 @@ namespace BaSys.Host
             });
 
             // Add host version service
-            builder.Services.AddScoped<IHostVersionService>(provider =>
+            builder.Services.AddSingleton<IHostVersionService>(provider =>
             {
                 var version = Assembly.GetAssembly(typeof(Program))?.GetName()?.Version?.ToString() ?? string.Empty;
                 return new HostVersionService(version);

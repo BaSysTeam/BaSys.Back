@@ -22,6 +22,10 @@ namespace BaSys.FluentQueries.ScriptGenerators
 
             var sb = new StringBuilder();
             sb.Append("SELECT ");
+            if (_model.Top > 0 && _sqlDialect == SqlDialectKinds.MsSql)
+            {
+                sb.Append($"TOP {_model.Top} ");
+            }
 
             var n = 1;
             foreach(var selectExpression  in _model.SelectExpressions)
@@ -37,12 +41,25 @@ namespace BaSys.FluentQueries.ScriptGenerators
 
             sb.Append("FROM ");
             sb.Append(_model.FromExpression);
+           
 
             if (!string.IsNullOrEmpty(_model.WhereExpression))
             {
                 sb.AppendLine();
                 sb.Append("WHERE ");
                 sb.Append(_model.WhereExpression);
+            }
+            if (!string.IsNullOrEmpty(_model.OrderByExpression))
+            {
+                sb.AppendLine();
+                sb.Append("ORDER BY ");
+                sb.Append(_model.OrderByExpression);
+
+            }
+            if (_model.Top > 0 && _sqlDialect == SqlDialectKinds.PgSql)
+            {
+                sb.AppendLine();
+                sb.Append($"LIMIT {_model.Top}");
             }
             sb.Append(";");
 

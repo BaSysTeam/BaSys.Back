@@ -172,17 +172,34 @@ public class DbInfoRecordsController : ControllerBase
         return Ok(result);
     }
 
+    // /// <summary>
+    // /// Check db exists by DbInfoRecord id
+    // /// </summary>
+    // /// <param name="dbInfoRecordIds"></param>
+    // /// <returns></returns>
+    // [HttpPost("CheckDbExistsByDbInfoRecordIds")]
+    // public async Task<IActionResult> CheckDbExistsByDbInfoRecordIds([FromBody] IEnumerable<int> dbInfoRecordIds)
+    // {
+    //     var result = new ResultWrapper<IEnumerable<ExistsDbResponseDto>>();
+    //     
+    //     var items = await _dbInfoRecordsService.CheckDbExists(dbInfoRecordIds);
+    //     result.Success(items);
+    //     
+    //     return Ok(result);
+    // }
+    
     /// <summary>
     /// Check db exists by DbInfoRecord id
+    /// Example request: api/sa/v1/DbInfoRecords/CheckDbExists?ids=1&ids=2'
     /// </summary>
-    /// <param name="dbInfoRecordIds"></param>
+    /// <param name="ids"></param>
     /// <returns></returns>
-    [HttpPost("CheckDbExistsByDbInfoRecordIds")]
-    public async Task<IActionResult> CheckDbExistsByDbInfoRecordIds([FromBody] IEnumerable<int> dbInfoRecordIds)
+    [HttpGet("CheckDbExists")]
+    public async Task<IActionResult> CheckDbExists([FromQuery] IEnumerable<int> ids)
     {
         var result = new ResultWrapper<IEnumerable<ExistsDbResponseDto>>();
         
-        var items = await _dbInfoRecordsService.CheckDbExists(dbInfoRecordIds);
+        var items = await _dbInfoRecordsService.CheckDbExists(ids);
         result.Success(items);
         
         return Ok(result);

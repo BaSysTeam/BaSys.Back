@@ -168,6 +168,9 @@
   <data name="CannotGetUsersList" xml:space="preserve">
     <value>Cannot get users list</value>
   </data>
+  <data name="CannotInsertItem" xml:space="preserve">
+    <value>Cannot insert item</value>
+  </data>
   <data name="CannotUpdateAppConstantsRecord" xml:space="preserve">
     <value>Cannot update app constants record</value>
   </data>
@@ -188,6 +191,9 @@
   </data>
   <data name="EmptyLoggerType" xml:space="preserve">
     <value>The logger type should not be empty</value>
+  </data>
+  <data name="EmptyParentUid" xml:space="preserve">
+    <value>The parent uid should not be empty</value>
   </data>
   <data name="EmptyUsersList" xml:space="preserve">
     <value>Empty users list</value>

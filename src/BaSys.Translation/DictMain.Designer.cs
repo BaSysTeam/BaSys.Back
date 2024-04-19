@@ -214,6 +214,15 @@ namespace BaSys.Translation {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot insert item.
+        /// </summary>
+        public static string CannotInsertItem {
+            get {
+                return ResourceManager.GetString("CannotInsertItem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cannot update app constants record.
         /// </summary>
         public static string CannotUpdateAppConstantsRecord {
@@ -273,6 +282,15 @@ namespace BaSys.Translation {
         public static string EmptyLoggerType {
             get {
                 return ResourceManager.GetString("EmptyLoggerType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The parent uid should not be empty.
+        /// </summary>
+        public static string EmptyParentUid {
+            get {
+                return ResourceManager.GetString("EmptyParentUid", resourceCulture);
             }
         }
         

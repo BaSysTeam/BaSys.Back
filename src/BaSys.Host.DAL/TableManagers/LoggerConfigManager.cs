@@ -17,7 +17,7 @@ namespace BaSys.Host.DAL.TableManagers
         {
         }
 
-        public override async Task<int> CreateTableAsync(IDbTransaction transaction = null)
+        public override async Task<int> CreateTableAsync(IDbTransaction? transaction = null)
         {
             await base.CreateTableAsync(transaction);
 

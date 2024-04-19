@@ -29,6 +29,12 @@ namespace BaSys.FluentQueries.QueryBuilders
             return this;
         }
 
+        public SelectBuilder Top(int top)
+        {
+            _model.Top = top;
+            return this;
+        }
+
         public SelectBuilder Select(string selectExpression)
         {
             _model.AddSelectExpression(selectExpression);
@@ -46,6 +52,12 @@ namespace BaSys.FluentQueries.QueryBuilders
         {
             _model.WhereAnd(whereExpression);
 
+            return this;
+        }
+
+        public SelectBuilder OrderBy(string orderByExpression)
+        {
+            _model.OrderByExpression = orderByExpression;
             return this;
         }
 

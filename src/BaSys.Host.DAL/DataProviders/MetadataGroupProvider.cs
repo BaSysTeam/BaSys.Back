@@ -27,15 +27,6 @@ namespace BaSys.Host.DAL.DataProviders
         {
             var result = 0;
 
-            //var query = InsertBuilder.Make()
-            //    .Table(_tableName)
-            //    .Column("parentuid")
-            //    .Column("title")
-            //    .Column("iconclass")
-            //    .Column("memo")
-            //    .Column("isstandard")
-            //    .FillValuesByColumnNames(true).Query(_sqlDialect);
-
             _query = InsertBuilder.Make(_config)
               .FillValuesByColumnNames(true).Query(_sqlDialect);
 
@@ -48,16 +39,6 @@ namespace BaSys.Host.DAL.DataProviders
         {
             var result = 0;
 
-            //var query = UpdateBuilder.Make()
-            //    .Table(_tableName)
-            //    .Set("parentuid")
-            //    .Set("title")
-            //    .Set("iconclass")
-            //    .Set("memo")
-            //    .Set("isstandard")
-            //    .WhereAnd("uid = @uid")
-            //    .Query(_sqlDialect);
-
             _query = UpdateBuilder.Make(_config)
               .WhereAnd("uid = @uid")
               .Query(_sqlDialect);
@@ -67,5 +48,17 @@ namespace BaSys.Host.DAL.DataProviders
             return result;
         }
 
+        public async Task<bool> HasChildrenAsync(Guid parentUid, IDbTransaction transaction)
+        {
+            var query = SelectBuilder
+                .Make()
+                .Select("COUNT(*)")
+                .From(_config.TableName.ToLower())
+                .WhereAnd("ParentUid = @parentUid")
+                .Query(_sqlDialect);
+
+            var result = await _dbConnection.ExecuteScalarAsync<int>(query.Text, new { parentUid });
+            return result > 0 ? true : false;
+        }
     }
 }

@@ -168,6 +168,9 @@
   <data name="CannotGetUsersList" xml:space="preserve">
     <value>Ошибка получения списка пользователей</value>
   </data>
+  <data name="CannotInsertItem" xml:space="preserve">
+    <value>Не удается вставить элемент</value>
+  </data>
   <data name="CannotUpdateAppConstantsRecord" xml:space="preserve">
     <value>Ошибка сохранения записи констант приложения</value>
   </data>
@@ -188,6 +191,9 @@
   </data>
   <data name="EmptyLoggerType" xml:space="preserve">
     <value>Тип логгера не должен быть пустой</value>
+  </data>
+  <data name="EmptyParentUid" xml:space="preserve">
+    <value>Родительский идентификатор не должен быть пустой</value>
   </data>
   <data name="EmptyUsersList" xml:space="preserve">
     <value>Список пользователей пуст</value>
