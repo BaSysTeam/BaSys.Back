@@ -10,6 +10,6 @@ public interface IMigrationService
     Task<List<MigrationDto>?> GetMigrationList();
     Task<bool> MigrationDown();
     Task<bool> MigrationUp(Guid migrationUid);
-    bool StopMigration();
+    bool CancelMigration();
     bool GetMigrationStatus();
 }

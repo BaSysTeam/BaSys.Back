@@ -102,7 +102,7 @@ public class MigrationRunnerService
         return true;
     }
 
-    public bool StopMigration()
+    public bool CancelMigration()
     {
         var dbName = GetDbName();
         if (string.IsNullOrEmpty(dbName))
@@ -112,7 +112,7 @@ public class MigrationRunnerService
             return false;
         
         migrationTask.CancellationTokenSource?.Cancel();
-        _runDict.TryRemove(dbName, out _);
+        _runDict.TryRemove(dbName.ToUpper(), out _);
         
         return true;
     }

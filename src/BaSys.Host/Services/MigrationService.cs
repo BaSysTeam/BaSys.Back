@@ -109,9 +109,9 @@ public class MigrationService : IMigrationService
         return state;
     }
 
-    public bool StopMigration()
+    public bool CancelMigration()
     {
-        return _migrationRunnerService.StopMigration();
+        return _migrationRunnerService.CancelMigration();
     }
 
     public bool GetMigrationStatus()

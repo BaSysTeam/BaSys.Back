@@ -90,11 +90,11 @@ public class MigrationsController : ControllerBase
     /// Stop migration
     /// </summary>
     /// <returns></returns>
-    [HttpGet("StopMigration")]
-    public IActionResult StopMigration()
+    [HttpGet("CancelMigration")]
+    public IActionResult CancelMigration()
     {
         var result = new ResultWrapper<bool>();
-        result.Success(_migrationService.StopMigration());
+        result.Success(_migrationService.CancelMigration());
         
         return Ok(result);
     }
