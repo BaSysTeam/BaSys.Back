@@ -54,10 +54,23 @@ namespace BaSys.Constructor.Controllers
         /// </summary>
         /// <param name="uid">The unique identifier of the metadata kind setting to retrieve.</param>
         /// <returns>An IActionResult containing the specified metadata kind setting.</returns>
-        [HttpGet("{uid}")]
+        [HttpGet("{uid:guid}")]
         public async Task<IActionResult> GetItem(Guid uid)
         {
             var result = await _metadataKindsService.SetUp(_connection).GetSettingsItemAsync(uid, null);
+
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Retrieves a specific metadata kind setting by its unique name.
+        /// </summary>
+        /// <param name="name">The name of the metadata kind setting to retrieve.</param>
+        /// <returns>An IActionResult containing the specified metadata kind setting.</returns>
+        [HttpGet("{name}")]
+        public async Task<IActionResult> GetItem(string name)
+        {
+            var result = await _metadataKindsService.SetUp(_connection).GetSettingsItemByNameAsync(name, null);
 
             return Ok(result);
         }

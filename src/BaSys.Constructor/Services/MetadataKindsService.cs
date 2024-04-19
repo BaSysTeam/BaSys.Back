@@ -14,7 +14,7 @@ namespace BaSys.Constructor.Services
     public sealed class MetadataKindsService : IMetadataKindsService
     {
         private IDbConnection? _connection;
-        private MetadataKindProvider? _provider;
+        private MetadataKindsProvider? _provider;
 
         public MetadataKindsService()
         {
@@ -23,7 +23,7 @@ namespace BaSys.Constructor.Services
         public IMetadataKindsService SetUp(IDbConnection connection)
         {
             _connection = connection;
-            _provider = new MetadataKindProvider(_connection);
+            _provider = new MetadataKindsProvider(_connection);
 
             return this;
         }
@@ -86,9 +86,40 @@ namespace BaSys.Constructor.Services
             return result;
         }
 
-        public async Task<ResultWrapper<int>> InsertSettingsAsync(MetadataKindSettings settings, IDbTransaction? transaction = null)
+        public async Task<ResultWrapper<MetadataKindSettings>> GetSettingsItemByNameAsync(string name, IDbTransaction? transaction = null)
         {
-            var result = new ResultWrapper<int>();
+            var result = new ResultWrapper<MetadataKindSettings>();
+
+            if (!Check())
+            {
+                result.Error(-1, $"Data providers is not initialized. Call SetUp method.");
+                return result;
+            }
+
+            try
+            {
+                var settings = await _provider.GetSettingsByNameAsync(name, transaction);
+
+                if (settings == null)
+                {
+                    result.Error(-1, "MetadataKind item not found.", $"Name: {name}");
+                    return result;
+                }
+
+                result.Success(settings);
+
+            }
+            catch (Exception ex)
+            {
+                result.Error(-1, "Cannot get item", $"Message: {ex.Message}, Query: {_provider.LastQuery}");
+            }
+
+            return result;
+        }
+
+        public async Task<ResultWrapper<MetadataKindSettings>> InsertSettingsAsync(MetadataKindSettings settings, IDbTransaction? transaction = null)
+        {
+            var result = new ResultWrapper<MetadataKindSettings>();
 
             if (!Check())
             {
@@ -106,8 +137,11 @@ namespace BaSys.Constructor.Services
 
             try
             {
+               
                 var insertedCount = await _provider.InsertSettingsAsync(settings, transaction);
-                result.Success(insertedCount);
+                var newSettings = await _provider.GetSettingsByNameAsync(settings.Name, transaction);
+
+                result.Success(newSettings);
             }
             catch (Exception ex)
             {
@@ -180,6 +214,6 @@ namespace BaSys.Constructor.Services
             return true;
 
         }
-       
+
     }
 }
