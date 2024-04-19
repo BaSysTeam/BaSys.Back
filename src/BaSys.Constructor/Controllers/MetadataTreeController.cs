@@ -13,7 +13,7 @@ namespace BaSys.Constructor.Controllers
 {
     [Route("api/constructor/v1/[controller]")]
     [ApiController]
-    [Authorize(Roles = ApplicationRole.Administrator)]
+    [Authorize(Roles = ApplicationRole.Designer)]
     public class MetadataTreeController : ControllerBase
     {
         private readonly IMetadataTreeService _metadataTreeService;
