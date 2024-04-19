@@ -174,6 +174,7 @@ namespace BaSys.Host
 
             // Factory to create DB connection by connection string and db kind.
             builder.Services.AddSingleton<IBaSysConnectionFactory, BaSysConnectionFactory>();
+            builder.Services.AddTransient<IMainConnectionFactory, MainConnectionFactory>();
 
             // Service to create system tables and fill constants when DB created.
             builder.Services.AddTransient<IDbInitService, DbInitService>();
