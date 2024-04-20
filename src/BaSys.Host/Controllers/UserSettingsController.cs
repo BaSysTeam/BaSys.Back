@@ -8,7 +8,7 @@ namespace BaSys.Host.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-[Authorize]
+// [Authorize]
 public class UserSettingsController : ControllerBase
 {
     private readonly IUserSettingsService _userSettingsService;

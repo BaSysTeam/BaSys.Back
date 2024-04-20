@@ -18,6 +18,7 @@ public class UserSettingsDto
     
     public Guid Uid { get; set; }
     public string UserId { get; set; } = string.Empty;
+    public string UserName { get; set; }
     public Languages Language { get; set; }
 
     public UserSettings ToModel()
