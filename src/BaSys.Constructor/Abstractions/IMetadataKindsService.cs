@@ -6,7 +6,6 @@ namespace BaSys.Constructor.Abstractions
 {
     public interface IMetadataKindsService
     {
-        IMetadataKindsService SetUp(IDbConnection connection);
         Task<ResultWrapper<MetadataKindSettings>> GetSettingsItemAsync(Guid uid, IDbTransaction? transaction);
         Task<ResultWrapper<MetadataKindSettings>> GetSettingsItemByNameAsync(string name, IDbTransaction? transaction);
         Task<ResultWrapper<IEnumerable<MetadataKind>>> GetCollectionAsync(IDbTransaction? transaction);
