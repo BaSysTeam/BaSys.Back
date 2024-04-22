@@ -13,19 +13,15 @@ namespace BaSys.Constructor.Services
 {
     public sealed class MetadataKindsService : IMetadataKindsService
     {
-        private IDbConnection? _connection;
-        private MetadataKindsProvider? _provider;
+        private readonly IDbConnection _connection;
+        private readonly MetadataKindsProvider _provider;
+        private readonly IMainConnectionFactory _connectionFactory;
 
-        public MetadataKindsService()
+        public MetadataKindsService(IMainConnectionFactory connectionFactory)
         {
-        }
-
-        public IMetadataKindsService SetUp(IDbConnection connection)
-        {
-            _connection = connection;
+            _connectionFactory = connectionFactory;
+            _connection = connectionFactory.CreateConnection();
             _provider = new MetadataKindsProvider(_connection);
-
-            return this;
         }
 
         public async Task<ResultWrapper<IEnumerable<MetadataKind>>> GetCollectionAsync(IDbTransaction? transaction = null)

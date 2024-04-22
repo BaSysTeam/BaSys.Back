@@ -18,8 +18,7 @@ namespace BaSys.Constructor.Controllers
     [Route("api/constructor/v1/[controller]")]
     [ApiController]
     [Authorize(Roles = ApplicationRole.Administrator)]
-    [DbNameActionFilter]
-    public class MetadataKindsController : ApiControllerBase
+    public class MetadataKindsController : ControllerBase
     {
 
         private readonly IMetadataKindsService _metadataKindsService;
@@ -27,12 +26,8 @@ namespace BaSys.Constructor.Controllers
         /// <summary>
         /// Initializes a new instance of the MetadataKindsController class.
         /// </summary>
-        /// <param name="connectionFactory">Provides functionality to create database connections.</param>
-        /// <param name="dbInfoRecordsProvider">Provides database information records.</param>
         /// <param name="metadataKindsService">Service for handling metadata kinds operations.</param>
-        public MetadataKindsController(IBaSysConnectionFactory connectionFactory, 
-            IDbInfoRecordsProvider dbInfoRecordsProvider, 
-            IMetadataKindsService metadataKindsService) :base(connectionFactory, dbInfoRecordsProvider)
+        public MetadataKindsController(IMetadataKindsService metadataKindsService) 
         {
             _metadataKindsService = metadataKindsService;
         }
@@ -44,7 +39,7 @@ namespace BaSys.Constructor.Controllers
         [HttpGet]
         public async Task<IActionResult> GetSettingsCollection()
         {
-            var result = await _metadataKindsService.SetUp(_connection).GetCollectionAsync(null);
+            var result = await _metadataKindsService.GetCollectionAsync(null);
 
             return Ok(result);
         }
@@ -57,7 +52,7 @@ namespace BaSys.Constructor.Controllers
         [HttpGet("{uid:guid}")]
         public async Task<IActionResult> GetItem(Guid uid)
         {
-            var result = await _metadataKindsService.SetUp(_connection).GetSettingsItemAsync(uid, null);
+            var result = await _metadataKindsService.GetSettingsItemAsync(uid, null);
 
             return Ok(result);
         }
@@ -70,7 +65,7 @@ namespace BaSys.Constructor.Controllers
         [HttpGet("{name}")]
         public async Task<IActionResult> GetItem(string name)
         {
-            var result = await _metadataKindsService.SetUp(_connection).GetSettingsItemByNameAsync(name, null);
+            var result = await _metadataKindsService.GetSettingsItemByNameAsync(name, null);
 
             return Ok(result);
         }
@@ -83,7 +78,7 @@ namespace BaSys.Constructor.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateItem(MetadataKindSettings settings)
         {
-            var result = await _metadataKindsService.SetUp(_connection).InsertSettingsAsync(settings, null);
+            var result = await _metadataKindsService.InsertSettingsAsync(settings, null);
 
             return Ok(result);
 
@@ -97,7 +92,7 @@ namespace BaSys.Constructor.Controllers
         [HttpPut]
         public async Task<IActionResult> UpdateItem(MetadataKindSettings settings)
         {
-            var result = await _metadataKindsService.SetUp(_connection).UpdateSettingsAsync(settings, null);
+            var result = await _metadataKindsService.UpdateSettingsAsync(settings, null);
 
             return Ok(result);
 
@@ -111,7 +106,7 @@ namespace BaSys.Constructor.Controllers
         [HttpDelete("{uid}")]
         public async Task<IActionResult> DeleteItem(Guid uid)
         {
-            var result = await _metadataKindsService.SetUp(_connection).DeleteAsync(uid, null);
+            var result = await _metadataKindsService.DeleteAsync(uid, null);
 
             return Ok(result);
         }
