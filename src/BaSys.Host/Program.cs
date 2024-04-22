@@ -163,6 +163,7 @@ namespace BaSys.Host
             builder.Services.AddTransient<IMainDbCheckService, MainDbCheckService>();
             builder.Services.AddTransient<IWorkDbService, WorkDbService>();
             builder.Services.AddTransient<IHttpRequestContextService, HttpRequestContextService>();
+            builder.Services.AddTransient<IUserSettingsService, UserSettingsService>();
             builder.Services.AddTransient<IMigrationService, MigrationService>();
             builder.Services.AddTransient<LoggerService>(sp =>
             {
@@ -173,6 +174,7 @@ namespace BaSys.Host
 
             // Factory to create DB connection by connection string and db kind.
             builder.Services.AddSingleton<IBaSysConnectionFactory, BaSysConnectionFactory>();
+            builder.Services.AddTransient<IMainConnectionFactory, MainConnectionFactory>();
 
             // Service to create system tables and fill constants when DB created.
             builder.Services.AddTransient<IDbInitService, DbInitService>();

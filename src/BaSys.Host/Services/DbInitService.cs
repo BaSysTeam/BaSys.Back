@@ -45,7 +45,8 @@ namespace BaSys.Host.Services
                 new LoggerConfigManager(_connection),
                 new MigrationManager(_connection),
                 new LoggerConfigManager(_connection),
-                new MetadataKindManager(_connection)
+                new MetadataKindManager(_connection),
+                new UserSettingsManager(_connection)
             };
 
             foreach (var tableManager in tableManagers)
