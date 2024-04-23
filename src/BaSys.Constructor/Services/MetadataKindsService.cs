@@ -11,21 +11,18 @@ using System.Linq;
 
 namespace BaSys.Constructor.Services
 {
-    public sealed class MetadataKindsService : IMetadataKindsService
+    public sealed class MetadataKindsService : IMetadataKindsService, IDisposable
     {
-        private IDbConnection? _connection;
-        private MetadataKindsProvider? _provider;
+        private readonly IDbConnection _connection;
+        private readonly MetadataKindsProvider _provider;
+        private bool _disposed;
 
-        public MetadataKindsService()
+        public MetadataKindsService(IMainConnectionFactory connectionFactory, ISystemObjectProviderFactory providerFactory)
         {
-        }
-
-        public IMetadataKindsService SetUp(IDbConnection connection)
-        {
-            _connection = connection;
-            _provider = new MetadataKindsProvider(_connection);
-
-            return this;
+            _connection = connectionFactory.CreateConnection();
+            // _provider = new MetadataKindsProvider(_connection);
+            providerFactory.SetUp(_connection);
+           _provider = providerFactory.Create<MetadataKindsProvider>();
         }
 
         public async Task<ResultWrapper<IEnumerable<MetadataKind>>> GetCollectionAsync(IDbTransaction? transaction = null)
@@ -215,5 +212,27 @@ namespace BaSys.Constructor.Services
 
         }
 
+        private void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    if(_connection != null) 
+                        _connection.Dispose();
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+                // TODO: set large fields to null
+                _disposed = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
     }
 }

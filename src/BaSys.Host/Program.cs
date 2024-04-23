@@ -176,6 +176,12 @@ namespace BaSys.Host
             builder.Services.AddSingleton<IBaSysConnectionFactory, BaSysConnectionFactory>();
             builder.Services.AddTransient<IMainConnectionFactory, MainConnectionFactory>();
 
+            // Factory to create TableManagers.
+            builder.Services.AddTransient<ITableManagerFactory, TableManagerFactory>();
+
+            // Factory to create system objects DataProviders.
+            builder.Services.AddTransient<ISystemObjectProviderFactory, SystemObjectProviderFactory>();
+
             // Service to create system tables and fill constants when DB created.
             builder.Services.AddTransient<IDbInitService, DbInitService>();
 
