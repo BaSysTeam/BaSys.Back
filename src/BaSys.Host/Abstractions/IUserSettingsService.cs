@@ -8,4 +8,6 @@ public interface IUserSettingsService
 {
     Task<ResultWrapper<UserSettingsDto?>> GetUserSettings();
     Task<ResultWrapper<bool>> UpdateUserSettings(UserSettingsDto userSettings);
+    ResultWrapper<List<LanguageDto>> GetLanguages();
+    Task<ResultWrapper<bool>> ChangePassword(string? userId, string? oldPassword, string? newPassword);
 }

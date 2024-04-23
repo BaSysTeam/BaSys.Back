@@ -1,4 +1,5 @@
-﻿using BaSys.Common.Infrastructure;
+﻿using System.Security.Claims;
+using BaSys.Common.Infrastructure;
 using BaSys.Host.Abstractions;
 using BaSys.Host.DTO;
 using Microsoft.AspNetCore.Authorization;
@@ -39,6 +40,11 @@ public class UserSettingsController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Update user settings
+    /// </summary>
+    /// <param name="userSettings"></param>
+    /// <returns></returns>
     [HttpPost]
     public async Task<IActionResult> Update([FromBody] UserSettingsDto userSettings)
     {
@@ -50,6 +56,50 @@ public class UserSettingsController : ControllerBase
         catch (Exception e)
         {
             var result = new ResultWrapper<bool>();
+            result.Error(-1, $"Error: {e}");
+            
+            return Ok(result);
+        }
+    }
+    
+    /// <summary>
+    /// Get available languages
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("GetLanguages")]
+    public IActionResult GetLanguages()
+    {
+        try
+        {
+            var languages = _userSettingsService.GetLanguages();
+            return Ok(languages);
+        }
+        catch (Exception e)
+        {
+            var result = new ResultWrapper<List<LanguageDto>>();
+            result.Error(-1, $"Error: {e}");
+            
+            return Ok(result);
+        }
+    }
+
+    /// <summary>
+    /// Change password for current user
+    /// </summary>
+    /// <param name="dto"></param>
+    /// <returns></returns>
+    [HttpPost("ChangePassword")]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto dto)
+    {
+        try
+        {
+            var userId = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+            var result = await _userSettingsService.ChangePassword(userId, dto.OldPassword, dto.NewPassword);
+            return Ok(result);
+        }
+        catch (Exception e)
+        {
+            var result = new ResultWrapper<List<LanguageDto>>();
             result.Error(-1, $"Error: {e}");
             
             return Ok(result);

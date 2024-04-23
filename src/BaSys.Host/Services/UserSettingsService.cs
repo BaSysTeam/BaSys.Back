@@ -1,4 +1,6 @@
 ﻿using System.Security.Claims;
+using System.Text;
+using BaSys.Common.Enums;
 using BaSys.Common.Infrastructure;
 using BaSys.Host.Abstractions;
 using BaSys.Host.DAL.Abstractions;
@@ -76,5 +78,69 @@ public class UserSettingsService : IUserSettingsService
             result.Error(-1, "UserSettings update error");
         
         return result;
+    }
+
+    public ResultWrapper<List<LanguageDto>> GetLanguages()
+    {
+        var result = new ResultWrapper<List<LanguageDto>>();
+        var languages = new List<LanguageDto>();
+        foreach (var lang in (Languages[]) Enum.GetValues(typeof(Languages)))
+        {
+            languages.Add(new LanguageDto
+            {
+                Id = (int)lang,
+                Name = lang.ToString()
+            });
+        }
+        
+        result.Success(languages);
+        return result;
+    }
+
+    public async Task<ResultWrapper<bool>> ChangePassword(string? userId, string? oldPassword, string? newPassword)
+    {
+        var result = new ResultWrapper<bool>();
+        if (string.IsNullOrEmpty(userId))
+        {
+            result.Error(-1, "UserId is empty!");
+            return result;
+        }
+        
+        if (string.IsNullOrEmpty(oldPassword))
+        {
+            result.Error(-1, "Old password is empty!");
+            return result;
+        }
+        
+        if (string.IsNullOrEmpty(newPassword))
+        {
+            result.Error(-1, "New password is empty!");
+            return result;
+        }
+
+        var currentUser = await _userManager.Users.FirstOrDefaultAsync(x => x.Id == userId);
+        if (currentUser == null)
+        {
+            result.Error(-1, "User not found!");
+            return result;
+        }
+
+        var changePasswordResult = await _userManager.ChangePasswordAsync(currentUser, oldPassword, newPassword);
+        if (changePasswordResult.Succeeded)
+        {
+            result.Success(true);
+            return result;
+        }
+        else
+        {
+            var sb = new StringBuilder();
+            foreach (var error in changePasswordResult.Errors)
+            {
+                sb.Append($"{error.Description}; ");
+            }
+            result.Error(-1, sb.ToString());
+            
+            return result;
+        }
     }
 }
