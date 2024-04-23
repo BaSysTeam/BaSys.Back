@@ -17,10 +17,12 @@ namespace BaSys.Constructor.Services
         private readonly MetadataKindsProvider _provider;
         private bool _disposed;
 
-        public MetadataKindsService(IMainConnectionFactory connectionFactory)
+        public MetadataKindsService(IMainConnectionFactory connectionFactory, ISystemObjectProviderFactory providerFactory)
         {
             _connection = connectionFactory.CreateConnection();
-            _provider = new MetadataKindsProvider(_connection);
+            // _provider = new MetadataKindsProvider(_connection);
+            providerFactory.SetUp(_connection);
+           _provider = providerFactory.Create<MetadataKindsProvider>();
         }
 
         public async Task<ResultWrapper<IEnumerable<MetadataKind>>> GetCollectionAsync(IDbTransaction? transaction = null)
