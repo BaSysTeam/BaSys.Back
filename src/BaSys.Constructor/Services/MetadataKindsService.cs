@@ -11,11 +11,12 @@ using System.Linq;
 
 namespace BaSys.Constructor.Services
 {
-    public sealed class MetadataKindsService : IMetadataKindsService
+    public sealed class MetadataKindsService : IMetadataKindsService, IDisposable
     {
         private readonly IDbConnection _connection;
         private readonly MetadataKindsProvider _provider;
         private readonly IMainConnectionFactory _connectionFactory;
+        private bool _disposed;
 
         public MetadataKindsService(IMainConnectionFactory connectionFactory)
         {
@@ -211,5 +212,27 @@ namespace BaSys.Constructor.Services
 
         }
 
+        private void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    if(_connection != null) 
+                        _connection.Dispose();
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+                // TODO: set large fields to null
+                _disposed = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
     }
 }
