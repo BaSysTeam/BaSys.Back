@@ -12,9 +12,9 @@ namespace BaSys.Host.DAL.TableManagers
 {
     public sealed class MetaObjectManager: TableManagerBase
     {
-        public MetaObjectManager(IDbConnection connection, MetadataKind kind):base(connection, new MetadataObjectConfiguration())
+        public MetaObjectManager(IDbConnection connection, string kindName):base(connection, new MetadataObjectConfiguration())
         {
-            _tableName = $"_sys_meta_{kind.Name}";
+            _tableName = $"sys_meta_{kindName}";
         }
 
     }

@@ -1,4 +1,6 @@
 ﻿using BaSys.Host.DAL.Abstractions;
+using BaSys.Host.DAL.TableManagers;
+using BaSys.Metadata.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -33,6 +35,14 @@ namespace BaSys.Host.DAL
 
             return instance;
 
+        }
+
+        public MetaObjectManager CreateMetaObjectManager(string kindName)
+        {
+            if (_connection == null)
+                throw new ArgumentNullException(nameof(_connection));
+
+            return new MetaObjectManager(_connection, kindName);
         }
     }
 }

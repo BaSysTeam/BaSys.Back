@@ -12,7 +12,7 @@ namespace BaSys.Host.DAL.ModelConfigurations
     {
         public MetadataObjectConfiguration()
         {
-            Table("sys_metadata_kinds");
+            Table("sys_meta_objects");
 
             Column("uid").IsPrimaryKey();
             Column("title").MaxLength(100);

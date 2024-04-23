@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Data;
 using System.Xml.Linq;
 using System.Linq;
+using BaSys.Host.DAL.TableManagers;
 
 namespace BaSys.Constructor.Services
 {
@@ -15,14 +16,22 @@ namespace BaSys.Constructor.Services
     {
         private readonly IDbConnection _connection;
         private readonly MetadataKindsProvider _provider;
+        private readonly MetaObjectManager _metaObjectManager;
+        private readonly ITableManagerFactory _managerFactory;
         private bool _disposed;
 
-        public MetadataKindsService(IMainConnectionFactory connectionFactory, ISystemObjectProviderFactory providerFactory)
+        public MetadataKindsService(IMainConnectionFactory connectionFactory, 
+            ISystemObjectProviderFactory providerFactory, 
+            ITableManagerFactory managerFactory)
         {
             _connection = connectionFactory.CreateConnection();
             // _provider = new MetadataKindsProvider(_connection);
             providerFactory.SetUp(_connection);
            _provider = providerFactory.Create<MetadataKindsProvider>();
+
+            _managerFactory = managerFactory;
+            _managerFactory.SetUp(_connection);
+
         }
 
         public async Task<ResultWrapper<IEnumerable<MetadataKind>>> GetCollectionAsync(IDbTransaction? transaction = null)
@@ -131,12 +140,15 @@ namespace BaSys.Constructor.Services
                 result.Error(-1, $"Item already exists.", $"Uid: {settings.Uid}");
                 return result;
             }
-
+            
+           
             try
             {
-               
                 var insertedCount = await _provider.InsertSettingsAsync(settings, transaction);
                 var newSettings = await _provider.GetSettingsByNameAsync(settings.Name, transaction);
+
+                var metaObjectManager = _managerFactory.CreateMetaObjectManager(settings.Name);
+                await metaObjectManager.CreateTableAsync(transaction);
 
                 result.Success(newSettings);
             }
@@ -190,9 +202,21 @@ namespace BaSys.Constructor.Services
                 return result;
             }
 
+            var savedItem = await _provider.GetItemAsync(uid, transaction);
+
+            if (savedItem == null)
+            {
+                result.Error(-1, "Item not found", $"Uid: {uid}");
+                return result;
+            }
+
             try
             {
                 var processedCount = await _provider.DeleteAsync(uid, transaction);
+
+                var metaObjectManager = _managerFactory.CreateMetaObjectManager(savedItem.Name);
+                await metaObjectManager.DropTableAsync(transaction);
+
                 result.Success(processedCount);
             }
             catch (Exception ex)

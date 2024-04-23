@@ -32,7 +32,7 @@ namespace BaSys.Host.DAL.Abstractions
         {
             await CreateExtensionUuidOsspAsync(transaction);
 
-            _query = CreateTableBuilder.Make(_config).Query(_sqlDialectKind);
+            _query = CreateTableBuilder.Make(_config).Table(_tableName).Query(_sqlDialectKind);
 
             var result = await _connection.ExecuteAsync(_query.Text, null, transaction);
 
@@ -41,7 +41,7 @@ namespace BaSys.Host.DAL.Abstractions
 
         public virtual async Task<int> DropTableAsync(IDbTransaction? transaction = null)
         {
-            _query = DropTableBuilder.Make().Table(_config.TableName).Query(_sqlDialectKind);
+            _query = DropTableBuilder.Make().Table(_tableName).Query(_sqlDialectKind);
             
 
             var result = await _connection.ExecuteAsync(_query.Text, null, transaction);
@@ -51,7 +51,7 @@ namespace BaSys.Host.DAL.Abstractions
 
         public virtual async Task<bool> TableExistsAsync(IDbTransaction? transaction = null)
         {
-            _query = TableExistsBuilder.Make().Table(_config.TableName).Query(_sqlDialectKind);
+            _query = TableExistsBuilder.Make().Table(_tableName).Query(_sqlDialectKind);
 
             var result = await _connection.QueryFirstOrDefaultAsync<TableExistsResult>(_query.Text, null, transaction);
 
@@ -60,7 +60,7 @@ namespace BaSys.Host.DAL.Abstractions
 
         public async Task<bool> ColumnExistsAsync(string columnName, IDbTransaction? transaction = null)
         {
-            _query = ColumnExistsBuilder.Make().Table(_config.TableName).Column(columnName).Query(_sqlDialectKind);
+            _query = ColumnExistsBuilder.Make().Table(_tableName).Column(columnName).Query(_sqlDialectKind);
 
             var result = await _connection.QueryFirstOrDefaultAsync<bool>(_query.Text, null, transaction);
 
@@ -69,7 +69,7 @@ namespace BaSys.Host.DAL.Abstractions
 
         public async Task<int> TruncateTableAsync(IDbTransaction? transaction = null)
         {
-            _query = TruncateTableBuilder.Make().Table(_config.TableName).Query(_sqlDialectKind);
+            _query = TruncateTableBuilder.Make().Table(_tableName).Query(_sqlDialectKind);
 
             var result = await _connection.ExecuteAsync(_query.Text, null, transaction);
 
