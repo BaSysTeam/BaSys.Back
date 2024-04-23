@@ -14,6 +14,7 @@ namespace BaSys.Host.DAL.Abstractions
         protected readonly SqlDialectKinds _sqlDialectKind;
         protected IDataModelConfiguration _config;
         protected IQuery? _query;
+        protected string _tableName;
 
         public IQuery? LastQuery => _query;
 
@@ -22,13 +23,18 @@ namespace BaSys.Host.DAL.Abstractions
             _connection = connection;
             _sqlDialectKind = GetDialectKind(_connection);
             _config = config;
+            _tableName = _config.TableName;
         }
 
-        public string TableName =>  _config.TableName;
+        public string TableName =>  _tableName;
 
         public virtual async Task<int> CreateTableAsync(IDbTransaction? transaction = null)
         {
-            var result = await CreateExtensionUuidOsspAsync(transaction);
+            await CreateExtensionUuidOsspAsync(transaction);
+
+            _query = CreateTableBuilder.Make(_config).Query(_sqlDialectKind);
+
+            var result = await _connection.ExecuteAsync(_query.Text, null, transaction);
 
             return result;
         }
@@ -75,7 +81,7 @@ namespace BaSys.Host.DAL.Abstractions
         /// </summary>
         /// <param name="transaction"></param>
         /// <returns></returns>
-        public async Task<int> CreateExtensionUuidOsspAsync(IDbTransaction transaction)
+        public async Task<int> CreateExtensionUuidOsspAsync(IDbTransaction? transaction)
         {
             if (_sqlDialectKind != SqlDialectKinds.PgSql)
             {
