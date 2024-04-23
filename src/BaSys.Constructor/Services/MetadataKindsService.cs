@@ -15,12 +15,10 @@ namespace BaSys.Constructor.Services
     {
         private readonly IDbConnection _connection;
         private readonly MetadataKindsProvider _provider;
-        private readonly IMainConnectionFactory _connectionFactory;
         private bool _disposed;
 
         public MetadataKindsService(IMainConnectionFactory connectionFactory)
         {
-            _connectionFactory = connectionFactory;
             _connection = connectionFactory.CreateConnection();
             _provider = new MetadataKindsProvider(_connection);
         }
