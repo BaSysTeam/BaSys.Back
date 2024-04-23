@@ -39,7 +39,7 @@ namespace BaSys.Constructor.Controllers
         [HttpGet]
         public async Task<IActionResult> GetSettingsCollection()
         {
-            var result = await _metadataKindsService.GetCollectionAsync(null);
+            var result = await _metadataKindsService.GetCollectionAsync();
 
             return Ok(result);
         }
@@ -52,7 +52,7 @@ namespace BaSys.Constructor.Controllers
         [HttpGet("{uid:guid}")]
         public async Task<IActionResult> GetItem(Guid uid)
         {
-            var result = await _metadataKindsService.GetSettingsItemAsync(uid, null);
+            var result = await _metadataKindsService.GetSettingsItemAsync(uid);
 
             return Ok(result);
         }
@@ -65,7 +65,7 @@ namespace BaSys.Constructor.Controllers
         [HttpGet("{name}")]
         public async Task<IActionResult> GetItem(string name)
         {
-            var result = await _metadataKindsService.GetSettingsItemByNameAsync(name, null);
+            var result = await _metadataKindsService.GetSettingsItemByNameAsync(name);
 
             return Ok(result);
         }
@@ -78,7 +78,7 @@ namespace BaSys.Constructor.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateItem(MetadataKindSettings settings)
         {
-            var result = await _metadataKindsService.InsertSettingsAsync(settings, null);
+            var result = await _metadataKindsService.InsertSettingsAsync(settings);
 
             return Ok(result);
 
@@ -92,7 +92,7 @@ namespace BaSys.Constructor.Controllers
         [HttpPut]
         public async Task<IActionResult> UpdateItem(MetadataKindSettings settings)
         {
-            var result = await _metadataKindsService.UpdateSettingsAsync(settings, null);
+            var result = await _metadataKindsService.UpdateSettingsAsync(settings);
 
             return Ok(result);
 
@@ -106,7 +106,7 @@ namespace BaSys.Constructor.Controllers
         [HttpDelete("{uid}")]
         public async Task<IActionResult> DeleteItem(Guid uid)
         {
-            var result = await _metadataKindsService.DeleteAsync(uid, null);
+            var result = await _metadataKindsService.DeleteAsync(uid);
 
             return Ok(result);
         }
