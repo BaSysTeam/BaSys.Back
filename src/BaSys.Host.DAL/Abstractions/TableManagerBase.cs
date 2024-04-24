@@ -14,6 +14,7 @@ namespace BaSys.Host.DAL.Abstractions
         protected readonly SqlDialectKinds _sqlDialectKind;
         protected IDataModelConfiguration _config;
         protected IQuery? _query;
+        protected string _tableName;
 
         public IQuery? LastQuery => _query;
 
@@ -22,20 +23,25 @@ namespace BaSys.Host.DAL.Abstractions
             _connection = connection;
             _sqlDialectKind = GetDialectKind(_connection);
             _config = config;
+            _tableName = _config.TableName;
         }
 
-        public string TableName =>  _config.TableName;
+        public string TableName =>  _tableName;
 
         public virtual async Task<int> CreateTableAsync(IDbTransaction? transaction = null)
         {
-            var result = await CreateExtensionUuidOsspAsync(transaction);
+            await CreateExtensionUuidOsspAsync(transaction);
+
+            _query = CreateTableBuilder.Make(_config).Table(_tableName).Query(_sqlDialectKind);
+
+            var result = await _connection.ExecuteAsync(_query.Text, null, transaction);
 
             return result;
         }
 
         public virtual async Task<int> DropTableAsync(IDbTransaction? transaction = null)
         {
-            _query = DropTableBuilder.Make().Table(_config.TableName).Query(_sqlDialectKind);
+            _query = DropTableBuilder.Make().Table(_tableName).Query(_sqlDialectKind);
             
 
             var result = await _connection.ExecuteAsync(_query.Text, null, transaction);
@@ -45,7 +51,7 @@ namespace BaSys.Host.DAL.Abstractions
 
         public virtual async Task<bool> TableExistsAsync(IDbTransaction? transaction = null)
         {
-            _query = TableExistsBuilder.Make().Table(_config.TableName).Query(_sqlDialectKind);
+            _query = TableExistsBuilder.Make().Table(_tableName).Query(_sqlDialectKind);
 
             var result = await _connection.QueryFirstOrDefaultAsync<TableExistsResult>(_query.Text, null, transaction);
 
@@ -54,7 +60,7 @@ namespace BaSys.Host.DAL.Abstractions
 
         public async Task<bool> ColumnExistsAsync(string columnName, IDbTransaction? transaction = null)
         {
-            _query = ColumnExistsBuilder.Make().Table(_config.TableName).Column(columnName).Query(_sqlDialectKind);
+            _query = ColumnExistsBuilder.Make().Table(_tableName).Column(columnName).Query(_sqlDialectKind);
 
             var result = await _connection.QueryFirstOrDefaultAsync<bool>(_query.Text, null, transaction);
 
@@ -63,7 +69,7 @@ namespace BaSys.Host.DAL.Abstractions
 
         public async Task<int> TruncateTableAsync(IDbTransaction? transaction = null)
         {
-            _query = TruncateTableBuilder.Make().Table(_config.TableName).Query(_sqlDialectKind);
+            _query = TruncateTableBuilder.Make().Table(_tableName).Query(_sqlDialectKind);
 
             var result = await _connection.ExecuteAsync(_query.Text, null, transaction);
 
@@ -75,7 +81,7 @@ namespace BaSys.Host.DAL.Abstractions
         /// </summary>
         /// <param name="transaction"></param>
         /// <returns></returns>
-        public async Task<int> CreateExtensionUuidOsspAsync(IDbTransaction transaction)
+        public async Task<int> CreateExtensionUuidOsspAsync(IDbTransaction? transaction)
         {
             if (_sqlDialectKind != SqlDialectKinds.PgSql)
             {

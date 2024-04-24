@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Data;
 using System.Xml.Linq;
 using System.Linq;
+using BaSys.Host.DAL.TableManagers;
 
 namespace BaSys.Constructor.Services
 {
@@ -15,17 +16,25 @@ namespace BaSys.Constructor.Services
     {
         private readonly IDbConnection _connection;
         private readonly MetadataKindsProvider _provider;
+        private readonly MetaObjectManager _metaObjectManager;
+        private readonly ITableManagerFactory _managerFactory;
         private bool _disposed;
 
-        public MetadataKindsService(IMainConnectionFactory connectionFactory, ISystemObjectProviderFactory providerFactory)
+        public MetadataKindsService(IMainConnectionFactory connectionFactory,
+            ISystemObjectProviderFactory providerFactory,
+            ITableManagerFactory managerFactory)
         {
             _connection = connectionFactory.CreateConnection();
             // _provider = new MetadataKindsProvider(_connection);
             providerFactory.SetUp(_connection);
-           _provider = providerFactory.Create<MetadataKindsProvider>();
+            _provider = providerFactory.Create<MetadataKindsProvider>();
+
+            _managerFactory = managerFactory;
+            _managerFactory.SetUp(_connection);
+
         }
 
-        public async Task<ResultWrapper<IEnumerable<MetadataKind>>> GetCollectionAsync(IDbTransaction? transaction = null)
+        public async Task<ResultWrapper<IEnumerable<MetadataKind>>> GetCollectionAsync()
         {
             var result = new ResultWrapper<IEnumerable<MetadataKind>>();
 
@@ -37,7 +46,7 @@ namespace BaSys.Constructor.Services
 
             try
             {
-                var items = await _provider.GetCollectionAsync(transaction);
+                var items = await _provider.GetCollectionAsync(null);
 
                 result.Success(items);
 
@@ -50,7 +59,7 @@ namespace BaSys.Constructor.Services
             return result;
         }
 
-        public async Task<ResultWrapper<MetadataKindSettings>> GetSettingsItemAsync(Guid uid, IDbTransaction? transaction = null)
+        public async Task<ResultWrapper<MetadataKindSettings>> GetSettingsItemAsync(Guid uid)
         {
             var result = new ResultWrapper<MetadataKindSettings>();
 
@@ -62,7 +71,7 @@ namespace BaSys.Constructor.Services
 
             try
             {
-                var item = await _provider.GetItemAsync(uid, transaction);
+                var item = await _provider.GetItemAsync(uid, null);
 
                 if (item == null)
                 {
@@ -83,7 +92,7 @@ namespace BaSys.Constructor.Services
             return result;
         }
 
-        public async Task<ResultWrapper<MetadataKindSettings>> GetSettingsItemByNameAsync(string name, IDbTransaction? transaction = null)
+        public async Task<ResultWrapper<MetadataKindSettings>> GetSettingsItemByNameAsync(string name)
         {
             var result = new ResultWrapper<MetadataKindSettings>();
 
@@ -95,7 +104,7 @@ namespace BaSys.Constructor.Services
 
             try
             {
-                var settings = await _provider.GetSettingsByNameAsync(name, transaction);
+                var settings = await _provider.GetSettingsByNameAsync(name, null);
 
                 if (settings == null)
                 {
@@ -114,7 +123,7 @@ namespace BaSys.Constructor.Services
             return result;
         }
 
-        public async Task<ResultWrapper<MetadataKindSettings>> InsertSettingsAsync(MetadataKindSettings settings, IDbTransaction? transaction = null)
+        public async Task<ResultWrapper<MetadataKindSettings>> InsertSettingsAsync(MetadataKindSettings settings)
         {
             var result = new ResultWrapper<MetadataKindSettings>();
 
@@ -124,31 +133,41 @@ namespace BaSys.Constructor.Services
                 return result;
             }
 
-            var savedItem = await _provider.GetItemAsync(settings.Uid, transaction);
-
-            if (savedItem != null)
+            _connection.Open();
+            using (IDbTransaction transaction = _connection.BeginTransaction())
             {
-                result.Error(-1, $"Item already exists.", $"Uid: {settings.Uid}");
-                return result;
-            }
+                var savedItem = await _provider.GetItemAsync(settings.Uid, transaction);
 
-            try
-            {
-               
-                var insertedCount = await _provider.InsertSettingsAsync(settings, transaction);
-                var newSettings = await _provider.GetSettingsByNameAsync(settings.Name, transaction);
+                if (savedItem != null)
+                {
+                    result.Error(-1, $"Item already exists.", $"Uid: {settings.Uid}");
+                    transaction.Rollback();
+                    return result;
+                }
 
-                result.Success(newSettings);
-            }
-            catch (Exception ex)
-            {
-                result.Error(-1, $"Cannot create item.", $"Message: {ex.Message}, Query: {_provider.LastQuery}");
+                try
+                {
+                    var insertedCount = await _provider.InsertSettingsAsync(settings, transaction);
+                    var newSettings = await _provider.GetSettingsByNameAsync(settings.Name, transaction);
+
+                    var metaObjectManager = _managerFactory.CreateMetaObjectManager(settings.Name);
+                    await metaObjectManager.CreateTableAsync(transaction);
+
+                    transaction.Commit();
+
+                    result.Success(newSettings);
+                }
+                catch (Exception ex)
+                {
+                    result.Error(-1, $"Cannot create item.", $"Message: {ex.Message}, Query: {_provider.LastQuery}");
+                    transaction.Rollback();
+                }
             }
 
             return result;
         }
 
-        public async Task<ResultWrapper<int>> UpdateSettingsAsync(MetadataKindSettings settings, IDbTransaction? transaction = null)
+        public async Task<ResultWrapper<int>> UpdateSettingsAsync(MetadataKindSettings settings)
         {
             var result = new ResultWrapper<int>();
 
@@ -158,7 +177,7 @@ namespace BaSys.Constructor.Services
                 return result;
             }
 
-            var savedItem = await _provider.GetItemAsync(settings.Uid, transaction);
+            var savedItem = await _provider.GetItemAsync(settings.Uid, null);
 
             if (savedItem == null)
             {
@@ -169,7 +188,7 @@ namespace BaSys.Constructor.Services
             savedItem.FillBySettings(settings);
             try
             {
-                var insertedCount = await _provider.UpdateAsync(savedItem, transaction);
+                var insertedCount = await _provider.UpdateAsync(savedItem, null);
                 result.Success(insertedCount);
             }
             catch (Exception ex)
@@ -180,7 +199,7 @@ namespace BaSys.Constructor.Services
             return result;
         }
 
-        public async Task<ResultWrapper<int>> DeleteAsync(Guid uid, IDbTransaction? transaction = null)
+        public async Task<ResultWrapper<int>> DeleteAsync(Guid uid)
         {
             var result = new ResultWrapper<int>();
 
@@ -190,14 +209,34 @@ namespace BaSys.Constructor.Services
                 return result;
             }
 
-            try
+            _connection.Open();
+            using (IDbTransaction transaction = _connection.BeginTransaction())
             {
-                var processedCount = await _provider.DeleteAsync(uid, transaction);
-                result.Success(processedCount);
-            }
-            catch (Exception ex)
-            {
-                result.Error(-1, $"Cannot delete item", $"Uid: {uid}, Message: {ex.Message}, Query: {_provider.LastQuery}");
+                var savedItem = await _provider.GetItemAsync(uid, transaction);
+
+                if (savedItem == null)
+                {
+                    result.Error(-1, "Item not found", $"Uid: {uid}");
+                    transaction.Rollback();
+                    return result;
+                }
+
+                try
+                {
+                    var processedCount = await _provider.DeleteAsync(uid, transaction);
+
+                    var metaObjectManager = _managerFactory.CreateMetaObjectManager(savedItem.Name);
+                    await metaObjectManager.DropTableAsync(transaction);
+
+                    transaction.Commit();
+
+                    result.Success(processedCount);
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    result.Error(-1, $"Cannot delete item", $"Uid: {uid}, Message: {ex.Message}, Query: {_provider.LastQuery}");
+                }
             }
 
             return result;
@@ -218,7 +257,7 @@ namespace BaSys.Constructor.Services
             {
                 if (disposing)
                 {
-                    if(_connection != null) 
+                    if (_connection != null)
                         _connection.Dispose();
                 }
 

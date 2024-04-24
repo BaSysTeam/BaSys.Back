@@ -13,14 +13,4 @@ public class UserSettingsManager : TableManagerBase
     {
     }
     
-    public override async Task<int> CreateTableAsync(IDbTransaction? transaction = null)
-    {
-        await base.CreateTableAsync(transaction);
-
-        _query = CreateTableBuilder.Make(_config).Query(_sqlDialectKind);
-
-        var result = await _connection.ExecuteAsync(_query.Text, null, transaction);
-
-        return result;
-    }
 }

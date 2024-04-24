@@ -16,14 +16,5 @@ namespace BaSys.Host.DAL.TableManagers
         public LoggerConfigManager(IDbConnection connection) : base(connection, new LoggerConfigConfiguration())
         {
         }
-
-        public override async Task<int> CreateTableAsync(IDbTransaction? transaction = null)
-        {
-            await base.CreateTableAsync(transaction);
-
-            _query = CreateTableBuilder.Make(_config).Query(_sqlDialectKind);
-
-            return await _connection.ExecuteAsync(_query.Text, null, transaction);
-        }
     }
 }
