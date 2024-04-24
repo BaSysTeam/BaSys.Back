@@ -1,5 +1,6 @@
 ﻿using BaSys.DAL.Models.App;
 using BaSys.FluentQueries.Abstractions;
+using BaSys.FluentQueries.Enums;
 using BaSys.FluentQueries.QueryBuilders;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.ModelConfigurations;
@@ -42,11 +43,25 @@ namespace BaSys.Host.DAL.DataProviders
 
         public async Task<IEnumerable<MetadataTreeNode>> GetStandardNodesAsync(IDbTransaction transaction)
         {
+            var whereAnd = "";
+
+            switch (_sqlDialect)
+            {
+                case SqlDialectKinds.MsSql:
+                    whereAnd = $"{nameof(MetadataTreeNode.IsStandard)} = 1";
+                    break;
+                case SqlDialectKinds.PgSql:
+                    whereAnd = $"{nameof(MetadataTreeNode.IsStandard)} = true";
+                    break;
+                default:
+                    throw new NotImplementedException($"{GetType().Name} not implemented for DbKind {_sqlDialect}.");
+            }
+
             _query = SelectBuilder
                 .Make()
                 .Select("*")
                 .From(_config.TableName.ToLower())
-                .WhereAnd($"{nameof(MetadataTreeNode.IsStandard)} = 1")
+                .WhereAnd(whereAnd)
                 .Query(_sqlDialect);
 
             return await _dbConnection.QueryAsync<MetadataTreeNode>(_query.Text, transaction);
