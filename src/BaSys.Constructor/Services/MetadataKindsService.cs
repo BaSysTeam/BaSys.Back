@@ -9,6 +9,9 @@ using System.Data;
 using System.Xml.Linq;
 using System.Linq;
 using BaSys.Host.DAL.TableManagers;
+using BaSys.Logging.Abstractions.Abstractions;
+using BaSys.Common.Enums;
+using BaSys.Logging.EventTypes;
 
 namespace BaSys.Constructor.Services
 {
@@ -16,21 +19,23 @@ namespace BaSys.Constructor.Services
     {
         private readonly IDbConnection _connection;
         private readonly MetadataKindsProvider _provider;
-        private readonly MetaObjectManager _metaObjectManager;
         private readonly ITableManagerFactory _managerFactory;
+        private readonly LoggerService _logger;
         private bool _disposed;
 
         public MetadataKindsService(IMainConnectionFactory connectionFactory,
             ISystemObjectProviderFactory providerFactory,
-            ITableManagerFactory managerFactory)
+            ITableManagerFactory managerFactory, 
+            LoggerService logger)
         {
             _connection = connectionFactory.CreateConnection();
-            // _provider = new MetadataKindsProvider(_connection);
             providerFactory.SetUp(_connection);
             _provider = providerFactory.Create<MetadataKindsProvider>();
 
             _managerFactory = managerFactory;
             _managerFactory.SetUp(_connection);
+
+            _logger = logger;
 
         }
 
@@ -155,6 +160,8 @@ namespace BaSys.Constructor.Services
 
                     transaction.Commit();
 
+                    _logger.Write($"Insert metadata kind {newSettings}", EventTypeLevels.Info, EventTypeFactory.MetadataCreate);
+
                     result.Success(newSettings);
                 }
                 catch (Exception ex)
@@ -189,6 +196,7 @@ namespace BaSys.Constructor.Services
             try
             {
                 var insertedCount = await _provider.UpdateAsync(savedItem, null);
+                _logger.Write($"Update metadata kind {savedItem}", EventTypeLevels.Info, EventTypeFactory.MetadataUpdate);
                 result.Success(insertedCount);
             }
             catch (Exception ex)
@@ -228,6 +236,7 @@ namespace BaSys.Constructor.Services
                     var metaObjectManager = _managerFactory.CreateMetaObjectManager(savedItem.Name);
                     await metaObjectManager.DropTableAsync(transaction);
 
+                    _logger.Write($"Delete metadata kind {savedItem}", EventTypeLevels.Info, EventTypeFactory.MetadataDelete);
                     transaction.Commit();
 
                     result.Success(processedCount);
