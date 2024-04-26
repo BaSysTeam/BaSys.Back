@@ -13,47 +13,39 @@ namespace BaSys.Admin.Services
 {
     public sealed class LoggerConfigService : ILoggerConfigService
     {
-        private readonly IDbInfoRecordsProvider _dbInfoRecordsProvider;
-        private readonly IBaSysConnectionFactory _baSysConnectionFactory;
+        private readonly IDbConnection _connection;
+        private readonly LoggerConfigProvider _provider;
 
         public LoggerConfigService(
-            IDbInfoRecordsProvider dbInfoRecordsProvider,
-            IBaSysConnectionFactory baSysConnectionFactory)
+            IMainConnectionFactory mainConnectionFactory,
+            ISystemObjectProviderFactory providerFactory)
         {
-            _dbInfoRecordsProvider = dbInfoRecordsProvider;
-            _baSysConnectionFactory = baSysConnectionFactory;
+            _connection = mainConnectionFactory.CreateConnection();
+            providerFactory.SetUp(_connection);
+            _provider = providerFactory.Create<LoggerConfigProvider>();
         }
 
-        public async Task<ResultWrapper<int>> CreateLoggerConfigAsync(LoggerConfigDto dto, string dbName)
+        public async Task<ResultWrapper<int>> CreateLoggerConfigAsync(LoggerConfig loggerConfig)
         {
             var result = new ResultWrapper<int>();
-            var dbInfoRecord = _dbInfoRecordsProvider.GetDbInfoRecordByDbName(dbName);
 
             try
             {
-                using (IDbConnection connection = _baSysConnectionFactory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
+                if (string.IsNullOrEmpty(loggerConfig.ConnectionString))
                 {
-                    var loggerConfig = dto.ToModel();
-                    loggerConfig.Uid = Guid.NewGuid();
+                    result.Error(-1, DictMain.EmptyConnectionString);
+                    return result;
+                }
 
-                    if (string.IsNullOrEmpty(loggerConfig.ConnectionString))
-                    {
-                        result.Error(-1, DictMain.EmptyConnectionString);
-                        return result;
-                    }
-
-                    var provider = new LoggerConfigProvider(connection);
-                    var collection = await provider.GetCollectionAsync(null);
-
-                    if (!collection.Any())
-                    {
-                        var insertResult = await provider.InsertAsync(loggerConfig, null);
-                        result.Success(insertResult, DictMain.LoggerConfigCreated);
-                    }
-                    else
-                    {
-                        result.Error(-1, DictMain.CannotCreateLoggerConfig);
-                    }
+                var collection = await _provider.GetCollectionAsync(null);
+                if (!collection.Any())
+                {
+                    var insertResult = await _provider.InsertAsync(loggerConfig, null);
+                    result.Success(insertResult, DictMain.LoggerConfigCreated);
+                }
+                else
+                {
+                    result.Error(-1, DictMain.CannotCreateLoggerConfig);
                 }
             }
             catch (Exception ex)
@@ -64,20 +56,14 @@ namespace BaSys.Admin.Services
             return result;
         }
 
-        public async Task<ResultWrapper<int>> DeleteLoggerConfigAsync(Guid uid, string dbName)
+        public async Task<ResultWrapper<int>> DeleteLoggerConfigAsync(Guid uid)
         {
             var result = new ResultWrapper<int>();
-            var dbInfoRecord = _dbInfoRecordsProvider.GetDbInfoRecordByDbName(dbName);
 
             try
             {
-                using (IDbConnection connection = _baSysConnectionFactory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
-                {
-                    var provider = new LoggerConfigProvider(connection);
-                    var deletionResult = await provider.DeleteAsync(uid, null);
-
-                    result.Success(deletionResult, DictMain.LoggerConfigDeleted);
-                }
+                var deletionResult = await _provider.DeleteAsync(uid, null);
+                result.Success(deletionResult, DictMain.LoggerConfigDeleted);
             }
             catch (Exception ex)
             {
@@ -87,28 +73,21 @@ namespace BaSys.Admin.Services
             return result;
         }
 
-        public async Task<ResultWrapper<LoggerConfigDto>> GetLoggerConfigAsync(string dbName)
+        public async Task<ResultWrapper<LoggerConfig>> GetLoggerConfigAsync()
         {
-            var result = new ResultWrapper<LoggerConfigDto>();
-            var dbInfoRecord = _dbInfoRecordsProvider.GetDbInfoRecordByDbName(dbName);
-
+            var result = new ResultWrapper<LoggerConfig>();
+            
             try
             {
-                using (IDbConnection connection = _baSysConnectionFactory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
+                var collection = await _provider.GetCollectionAsync(null);
+                var loggerConfig = collection.FirstOrDefault();
+                if (loggerConfig == null)
                 {
-                    var provider = new LoggerConfigProvider(connection);
-                    var collection = await provider.GetCollectionAsync(null);
-                    var loggerConfig = collection.FirstOrDefault();
-                    if (loggerConfig == null)
-                    {
-                        result.Error(-1, DictMain.CannotFindLoggerConfig);
-                        return result;
-                    }
-
-                    var dto = new LoggerConfigDto(loggerConfig);
-
-                    result.Success(dto);
+                    result.Error(-1, DictMain.CannotFindLoggerConfig);
+                    return result;
                 }
+
+                result.Success(loggerConfig);
             }
             catch (Exception ex)
             {
@@ -118,37 +97,29 @@ namespace BaSys.Admin.Services
             return result;
         }
 
-        public async Task<ResultWrapper<int>> UpdateLoggerConfigAsync(LoggerConfigDto dto, string dbName)
+        public async Task<ResultWrapper<int>> UpdateLoggerConfigAsync(LoggerConfig loggerConfig)
         {
             var result = new ResultWrapper<int>();
-            var dbInfoRecord = _dbInfoRecordsProvider.GetDbInfoRecordByDbName(dbName);
 
             try
             {
-                using (IDbConnection connection = _baSysConnectionFactory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
+                loggerConfig.ConnectionString = loggerConfig.ConnectionString?.Replace("\n", "");
+                if (loggerConfig.IsEnabled)
                 {
-                    var loggerConfig = dto.ToModel();
-                    loggerConfig.ConnectionString = loggerConfig.ConnectionString?.Replace("\n", "");
-
-                    if (loggerConfig.IsEnabled)
+                    if (string.IsNullOrEmpty(loggerConfig.ConnectionString))
                     {
-                        if (string.IsNullOrEmpty(loggerConfig.ConnectionString))
-                        {
-                            result.Error(-1, DictMain.EmptyConnectionString);
-                            return result;
-                        }
-                        if (loggerConfig.LoggerType == null)
-                        {
-                            result.Error(-1, DictMain.EmptyLoggerType);
-                            return result;
-                        }
+                        result.Error(-1, DictMain.EmptyConnectionString);
+                        return result;
                     }
-
-                    var provider = new LoggerConfigProvider(connection);
-                    var updateResult = await provider.UpdateAsync(loggerConfig, null);
-
-                    result.Success(updateResult, DictMain.LoggerConfigUpdated);
+                    if (loggerConfig.LoggerType == null)
+                    {
+                        result.Error(-1, DictMain.EmptyLoggerType);
+                        return result;
+                    }
                 }
+
+                var updateResult = await _provider.UpdateAsync(loggerConfig, null);
+                result.Success(updateResult, DictMain.LoggerConfigUpdated);
             }
             catch (Exception ex)
             {
