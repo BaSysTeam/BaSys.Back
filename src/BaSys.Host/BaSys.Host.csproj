@@ -113,5 +113,13 @@
     <Content Update="wwwroot\fonts\Inter-italic.var.958a0b97.woff2">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Remove="wwwroot\app\constructor\img\primeicons.943ab24c.svg" />
+    <Content Remove="wwwroot\app\constructor\index.html" />
+    <Content Remove="wwwroot\app\constructor\fonts\primeicons.ffecb254.eot" />
+    <Content Remove="wwwroot\app\constructor\fonts\primeicons.0112589c.ttf" />
+    <Content Remove="wwwroot\app\constructor\fonts\Inter-italic.var.958a0b97.woff2" />
+    <Content Remove="wwwroot\app\constructor\favicon.ico" />
+    <Content Remove="wwwroot\app\constructor\fonts\primeicons.ba3f916d.woff2" />
+    <Content Remove="wwwroot\app\constructor\fonts\Inter-roman.var.b2129c00.woff2" />
   </ItemGroup>
 </Project>

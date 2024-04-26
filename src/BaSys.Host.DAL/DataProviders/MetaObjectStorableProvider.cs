@@ -1,0 +1,89 @@
+﻿using System.Data;
+using BaSys.FluentQueries.Abstractions;
+using BaSys.FluentQueries.QueryBuilders;
+using BaSys.Host.DAL.Abstractions;
+using BaSys.Host.DAL.ModelConfigurations;
+using BaSys.Metadata.Models;
+using Dapper;
+using MemoryPack;
+
+namespace BaSys.Host.DAL.DataProviders;
+
+public class MetaObjectStorableProvider : SystemObjectProviderBase<MetaObjectStorable>
+{
+    public MetaObjectStorableProvider(IDbConnection dbConnection) : base(dbConnection, new MetaObjectStorableConfiguration())
+    {
+    }
+
+    public override async Task<int> InsertAsync(MetaObjectStorable item, IDbTransaction transaction)
+    {
+        _query = InsertBuilder.Make(_config)
+            .FillValuesByColumnNames(true)
+            .Query(_sqlDialect);
+
+        var result = await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
+
+        return result;
+    }
+
+    public override async Task<int> UpdateAsync(MetaObjectStorable item, IDbTransaction transaction)
+    {
+        _query = UpdateBuilder.Make(_config)
+            .WhereAnd("uid = @uid")
+            .Query(_sqlDialect);
+
+        var result = await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
+
+        return result;
+    }
+
+    /// <summary>
+    /// Insert all colunms
+    /// </summary>
+    /// <param name="settings"></param>
+    /// <param name="transaction"></param>
+    /// <returns></returns>
+    /// <exception cref="NotImplementedException"></exception>
+    public async Task<int> InsertSettingsAsync(MetaObjectStorableSettings settings, IDbTransaction? transaction)
+    {
+        throw new NotImplementedException();
+    }
+    
+    /// <summary>
+    /// Update all columns
+    /// </summary>
+    /// <param name="settings"></param>
+    /// <param name="transaction"></param>
+    /// <returns></returns>
+    public async Task<int> UpdateSettingsAsync(MetaObjectStorableSettings settings, IDbTransaction? transaction)
+    {
+        var settingsArr = MemoryPackSerializer.Serialize(settings);
+        _query = UpdateBuilder.Make(_config)
+            .Set("settingsstorage", settingsArr.ToString())
+            .WhereAnd("uid = @uid")
+            .Parameter("uid", settings.Uid)
+            .Query(_sqlDialect);
+        
+        var result = await _dbConnection.ExecuteAsync(_query.Text, settings, transaction);
+
+        return result;
+    }
+
+    public async Task<MetaObjectStorableSettings?> GetSettingsItemAsync(Guid uid, IDbTransaction transaction)
+    {
+        _query = SelectBuilder.Make()
+            .From(_config.TableName)
+            .Select("settingsstorage")
+            .WhereAnd("uid = @uid")
+            .Parameter("uid", uid)
+            .Query(_sqlDialect);
+
+        var result = await _dbConnection.QueryFirstOrDefaultAsync<byte[]>(_query.Text, _query.DynamicParameters, transaction);
+        if (result == null)
+            return null;
+        
+        var settings = MemoryPackSerializer.Deserialize<MetaObjectStorableSettings>(result);
+
+        return settings;
+    }
+}
