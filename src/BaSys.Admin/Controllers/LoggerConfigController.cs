@@ -1,8 +1,7 @@
 ﻿using BaSys.Admin.Abstractions;
 using BaSys.Common.Infrastructure;
-using BaSys.DTO.Admin;
+using BaSys.DAL.Models.Logging;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BaSys.Admin.Controllers
@@ -29,30 +28,20 @@ namespace BaSys.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> GetLoggerConfig()
         {
-            var dbName = GetDbName();
-            var result = await _loggerConfigService.GetLoggerConfigAsync(dbName);
-
+            var result = await _loggerConfigService.GetLoggerConfigAsync();
             return Ok(result);
         }
 
         /// <summary>
         /// Update logger config record.
         /// </summary>
-        /// <param name="dto"></param>
+        /// <param name="loggerConfig"></param>
         /// <returns></returns>
         [HttpPut]
-        public async Task<IActionResult> UpdateLoggerConfig(LoggerConfigDto dto)
+        public async Task<IActionResult> UpdateLoggerConfig(LoggerConfig loggerConfig)
         {
-            var dbName = GetDbName();
-            var result = await _loggerConfigService.UpdateLoggerConfigAsync(dto, dbName);
-
+            var result = await _loggerConfigService.UpdateLoggerConfigAsync(loggerConfig);
             return Ok(result);
-        }
-
-        private string? GetDbName()
-        {
-            var authUserDbNameClaim = User.Claims.FirstOrDefault(x => x.Type == "DbName");
-            return authUserDbNameClaim?.Value;
         }
     }
 }
