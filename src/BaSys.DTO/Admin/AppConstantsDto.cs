@@ -9,36 +9,30 @@ namespace BaSys.DTO.Admin
 {
     public sealed class AppConstantsDto
     {
-        public string Uid { get; set; } = string.Empty;
-        public string DataBaseUid { get; set; } = string.Empty;
+        public Guid Uid { get; set; }
+        public Guid DataBaseUid { get; set; }
         public string ApplicationTitle { get; set; } = string.Empty;
         public string AppVersion { get; set; } = string.Empty;
 
         public AppConstantsDto()
         {
-            
         }
 
         public AppConstantsDto(AppConstants model)
         {
-            Uid = model.Uid.ToString();
-            DataBaseUid = model.DataBaseUid.ToString();
+            Uid = model.Uid;
+            DataBaseUid = model.DataBaseUid;
             ApplicationTitle = model.ApplicationTitle;
         }
 
         public AppConstants ToModel()
         {
-            var model = new AppConstants
+            return new AppConstants
             {
+                Uid = Uid,
+                DataBaseUid = DataBaseUid,
                 ApplicationTitle = ApplicationTitle
             };
-
-            if (Guid.TryParse(Uid, out var uid))
-                model.Uid = uid;
-            if (Guid.TryParse(DataBaseUid, out var dataBaseUid))
-                model.DataBaseUid = dataBaseUid;
-
-            return model;
         }
     }
 }
