@@ -6,7 +6,7 @@ using MemoryPack;
 namespace BaSys.Metadata.Models
 {
     [MemoryPackable]
-    public sealed class MetaObjectStorableSettings
+    public sealed partial class MetaObjectStorableSettings
     {
         public Guid Uid { get; set; }
         public Guid MetaObjectKindUid { get; set; }

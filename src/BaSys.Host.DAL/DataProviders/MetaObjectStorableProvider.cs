@@ -46,7 +46,21 @@ public class MetaObjectStorableProvider : SystemObjectProviderBase<MetaObjectSto
     /// <exception cref="NotImplementedException"></exception>
     public async Task<int> InsertSettingsAsync(MetaObjectStorableSettings settings, IDbTransaction? transaction)
     {
-        throw new NotImplementedException();
+        var settingsArr = MemoryPackSerializer.Serialize(settings);
+        var item = new MetaObjectStorable
+        {
+            Uid = settings.Uid,
+            Name = settings.Name,
+            Title = settings.Title,
+            Memo = settings.Memo,
+            MetaObjectKindUid = settings.MetaObjectKindUid,
+            IsActive = settings.IsActive,
+            Version = settings.Version,
+            SettingsStorage = settingsArr
+        };
+        var result = await InsertAsync(item, transaction);
+
+        return result;
     }
     
     /// <summary>
@@ -58,13 +72,18 @@ public class MetaObjectStorableProvider : SystemObjectProviderBase<MetaObjectSto
     public async Task<int> UpdateSettingsAsync(MetaObjectStorableSettings settings, IDbTransaction? transaction)
     {
         var settingsArr = MemoryPackSerializer.Serialize(settings);
-        _query = UpdateBuilder.Make(_config)
-            .Set("settingsstorage", settingsArr.ToString())
-            .WhereAnd("uid = @uid")
-            .Parameter("uid", settings.Uid)
-            .Query(_sqlDialect);
-        
-        var result = await _dbConnection.ExecuteAsync(_query.Text, settings, transaction);
+        var item = new MetaObjectStorable
+        {
+            Uid = settings.Uid,
+            Name = settings.Name,
+            Title = settings.Title,
+            Memo = settings.Memo,
+            MetaObjectKindUid = settings.MetaObjectKindUid,
+            IsActive = settings.IsActive,
+            Version = settings.Version,
+            SettingsStorage = settingsArr
+        };
+        var result = await UpdateAsync(item, transaction);
 
         return result;
     }
