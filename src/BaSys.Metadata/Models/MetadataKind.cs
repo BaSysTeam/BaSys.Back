@@ -14,6 +14,7 @@ namespace BaSys.Metadata.Models
         public bool StoreData { get; set; }
         public bool IsReference { get; set; }
         public bool IsStandard { get; set; }
+        public long Version { get; set; }
         public string Memo { get; set; } = string.Empty;
         public byte[] SettingsStorage { get; set; } = new byte[0];
 
@@ -44,8 +45,14 @@ namespace BaSys.Metadata.Models
         {
             var settings = MemoryPackSerializer.Deserialize<MetadataKindSettings>(SettingsStorage); 
             settings.Uid = Uid;
+            settings.Version = Version;
 
             return settings;
+        }
+
+        public void BeforeSave()
+        {
+            Version++;
         }
 
     }
