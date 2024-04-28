@@ -63,6 +63,24 @@ namespace BaSys.FluentQueries.UnitTests
 
         }
 
+        [TestCase(SqlDialectKinds.MsSql, "CreateTableWithUniqueColumnMsSql")]
+        [TestCase(SqlDialectKinds.PgSql, "CreateTableWithUniqueColumnPgSql")]
+        public void CreateTable_UniqueColumn_Query(SqlDialectKinds dialectKinds, string checkKey)
+        {
+            var builder = CreateTableBuilder.Make().Table("sys_metadata_kinds")
+                .PrimaryKey("uid", DbType.Guid)
+                .StringColumn("title",100, true)
+                .StringColumn("prefix", 4, true, true);
+
+            var query = builder.Query(dialectKinds);
+
+            Console.WriteLine($"{dialectKinds}");
+            Console.Write(query);
+
+            var checkText = Texts.ResourceManager.GetString(checkKey);
+            Assert.That(query.Text, Is.EqualTo(checkText));
+        }
+
         [Test]
         public void CreateTable_WithMultiplePrimaryKeys_ShouldThrow()
         {
