@@ -18,6 +18,7 @@ namespace BaSys.Metadata.Models
         public long Version { get; set; }
         public string Memo { get; set; } = string.Empty;
         public string NamePlural { get; set; } = string.Empty;
+        public string IconClass { get; set; } = string.Empty;
 
         public List<MetadataKindStandardColumn> StandardColumns { get; set; }   = new List<MetadataKindStandardColumn>();
 
