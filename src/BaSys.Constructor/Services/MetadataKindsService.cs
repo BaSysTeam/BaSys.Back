@@ -12,6 +12,7 @@ using BaSys.Host.DAL.TableManagers;
 using BaSys.Logging.Abstractions.Abstractions;
 using BaSys.Common.Enums;
 using BaSys.Logging.EventTypes;
+using BaSys.Metadata.Validators;
 
 namespace BaSys.Constructor.Services
 {
@@ -138,6 +139,14 @@ namespace BaSys.Constructor.Services
                 return result;
             }
 
+            var validator = new MetadataKindSettingsValidator();
+            var validationResult = validator.Validate(settings);
+            if (!validationResult.IsValid)
+            {
+                result.Error(-1, validationResult.ToString());
+                return result;
+            }
+
             _connection.Open();
             using (IDbTransaction transaction = _connection.BeginTransaction())
             {
@@ -155,7 +164,7 @@ namespace BaSys.Constructor.Services
                     var insertedCount = await _provider.InsertSettingsAsync(settings, transaction);
                     var newSettings = await _provider.GetSettingsByNameAsync(settings.Name, transaction);
 
-                    var metaObjectManager = _managerFactory.CreateMetaObjectManager(settings.Name);
+                    var metaObjectManager = _managerFactory.CreateMetaObjectManager(settings.GetNamePlural());
                     await metaObjectManager.CreateTableAsync(transaction);
 
                     transaction.Commit();
@@ -181,6 +190,14 @@ namespace BaSys.Constructor.Services
             if (!Check())
             {
                 result.Error(-1, $"Data providers is not initialized. Call SetUp method.");
+                return result;
+            }
+
+            var validator = new MetadataKindSettingsValidator();
+            var validationResult = validator.Validate(settings);
+            if (!validationResult.IsValid)
+            {
+                result.Error(-1, validationResult.ToString());
                 return result;
             }
 
@@ -233,7 +250,8 @@ namespace BaSys.Constructor.Services
                 {
                     var processedCount = await _provider.DeleteAsync(uid, transaction);
 
-                    var metaObjectManager = _managerFactory.CreateMetaObjectManager(savedItem.Name);
+                    var settings = savedItem.ToSettings();
+                    var metaObjectManager = _managerFactory.CreateMetaObjectManager(settings.GetNamePlural());
                     await metaObjectManager.DropTableAsync(transaction);
 
                     _logger.Write($"Delete metadata kind {savedItem}", EventTypeLevels.Info, EventTypeFactory.MetadataDelete);

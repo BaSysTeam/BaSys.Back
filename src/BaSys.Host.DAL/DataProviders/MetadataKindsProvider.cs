@@ -3,7 +3,9 @@ using BaSys.FluentQueries.QueryBuilders;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.ModelConfigurations;
 using BaSys.Metadata.Models;
+using BaSys.Metadata.Validators;
 using Dapper;
+using FluentValidation;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -24,6 +26,7 @@ namespace BaSys.Host.DAL.DataProviders
             _query = InsertBuilder.Make(_config)
            .FillValuesByColumnNames(true).Query(_sqlDialect);
 
+            item.BeforeSave();
             var result = await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
 
             return result;
@@ -45,6 +48,7 @@ namespace BaSys.Host.DAL.DataProviders
               .WhereAnd("uid = @uid")
               .Query(_sqlDialect);
 
+            item.BeforeSave();
             result = await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
 
             return result;

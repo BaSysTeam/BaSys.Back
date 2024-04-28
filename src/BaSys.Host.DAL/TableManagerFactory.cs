@@ -37,12 +37,12 @@ namespace BaSys.Host.DAL
 
         }
 
-        public MetaObjectManager CreateMetaObjectManager(string kindName)
+        public MetaObjectManager CreateMetaObjectManager(string kindNamePlural)
         {
             if (_connection == null)
                 throw new ArgumentNullException(nameof(_connection));
 
-            return new MetaObjectManager(_connection, kindName);
+            return new MetaObjectManager(_connection, kindNamePlural);
         }
     }
 }
