@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MemoryPack;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,8 @@ using System.Threading.Tasks;
 
 namespace BaSys.Metadata.Models
 {
-    public sealed class MetaObjectTable
+    [MemoryPackable]
+    public sealed partial class MetaObjectTable
     {
         public Guid Uid { get; set; } = Guid.NewGuid();
         public string Title { get; set; }
