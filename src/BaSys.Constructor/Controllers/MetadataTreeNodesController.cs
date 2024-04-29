@@ -55,6 +55,18 @@ namespace BaSys.Constructor.Controllers
         }
 
         /// <summary>
+        /// Creates new meta object.
+        /// </summary>
+        /// <param name="dto">The info about new meta object to create.</param>
+        /// <returns>An IActionResult containing the newly created metadata tree node.</returns>
+        [HttpPost("MetaObject")]
+        public async Task<IActionResult> CreateMetaObject(CreateMetaObjectDto dto)
+        {
+            var result = await _metadataTreeNodesService.InsertMetaObjectAsync(dto);
+            return Ok(result);
+        }
+
+        /// <summary>
         /// Deletes metadata tree node by its unique identifier.
         /// </summary>
         /// <param name="uid">The unique identifier of the metadata tree node to delete.</param>

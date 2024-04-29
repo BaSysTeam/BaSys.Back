@@ -2,19 +2,38 @@
 using BaSys.Constructor.Abstractions;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
+using BaSys.Logging.Abstractions.Abstractions;
+using BaSys.Logging.EventTypes;
 using BaSys.Metadata.DTOs;
 using BaSys.Metadata.Models;
+using BaSys.Metadata.Validators;
+using BaSys.Translation;
 using Humanizer;
+using System.Data;
 
 namespace BaSys.Constructor.Services
 {
-    public class MetadataTreeNodesService : IMetadataTreeNodesService
+    public class MetadataTreeNodesService : IMetadataTreeNodesService, IDisposable
     {
         private readonly IMainConnectionFactory _connectionFactory;
+        private readonly LoggerService _logger;
+        private readonly ISystemObjectProviderFactory _providerFactory;
+        private readonly IDbConnection _connection;
+        private readonly MetadataTreeNodesProvider _nodesProvider;
+        private bool _disposed;
 
-        public MetadataTreeNodesService(IMainConnectionFactory connectionFactory)
+
+        public MetadataTreeNodesService(IMainConnectionFactory connectionFactory, 
+            ISystemObjectProviderFactory providerFactory, 
+            LoggerService logger)
         {
             _connectionFactory = connectionFactory;
+            _providerFactory = providerFactory;
+            _logger = logger;
+
+            _connection = _connectionFactory.CreateConnection();
+            _providerFactory.SetUp(_connection);
+            _nodesProvider = _providerFactory.Create<MetadataTreeNodesProvider>();
         }
 
         public async Task<ResultWrapper<int>> DeleteAsync(Guid uid)
@@ -23,9 +42,7 @@ namespace BaSys.Constructor.Services
 
             try
             {
-                using var connection = _connectionFactory.CreateConnection();
-                var provider = new MetadataTreeNodesProvider(connection);
-                var deleteResult = await provider.DeleteAsync(uid, null);
+                var deleteResult = await _nodesProvider.DeleteAsync(uid, null);
 
                 result.Success(deleteResult);
             }
@@ -43,16 +60,14 @@ namespace BaSys.Constructor.Services
 
             try
             {
-                using var connection = _connectionFactory.CreateConnection();
-                var provider = new MetadataTreeNodesProvider(connection);
-                var collection = await provider.GetChildrenAsync(uid, null);
+                var collection = await _nodesProvider.GetChildrenAsync(uid, null);
                 var children = collection
                     .Select(x => new MetadataTreeNodeDto(x))
                     .ToList();
 
                 foreach (var child in children)
                 {
-                    var hasChildren = await provider.HasChildrenAsync(child.Key, null);
+                    var hasChildren = await _nodesProvider.HasChildrenAsync(child.Key, null);
                     child.Leaf = !hasChildren;
                 }
 
@@ -72,9 +87,7 @@ namespace BaSys.Constructor.Services
 
             try
             {
-                using var connection = _connectionFactory.CreateConnection();
-                var provider = new MetadataTreeNodesProvider(connection);
-                var collection = await provider.GetStandardNodesAsync(null);
+                var collection = await _nodesProvider.GetStandardNodesAsync(null);
 
                 var standardNodes = collection
                     .Select(x => new MetadataTreeNodeDto(x))
@@ -82,7 +95,7 @@ namespace BaSys.Constructor.Services
                 
                 foreach (var standardNode in standardNodes)
                 {
-                    var hasChildren = await provider.HasChildrenAsync(standardNode.Key, null);
+                    var hasChildren = await _nodesProvider.HasChildrenAsync(standardNode.Key, null);
                     standardNode.Leaf = !hasChildren;
                 }
                 
@@ -112,15 +125,79 @@ namespace BaSys.Constructor.Services
             {
                 var model = dto.ToModel();
 
-                using var connection = _connectionFactory.CreateConnection();
-                var provider = new MetadataTreeNodesProvider(connection);
-                var insertResult = await provider.InsertAsync(model, null);
+                var insertResult = await _nodesProvider.InsertAsync(model, null);
 
                 result.Success(insertResult);
             }
             catch (Exception ex)
             {
-                result.Error(-1, "Cannot create item.", ex.Message);
+                result.Error(-1, DictMain.CannotCreateItem, ex.Message);
+            }
+
+            return result;
+        }
+
+        public async Task<ResultWrapper<int>> InsertMetaObjectAsync(CreateMetaObjectDto dto)
+        {
+            var result = new ResultWrapper<int>();
+
+            var validator = new CreateMetaObjectDtoValidator();
+            var validationResult = validator.Validate(dto);
+            if (!validationResult.IsValid)
+            {
+                result.Error(-1, $"{DictMain.CannotCreateItem}.{validationResult}");
+                return result;
+            }
+
+            _connection.Open();
+            using (IDbTransaction transaction = _connection.BeginTransaction())
+            {
+                var metadataKindProvider = _providerFactory.Create<MetadataKindsProvider>();
+                var metadataKindSettings = await metadataKindProvider.GetSettingsAsync(dto.MetadataKindUid, transaction);
+
+                if (metadataKindSettings == null)
+                {
+                    result.Error(-1, DictMain.CannotFindItem, $"Uid: {dto.MetadataKindUid}");
+                    transaction.Rollback();
+                    return result;
+                }
+
+                var metaObjectStorableProvider = _providerFactory.CreateMetaObjectStorableProvider(metadataKindSettings.NamePlural);
+                var newMetaObjectSettings = new MetaObjectStorableSettings()
+                {
+                    MetaObjectKindUid = metadataKindSettings.Uid,
+                    Name = dto.Name,
+                    Title = dto.Title,
+                    Memo = dto.Memo,
+                };
+                var newTreeNode = new MetadataTreeNode()
+                {
+                    ParentUid = dto.ParentUid,
+                    Title = $"{metadataKindSettings.Title}.{dto.Title}",
+                    MetadataKindUid = metadataKindSettings.Uid,
+                    IconClass = metadataKindSettings.IconClass,
+                };
+
+                try
+                {
+                    var insertedCount = await metaObjectStorableProvider.InsertSettingsAsync(newMetaObjectSettings, transaction);
+                    var savedMetaObject = await metaObjectStorableProvider.GetItemByNameAsync(newMetaObjectSettings.Name, transaction);
+
+                    newTreeNode.MetadataObjectUid = savedMetaObject.Uid;
+                    await _nodesProvider.InsertAsync(newTreeNode, transaction);
+
+                    _logger.Write($"Metadata item created.", Common.Enums.EventTypeLevels.Info, EventTypeFactory.MetadataCreate);
+
+                    transaction.Commit();
+                    result.Success(insertedCount);
+
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    result.Error(-1, DictMain.CannotCreateItem, ex.Message);
+                    _logger.Write($"Cannot create metadata item.", Common.Enums.EventTypeLevels.Error, EventTypeFactory.MetadataCreate);
+                }
             }
 
             return result;
@@ -138,6 +215,27 @@ namespace BaSys.Constructor.Services
             }
 
             return result;
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    if (_connection != null)
+                        _connection.Dispose();
+                }
+
+                _disposed = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

@@ -132,6 +132,9 @@
   <data name="CannotCreateAppConstantsRecord" xml:space="preserve">
     <value>Cannot create app constants record</value>
   </data>
+  <data name="CannotCreateItem" xml:space="preserve">
+    <value>Cannot create item</value>
+  </data>
   <data name="CannotCreateLoggerConfig" xml:space="preserve">
     <value>Cannot create logger config record</value>
   </data>
@@ -155,6 +158,9 @@
   </data>
   <data name="CannotFindAppConstantsRecord" xml:space="preserve">
     <value>Cannot find app constants record</value>
+  </data>
+  <data name="CannotFindItem" xml:space="preserve">
+    <value>Cannot find item</value>
   </data>
   <data name="CannotFindLoggerConfig" xml:space="preserve">
     <value>Cannot find logger config record</value>

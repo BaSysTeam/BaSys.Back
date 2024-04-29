@@ -132,6 +132,9 @@
   <data name="CannotCreateAppConstantsRecord" xml:space="preserve">
     <value>Ошибка создания записи констант приложения</value>
   </data>
+  <data name="CannotCreateItem" xml:space="preserve">
+    <value>Ошибка создания элемента</value>
+  </data>
   <data name="CannotCreateLoggerConfig" xml:space="preserve">
     <value>Ошибка создания конфигурации логгера</value>
   </data>
@@ -155,6 +158,9 @@
   </data>
   <data name="CannotFindAppConstantsRecord" xml:space="preserve">
     <value>Запись констант приложения не найдена</value>
+  </data>
+  <data name="CannotFindItem" xml:space="preserve">
+    <value>Элемент не найден</value>
   </data>
   <data name="CannotFindLoggerConfig" xml:space="preserve">
     <value>Конфигурация логгера не найдена</value>

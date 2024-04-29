@@ -54,6 +54,13 @@ namespace BaSys.Host.DAL.DataProviders
             return result;
         }
 
+        public async Task<MetadataKindSettings?> GetSettingsAsync(Guid uid, IDbTransaction? transaction = null)
+        {
+            var item = await GetItemAsync(uid, transaction);
+
+            return item?.ToSettings();
+        }
+
         public async Task<MetadataKindSettings?> GetSettingsByNameAsync(string name, IDbTransaction? transaction = null)
         {
             _query = SelectBuilder.Make()
