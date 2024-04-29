@@ -106,6 +106,15 @@ namespace BaSys.Translation {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot create item.
+        /// </summary>
+        public static string CannotCreateItem {
+            get {
+                return ResourceManager.GetString("CannotCreateItem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cannot create logger config record.
         /// </summary>
         public static string CannotCreateLoggerConfig {
@@ -174,6 +183,15 @@ namespace BaSys.Translation {
         public static string CannotFindAppConstantsRecord {
             get {
                 return ResourceManager.GetString("CannotFindAppConstantsRecord", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot find item.
+        /// </summary>
+        public static string CannotFindItem {
+            get {
+                return ResourceManager.GetString("CannotFindItem", resourceCulture);
             }
         }
         

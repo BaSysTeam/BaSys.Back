@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BaSys.Host.DAL.DataProviders;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -11,6 +12,7 @@ namespace BaSys.Host.DAL.Abstractions
     {
         void SetUp(IDbConnection connection);
         T Create<T>() where T : class;
+        MetaObjectStorableProvider CreateMetaObjectStorableProvider(string kindNamePlural);
     }
 
 }

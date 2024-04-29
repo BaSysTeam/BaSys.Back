@@ -1,4 +1,5 @@
 ﻿using BaSys.Host.DAL.Abstractions;
+using BaSys.Host.DAL.DataProviders;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -40,6 +41,14 @@ namespace BaSys.Host.DAL
 
             return instance;
 
+        }
+
+        public MetaObjectStorableProvider CreateMetaObjectStorableProvider(string kindNamePlural)
+        {
+            if (_connection == null)
+                throw new ArgumentNullException(nameof(_connection));
+
+            return new MetaObjectStorableProvider(_connection, kindNamePlural);
         }
     }
 }
