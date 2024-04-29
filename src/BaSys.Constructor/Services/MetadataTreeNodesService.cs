@@ -154,6 +154,7 @@ namespace BaSys.Constructor.Services
                     return result;
                 }
 
+                var treeProvider = new MetadataTreeNodesProvider(connection);
                 var metaObjectStorableProvider = new MetaObjectStorableProvider(connection, metadataKindSettings.NamePlural);
                 var newMetaObjectSettings = new MetaObjectStorableSettings()
                 {
@@ -162,11 +163,22 @@ namespace BaSys.Constructor.Services
                     Title = dto.Title,
                     Memo = dto.Memo,
                 };
-              
+                var newTreeNode = new MetadataTreeNode()
+                {
+                    ParentUid = dto.ParentUid,
+                    Title = dto.Title,
+                    MetadataKindUid = metadataKindSettings.Uid,
+                    IconClass = metadataKindSettings.IconClass,
+                };
 
                 try
                 {
                     var insertedCount = await metaObjectStorableProvider.InsertSettingsAsync(newMetaObjectSettings, transaction);
+                    var savedMetaObject = await metaObjectStorableProvider.GetItemByNameAsync(newMetaObjectSettings.Name, transaction);
+
+                    newTreeNode.MetadataObjectUid = savedMetaObject.Uid;
+                    await treeProvider.InsertAsync(newTreeNode, transaction);
+
                     transaction.Commit();
                     result.Success(insertedCount);
 

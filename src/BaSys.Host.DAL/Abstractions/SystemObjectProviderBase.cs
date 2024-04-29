@@ -59,6 +59,7 @@ namespace BaSys.Host.DAL.Abstractions
             return result;
         }
 
+
         public abstract Task<int> InsertAsync(T item, IDbTransaction transaction);
 
         public abstract Task<int> UpdateAsync(T item, IDbTransaction transaction);

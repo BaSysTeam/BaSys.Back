@@ -62,7 +62,7 @@ public class MetaObjectStorableProvider : SystemObjectProviderBase<MetaObjectSto
 
         return result;
     }
-    
+
     /// <summary>
     /// Update all columns
     /// </summary>
@@ -100,9 +100,23 @@ public class MetaObjectStorableProvider : SystemObjectProviderBase<MetaObjectSto
         var result = await _dbConnection.QueryFirstOrDefaultAsync<byte[]>(_query.Text, _query.DynamicParameters, transaction);
         if (result == null)
             return null;
-        
+
         var settings = MemoryPackSerializer.Deserialize<MetaObjectStorableSettings>(result);
 
         return settings;
+    }
+
+    public async Task<MetaObjectStorable> GetItemByNameAsync(string name, IDbTransaction? transaction)
+    {
+        _query = SelectBuilder.Make()
+          .From(_config.TableName)
+          .Select("*")
+          .WhereAnd("name = @name")
+          .Parameter("name", name)
+          .Query(_sqlDialect);
+
+        var result = await _dbConnection.QueryFirstOrDefaultAsync<MetaObjectStorable>(_query.Text, _query.DynamicParameters, transaction);
+
+        return result;
     }
 }
