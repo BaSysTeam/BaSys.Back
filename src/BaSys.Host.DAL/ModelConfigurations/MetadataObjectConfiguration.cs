@@ -10,9 +10,9 @@ namespace BaSys.Host.DAL.ModelConfigurations
 {
     public sealed class MetadataObjectConfiguration: DataModelConfiguration<MetaObjectBase>
     {
-        public MetadataObjectConfiguration()
+        public MetadataObjectConfiguration(string kindNamePlural)
         {
-            Table("sys_meta_objects");
+            Table($"sys_meta_{kindNamePlural}");
 
             Column("uid").IsPrimaryKey();
             Column("title").MaxLength(100);

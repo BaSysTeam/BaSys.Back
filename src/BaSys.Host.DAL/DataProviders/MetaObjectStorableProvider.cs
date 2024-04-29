@@ -11,7 +11,7 @@ namespace BaSys.Host.DAL.DataProviders;
 
 public class MetaObjectStorableProvider : SystemObjectProviderBase<MetaObjectStorable>
 {
-    public MetaObjectStorableProvider(IDbConnection dbConnection) : base(dbConnection, new MetaObjectStorableConfiguration())
+    public MetaObjectStorableProvider(IDbConnection dbConnection, string kindNamePlural) : base(dbConnection, new MetadataObjectConfiguration(kindNamePlural))
     {
     }
 

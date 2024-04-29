@@ -4,7 +4,9 @@ using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
 using BaSys.Metadata.DTOs;
 using BaSys.Metadata.Models;
+using BaSys.Metadata.Validators;
 using Humanizer;
+using System.Data;
 
 namespace BaSys.Constructor.Services
 {
@@ -121,6 +123,59 @@ namespace BaSys.Constructor.Services
             catch (Exception ex)
             {
                 result.Error(-1, "Cannot create item.", ex.Message);
+            }
+
+            return result;
+        }
+
+        public async Task<ResultWrapper<int>> InsertMetaObjectAsync(CreateMetaObjectDto dto)
+        {
+            var result = new ResultWrapper<int>();
+
+            var validator = new CreateMetaObjectDtoValidator();
+            var validationResult = validator.Validate(dto);
+            if (!validationResult.IsValid)
+            {
+                result.Error(-1, $"Cannot create item.{validationResult}");
+                return result;
+            }
+
+            using var connection = _connectionFactory.CreateConnection();
+            connection.Open();
+            using (IDbTransaction transaction = connection.BeginTransaction())
+            {
+                var metadataKindProvider = new MetadataKindsProvider(connection);
+                var metadataKindSettings = await metadataKindProvider.GetSettingsAsync(dto.MetadataKindUid, transaction);
+
+                if (metadataKindSettings == null)
+                {
+                    result.Error(-1, $"Cannot find item", $"Uid: {dto.MetadataKindUid}");
+                    transaction.Rollback();
+                    return result;
+                }
+
+                var metaObjectStorableProvider = new MetaObjectStorableProvider(connection, metadataKindSettings.NamePlural);
+                var newMetaObjectSettings = new MetaObjectStorableSettings()
+                {
+                    MetaObjectKindUid = metadataKindSettings.Uid,
+                    Name = dto.Name,
+                    Title = dto.Title,
+                    Memo = dto.Memo,
+                };
+              
+
+                try
+                {
+                    var insertedCount = await metaObjectStorableProvider.InsertSettingsAsync(newMetaObjectSettings, transaction);
+                    transaction.Commit();
+                    result.Success(insertedCount);
+
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    result.Error(-1, "Cannot create item.", ex.Message);
+                }
             }
 
             return result;
