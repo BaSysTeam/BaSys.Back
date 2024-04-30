@@ -11,7 +11,9 @@ namespace BaSys.Metadata.Models
         public Guid Uid { get; set; }
         public Guid? ParentUid { get; set; }
         public Guid? MetadataKindUid { get; set; }
+        public string MetaObjectKindName { get; set; } = string.Empty;
         public Guid? MetadataObjectUid { get; set; }
+        public string MetaObjectName { get; set; } = string.Empty;
         public string Title { get; set; }
         public string IconClass { get; set; }
         public string Memo { get; set; }

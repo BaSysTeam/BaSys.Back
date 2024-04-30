@@ -12,7 +12,9 @@ namespace BaSys.Metadata.DTOs
         public Guid Key { get; set; }
         public Guid? ParentKey { get; set; }
         public Guid? MetadataKindUid { get; set; }
+        public string MetaObjectKindName { get; set; } = string.Empty;
         public Guid? MetadataObjectUid { get; set; }
+        public string MetaObjectName { get; set; } = string.Empty;
         public string Label { get; set; }
         public string Icon { get; set; }
         public string Memo { get; set; }
@@ -30,7 +32,9 @@ namespace BaSys.Metadata.DTOs
             Key = model.Uid;
             ParentKey = model.ParentUid;
             MetadataKindUid = model.MetadataKindUid;
+            MetaObjectKindName = model.MetaObjectKindName;
             MetadataObjectUid = model.MetadataObjectUid;
+            MetaObjectName = model.MetaObjectName;
             Label = model.Title;
             Icon = model.IconClass;
             Memo = model.Memo;
@@ -46,7 +50,9 @@ namespace BaSys.Metadata.DTOs
                 IsGroup = IsGroup,
                 IsStandard = IsStandard,
                 MetadataKindUid = MetadataKindUid,
+                MetaObjectKindName = MetaObjectKindName,
                 MetadataObjectUid = MetadataObjectUid,
+                MetaObjectName = MetaObjectName,
                 ParentUid = ParentKey,
                 Title = Label,
                 Memo = Memo,

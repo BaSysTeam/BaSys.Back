@@ -175,6 +175,8 @@ namespace BaSys.Constructor.Services
                     ParentUid = dto.ParentUid,
                     Title = $"{metadataKindSettings.Title}.{dto.Title}",
                     MetadataKindUid = metadataKindSettings.Uid,
+                    MetaObjectKindName = metadataKindSettings.Name,
+                    MetaObjectName = newMetaObjectSettings.Name,
                     IconClass = metadataKindSettings.IconClass,
                 };
 
