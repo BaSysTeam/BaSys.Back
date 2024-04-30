@@ -17,7 +17,9 @@ namespace BaSys.Host.DAL.ModelConfigurations
             Column("Uid").IsPrimaryKey();
             Column("ParentUid").IsOptional();
             Column("MetadataKindUid").IsOptional();
+            Column("MetaObjectKindName").IsOptional().MaxLength(30);
             Column("MetadataObjectUid").IsOptional();
+            Column("MetaObjectName").IsOptional().MaxLength(30);
             Column("Title").MaxLength(100).IsRequired();
             Column("Memo").MaxLength(300).IsOptional();
             Column("IconClass").MaxLength(20).IsOptional();
