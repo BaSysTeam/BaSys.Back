@@ -9,11 +9,11 @@ namespace BaSys.Constructor.Controllers
     [Route("api/constructor/v1/[controller]")]
     [ApiController]
     [Authorize(Roles = ApplicationRole.Administrator)]
-    public class MetaObjectController : ControllerBase
+    public class MetaObjectsController : ControllerBase
     {
-        private readonly IMetaObjectService _metaObjectService;
+        private readonly IMetaObjectsService _metaObjectService;
 
-        public MetaObjectController(IMetaObjectService metaObjectService)
+        public MetaObjectsController(IMetaObjectsService metaObjectService)
         {
             _metaObjectService = metaObjectService; 
         }

@@ -9,7 +9,7 @@ using System.Data;
 
 namespace BaSys.Constructor.Services
 {
-    public sealed class MetaObjectService :IMetaObjectService, IDisposable
+    public sealed class MetaObjectsService :IMetaObjectsService, IDisposable
     {
         private readonly IDbConnection _connection;
         private readonly MetadataKindsProvider _kindsProvider;
@@ -17,7 +17,7 @@ namespace BaSys.Constructor.Services
         private readonly ISystemObjectProviderFactory _providerFactory;
         private bool _disposed;
 
-        public MetaObjectService(IMainConnectionFactory connectionFactory,
+        public MetaObjectsService(IMainConnectionFactory connectionFactory,
             ISystemObjectProviderFactory providerFactory,
             LoggerService logger)
         {
@@ -62,6 +62,7 @@ namespace BaSys.Constructor.Services
 
             var settingsDto = new MetaObjectStorableSettingsDto
             {
+                Uid = settings.Uid.ToString(),
                 Title = settings.Title,
                 Name = settings.Name,
                 MetaObjectKindUid = kindSettings.Uid,
