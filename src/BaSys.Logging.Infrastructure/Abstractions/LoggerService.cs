@@ -28,16 +28,42 @@ public abstract class LoggerService : IDisposable
         string? dataUid = null,
         string? dataPresentation = null)
     {
-        if (!_loggerConfig.IsEnabled ||
-            level < _loggerConfig.MinimumLogLevel)
+        if (!IsWrite(level))
             return;
 
-        WriteInner(message, level, eventType, metadataUid, dataUid, dataPresentation);
+        WriteInner(message, level, eventType, null, metadataUid, dataUid, dataPresentation);
+    }
+
+    public void Info(string message,
+        EventType eventType,
+        Guid? metadataUid = null,
+        string? dataUid = null,
+        string? dataPresentation = null)
+    {
+        var level = EventTypeLevels.Info;
+        if (!IsWrite(level))
+            return;
+        
+        WriteInner(message, level, eventType, null, metadataUid, dataUid, dataPresentation);
     }
     
-    protected abstract void WriteInner(string message,
+    public void Error(string exceptionMessage,
+        EventType eventType,
+        Guid? metadataUid = null,
+        string? dataUid = null,
+        string? dataPresentation = null)
+    {
+        var level = EventTypeLevels.Error;
+        if (!IsWrite(level))
+            return;
+        
+        WriteInner(null, level, eventType, exceptionMessage, metadataUid, dataUid, dataPresentation);
+    }
+    
+    protected abstract void WriteInner(string? message,
         EventTypeLevels level,
         EventType eventType,
+        string? exception = null,
         Guid? metadataUid = null,
         string? dataUid = null,
         string? dataPresentation = null);
@@ -45,5 +71,13 @@ public abstract class LoggerService : IDisposable
     public virtual void Dispose()
     {
         _logger?.Dispose();
+    }
+
+    private bool IsWrite(EventTypeLevels level)
+    {
+        if (!_loggerConfig.IsEnabled ||
+            level < _loggerConfig.MinimumLogLevel)
+            return false;
+        return true;
     }
 }

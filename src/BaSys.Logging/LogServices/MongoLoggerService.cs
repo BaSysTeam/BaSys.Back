@@ -34,9 +34,10 @@ public class MongoLoggerService : LoggerService
         }
     }
 
-    protected override void WriteInner(string message,
+    protected override void WriteInner(string? message,
         EventTypeLevels level,
         EventType eventType,
+        string? exception = null,
         Guid? metadataUid = null,
         string? dataUid = null,
         string? dataPresentation = null)
@@ -44,8 +45,9 @@ public class MongoLoggerService : LoggerService
         if (!IsMongoLive())
             return;
         
-        _logger?.Information("{message} {Level} {EventTypeName} {EventTypeUid} {Module} {UserUid} {UserName} {IpAddress} {MetadataUid} {DataUid} {DataPresentation}",
+        _logger?.Information("{message} {ExceptionMessage} {Level} {EventTypeName} {EventTypeUid} {Module} {UserUid} {UserName} {IpAddress} {MetadataUid} {DataUid} {DataPresentation}",
             message,
+            exception,
             (int) level,
             eventType.EventName,
             eventType.Uid,

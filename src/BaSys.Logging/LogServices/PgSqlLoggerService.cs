@@ -25,6 +25,7 @@ public class PgSqlLoggerService : LoggerService
         var columnWriters = new Dictionary<string, ColumnWriterBase>
         {
             {"message", new RenderedMessageColumnWriter(NpgsqlDbType.Text)},
+            {"exception_message", new SinglePropertyColumnWriter("ExceptionMessage", PropertyWriteMethod.Raw)},
             {"raise_date", new TimestampColumnWriter(NpgsqlDbType.Timestamp)},
             {"exception", new ExceptionColumnWriter(NpgsqlDbType.Text)},
             {"level", new SinglePropertyColumnWriter("Level", PropertyWriteMethod.Raw, NpgsqlDbType.Integer)},
@@ -87,15 +88,17 @@ public class PgSqlLoggerService : LoggerService
         }
     }
 
-    protected override void WriteInner(string message,
+    protected override void WriteInner(string? message,
         EventTypeLevels level,
         EventType eventType,
+        string? exception = null,
         Guid? metadataUid = null,
         string? dataUid = null,
         string? dataPresentation = null)
     {
-        _logger?.Information("{message} {Level} {EventTypeName} {EventTypeUid} {Module} {UserUid} {UserName} {IpAddress} {MetadataUid} {DataUid} {DataPresentation}",
+        _logger?.Information("{message} {ExceptionMessage} {Level} {EventTypeName} {EventTypeUid} {Module} {UserUid} {UserName} {IpAddress} {MetadataUid} {DataUid} {DataPresentation}",
             message,
+            exception,
             (int) level,
             eventType.EventName,
             eventType.Uid,

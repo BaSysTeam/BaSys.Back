@@ -21,8 +21,16 @@ public class MsSqlLoggerService : LoggerService
         columnOptions.Store.Remove(StandardColumn.Level);
         columnOptions.Store.Remove(StandardColumn.MessageTemplate);
         columnOptions.Store.Remove(StandardColumn.Properties);
+        columnOptions.Store.Remove(StandardColumn.Exception);
         
         columnOptions.AdditionalColumns = new List<SqlColumn>();
+        columnOptions.AdditionalColumns.Add(new SqlColumn()
+        {
+            ColumnName = "ExceptionMessage",
+            DataType = SqlDbType.NVarChar,
+            DataLength = 512,
+            AllowNull = true
+        });
         columnOptions.AdditionalColumns.Add(new SqlColumn()
         {
             ColumnName = "Level",
@@ -85,7 +93,7 @@ public class MsSqlLoggerService : LoggerService
             DataLength = 512,
             AllowNull = true
         });
-
+        
         try
         {
             _logger = new LoggerConfiguration()
@@ -98,15 +106,17 @@ public class MsSqlLoggerService : LoggerService
         }
     }
     
-    protected override void WriteInner(string message,
+    protected override void WriteInner(string? message,
         EventTypeLevels level,
         EventType eventType,
+        string? exception = null,
         Guid? metadataUid = null,
         string? dataUid = null,
         string? dataPresentation = null)
     {
-        _logger?.Information("{message} {Level} {EventTypeName} {EventTypeUid} {Module} {UserUid} {UserName} {IpAddress} {MetadataUid} {DataUid} {DataPresentation}",
+        _logger?.Information("{message} {ExceptionMessage} {Level} {EventTypeName} {EventTypeUid} {Module} {UserUid} {UserName} {IpAddress} {MetadataUid} {DataUid} {DataPresentation}",
             message,
+            exception,
             (int)level,
             eventType.EventName,
             eventType.Uid,
