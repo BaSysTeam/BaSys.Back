@@ -15,8 +15,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\BaSys.Host.DAL\BaSys.Host.DAL.csproj" />
-    <ProjectReference Include="..\src\BaSys.Logging.Infrastructure\BaSys.Logging.Infrastructure.csproj" />
+    <ProjectReference Include="..\BaSys.Host.DAL\BaSys.Host.DAL.csproj" />
+    <ProjectReference Include="..\BaSys.Logging.Infrastructure\BaSys.Logging.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
