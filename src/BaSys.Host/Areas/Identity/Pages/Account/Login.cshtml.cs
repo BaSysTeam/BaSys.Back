@@ -25,7 +25,7 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
         private readonly IDataSourceProvider _dataSourceProvider;
         private readonly IDbInfoRecordsProvider _dbInfoRecordsProvider;
         private readonly IBaSysLoggerFactory _loggerFactory;
-        private readonly LoggerService _basysLogger;
+        private readonly ILoggerService _basysLogger;
 
         public LoginModel(ILogger<LoginModel> logger,
             SignInManager<WorkDbUser> signInManager,
@@ -33,7 +33,7 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
             IDataSourceProvider dataSourceProvider,
             IDbInfoRecordsProvider dbInfoRecordsProvider,
             IBaSysLoggerFactory loggerFactory,
-            LoggerService basysLogger)
+            ILoggerService basysLogger)
         {
             _logger = logger;
             _signInManager = signInManager;
@@ -153,8 +153,7 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
 
                     // using var logger = await _loggerFactory.GetLogger();
                     // logger.Write("foo", EventTypeLevels.Info, new UserLoginEventType());
-                    // _basysLogger.Write("foo", EventTypeLevels.Info, new UserLoginEventType(), metadataUid: Guid.NewGuid(), dataUid: "dataUid", dataPresentation: "dataPresentation");
-                    _basysLogger.Error("exception message", new UserLoginEventType(), metadataUid: Guid.NewGuid(), dataUid: "dataUid", dataPresentation: "dataPresentation");
+                    _basysLogger.Write("foo", EventTypeLevels.Info, new UserLoginEventType(), metadataUid: Guid.NewGuid(), dataUid: "dataUid", dataPresentation: "dataPresentation");
 
                     _logger.LogInformation("User logged in.");
                     return LocalRedirect(returnUrl);

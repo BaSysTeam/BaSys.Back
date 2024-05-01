@@ -5,8 +5,8 @@ namespace BaSys.Host.DAL.Migrations.Base;
 
 public abstract class MigrationBase
 {
-    protected readonly LoggerService _loggerService;
-    public MigrationBase(LoggerService loggerService)
+    protected readonly ILoggerService _loggerService;
+    public MigrationBase(ILoggerService loggerService)
     {
         _loggerService = loggerService;
     }

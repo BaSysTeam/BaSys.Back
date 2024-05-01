@@ -16,7 +16,7 @@ namespace BaSys.Constructor.Services
     public class MetadataTreeNodesService : IMetadataTreeNodesService, IDisposable
     {
         private readonly IMainConnectionFactory _connectionFactory;
-        private readonly LoggerService _logger;
+        private readonly ILoggerService _logger;
         private readonly ISystemObjectProviderFactory _providerFactory;
         private readonly IDbConnection _connection;
         private readonly MetadataTreeNodesProvider _nodesProvider;
@@ -25,7 +25,7 @@ namespace BaSys.Constructor.Services
 
         public MetadataTreeNodesService(IMainConnectionFactory connectionFactory, 
             ISystemObjectProviderFactory providerFactory, 
-            LoggerService logger)
+            ILoggerService logger)
         {
             _connectionFactory = connectionFactory;
             _providerFactory = providerFactory;

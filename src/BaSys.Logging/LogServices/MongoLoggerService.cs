@@ -22,7 +22,7 @@ public class MongoLoggerService : LoggerService
 
         if (IsMongoLive())
         {
-            _logger = new LoggerConfiguration()
+            Logger = new LoggerConfiguration()
                 .WriteTo
                 .MongoDBBson(cfg =>
                 {
@@ -45,16 +45,16 @@ public class MongoLoggerService : LoggerService
         if (!IsMongoLive())
             return;
         
-        _logger?.Information("{message} {ExceptionMessage} {Level} {EventTypeName} {EventTypeUid} {Module} {UserUid} {UserName} {IpAddress} {MetadataUid} {DataUid} {DataPresentation}",
+        Logger?.Information("{message} {ExceptionMessage} {Level} {EventTypeName} {EventTypeUid} {Module} {UserUid} {UserName} {IpAddress} {MetadataUid} {DataUid} {DataPresentation}",
             message,
             exception,
             (int) level,
             eventType.EventName,
             eventType.Uid,
             eventType.Module,
-            _userUid,
-            _userName,
-            _ipAddress,
+            UserUid,
+            UserName,
+            IpAddress,
             metadataUid,
             dataUid,
             dataPresentation);

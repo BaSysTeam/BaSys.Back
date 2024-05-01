@@ -96,7 +96,7 @@ public class MsSqlLoggerService : LoggerService
         
         try
         {
-            _logger = new LoggerConfiguration()
+            Logger = new LoggerConfiguration()
                 .WriteTo
                 .MSSqlServer(connectionString: loggerConfig.ConnectionString, sinkOptions: sinkOpts, columnOptions: columnOptions)
                 .CreateLogger();
@@ -114,16 +114,16 @@ public class MsSqlLoggerService : LoggerService
         string? dataUid = null,
         string? dataPresentation = null)
     {
-        _logger?.Information("{message} {ExceptionMessage} {Level} {EventTypeName} {EventTypeUid} {Module} {UserUid} {UserName} {IpAddress} {MetadataUid} {DataUid} {DataPresentation}",
+        Logger?.Information("{message} {ExceptionMessage} {Level} {EventTypeName} {EventTypeUid} {Module} {UserUid} {UserName} {IpAddress} {MetadataUid} {DataUid} {DataPresentation}",
             message,
             exception,
             (int)level,
             eventType.EventName,
             eventType.Uid,
             eventType.Module,
-            _userUid,
-            _userName,
-            _ipAddress,
+            UserUid,
+            UserName,
+            IpAddress,
             metadataUid,
             dataUid,
             dataPresentation);

@@ -3,22 +3,22 @@ using Serilog.Core;
 
 namespace BaSys.Logging.Abstractions.Abstractions;
 
-public abstract class LoggerService : IDisposable
+public abstract class LoggerService : ILoggerService
 {
     private readonly LoggerConfig _loggerConfig;
     
-    protected readonly string? _userUid;
-    protected readonly string? _userName;
-    protected readonly string? _ipAddress;
+    protected readonly string? UserUid;
+    protected readonly string? UserName;
+    protected readonly string? IpAddress;
     
-    protected Logger? _logger;
+    protected Logger? Logger;
     
     public LoggerService(LoggerConfig loggerConfig, string? userUid, string? userName, string? ipAddress)
     {
         _loggerConfig = loggerConfig;
-        _userUid = userUid;
-        _userName = userName;
-        _ipAddress = ipAddress;
+        UserUid = userUid;
+        UserName = userName;
+        IpAddress = ipAddress;
     }
     
     public void Write(string message,
@@ -70,7 +70,7 @@ public abstract class LoggerService : IDisposable
 
     public virtual void Dispose()
     {
-        _logger?.Dispose();
+        Logger?.Dispose();
     }
 
     private bool IsWrite(EventTypeLevels level)
