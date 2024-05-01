@@ -21,16 +21,26 @@ public abstract class LoggerService : IDisposable
         _ipAddress = ipAddress;
     }
     
-    public void Write(string message, EventTypeLevels level, EventType eventType)
+    public void Write(string message,
+        EventTypeLevels level,
+        EventType eventType,
+        Guid? metadataUid = null,
+        string? dataUid = null,
+        string? dataPresentation = null)
     {
         if (!_loggerConfig.IsEnabled ||
             level < _loggerConfig.MinimumLogLevel)
             return;
 
-        WriteInner(message, level, eventType);
+        WriteInner(message, level, eventType, metadataUid, dataUid, dataPresentation);
     }
     
-    protected abstract void WriteInner(string message,EventTypeLevels level, EventType eventType);
+    protected abstract void WriteInner(string message,
+        EventTypeLevels level,
+        EventType eventType,
+        Guid? metadataUid = null,
+        string? dataUid = null,
+        string? dataPresentation = null);
 
     public virtual void Dispose()
     {

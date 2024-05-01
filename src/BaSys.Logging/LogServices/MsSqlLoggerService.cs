@@ -63,6 +63,28 @@ public class MsSqlLoggerService : LoggerService
             DataType = SqlDbType.NVarChar,
             DataLength = 100
         });
+        columnOptions.AdditionalColumns.Add(new SqlColumn()
+        {
+            ColumnName = "MetadataUid",
+            DataType = SqlDbType.UniqueIdentifier,
+            NonClusteredIndex = true,
+            AllowNull = true
+        });
+        columnOptions.AdditionalColumns.Add(new SqlColumn()
+        {
+            ColumnName = "DataUid",
+            DataType = SqlDbType.NVarChar,
+            DataLength = 50,
+            NonClusteredIndex = true,
+            AllowNull = true
+        });
+        columnOptions.AdditionalColumns.Add(new SqlColumn()
+        {
+            ColumnName = "DataPresentation",
+            DataType = SqlDbType.NVarChar,
+            DataLength = 512,
+            AllowNull = true
+        });
 
         try
         {
@@ -76,9 +98,14 @@ public class MsSqlLoggerService : LoggerService
         }
     }
     
-    protected override void WriteInner(string message, EventTypeLevels level, EventType eventType)
+    protected override void WriteInner(string message,
+        EventTypeLevels level,
+        EventType eventType,
+        Guid? metadataUid = null,
+        string? dataUid = null,
+        string? dataPresentation = null)
     {
-        _logger?.Information("{message} {Level} {EventTypeName} {EventTypeUid} {Module} {UserUid} {UserName} {IpAddress}",
+        _logger?.Information("{message} {Level} {EventTypeName} {EventTypeUid} {Module} {UserUid} {UserName} {IpAddress} {MetadataUid} {DataUid} {DataPresentation}",
             message,
             (int)level,
             eventType.EventName,
@@ -86,6 +113,9 @@ public class MsSqlLoggerService : LoggerService
             eventType.Module,
             _userUid,
             _userName,
-            _ipAddress);
+            _ipAddress,
+            metadataUid,
+            dataUid,
+            dataPresentation);
     }
 }

@@ -34,7 +34,10 @@ public class PgSqlLoggerService : LoggerService
             {"user_uid", new SinglePropertyColumnWriter("UserUid")},
             {"user_name", new SinglePropertyColumnWriter("UserName")},
             {"ip_address", new SinglePropertyColumnWriter("IpAddress")},
-            {"properties", new LogEventSerializedColumnWriter(NpgsqlDbType.Jsonb)}
+            {"properties", new LogEventSerializedColumnWriter(NpgsqlDbType.Jsonb)},
+            {"metadata_uid", new SinglePropertyColumnWriter("MetadataUid", PropertyWriteMethod.Raw, NpgsqlDbType.Uuid)},
+            {"data_uid", new SinglePropertyColumnWriter("DataUid", PropertyWriteMethod.Raw, NpgsqlDbType.Varchar)},
+            {"data_presentation", new SinglePropertyColumnWriter("DataPresentation", PropertyWriteMethod.Raw, NpgsqlDbType.Varchar)}
         };
 
         try
@@ -84,9 +87,14 @@ public class PgSqlLoggerService : LoggerService
         }
     }
 
-    protected override void WriteInner(string message, EventTypeLevels level, EventType eventType)
+    protected override void WriteInner(string message,
+        EventTypeLevels level,
+        EventType eventType,
+        Guid? metadataUid = null,
+        string? dataUid = null,
+        string? dataPresentation = null)
     {
-        _logger?.Information("{message} {Level} {EventTypeName} {EventTypeUid} {Module} {UserUid} {UserName} {IpAddress}",
+        _logger?.Information("{message} {Level} {EventTypeName} {EventTypeUid} {Module} {UserUid} {UserName} {IpAddress} {MetadataUid} {DataUid} {DataPresentation}",
             message,
             (int) level,
             eventType.EventName,
@@ -94,6 +102,9 @@ public class PgSqlLoggerService : LoggerService
             eventType.Module,
             _userUid,
             _userName,
-            _ipAddress);
+            _ipAddress,
+            metadataUid,
+            dataUid,
+            dataPresentation);
     }
 }
