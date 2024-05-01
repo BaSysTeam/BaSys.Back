@@ -74,7 +74,7 @@ public class PgSqlLoggerService : LoggerService
                 return;
             
             // create db
-            var sql = @$"CREATE DATABASE serilog
+            var sql = @$"CREATE DATABASE {dbName}
                     WITH
                         OWNER = {builder.Username}
                         ENCODING = 'UTF8'
