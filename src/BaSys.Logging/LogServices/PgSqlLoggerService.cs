@@ -30,15 +30,15 @@ public class PgSqlLoggerService : LoggerService
             {"exception", new ExceptionColumnWriter(NpgsqlDbType.Text)},
             {"level", new SinglePropertyColumnWriter("Level", PropertyWriteMethod.Raw, NpgsqlDbType.Integer)},
             {"event_type_uid", new SinglePropertyColumnWriter("EventTypeUid", PropertyWriteMethod.Raw, NpgsqlDbType.Uuid)},
-            {"event_type_name", new SinglePropertyColumnWriter("EventTypeName")},
-            {"module", new SinglePropertyColumnWriter("Module")},
+            {"event_type_name", new SinglePropertyColumnWriter("EventTypeName", PropertyWriteMethod.Raw, NpgsqlDbType.Varchar)},
+            {"module", new SinglePropertyColumnWriter("Module", PropertyWriteMethod.Raw, NpgsqlDbType.Varchar)},
             {"user_uid", new SinglePropertyColumnWriter("UserUid")},
             {"user_name", new SinglePropertyColumnWriter("UserName")},
-            {"ip_address", new SinglePropertyColumnWriter("IpAddress")},
+            {"ip_address", new SinglePropertyColumnWriter("IpAddress", PropertyWriteMethod.Raw, NpgsqlDbType.Varchar)},
             {"properties", new LogEventSerializedColumnWriter(NpgsqlDbType.Jsonb)},
             {"metadata_uid", new SinglePropertyColumnWriter("MetadataUid", PropertyWriteMethod.Raw, NpgsqlDbType.Uuid)},
             {"data_uid", new SinglePropertyColumnWriter("DataUid", PropertyWriteMethod.Raw, NpgsqlDbType.Varchar)},
-            {"data_presentation", new SinglePropertyColumnWriter("DataPresentation", PropertyWriteMethod.Raw, NpgsqlDbType.Varchar)}
+            {"data_presentation", new SinglePropertyColumnWriter("DataPresentation", PropertyWriteMethod.Raw)}
         };
 
         try
