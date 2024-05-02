@@ -17,14 +17,9 @@ namespace BaSys.Metadata.Models
         public bool IsStandard { get; set; }
         public long Version { get; set; }
         public string Memo { get; set; } = string.Empty;
-        public string NamePlural { get; set; } = string.Empty;
         public string IconClass { get; set; } = string.Empty;
 
         public List<MetadataKindStandardColumn> StandardColumns { get; set; }   = new List<MetadataKindStandardColumn>();
 
-        public string GetNamePlural()
-        {
-            return string.IsNullOrWhiteSpace(NamePlural) ? Name : NamePlural;
-        }
     }
 }

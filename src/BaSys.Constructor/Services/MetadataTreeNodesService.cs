@@ -72,7 +72,7 @@ namespace BaSys.Constructor.Services
                             return result;
                         }
 
-                        var metaObjectStorableProvider = _providerFactory.CreateMetaObjectStorableProvider(metadataKindSettings.NamePlural);
+                        var metaObjectStorableProvider = _providerFactory.CreateMetaObjectStorableProvider(metadataKindSettings.Name);
                         await metaObjectStorableProvider.DeleteAsync(metadataObjectUid, transaction);
                     }
 
@@ -200,7 +200,7 @@ namespace BaSys.Constructor.Services
                     return result;
                 }
 
-                var metaObjectStorableProvider = _providerFactory.CreateMetaObjectStorableProvider(metadataKindSettings.NamePlural);
+                var metaObjectStorableProvider = _providerFactory.CreateMetaObjectStorableProvider(metadataKindSettings.Name);
                 var newMetaObjectSettings = new MetaObjectStorableSettings()
                 {
                     MetaObjectKindUid = metadataKindSettings.Uid,
