@@ -9,7 +9,7 @@ namespace BaSys.Constructor.Abstractions
         Task<ResultWrapper<List<MetadataTreeNodeDto>>> GetStandardNodesAsync();
         Task<ResultWrapper<int>> InsertAsync(MetadataTreeNodeDto dto);
         Task<ResultWrapper<int>> InsertMetaObjectAsync(CreateMetaObjectDto dto);
-        Task<ResultWrapper<int>> DeleteAsync(Guid uid);
+        Task<ResultWrapper<int>> DeleteAsync(MetadataTreeNodeDto dto);
         Task<ResultWrapper<List<MetadataTreeNodeDto>>> GetChildrenAsync(Guid uid);
     }
 }
