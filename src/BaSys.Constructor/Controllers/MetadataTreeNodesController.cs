@@ -67,14 +67,14 @@ namespace BaSys.Constructor.Controllers
         }
 
         /// <summary>
-        /// Deletes metadata tree node by its unique identifier.
+        /// Deletes metadata tree node.
         /// </summary>
-        /// <param name="uid">The unique identifier of the metadata tree node to delete.</param>
+        /// <param name="dto">The model of the metadata tree node to delete.</param>
         /// <returns>An IActionResult indicating the success or failure of the delete operation.</returns>
-        [HttpDelete("{uid}")]
-        public async Task<IActionResult> Delete(Guid uid)
+        [HttpDelete]
+        public async Task<IActionResult> Delete(MetadataTreeNodeDto dto)
         {
-            var result = await _metadataTreeNodesService.DeleteAsync(uid);
+            var result = await _metadataTreeNodesService.DeleteAsync(dto);
             return Ok(result);
         }
     }
