@@ -113,19 +113,19 @@ namespace BaSys.Host.Services
 
         private async Task CheckLoggerConfigAsync()
         {
-            var provider = new LoggerConfigProvider(_connection);
-            var collection = await provider.GetCollectionAsync(null);
-            var loggerConfig = collection.FirstOrDefault();
-            if (loggerConfig != null)
-                return;
-
-            loggerConfig = new LoggerConfig
-            {
-                Uid = Guid.NewGuid(),
-                MinimumLogLevel = EventTypeLevels.Info
-            };
-
-            await provider.InsertAsync(loggerConfig, null);
+            // var provider = new LoggerConfigProvider(_connection);
+            // var collection = await provider.GetCollectionAsync(null);
+            // var loggerConfig = collection.FirstOrDefault();
+            // if (loggerConfig != null)
+            //     return;
+            //
+            // loggerConfig = new LoggerConfig
+            // {
+            //     Uid = Guid.NewGuid(),
+            //     MinimumLogLevel = EventTypeLevels.Info
+            // };
+            //
+            // await provider.InsertAsync(loggerConfig, null);
         }
 
         private async Task CheckMetadataTreeNodesAsync()

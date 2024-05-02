@@ -42,7 +42,7 @@ public class LoggerConfigService : ILoggerConfigService
         
         // Get logger connections
         var provider = new LoggerConfigProvider(connection);
-        var config = (await provider.GetCollectionAsync(null))?.FirstOrDefault();
+        var config = (await provider.GetCollectionAsync(null))?.FirstOrDefault(x => x.IsSelected);
         
         if (config == null)
             return new LoggerConfig();

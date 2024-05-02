@@ -58,15 +58,15 @@ public class PgSqlLoggerService : LoggerService
 
     private void CheckDbExists(string connectionString)
     {
-        var builder = new NpgsqlConnectionStringBuilder(connectionString);
-
-        var dbName = builder.Database;
-        builder.Remove("Database");
-        builder.CommandTimeout = 1;
-        builder.Timeout = 1;
-
         try
         {
+            var builder = new NpgsqlConnectionStringBuilder(connectionString);
+
+            var dbName = builder.Database;
+            builder.Remove("Database");
+            builder.CommandTimeout = 1;
+            builder.Timeout = 1;
+            
             using var db = new NpgsqlConnection(builder.ConnectionString);
             var dbId = db.QueryFirstOrDefault($"SELECT oid FROM pg_catalog.pg_database WHERE lower(datname) = lower('{dbName}');");
 

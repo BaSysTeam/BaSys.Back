@@ -1,4 +1,5 @@
 ﻿using BaSys.Admin.Abstractions;
+using BaSys.Common.Enums;
 using BaSys.Common.Infrastructure;
 using BaSys.DAL.Models.Logging;
 using Microsoft.AspNetCore.Authorization;
@@ -26,9 +27,16 @@ namespace BaSys.Admin.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<IActionResult> GetLoggerConfig()
+        public async Task<IActionResult> GetCurrentLoggerConfig()
         {
-            var result = await _loggerConfigService.GetLoggerConfigAsync();
+            var result = await _loggerConfigService.GetCurrentLoggerConfigAsync();
+            return Ok(result);
+        }
+        
+        [HttpGet("GetLoggerConfigByType")]
+        public async Task<IActionResult> GetLoggerConfigByType([FromQuery]int loggerType)
+        {
+            var result = await _loggerConfigService.GetLoggerConfigByTypeAsync((LoggerTypes)loggerType);
             return Ok(result);
         }
 
