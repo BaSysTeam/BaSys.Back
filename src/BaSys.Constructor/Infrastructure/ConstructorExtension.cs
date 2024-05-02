@@ -16,6 +16,7 @@ namespace BaSys.Constructor.Infrastructure
 
             services.AddTransient<IMetadataKindsService, MetadataKindsService>();
             services.AddTransient<IMetadataTreeNodesService, MetadataTreeNodesService>();
+            services.AddTransient<IMetaObjectsService, MetaObjectsService>(); 
 
             return services;
         }
