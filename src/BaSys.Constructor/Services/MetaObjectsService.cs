@@ -47,7 +47,7 @@ namespace BaSys.Constructor.Services
                 return result;
             }
 
-            var provider = _providerFactory.CreateMetaObjectStorableProvider(kindSettings.GetNamePlural());
+            var provider = _providerFactory.CreateMetaObjectStorableProvider(kindSettings.Name);
             var metaObject = await provider.GetItemByNameAsync(objectName, null);
 
             if (metaObject == null)
@@ -82,7 +82,7 @@ namespace BaSys.Constructor.Services
                 return result;
             }
 
-            var provider = _providerFactory.CreateMetaObjectStorableProvider(kindSettings.GetNamePlural());
+            var provider = _providerFactory.CreateMetaObjectStorableProvider(kindSettings.Name);
 
             var savedSettings = await provider.GetSettingsItemAsync(Guid.Parse(settingsDto.Uid), null);
 

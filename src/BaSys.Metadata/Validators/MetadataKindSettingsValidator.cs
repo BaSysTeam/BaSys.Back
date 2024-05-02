@@ -18,11 +18,6 @@ namespace BaSys.Metadata.Validators
                 .MaximumLength(30)
                 .Matches("^[a-z_][a-z0-9_]*$")
                 .WithMessage("Name must contain only lowercase letters, numbers, and underscores, and cannot start with a number.");
-            RuleFor(x => x.NamePlural)
-               .NotEmpty()
-               .MaximumLength(30)
-               .Matches("^[a-z_][a-z0-9_]*$")
-               .WithMessage("NamePlural must contain only lowercase letters, numbers, and underscores, and cannot start with a number.");
             RuleFor(x=>x.Prefix)
                 .NotEmpty()
                 .MaximumLength(4)

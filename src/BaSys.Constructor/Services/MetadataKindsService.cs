@@ -164,7 +164,7 @@ namespace BaSys.Constructor.Services
                     var insertedCount = await _provider.InsertSettingsAsync(settings, transaction);
                     var newSettings = await _provider.GetSettingsByNameAsync(settings.Name, transaction);
 
-                    var metaObjectManager = _managerFactory.CreateMetaObjectManager(settings.GetNamePlural());
+                    var metaObjectManager = _managerFactory.CreateMetaObjectManager(settings.Name);
                     await metaObjectManager.CreateTableAsync(transaction);
 
                     transaction.Commit();
@@ -251,7 +251,7 @@ namespace BaSys.Constructor.Services
                     var processedCount = await _provider.DeleteAsync(uid, transaction);
 
                     var settings = savedItem.ToSettings();
-                    var metaObjectManager = _managerFactory.CreateMetaObjectManager(settings.GetNamePlural());
+                    var metaObjectManager = _managerFactory.CreateMetaObjectManager(settings.Name);
                     await metaObjectManager.DropTableAsync(transaction);
 
                     _logger.Write($"Delete metadata kind {savedItem}", EventTypeLevels.Info, EventTypeFactory.MetadataDelete);
