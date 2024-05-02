@@ -32,13 +32,13 @@ namespace BaSys.FluentQueries.IntegrationTests
 
             using (IDbConnection connection = factory.CreateConnection(pgConnectionString, DbKinds.PgSql))
             {
-                var manager = new MetadataKindManager(connection);
+                var manager = new MetaObjectKindManager(connection);
                 await manager.DropTableAsync();
             }
 
             using (IDbConnection connection = factory.CreateConnection(msConnectionString, DbKinds.MsSql))
             {
-                var manager = new MetadataKindManager(connection);
+                var manager = new MetaObjectKindManager(connection);
                 await manager.DropTableAsync();
             }
 
@@ -57,7 +57,7 @@ namespace BaSys.FluentQueries.IntegrationTests
 
             using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
             {
-                var manager = new MetadataKindManager(connection);
+                var manager = new MetaObjectKindManager(connection);
                 await manager.CreateTableAsync();
 
                 tableExists = await manager.TableExistsAsync();

@@ -25,7 +25,7 @@ namespace BaSys.Metadata.DTOs
 
         }
 
-        public MetaObjectStorableSettingsDto(MetaObjectStorableSettings settings, MetadataKindSettings kindSettings)
+        public MetaObjectStorableSettingsDto(MetaObjectStorableSettings settings, MetaObjectKindSettings kindSettings)
         {
             Uid = settings.Uid.ToString();
             Title = settings.Title;

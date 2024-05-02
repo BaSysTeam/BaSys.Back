@@ -15,7 +15,7 @@ namespace BaSys.Constructor.Services
     public sealed class MetaObjectsService :IMetaObjectsService, IDisposable
     {
         private readonly IDbConnection _connection;
-        private readonly MetadataKindsProvider _kindsProvider;
+        private readonly MetaObjectKindsProvider _kindsProvider;
         private readonly LoggerService _logger;
         private readonly ISystemObjectProviderFactory _providerFactory;
         private bool _disposed;
@@ -29,7 +29,7 @@ namespace BaSys.Constructor.Services
             _providerFactory = providerFactory;
             _providerFactory.SetUp(_connection);
 
-            _kindsProvider = _providerFactory.Create<MetadataKindsProvider>();
+            _kindsProvider = _providerFactory.Create<MetaObjectKindsProvider>();
 
             _logger = logger;
 

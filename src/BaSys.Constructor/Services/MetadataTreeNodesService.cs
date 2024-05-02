@@ -63,7 +63,7 @@ namespace BaSys.Constructor.Services
                             metadataObjectUid = dto.MetadataObjectUid.Value;
                         }
 
-                        var metadataKindProvider = _providerFactory.Create<MetadataKindsProvider>();
+                        var metadataKindProvider = _providerFactory.Create<MetaObjectKindsProvider>();
                         var metadataKindSettings = await metadataKindProvider.GetSettingsAsync(metadataKindUid, transaction);
                         if (metadataKindSettings == null)
                         {
@@ -190,7 +190,7 @@ namespace BaSys.Constructor.Services
             _connection.Open();
             using (IDbTransaction transaction = _connection.BeginTransaction())
             {
-                var metadataKindProvider = _providerFactory.Create<MetadataKindsProvider>();
+                var metadataKindProvider = _providerFactory.Create<MetaObjectKindsProvider>();
                 var metadataKindSettings = await metadataKindProvider.GetSettingsAsync(dto.MetadataKindUid, transaction);
 
                 if (metadataKindSettings == null)
