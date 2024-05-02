@@ -3,9 +3,12 @@ using BaSys.Constructor.Abstractions;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
 using BaSys.Logging.Abstractions.Abstractions;
+using BaSys.Logging.EventTypes;
 using BaSys.Metadata.DTOs;
+using BaSys.Translation;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
+using System.Security.AccessControl;
 
 namespace BaSys.Constructor.Services
 {
@@ -40,7 +43,7 @@ namespace BaSys.Constructor.Services
 
             if (kindSettings == null)
             {
-                result.Error(-1, $"Cannot find metaobject kind: {kindName}");
+                result.Error(-1, $"{DictMain.CannotFindMetaObjectKind}: {kindName}");
                 return result;
             }
 
@@ -49,7 +52,7 @@ namespace BaSys.Constructor.Services
 
             if (metaObject == null)
             {
-                result.Error(-1, $"Cannot find  metaobject: {kindName}.{objectName}");
+                result.Error(-1, $"{DictMain.CannotFindMetaObject}: {kindName}.{objectName}");
                 return result;
             }
 
@@ -60,21 +63,54 @@ namespace BaSys.Constructor.Services
                 throw new NotImplementedException($"Not implemented for metaobject kind {kindName}");
             }
 
-            var settingsDto = new MetaObjectStorableSettingsDto
-            {
-                Uid = settings.Uid.ToString(),
-                Title = settings.Title,
-                Name = settings.Name,
-                MetaObjectKindUid = kindSettings.Uid,
-                MetaObjectKindTitle = kindSettings.Title,
-                Memo = settings.Memo,
-                IsActive = settings.IsActive
-            };
+            var settingsDto = new MetaObjectStorableSettingsDto(settings, kindSettings);
 
             result.Success(settingsDto);
 
             return result;
         } 
+
+        public async Task<ResultWrapper<int>> UpdateSettingsItemAsync(MetaObjectStorableSettingsDto settingsDto)
+        {
+            var result = new ResultWrapper<int>();
+
+            var kindSettings = await _kindsProvider.GetSettingsAsync( settingsDto.MetaObjectKindUid, null);
+
+            if (kindSettings == null)
+            {
+                result.Error(-1, DictMain.CannotFindMetaObjectKind, $"Uid: {settingsDto.Uid}");
+                return result;
+            }
+
+            var provider = _providerFactory.CreateMetaObjectStorableProvider(kindSettings.GetNamePlural());
+
+            var savedSettings = await provider.GetSettingsItemAsync(Guid.Parse(settingsDto.Uid), null);
+
+            if (savedSettings == null)
+            {
+                result.Error(-1, DictMain.CannotFindMetaObject, $"Uid: {settingsDto.Uid}");
+                return result;
+            }
+
+            var newSettings = settingsDto.ToModel();
+            savedSettings.CopyFrom(newSettings);
+
+            try
+            {
+                var updateResult = await provider.UpdateSettingsAsync(savedSettings, null);
+                result.Success(updateResult, DictMain.ItemUpdated);
+
+                _logger.Write($"Meta object update {savedSettings}", Common.Enums.EventTypeLevels.Info, EventTypeFactory.MetadataUpdate);
+            }
+            catch(Exception ex)
+            {
+                result.Error(-1, DictMain.CannotUpdateItem, ex.Message );
+                _logger.Write($"Meta object update {savedSettings}", Common.Enums.EventTypeLevels.Error, EventTypeFactory.MetadataUpdate);
+
+            }
+
+            return result;
+        }
 
         private void Dispose(bool disposing)
         {
