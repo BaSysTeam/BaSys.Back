@@ -165,6 +165,12 @@
   <data name="CannotFindLoggerConfig" xml:space="preserve">
     <value>Cannot find logger config record</value>
   </data>
+  <data name="CannotFindMetaObject" xml:space="preserve">
+    <value>Cannot find metaobject</value>
+  </data>
+  <data name="CannotFindMetaObjectKind" xml:space="preserve">
+    <value>Cannot find metaobject kind</value>
+  </data>
   <data name="CannotFindUser" xml:space="preserve">
     <value>Cannot find user</value>
   </data>
@@ -179,6 +185,9 @@
   </data>
   <data name="CannotUpdateAppConstantsRecord" xml:space="preserve">
     <value>Cannot update app constants record</value>
+  </data>
+  <data name="CannotUpdateItem" xml:space="preserve">
+    <value>Cannot update item</value>
   </data>
   <data name="CannotUpdateLoggerConfig" xml:space="preserve">
     <value>Cannot update logger config</value>
@@ -203,6 +212,9 @@
   </data>
   <data name="EmptyUsersList" xml:space="preserve">
     <value>Empty users list</value>
+  </data>
+  <data name="ItemUpdated" xml:space="preserve">
+    <value>Item updated</value>
   </data>
   <data name="LoggerConfigCreated" xml:space="preserve">
     <value>Logger config created</value>

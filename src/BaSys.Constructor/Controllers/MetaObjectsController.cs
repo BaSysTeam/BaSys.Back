@@ -1,5 +1,6 @@
 ﻿using BaSys.Common.Infrastructure;
 using BaSys.Constructor.Abstractions;
+using BaSys.Metadata.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -24,6 +25,13 @@ namespace BaSys.Constructor.Controllers
             var metaObjectSettings = await _metaObjectService.GetSettingsItemAsync(kind, name);
 
             return Ok(metaObjectSettings);
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> UpdateMetaObject(MetaObjectStorableSettingsDto settingsDto)
+        {
+            var result = await _metaObjectService.UpdateSettingsItemAsync(settingsDto);
+            return Ok(result);
         }
     }
 }

@@ -39,5 +39,21 @@ namespace BaSys.Metadata.DTOs
             Tables = settings.Tables;
 
         }
+
+        public MetaObjectStorableSettings ToModel()
+        {
+            var model = new MetaObjectStorableSettings()
+            {
+                Uid = Guid.Parse(Uid),
+                Title = Title,
+                Name = Name,
+                Memo = Memo,
+                IsActive = IsActive,
+                MetaObjectKindUid = MetaObjectKindUid,
+                Tables = Tables
+            };
+
+            return model;
+        }
     }
 }
