@@ -63,7 +63,7 @@ namespace BaSys.Constructor.Services
                             metadataObjectUid = dto.MetadataObjectUid.Value;
                         }
 
-                        var metadataKindProvider = _providerFactory.Create<MetadataKindsProvider>();
+                        var metadataKindProvider = _providerFactory.Create<MetaObjectKindsProvider>();
                         var metadataKindSettings = await metadataKindProvider.GetSettingsAsync(metadataKindUid, transaction);
                         if (metadataKindSettings == null)
                         {
@@ -190,12 +190,12 @@ namespace BaSys.Constructor.Services
             _connection.Open();
             using (IDbTransaction transaction = _connection.BeginTransaction())
             {
-                var metadataKindProvider = _providerFactory.Create<MetadataKindsProvider>();
-                var metadataKindSettings = await metadataKindProvider.GetSettingsAsync(dto.MetadataKindUid, transaction);
+                var metadataKindProvider = _providerFactory.Create<MetaObjectKindsProvider>();
+                var metadataKindSettings = await metadataKindProvider.GetSettingsAsync(dto.MetaObjectKindUid, transaction);
 
                 if (metadataKindSettings == null)
                 {
-                    result.Error(-1, DictMain.CannotFindItem, $"Uid: {dto.MetadataKindUid}");
+                    result.Error(-1, DictMain.CannotFindItem, $"Uid: {dto.MetaObjectKindUid}");
                     transaction.Rollback();
                     return result;
                 }
