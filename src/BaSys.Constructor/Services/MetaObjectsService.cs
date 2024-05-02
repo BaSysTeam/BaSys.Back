@@ -60,16 +60,7 @@ namespace BaSys.Constructor.Services
                 throw new NotImplementedException($"Not implemented for metaobject kind {kindName}");
             }
 
-            var settingsDto = new MetaObjectStorableSettingsDto
-            {
-                Uid = settings.Uid.ToString(),
-                Title = settings.Title,
-                Name = settings.Name,
-                MetaObjectKindUid = kindSettings.Uid,
-                MetaObjectKindTitle = kindSettings.Title,
-                Memo = settings.Memo,
-                IsActive = settings.IsActive
-            };
+            var settingsDto = new MetaObjectStorableSettingsDto(settings, kindSettings);
 
             result.Success(settingsDto);
 
