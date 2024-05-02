@@ -13,7 +13,7 @@ namespace BaSys.Metadata.Validators
         public CreateMetaObjectDtoValidator()
         {
             RuleFor(x => x.ParentUid).NotEmpty();
-            RuleFor(x => x.MetadataKindUid).NotEmpty();
+            RuleFor(x => x.MetaObjectKindUid).NotEmpty();
             RuleFor(x => x.Title).NotEmpty().MaximumLength(100);
             RuleFor(x => x.Name)
                 .NotEmpty()

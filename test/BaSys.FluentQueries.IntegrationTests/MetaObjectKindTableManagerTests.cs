@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace BaSys.FluentQueries.IntegrationTests
 {
     [TestFixture]
-    public class MetadataKindTableManagerTests
+    public class MetaObjectKindTableManagerTests
     {
         private ConnectionStringService _connectionStringService;
 
