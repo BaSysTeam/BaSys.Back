@@ -90,7 +90,6 @@ namespace BaSys.Host.Services
         {
             await CheckAppConstantsAsync();
             await CheckLoggerConfigAsync();
-            await CheckMetadataTreeNodesAsync();
         }
 
         private async Task CheckAppConstantsAsync()
@@ -126,63 +125,6 @@ namespace BaSys.Host.Services
             // };
             //
             // await provider.InsertAsync(loggerConfig, null);
-        }
-
-        private async Task CheckMetadataTreeNodesAsync()
-        {
-            var provider = new MetadataTreeNodesProvider(_connection);
-            var standardNodes = await provider.GetStandardNodesAsync(null);
-            if (standardNodes != null && standardNodes.Any())
-                return;
-
-            standardNodes = new List<MetadataTreeNode>
-            {
-                new MetadataTreeNode
-                {
-                    IsGroup = true,
-                    IsStandard = true,
-                    Title = "Metadata",
-                    Uid = new Guid("60738680-DAFD-42C0-8923-585FC7985176")
-                },
-                new MetadataTreeNode
-                {
-                    IsGroup = true,
-                    IsStandard = true,
-                    Title = "System",
-                    Uid = new Guid("AE28B333-3F36-4FEC-A276-92FCCC9B435C")
-                }
-            };
-
-            foreach (var standardNode in standardNodes)
-                await provider.InsertAsync(standardNode, null);
-
-            standardNodes = await provider.GetCollectionAsync(null);
-            var systemNode = standardNodes.FirstOrDefault(x => x.Title.ToLower() == "system");
-            if (systemNode == null) 
-                return;
-
-            standardNodes = new List<MetadataTreeNode>
-            {
-                new MetadataTreeNode
-                {
-                    IsGroup = false,
-                    IsStandard = true,
-                    Title = "DataTypes",
-                    Uid = new Guid("416C4B6C-48F7-426C-AA5A-774717C9984E"),
-                    ParentUid = systemNode.Uid
-                },
-                new MetadataTreeNode
-                {
-                    IsGroup = false,
-                    IsStandard = true,
-                    Title = "MetadataKinds",
-                    Uid = new Guid("CB930422-E50A-4C14-942F-B45DF8C23DE0"),
-                    ParentUid = systemNode.Uid
-                }
-            };
-
-            foreach (var standardNode in standardNodes)
-                await provider.InsertAsync(standardNode, null);
         }
     }
 }

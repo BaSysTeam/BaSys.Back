@@ -41,32 +41,6 @@ namespace BaSys.Host.DAL.DataProviders
             return await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
         }
 
-        public async Task<IEnumerable<MetadataTreeNode>> GetStandardNodesAsync(IDbTransaction transaction)
-        {
-            var whereAnd = "";
-
-            switch (_sqlDialect)
-            {
-                case SqlDialectKinds.MsSql:
-                    whereAnd = $"{nameof(MetadataTreeNode.IsStandard)} = 1";
-                    break;
-                case SqlDialectKinds.PgSql:
-                    whereAnd = $"{nameof(MetadataTreeNode.IsStandard)} = true";
-                    break;
-                default:
-                    throw new NotImplementedException($"{GetType().Name} not implemented for DbKind {_sqlDialect}.");
-            }
-
-            _query = SelectBuilder
-                .Make()
-                .Select("*")
-                .From(_config.TableName.ToLower())
-                .WhereAnd(whereAnd)
-                .Query(_sqlDialect);
-
-            return await _dbConnection.QueryAsync<MetadataTreeNode>(_query.Text, transaction);
-        }
-
         public async Task<IEnumerable<MetadataTreeNode>> GetChildrenAsync(Guid uid, IDbTransaction transaction)
         {
             _query = SelectBuilder
