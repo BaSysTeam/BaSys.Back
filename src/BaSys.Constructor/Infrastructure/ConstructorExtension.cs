@@ -14,8 +14,9 @@ namespace BaSys.Constructor.Infrastructure
                 .ApplicationParts
                 .Add(new AssemblyPart(typeof(ConstructorExtension).Assembly));
 
-            services.AddTransient<IMetadataKindsService, MetadataKindsService>();
+            services.AddTransient<IMetaObjectKindsService, MetaObjectKindsService>();
             services.AddTransient<IMetadataTreeNodesService, MetadataTreeNodesService>();
+            services.AddTransient<IMetaObjectsService, MetaObjectsService>(); 
 
             return services;
         }

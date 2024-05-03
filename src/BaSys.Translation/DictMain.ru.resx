@@ -165,6 +165,12 @@
   <data name="CannotFindLoggerConfig" xml:space="preserve">
     <value>Конфигурация логгера не найдена</value>
   </data>
+  <data name="CannotFindMetaObject" xml:space="preserve">
+    <value>Не найден объект метаданных</value>
+  </data>
+  <data name="CannotFindMetaObjectKind" xml:space="preserve">
+    <value>Не найден вид объекта метаданных</value>
+  </data>
   <data name="CannotFindUser" xml:space="preserve">
     <value>Пользователь не найден</value>
   </data>
@@ -179,6 +185,9 @@
   </data>
   <data name="CannotUpdateAppConstantsRecord" xml:space="preserve">
     <value>Ошибка сохранения записи констант приложения</value>
+  </data>
+  <data name="CannotUpdateItem" xml:space="preserve">
+    <value>Ошибка записи элемента</value>
   </data>
   <data name="CannotUpdateLoggerConfig" xml:space="preserve">
     <value>Ошибка сохранения конфигурации логгера</value>
@@ -203,6 +212,9 @@
   </data>
   <data name="EmptyUsersList" xml:space="preserve">
     <value>Список пользователей пуст</value>
+  </data>
+  <data name="ItemUpdated" xml:space="preserve">
+    <value>Элемент записан</value>
   </data>
   <data name="LoggerConfigCreated" xml:space="preserve">
     <value>Конфигурация логгера создана</value>

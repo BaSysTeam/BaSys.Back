@@ -205,6 +205,24 @@ namespace BaSys.Translation {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot find metaobject.
+        /// </summary>
+        public static string CannotFindMetaObject {
+            get {
+                return ResourceManager.GetString("CannotFindMetaObject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot find metaobject kind.
+        /// </summary>
+        public static string CannotFindMetaObjectKind {
+            get {
+                return ResourceManager.GetString("CannotFindMetaObjectKind", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cannot find user.
         /// </summary>
         public static string CannotFindUser {
@@ -246,6 +264,15 @@ namespace BaSys.Translation {
         public static string CannotUpdateAppConstantsRecord {
             get {
                 return ResourceManager.GetString("CannotUpdateAppConstantsRecord", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot update item.
+        /// </summary>
+        public static string CannotUpdateItem {
+            get {
+                return ResourceManager.GetString("CannotUpdateItem", resourceCulture);
             }
         }
         
@@ -318,6 +345,15 @@ namespace BaSys.Translation {
         public static string EmptyUsersList {
             get {
                 return ResourceManager.GetString("EmptyUsersList", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Item updated.
+        /// </summary>
+        public static string ItemUpdated {
+            get {
+                return ResourceManager.GetString("ItemUpdated", resourceCulture);
             }
         }
         

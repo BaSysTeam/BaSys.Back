@@ -11,7 +11,6 @@ namespace BaSys.Metadata.Models
             Title = settings.Title;
             Name = settings.Name;
             Memo = settings.Memo;
-            Version = settings.Version;
             IsActive = settings.IsActive;
             
             SettingsStorage = MemoryPackSerializer.Serialize(settings);
@@ -21,8 +20,14 @@ namespace BaSys.Metadata.Models
         {
             var settings = MemoryPackSerializer.Deserialize<MetaObjectStorableSettings>(SettingsStorage); 
             settings.Uid = Uid;
+            settings.Version = Version;
 
             return settings;
+        }
+
+        public void BeforeSave()
+        {
+            Version++;
         }
     }
 }

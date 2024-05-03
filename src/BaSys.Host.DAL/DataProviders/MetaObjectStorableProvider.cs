@@ -32,6 +32,8 @@ public class MetaObjectStorableProvider : SystemObjectProviderBase<MetaObjectSto
             .WhereAnd("uid = @uid")
             .Query(_sqlDialect);
 
+        
+
         var result = await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
 
         return result;
@@ -88,7 +90,7 @@ public class MetaObjectStorableProvider : SystemObjectProviderBase<MetaObjectSto
         return result;
     }
 
-    public async Task<MetaObjectStorableSettings?> GetSettingsItemAsync(Guid uid, IDbTransaction transaction)
+    public async Task<MetaObjectStorableSettings?> GetSettingsItemAsync(Guid uid, IDbTransaction? transaction)
     {
         _query = SelectBuilder.Make()
             .From(_config.TableName)
@@ -97,11 +99,9 @@ public class MetaObjectStorableProvider : SystemObjectProviderBase<MetaObjectSto
             .Parameter("uid", uid)
             .Query(_sqlDialect);
 
-        var result = await _dbConnection.QueryFirstOrDefaultAsync<byte[]>(_query.Text, _query.DynamicParameters, transaction);
-        if (result == null)
-            return null;
+        var item = await GetItemAsync(uid, transaction);
 
-        var settings = MemoryPackSerializer.Deserialize<MetaObjectStorableSettings>(result);
+        var settings = item.ToSettings();
 
         return settings;
     }

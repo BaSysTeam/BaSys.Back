@@ -23,9 +23,9 @@ namespace BaSys.Constructor.Services
         private bool _disposed;
 
 
-        public MetadataTreeNodesService(IMainConnectionFactory connectionFactory, 
-            ISystemObjectProviderFactory providerFactory, 
-            ILoggerService logger)
+        public MetadataTreeNodesService(IMainConnectionFactory connectionFactory,
+            ISystemObjectProviderFactory providerFactory,
+            LoggerService logger)
         {
             _connectionFactory = connectionFactory;
             _providerFactory = providerFactory;
@@ -36,19 +36,57 @@ namespace BaSys.Constructor.Services
             _nodesProvider = _providerFactory.Create<MetadataTreeNodesProvider>();
         }
 
-        public async Task<ResultWrapper<int>> DeleteAsync(Guid uid)
+        public async Task<ResultWrapper<int>> DeleteAsync(MetadataTreeNodeDto dto)
         {
             var result = new ResultWrapper<int>();
 
-            try
+            _connection.Open();
+            using (IDbTransaction transaction = _connection.BeginTransaction())
             {
-                var deleteResult = await _nodesProvider.DeleteAsync(uid, null);
+                try
+                {
+                    if (!dto.IsGroup)
+                    {
+                        var metadataKindUid = new Guid();
+                        var metadataObjectUid = new Guid();
 
-                result.Success(deleteResult);
-            }
-            catch (Exception ex)
-            {
-                result.Error(-1, "Cannot delete item.", ex.Message);
+                        if (!dto.MetadataKindUid.HasValue || !dto.MetadataObjectUid.HasValue)
+                        {
+                            transaction.Rollback();
+                            result.Error(-1, "Cannot delete item.");
+
+                            return result;
+                        }
+                        else
+                        {
+                            metadataKindUid = dto.MetadataKindUid.Value;
+                            metadataObjectUid = dto.MetadataObjectUid.Value;
+                        }
+
+                        var metadataKindProvider = _providerFactory.Create<MetaObjectKindsProvider>();
+                        var metadataKindSettings = await metadataKindProvider.GetSettingsAsync(metadataKindUid, transaction);
+                        if (metadataKindSettings == null)
+                        {
+                            result.Error(-1, DictMain.CannotFindItem, $"Uid: {metadataKindUid}");
+                            transaction.Rollback();
+                            return result;
+                        }
+
+                        var metaObjectStorableProvider = _providerFactory.CreateMetaObjectStorableProvider(metadataKindSettings.Name);
+                        await metaObjectStorableProvider.DeleteAsync(metadataObjectUid, transaction);
+                    }
+
+                    var deleteResult = await _nodesProvider.DeleteAsync(dto.Key, transaction);
+                    result.Success(deleteResult);
+                    transaction.Commit();
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    result.Error(-1, "Cannot delete item.", ex.Message);
+
+                    _logger.Write($"Cannot delete metadata item.", Common.Enums.EventTypeLevels.Error, EventTypeFactory.MetadataDelete);
+                }
             }
 
             return result;
@@ -92,13 +130,13 @@ namespace BaSys.Constructor.Services
                 var standardNodes = collection
                     .Select(x => new MetadataTreeNodeDto(x))
                     .ToList();
-                
+
                 foreach (var standardNode in standardNodes)
                 {
                     var hasChildren = await _nodesProvider.HasChildrenAsync(standardNode.Key, null);
                     standardNode.Leaf = !hasChildren;
                 }
-                
+
                 standardNodes = MakeTree(standardNodes);
 
                 result.Success(standardNodes);
@@ -152,17 +190,17 @@ namespace BaSys.Constructor.Services
             _connection.Open();
             using (IDbTransaction transaction = _connection.BeginTransaction())
             {
-                var metadataKindProvider = _providerFactory.Create<MetadataKindsProvider>();
-                var metadataKindSettings = await metadataKindProvider.GetSettingsAsync(dto.MetadataKindUid, transaction);
+                var metadataKindProvider = _providerFactory.Create<MetaObjectKindsProvider>();
+                var metadataKindSettings = await metadataKindProvider.GetSettingsAsync(dto.MetaObjectKindUid, transaction);
 
                 if (metadataKindSettings == null)
                 {
-                    result.Error(-1, DictMain.CannotFindItem, $"Uid: {dto.MetadataKindUid}");
+                    result.Error(-1, DictMain.CannotFindItem, $"Uid: {dto.MetaObjectKindUid}");
                     transaction.Rollback();
                     return result;
                 }
 
-                var metaObjectStorableProvider = _providerFactory.CreateMetaObjectStorableProvider(metadataKindSettings.NamePlural);
+                var metaObjectStorableProvider = _providerFactory.CreateMetaObjectStorableProvider(metadataKindSettings.Name);
                 var newMetaObjectSettings = new MetaObjectStorableSettings()
                 {
                     MetaObjectKindUid = metadataKindSettings.Uid,
@@ -209,8 +247,8 @@ namespace BaSys.Constructor.Services
         {
             var result = new List<MetadataTreeNodeDto>();
             var parents = source.Where(x => x.ParentKey == parentKey);
-            
-            foreach ( var parent in parents)
+
+            foreach (var parent in parents)
             {
                 parent.Children = MakeTree(source, parent.Key);
                 result.Add(parent);
