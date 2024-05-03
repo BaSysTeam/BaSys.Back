@@ -2,5 +2,5 @@
 
 public interface IBaSysLoggerFactory
 {
-    Task<LoggerService> GetLogger();
+    Task<ILoggerService> GetLogger();
 }

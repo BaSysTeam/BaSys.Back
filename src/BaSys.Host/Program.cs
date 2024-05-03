@@ -165,7 +165,7 @@ namespace BaSys.Host
             builder.Services.AddTransient<IHttpRequestContextService, HttpRequestContextService>();
             builder.Services.AddTransient<IUserSettingsService, UserSettingsService>();
             builder.Services.AddTransient<IMigrationService, MigrationService>();
-            builder.Services.AddTransient<LoggerService>(sp =>
+            builder.Services.AddTransient<ILoggerService>(sp =>
             {
                 var loggerFactory = sp.GetRequiredService<IBaSysLoggerFactory>();
                 var logger = loggerFactory.GetLogger().GetAwaiter().GetResult();

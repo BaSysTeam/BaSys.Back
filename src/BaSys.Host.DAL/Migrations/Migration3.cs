@@ -6,7 +6,7 @@ namespace BaSys.Host.DAL.Migrations;
 
 public class Migration3 : MigrationBase
 {
-    public Migration3(LoggerService loggerService) : base(loggerService)
+    public Migration3(ILoggerService loggerService) : base(loggerService)
     {
     }
     

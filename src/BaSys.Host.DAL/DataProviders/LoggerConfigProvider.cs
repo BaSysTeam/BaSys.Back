@@ -29,11 +29,36 @@ namespace BaSys.Host.DAL.DataProviders
 
         public override async Task<int> UpdateAsync(LoggerConfig item, IDbTransaction transaction)
         {
-            _query = UpdateBuilder.Make(_config)
-               .WhereAnd("uid = @uid")
-               .Query(_sqlDialect);
+            _query = SelectBuilder.Make()
+                .From(_config.TableName)
+                .Select("uid")
+                .WhereAnd("loggertype = @loggertype")
+                .Parameter("loggertype", item.LoggerType)
+                .Query(_sqlDialect);
+            var result = await _dbConnection.QueryFirstOrDefaultAsync<Guid?>(_query.Text, _query.DynamicParameters, transaction);
 
-            return await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
+            if (result == null)
+            {
+                return await InsertAsync(item, transaction);
+            }
+            else
+            {
+                // unselect all
+                _query = UpdateBuilder.Make()
+                    .Table(_config.TableName)
+                    .Set("isselected", "0")
+                    .WhereAnd("isselected = 1")
+                    .Query(_sqlDialect);
+                await _dbConnection.ExecuteAsync(_query.Text, null, transaction);
+
+                // select current & save
+                item.IsSelected = true;
+                _query = UpdateBuilder.Make(_config)
+                    .WhereAnd("loggertype = @loggertype")
+                    .Query(_sqlDialect);
+
+                return await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
+            }
         }
     }
 }

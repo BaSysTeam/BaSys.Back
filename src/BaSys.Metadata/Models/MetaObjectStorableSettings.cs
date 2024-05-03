@@ -18,5 +18,20 @@ namespace BaSys.Metadata.Models
         public List<MetaObjectTable> Tables { get; set; } = new ();
         public MetaObjectTable Header => Tables.FirstOrDefault(x => x.IsHeader);
         public List<MetaObjectTable> TableParts => Tables.Where(x => !x.IsHeader).ToList();
+
+        public void CopyFrom(MetaObjectStorableSettings source)
+        {
+            MetaObjectKindUid = source.Uid;
+            Title = source.Title;
+            Name = source.Name;
+            Memo = source.Memo;
+            IsActive = source.IsActive;
+            Tables = source.Tables;
+        }
+
+        public override string ToString()
+        {
+            return Title;
+        }
     }
 }

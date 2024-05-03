@@ -46,7 +46,7 @@ namespace BaSys.Host.Services
                 new LoggerConfigManager(_connection),
                 new MigrationManager(_connection),
                 new LoggerConfigManager(_connection),
-                new MetadataKindManager(_connection),
+                new MetaObjectKindManager(_connection),
                 new UserSettingsManager(_connection)
             };
 
@@ -112,19 +112,19 @@ namespace BaSys.Host.Services
 
         private async Task CheckLoggerConfigAsync()
         {
-            var provider = new LoggerConfigProvider(_connection);
-            var collection = await provider.GetCollectionAsync(null);
-            var loggerConfig = collection.FirstOrDefault();
-            if (loggerConfig != null)
-                return;
-
-            loggerConfig = new LoggerConfig
-            {
-                Uid = Guid.NewGuid(),
-                MinimumLogLevel = EventTypeLevels.Info
-            };
-
-            await provider.InsertAsync(loggerConfig, null);
+            // var provider = new LoggerConfigProvider(_connection);
+            // var collection = await provider.GetCollectionAsync(null);
+            // var loggerConfig = collection.FirstOrDefault();
+            // if (loggerConfig != null)
+            //     return;
+            //
+            // loggerConfig = new LoggerConfig
+            // {
+            //     Uid = Guid.NewGuid(),
+            //     MinimumLogLevel = EventTypeLevels.Info
+            // };
+            //
+            // await provider.InsertAsync(loggerConfig, null);
         }
     }
 }

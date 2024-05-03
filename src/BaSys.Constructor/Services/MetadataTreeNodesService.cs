@@ -16,7 +16,7 @@ namespace BaSys.Constructor.Services
     public class MetadataTreeNodesService : IMetadataTreeNodesService, IDisposable
     {
         private readonly IMainConnectionFactory _connectionFactory;
-        private readonly LoggerService _logger;
+        private readonly ILoggerService _logger;
         private readonly ISystemObjectProviderFactory _providerFactory;
         private readonly IDbConnection _connection;
         private readonly MetadataTreeNodesProvider _nodesProvider;
@@ -25,7 +25,7 @@ namespace BaSys.Constructor.Services
 
         public MetadataTreeNodesService(IMainConnectionFactory connectionFactory,
             ISystemObjectProviderFactory providerFactory,
-            LoggerService logger)
+            ILoggerService logger)
         {
             _connectionFactory = connectionFactory;
             _providerFactory = providerFactory;
@@ -63,7 +63,7 @@ namespace BaSys.Constructor.Services
                             metadataObjectUid = dto.MetadataObjectUid.Value;
                         }
 
-                        var metadataKindProvider = _providerFactory.Create<MetadataKindsProvider>();
+                        var metadataKindProvider = _providerFactory.Create<MetaObjectKindsProvider>();
                         var metadataKindSettings = await metadataKindProvider.GetSettingsAsync(metadataKindUid, transaction);
                         if (metadataKindSettings == null)
                         {
@@ -72,7 +72,7 @@ namespace BaSys.Constructor.Services
                             return result;
                         }
 
-                        var metaObjectStorableProvider = _providerFactory.CreateMetaObjectStorableProvider(metadataKindSettings.NamePlural);
+                        var metaObjectStorableProvider = _providerFactory.CreateMetaObjectStorableProvider(metadataKindSettings.Name);
                         await metaObjectStorableProvider.DeleteAsync(metadataObjectUid, transaction);
                     }
 
@@ -221,17 +221,17 @@ namespace BaSys.Constructor.Services
             _connection.Open();
             using (IDbTransaction transaction = _connection.BeginTransaction())
             {
-                var metadataKindProvider = _providerFactory.Create<MetadataKindsProvider>();
-                var metadataKindSettings = await metadataKindProvider.GetSettingsAsync(dto.MetadataKindUid, transaction);
+                var metadataKindProvider = _providerFactory.Create<MetaObjectKindsProvider>();
+                var metadataKindSettings = await metadataKindProvider.GetSettingsAsync(dto.MetaObjectKindUid, transaction);
 
                 if (metadataKindSettings == null)
                 {
-                    result.Error(-1, DictMain.CannotFindItem, $"Uid: {dto.MetadataKindUid}");
+                    result.Error(-1, DictMain.CannotFindItem, $"Uid: {dto.MetaObjectKindUid}");
                     transaction.Rollback();
                     return result;
                 }
 
-                var metaObjectStorableProvider = _providerFactory.CreateMetaObjectStorableProvider(metadataKindSettings.NamePlural);
+                var metaObjectStorableProvider = _providerFactory.CreateMetaObjectStorableProvider(metadataKindSettings.Name);
                 var newMetaObjectSettings = new MetaObjectStorableSettings()
                 {
                     MetaObjectKindUid = metadataKindSettings.Uid,

@@ -20,6 +20,7 @@ namespace BaSys.Host.DAL.ModelConfigurations
             Column("MinimumLogLevel");
             Column("ConnectionString").MaxLength(300).IsOptional();
             Column("AutoClearInterval");
+            Column("IsSelected");
         }
     }
 }
