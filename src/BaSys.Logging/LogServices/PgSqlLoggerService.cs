@@ -25,21 +25,25 @@ public class PgSqlLoggerService : LoggerService
         var columnWriters = new Dictionary<string, ColumnWriterBase>
         {
             {"message", new RenderedMessageColumnWriter(NpgsqlDbType.Text)},
+            {"exception_message", new SinglePropertyColumnWriter("ExceptionMessage", PropertyWriteMethod.Raw)},
             {"raise_date", new TimestampColumnWriter(NpgsqlDbType.Timestamp)},
             {"exception", new ExceptionColumnWriter(NpgsqlDbType.Text)},
             {"level", new SinglePropertyColumnWriter("Level", PropertyWriteMethod.Raw, NpgsqlDbType.Integer)},
             {"event_type_uid", new SinglePropertyColumnWriter("EventTypeUid", PropertyWriteMethod.Raw, NpgsqlDbType.Uuid)},
-            {"event_type_name", new SinglePropertyColumnWriter("EventTypeName")},
-            {"module", new SinglePropertyColumnWriter("Module")},
+            {"event_type_name", new SinglePropertyColumnWriter("EventTypeName", PropertyWriteMethod.Raw, NpgsqlDbType.Varchar)},
+            {"module", new SinglePropertyColumnWriter("Module", PropertyWriteMethod.Raw, NpgsqlDbType.Varchar)},
             {"user_uid", new SinglePropertyColumnWriter("UserUid")},
             {"user_name", new SinglePropertyColumnWriter("UserName")},
-            {"ip_address", new SinglePropertyColumnWriter("IpAddress")},
-            {"properties", new LogEventSerializedColumnWriter(NpgsqlDbType.Jsonb)}
+            {"ip_address", new SinglePropertyColumnWriter("IpAddress", PropertyWriteMethod.Raw, NpgsqlDbType.Varchar)},
+            {"properties", new LogEventSerializedColumnWriter(NpgsqlDbType.Jsonb)},
+            {"metadata_uid", new SinglePropertyColumnWriter("MetadataUid", PropertyWriteMethod.Raw, NpgsqlDbType.Uuid)},
+            {"data_uid", new SinglePropertyColumnWriter("DataUid", PropertyWriteMethod.Raw, NpgsqlDbType.Varchar)},
+            {"data_presentation", new SinglePropertyColumnWriter("DataPresentation", PropertyWriteMethod.Raw)}
         };
 
         try
         {
-            _logger = new LoggerConfiguration()
+            Logger = new LoggerConfiguration()
                 .WriteTo
                 .PostgreSQL(connectionString: loggerConfig.ConnectionString,
                     tableName: loggerConfig.TableName,
@@ -54,15 +58,15 @@ public class PgSqlLoggerService : LoggerService
 
     private void CheckDbExists(string connectionString)
     {
-        var builder = new NpgsqlConnectionStringBuilder(connectionString);
-
-        var dbName = builder.Database;
-        builder.Remove("Database");
-        builder.CommandTimeout = 1;
-        builder.Timeout = 1;
-
         try
         {
+            var builder = new NpgsqlConnectionStringBuilder(connectionString);
+
+            var dbName = builder.Database;
+            builder.Remove("Database");
+            builder.CommandTimeout = 1;
+            builder.Timeout = 1;
+            
             using var db = new NpgsqlConnection(builder.ConnectionString);
             var dbId = db.QueryFirstOrDefault($"SELECT oid FROM pg_catalog.pg_database WHERE lower(datname) = lower('{dbName}');");
 
@@ -70,7 +74,7 @@ public class PgSqlLoggerService : LoggerService
                 return;
             
             // create db
-            var sql = @$"CREATE DATABASE serilog
+            var sql = @$"CREATE DATABASE {dbName}
                     WITH
                         OWNER = {builder.Username}
                         ENCODING = 'UTF8'
@@ -84,16 +88,26 @@ public class PgSqlLoggerService : LoggerService
         }
     }
 
-    protected override void WriteInner(string message, EventTypeLevels level, EventType eventType)
+    protected override void WriteInner(string? message,
+        EventTypeLevels level,
+        EventType eventType,
+        string? exception = null,
+        Guid? metadataUid = null,
+        string? dataUid = null,
+        string? dataPresentation = null)
     {
-        _logger?.Information("{message} {Level} {EventTypeName} {EventTypeUid} {Module} {UserUid} {UserName} {IpAddress}",
+        Logger?.Information("{message} {ExceptionMessage} {Level} {EventTypeName} {EventTypeUid} {Module} {UserUid} {UserName} {IpAddress} {MetadataUid} {DataUid} {DataPresentation}",
             message,
+            exception,
             (int) level,
             eventType.EventName,
             eventType.Uid,
             eventType.Module,
-            _userUid,
-            _userName,
-            _ipAddress);
+            UserUid,
+            UserName,
+            IpAddress,
+            metadataUid,
+            dataUid,
+            dataPresentation);
     }
 }

@@ -8,6 +8,7 @@ using BaSys.Host.DAL.DataProviders;
 using BaSys.SuperAdmin.DAL.Abstractions;
 using BaSys.Translation;
 using System.Data;
+using BaSys.Common.Enums;
 
 namespace BaSys.Admin.Services
 {
@@ -73,18 +74,41 @@ namespace BaSys.Admin.Services
             return result;
         }
 
-        public async Task<ResultWrapper<LoggerConfig>> GetLoggerConfigAsync()
+        public async Task<ResultWrapper<LoggerConfig>> GetCurrentLoggerConfigAsync()
         {
             var result = new ResultWrapper<LoggerConfig>();
             
             try
             {
                 var collection = await _provider.GetCollectionAsync(null);
-                var loggerConfig = collection.FirstOrDefault();
+                var loggerConfig = collection.FirstOrDefault(x => x.IsSelected);
+                if (loggerConfig == null)
+                    loggerConfig = new LoggerConfig();
+
+                result.Success(loggerConfig);
+            }
+            catch (Exception ex)
+            {
+                result.Error(-1, DictMain.CannotFindLoggerConfig, ex.Message);
+            }
+
+            return result;
+        }
+
+        public async Task<ResultWrapper<LoggerConfig>> GetLoggerConfigByTypeAsync(LoggerTypes loggerType)
+        {
+            var result = new ResultWrapper<LoggerConfig>();
+
+            try
+            {
+                var collection = await _provider.GetCollectionAsync(null);
+                var loggerConfig = collection.FirstOrDefault(x => x.LoggerType == loggerType);
                 if (loggerConfig == null)
                 {
-                    result.Error(-1, DictMain.CannotFindLoggerConfig);
-                    return result;
+                    loggerConfig = new LoggerConfig
+                    {
+                        LoggerType = loggerType
+                    };
                 }
 
                 result.Success(loggerConfig);

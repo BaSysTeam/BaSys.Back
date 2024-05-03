@@ -19,28 +19,16 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
 {
     public class LoginModel : PageModel
     {
-        private readonly ILogger<LoginModel> _logger;
         private readonly SignInManager<WorkDbUser> _signInManager;
-        private readonly UserManager<WorkDbUser> _userManager;
-        private readonly IDataSourceProvider _dataSourceProvider;
         private readonly IDbInfoRecordsProvider _dbInfoRecordsProvider;
-        private readonly IBaSysLoggerFactory _loggerFactory;
-        private readonly LoggerService _basysLogger;
+        private readonly ILoggerService _basysLogger;
 
-        public LoginModel(ILogger<LoginModel> logger,
-            SignInManager<WorkDbUser> signInManager,
-            UserManager<WorkDbUser> userManager,
-            IDataSourceProvider dataSourceProvider,
+        public LoginModel(SignInManager<WorkDbUser> signInManager,
             IDbInfoRecordsProvider dbInfoRecordsProvider,
-            IBaSysLoggerFactory loggerFactory,
-            LoggerService basysLogger)
+            ILoggerService basysLogger)
         {
-            _logger = logger;
             _signInManager = signInManager;
-            _userManager = userManager;
-            _dataSourceProvider = dataSourceProvider;
             _dbInfoRecordsProvider = dbInfoRecordsProvider;
-            _loggerFactory = loggerFactory;
             _basysLogger = basysLogger;
         }
 
@@ -147,15 +135,7 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
                 var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
-                    // ToDo: remove?
-                    // var currentUser = await _userManager.Users.FirstAsync(x => x.Email.ToUpper() == Input.Email.ToUpper());
-                    // await _userManager.UpdateAsync(currentUser);
-
-                    // using var logger = await _loggerFactory.GetLogger();
-                    // logger.Write("foo", EventTypeLevels.Info, new UserLoginEventType());
-                    _basysLogger.Write("foo", EventTypeLevels.Info, new UserLoginEventType());
-
-                    _logger.LogInformation("User logged in.");
+                    _basysLogger.Info("User logged in", EventTypeFactory.UserLogin);
                     return LocalRedirect(returnUrl);
                 }
                 if (result.RequiresTwoFactor)
@@ -164,11 +144,12 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
                 }
                 if (result.IsLockedOut)
                 {
-                    _logger.LogWarning("User account locked out.");
+                    _basysLogger.Info("User account locked out", EventTypeFactory.UserLogin);
                     return RedirectToPage("./Lockout");
                 }
                 else
                 {
+                    _basysLogger.Error("Invalid login attempt", EventTypeFactory.UserLoginFail);
                     ModelState.AddModelError(string.Empty, "Invalid login attempt.");
                     return Page();
                 }

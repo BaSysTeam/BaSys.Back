@@ -15,13 +15,13 @@ public class MigrationService : IMigrationService
     private readonly IBaSysConnectionFactory _connectionFactory;
     private readonly string? _dbName;
     private readonly MigrationRunnerService _migrationRunnerService;
-    private readonly LoggerService _loggerService;
+    private readonly ILoggerService _loggerService;
 
     public MigrationService(IDbInfoRecordsProvider dbInfoRecordsProvider,
         IBaSysConnectionFactory connectionFactory,
         IHttpContextAccessor httpContextAccessor,
         MigrationRunnerService migrationRunnerService,
-        LoggerService loggerService)
+        ILoggerService loggerService)
     {
         _dbInfoRecordsProvider = dbInfoRecordsProvider;
         _connectionFactory = connectionFactory;

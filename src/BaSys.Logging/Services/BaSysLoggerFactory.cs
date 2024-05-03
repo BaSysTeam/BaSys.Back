@@ -17,7 +17,7 @@ public class BaSysLoggerFactory : IBaSysLoggerFactory
         _httpContextAccessor = httpContextAccessor;
     }
     
-    public async Task<LoggerService> GetLogger()
+    public async Task<ILoggerService> GetLogger()
     {
         var userUid = _httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
         var userName = _httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Name)?.Value;

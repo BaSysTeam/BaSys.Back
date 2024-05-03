@@ -21,8 +21,16 @@ public class MsSqlLoggerService : LoggerService
         columnOptions.Store.Remove(StandardColumn.Level);
         columnOptions.Store.Remove(StandardColumn.MessageTemplate);
         columnOptions.Store.Remove(StandardColumn.Properties);
+        columnOptions.Store.Remove(StandardColumn.Exception);
         
         columnOptions.AdditionalColumns = new List<SqlColumn>();
+        columnOptions.AdditionalColumns.Add(new SqlColumn()
+        {
+            ColumnName = "ExceptionMessage",
+            DataType = SqlDbType.NVarChar,
+            DataLength = 512,
+            AllowNull = true
+        });
         columnOptions.AdditionalColumns.Add(new SqlColumn()
         {
             ColumnName = "Level",
@@ -63,10 +71,32 @@ public class MsSqlLoggerService : LoggerService
             DataType = SqlDbType.NVarChar,
             DataLength = 100
         });
-
+        columnOptions.AdditionalColumns.Add(new SqlColumn()
+        {
+            ColumnName = "MetadataUid",
+            DataType = SqlDbType.UniqueIdentifier,
+            NonClusteredIndex = true,
+            AllowNull = true
+        });
+        columnOptions.AdditionalColumns.Add(new SqlColumn()
+        {
+            ColumnName = "DataUid",
+            DataType = SqlDbType.NVarChar,
+            DataLength = 50,
+            NonClusteredIndex = true,
+            AllowNull = true
+        });
+        columnOptions.AdditionalColumns.Add(new SqlColumn()
+        {
+            ColumnName = "DataPresentation",
+            DataType = SqlDbType.NVarChar,
+            DataLength = 512,
+            AllowNull = true
+        });
+        
         try
         {
-            _logger = new LoggerConfiguration()
+            Logger = new LoggerConfiguration()
                 .WriteTo
                 .MSSqlServer(connectionString: loggerConfig.ConnectionString, sinkOptions: sinkOpts, columnOptions: columnOptions)
                 .CreateLogger();
@@ -76,16 +106,26 @@ public class MsSqlLoggerService : LoggerService
         }
     }
     
-    protected override void WriteInner(string message, EventTypeLevels level, EventType eventType)
+    protected override void WriteInner(string? message,
+        EventTypeLevels level,
+        EventType eventType,
+        string? exception = null,
+        Guid? metadataUid = null,
+        string? dataUid = null,
+        string? dataPresentation = null)
     {
-        _logger?.Information("{message} {Level} {EventTypeName} {EventTypeUid} {Module} {UserUid} {UserName} {IpAddress}",
+        Logger?.Information("{message} {ExceptionMessage} {Level} {EventTypeName} {EventTypeUid} {Module} {UserUid} {UserName} {IpAddress} {MetadataUid} {DataUid} {DataPresentation}",
             message,
+            exception,
             (int)level,
             eventType.EventName,
             eventType.Uid,
             eventType.Module,
-            _userUid,
-            _userName,
-            _ipAddress);
+            UserUid,
+            UserName,
+            IpAddress,
+            metadataUid,
+            dataUid,
+            dataPresentation);
     }
 }

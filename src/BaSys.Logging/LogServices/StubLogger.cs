@@ -11,7 +11,9 @@ public class StubLogger : LoggerService
     {
     }
 
-    protected override void WriteInner(string message, EventTypeLevels level, EventType eventType)
+
+    protected override void WriteInner(string? message, EventTypeLevels level, EventType eventType, string? exception = null,
+        Guid? metadataUid = null, string? dataUid = null, string? dataPresentation = null)
     {
     }
 }

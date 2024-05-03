@@ -33,7 +33,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\BaSys.Logging\BaSys.Logging.csproj" />
     <ProjectReference Include="..\BaSys.Admin\BaSys.Admin.csproj" />
     <ProjectReference Include="..\BaSys.Host.Infrastructure\BaSys.Host.Infrastructure.csproj" />
     <ProjectReference Include="..\BaSys.Host.DAL\BaSys.Host.DAL.csproj" />
