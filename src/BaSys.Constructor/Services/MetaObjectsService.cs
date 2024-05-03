@@ -16,13 +16,13 @@ namespace BaSys.Constructor.Services
     {
         private readonly IDbConnection _connection;
         private readonly MetaObjectKindsProvider _kindsProvider;
-        private readonly LoggerService _logger;
+        private readonly ILoggerService _logger;
         private readonly ISystemObjectProviderFactory _providerFactory;
         private bool _disposed;
 
         public MetaObjectsService(IMainConnectionFactory connectionFactory,
             ISystemObjectProviderFactory providerFactory,
-            LoggerService logger)
+            ILoggerService logger)
         {
             _connection = connectionFactory.CreateConnection();
 
