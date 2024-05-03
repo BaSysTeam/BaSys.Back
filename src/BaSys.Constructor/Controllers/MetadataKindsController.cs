@@ -33,14 +33,24 @@ namespace BaSys.Constructor.Controllers
         }
 
         /// <summary>
-        /// Retrieves the collection of metadata kinds settings.
+        /// Retrieves the collection of metadata kinds.
         /// </summary>
-        /// <returns>An IActionResult containing the collection of settings.</returns>
+        /// <returns>An IActionResult containing the collection of metadata kinds.</returns>
         [HttpGet]
-        public async Task<IActionResult> GetSettingsCollection()
+        public async Task<IActionResult> GetCollection()
         {
             var result = await _metadataKindsService.GetCollectionAsync();
+            return Ok(result);
+        }
 
+        /// <summary>
+        /// Retrieves the settings collection of metadata kinds.
+        /// </summary>
+        /// <returns>An IActionResult containing the collection of metadata kinds settings.</returns>
+        [HttpGet("Settings")]
+        public async Task<IActionResult> GetSettingsCollection()
+        {
+            var result = await _metadataKindsService.GetSettingsCollection();
             return Ok(result);
         }
 

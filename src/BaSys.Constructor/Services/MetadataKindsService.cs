@@ -65,6 +65,25 @@ namespace BaSys.Constructor.Services
             return result;
         }
 
+        public async Task<ResultWrapper<IEnumerable<MetadataKindSettings>>> GetSettingsCollection()
+        {
+            var result = new ResultWrapper<IEnumerable<MetadataKindSettings>>();
+
+            try
+            {
+                var metadataKinds = await _provider.GetCollectionAsync(null);
+                var settings = metadataKinds.ToList().Select(x => x.ToSettings());
+
+                result.Success(settings);
+            }
+            catch (Exception ex)
+            {
+                result.Error(-1, "Cannot get settings", $"Message: {ex.Message}, Query: {_provider.LastQuery}");
+            }
+
+            return result;
+        }
+
         public async Task<ResultWrapper<MetadataKindSettings>> GetSettingsItemAsync(Guid uid)
         {
             var result = new ResultWrapper<MetadataKindSettings>();
