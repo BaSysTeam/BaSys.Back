@@ -25,7 +25,7 @@ namespace BaSys.Constructor.Services
 
         public MetadataTreeNodesService(IMainConnectionFactory connectionFactory,
             ISystemObjectProviderFactory providerFactory,
-            LoggerService logger)
+            ILoggerService logger)
         {
             _connectionFactory = connectionFactory;
             _providerFactory = providerFactory;
