@@ -2,6 +2,7 @@
 using BaSys.Constructor.Abstractions;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
+using BaSys.Host.DAL.TableManagers;
 using BaSys.Logging.Abstractions.Abstractions;
 using BaSys.Logging.EventTypes;
 using BaSys.Metadata.DTOs;
@@ -222,19 +223,18 @@ namespace BaSys.Constructor.Services
             using (IDbTransaction transaction = _connection.BeginTransaction())
             {
                 var metadataKindProvider = _providerFactory.Create<MetaObjectKindsProvider>();
-                var metadataKindSettings = await metadataKindProvider.GetSettingsAsync(dto.MetaObjectKindUid, transaction);
+                var kindSettings = await metadataKindProvider.GetSettingsAsync(dto.MetaObjectKindUid, transaction);
 
-                if (metadataKindSettings == null)
+                if (kindSettings == null)
                 {
                     result.Error(-1, DictMain.CannotFindItem, $"Uid: {dto.MetaObjectKindUid}");
                     transaction.Rollback();
                     return result;
                 }
 
-                var metaObjectStorableProvider = _providerFactory.CreateMetaObjectStorableProvider(metadataKindSettings.Name);
-                var newMetaObjectSettings = new MetaObjectStorableSettings()
+                var metaObjectStorableProvider = _providerFactory.CreateMetaObjectStorableProvider(kindSettings.Name);
+                var newMetaObjectSettings = new MetaObjectStorableSettings(kindSettings)
                 {
-                    MetaObjectKindUid = metadataKindSettings.Uid,
                     Name = dto.Name,
                     Title = dto.Title,
                     Memo = dto.Memo,
@@ -242,12 +242,14 @@ namespace BaSys.Constructor.Services
                 var newTreeNode = new MetadataTreeNode()
                 {
                     ParentUid = dto.ParentUid,
-                    Title = $"{metadataKindSettings.Title}.{dto.Title}",
-                    MetadataKindUid = metadataKindSettings.Uid,
-                    MetaObjectKindName = metadataKindSettings.Name,
+                    Title = $"{kindSettings.Title}.{dto.Title}",
+                    MetadataKindUid = kindSettings.Uid,
+                    MetaObjectKindName = kindSettings.Name,
                     MetaObjectName = newMetaObjectSettings.Name,
-                    IconClass = metadataKindSettings.IconClass,
+                    IconClass = kindSettings.IconClass,
                 };
+
+                var dataObjectManager = new DataObjectManager(_connection, kindSettings, newMetaObjectSettings, new PrimitiveDataTypes());
 
                 try
                 {
@@ -256,6 +258,7 @@ namespace BaSys.Constructor.Services
 
                     newTreeNode.MetadataObjectUid = savedMetaObject.Uid;
                     await _nodesProvider.InsertAsync(newTreeNode, transaction);
+                    await dataObjectManager.CreateTableAsync(transaction);
 
                     _logger.Write($"Metadata item created.", Common.Enums.EventTypeLevels.Info, EventTypeFactory.MetadataCreate);
 

@@ -44,5 +44,15 @@ namespace BaSys.Host.DAL
 
             return new MetaObjectManager(_connection, kindNamePlural);
         }
+
+        public DataObjectManager CreateDataObjectManager(MetaObjectKindSettings kindSettings, 
+            MetaObjectStorableSettings objectSettingns, 
+            PrimitiveDataTypes primitiveDataTypes)
+        {
+            if (_connection == null)
+                throw new ArgumentNullException(nameof(_connection));
+
+            return new DataObjectManager(_connection, kindSettings, objectSettingns, primitiveDataTypes);
+        }
     }
 }
