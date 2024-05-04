@@ -15,7 +15,7 @@ namespace BaSys.FluentQueries.UnitTests
         [Test]
         public void TableName_InitFromEntity_TableName()
         {
-            var config = new DeafultDataConfiguration();
+            var config = new DefaultDataConfiguration();
 
             Console.WriteLine(config.ToString());
 
@@ -57,6 +57,14 @@ namespace BaSys.FluentQueries.UnitTests
             Assert.AreEqual(100, titleColumn.StringLength);
             Assert.IsTrue(titleColumn.Required);
 
+        }
+
+        [Test]
+        public void EmptyObject_NoExceptions()
+        {
+            var config = new EmptyObjectConfiguration();
+
+            Assert.NotNull(config);
         }
     }
 }

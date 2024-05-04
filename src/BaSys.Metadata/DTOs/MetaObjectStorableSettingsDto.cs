@@ -18,7 +18,9 @@ namespace BaSys.Metadata.DTOs
         public string Memo { get; set; } = string.Empty;
         public long Version { get; set; }
         public bool IsActive { get; set; }
-        public List<MetaObjectTable> Tables { get; set; } = new();
+
+        public MetaObjectTable Header { get; set; } = new MetaObjectTable();
+        public List<MetaObjectTable> TableParts { get; set; } = new();
 
         public MetaObjectStorableSettingsDto()
         {
@@ -36,7 +38,8 @@ namespace BaSys.Metadata.DTOs
             MetaObjectKindUid = kindSettings.Uid;
             MetaObjectKindTitle = kindSettings.Title;
 
-            Tables = settings.Tables;
+            Header = settings.Header;
+            TableParts = settings.TableParts;
 
         }
 
@@ -50,7 +53,8 @@ namespace BaSys.Metadata.DTOs
                 Memo = Memo,
                 IsActive = IsActive,
                 MetaObjectKindUid = MetaObjectKindUid,
-                Tables = Tables
+                Header = Header,
+                TableParts = TableParts,
             };
 
             return model;

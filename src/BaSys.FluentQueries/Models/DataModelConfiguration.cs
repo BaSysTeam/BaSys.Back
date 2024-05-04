@@ -25,6 +25,16 @@ namespace BaSys.FluentQueries.Models
             return _columns.FirstOrDefault(x=>x.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
         }
 
+        public void AddColumn(TableColumn column)
+        {
+            _columns.Add(column);
+        }
+
+        public void ClearColumns()
+        {
+            _columns.Clear();
+        }
+
         public void Table(string tableName)
         {
             TableName = tableName;
