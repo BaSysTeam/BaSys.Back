@@ -68,7 +68,7 @@ public class DataTypesService : IDataTypesService, IDisposable
         if (settings == null)
             return dbType;
         
-        var headerTable = settings.Tables.FirstOrDefault(x => x.IsHeader);
+        var headerTable = settings.Header;
         if (headerTable == null)
             return dbType;
 
