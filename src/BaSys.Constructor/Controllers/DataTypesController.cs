@@ -1,7 +1,7 @@
 ﻿using BaSys.Common.Infrastructure;
+using BaSys.Constructor.Abstractions;
 using BaSys.Metadata.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BaSys.Constructor.Controllers
@@ -11,14 +11,20 @@ namespace BaSys.Constructor.Controllers
     [Authorize]
     public class DataTypesController : ControllerBase
     {
+        private readonly IDataTypesService _dataTypesService; 
+        public DataTypesController(IDataTypesService dataTypesService)
+        {
+            _dataTypesService = dataTypesService;
+        }
+        
         /// <summary>
         /// Retrieve all data types.
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public IActionResult GetAllDataTypes()
+        public async Task<IActionResult> GetAllDataTypes()
         {
-            var dataTypes = DataTypeDefaults.AllTypes();
+            var dataTypes = await _dataTypesService.GetAllDataTypes();
             var result = new ResultWrapper<IList<DataType>>();
             result.Success(dataTypes);
 
