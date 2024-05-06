@@ -6,7 +6,7 @@ public class ScriptPathHelper
 {
     public static string GetScriptPath(string appName)
     {
-        var searchPattern = $"{appName}.*.js";
+        var searchPattern = $"app.*.js";
         var jsPath = $"{Directory.GetCurrentDirectory()}\\wwwroot\\app\\{appName}\\js";
 
         var files = Directory.GetFiles(jsPath, searchPattern);
