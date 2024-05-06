@@ -33,14 +33,24 @@ namespace BaSys.Constructor.Controllers
         }
 
         /// <summary>
-        /// Retrieves the collection of metadata kinds settings.
+        /// Retrieves the collection of metaobject kinds.
         /// </summary>
-        /// <returns>An IActionResult containing the collection of settings.</returns>
+        /// <returns>An IActionResult containing the collection of metaobject kinds.</returns>
         [HttpGet]
-        public async Task<IActionResult> GetSettingsCollection()
+        public async Task<IActionResult> GetCollection()
         {
             var result = await _metaObjectKindsService.GetCollectionAsync();
+            return Ok(result);
+        }
 
+        /// <summary>
+        /// Retrieves the settings collection of metaobject kinds.
+        /// </summary>
+        /// <returns>An IActionResult containing the collection of metaobject kinds settings.</returns>
+        [HttpGet("Settings")]
+        public async Task<IActionResult> GetSettingsCollection()
+        {
+            var result = await _metaObjectKindsService.GetSettingsCollection();
             return Ok(result);
         }
 
@@ -48,7 +58,7 @@ namespace BaSys.Constructor.Controllers
         /// Retrieves a specific metaobject kind setting by its unique identifier.
         /// </summary>
         /// <param name="uid">The unique identifier of the metaobject kind setting to retrieve.</param>
-        /// <returns>An IActionResult containing the specified metadata kind setting.</returns>
+        /// <returns>An IActionResult containing the specified metaobject kind setting.</returns>
         [HttpGet("{uid:guid}")]
         public async Task<IActionResult> GetItem(Guid uid)
         {
@@ -61,7 +71,7 @@ namespace BaSys.Constructor.Controllers
         /// Retrieves a specific metaobject kind setting by its unique name.
         /// </summary>
         /// <param name="name">The name of the metaobject kind setting to retrieve.</param>
-        /// <returns>An IActionResult containing the specified metadata kind setting.</returns>
+        /// <returns>An IActionResult containing the specified metaobject kind setting.</returns>
         [HttpGet("{name}")]
         public async Task<IActionResult> GetItem(string name)
         {
@@ -71,7 +81,7 @@ namespace BaSys.Constructor.Controllers
         }
 
         /// <summary>
-        /// Creates a new metadata kind setting.
+        /// Creates a new metaobject kind setting.
         /// </summary>
         /// <param name="settings">The metaobject kind settings to create.</param>
         /// <returns>An IActionResult containing the newly created metaobject kind setting.</returns>

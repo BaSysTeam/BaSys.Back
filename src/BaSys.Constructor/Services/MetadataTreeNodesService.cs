@@ -2,6 +2,7 @@
 using BaSys.Constructor.Abstractions;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
+using BaSys.Host.DAL.TableManagers;
 using BaSys.Logging.Abstractions.Abstractions;
 using BaSys.Logging.EventTypes;
 using BaSys.Metadata.DTOs;
@@ -125,19 +126,50 @@ namespace BaSys.Constructor.Services
 
             try
             {
-                var collection = await _nodesProvider.GetStandardNodesAsync(null);
+                var metadataNodeUid = new Guid("60738680-DAFD-42C0-8923-585FC7985176");
+                var systemNodeUid = new Guid("AE28B333-3F36-4FEC-A276-92FCCC9B435C");
 
-                var standardNodes = collection
-                    .Select(x => new MetadataTreeNodeDto(x))
-                    .ToList();
-
-                foreach (var standardNode in standardNodes)
+                var standardNodes = new List<MetadataTreeNodeDto>
                 {
-                    var hasChildren = await _nodesProvider.HasChildrenAsync(standardNode.Key, null);
-                    standardNode.Leaf = !hasChildren;
-                }
-
-                standardNodes = MakeTree(standardNodes);
+                    new MetadataTreeNodeDto
+                    {
+                        IsGroup = true,
+                        IsStandard = true,
+                        Label = "Metadata",
+                        Key = metadataNodeUid,
+                        Icon = "pi pi-folder",
+                        Leaf = !await _nodesProvider.HasChildrenAsync(metadataNodeUid, null)
+                    },
+                    new MetadataTreeNodeDto
+                    {
+                        IsGroup = true,
+                        IsStandard = true,
+                        Label = "System",
+                        Key = systemNodeUid,
+                        Icon = "pi pi-folder",
+                        Children = new List<MetadataTreeNodeDto>
+                        {
+                            new MetadataTreeNodeDto
+                            {
+                                IsGroup = false,
+                                IsStandard = true,
+                                Label = "DataTypes",
+                                Key = new Guid("416C4B6C-48F7-426C-AA5A-774717C9984E"),
+                                ParentKey = systemNodeUid,
+                                Leaf = true
+                            },
+                            new MetadataTreeNodeDto
+                            {
+                                IsGroup = false,
+                                IsStandard = true,
+                                Label = "MetadataKinds",
+                                Key = new Guid("CB930422-E50A-4C14-942F-B45DF8C23DE0"),
+                                ParentKey = systemNodeUid,
+                                Leaf = true
+                            }
+                        }
+                    }
+                };
 
                 result.Success(standardNodes);
             }
@@ -191,19 +223,18 @@ namespace BaSys.Constructor.Services
             using (IDbTransaction transaction = _connection.BeginTransaction())
             {
                 var metadataKindProvider = _providerFactory.Create<MetaObjectKindsProvider>();
-                var metadataKindSettings = await metadataKindProvider.GetSettingsAsync(dto.MetaObjectKindUid, transaction);
+                var kindSettings = await metadataKindProvider.GetSettingsAsync(dto.MetaObjectKindUid, transaction);
 
-                if (metadataKindSettings == null)
+                if (kindSettings == null)
                 {
                     result.Error(-1, DictMain.CannotFindItem, $"Uid: {dto.MetaObjectKindUid}");
                     transaction.Rollback();
                     return result;
                 }
 
-                var metaObjectStorableProvider = _providerFactory.CreateMetaObjectStorableProvider(metadataKindSettings.Name);
-                var newMetaObjectSettings = new MetaObjectStorableSettings()
+                var metaObjectStorableProvider = _providerFactory.CreateMetaObjectStorableProvider(kindSettings.Name);
+                var newMetaObjectSettings = new MetaObjectStorableSettings(kindSettings)
                 {
-                    MetaObjectKindUid = metadataKindSettings.Uid,
                     Name = dto.Name,
                     Title = dto.Title,
                     Memo = dto.Memo,
@@ -211,12 +242,14 @@ namespace BaSys.Constructor.Services
                 var newTreeNode = new MetadataTreeNode()
                 {
                     ParentUid = dto.ParentUid,
-                    Title = $"{metadataKindSettings.Title}.{dto.Title}",
-                    MetadataKindUid = metadataKindSettings.Uid,
-                    MetaObjectKindName = metadataKindSettings.Name,
+                    Title = $"{kindSettings.Title}.{dto.Title}",
+                    MetadataKindUid = kindSettings.Uid,
+                    MetaObjectKindName = kindSettings.Name,
                     MetaObjectName = newMetaObjectSettings.Name,
-                    IconClass = metadataKindSettings.IconClass,
+                    IconClass = kindSettings.IconClass,
                 };
+
+                var dataObjectManager = new DataObjectManager(_connection, kindSettings, newMetaObjectSettings, new PrimitiveDataTypes());
 
                 try
                 {
@@ -225,6 +258,7 @@ namespace BaSys.Constructor.Services
 
                     newTreeNode.MetadataObjectUid = savedMetaObject.Uid;
                     await _nodesProvider.InsertAsync(newTreeNode, transaction);
+                    await dataObjectManager.CreateTableAsync(transaction);
 
                     _logger.Write($"Metadata item created.", Common.Enums.EventTypeLevels.Info, EventTypeFactory.MetadataCreate);
 
@@ -238,20 +272,6 @@ namespace BaSys.Constructor.Services
                     result.Error(-1, DictMain.CannotCreateItem, ex.Message);
                     _logger.Write($"Cannot create metadata item.", Common.Enums.EventTypeLevels.Error, EventTypeFactory.MetadataCreate);
                 }
-            }
-
-            return result;
-        }
-
-        private List<MetadataTreeNodeDto> MakeTree(List<MetadataTreeNodeDto> source, Guid? parentKey = null)
-        {
-            var result = new List<MetadataTreeNodeDto>();
-            var parents = source.Where(x => x.ParentKey == parentKey);
-
-            foreach (var parent in parents)
-            {
-                parent.Children = MakeTree(source, parent.Key);
-                result.Add(parent);
             }
 
             return result;

@@ -24,6 +24,15 @@ namespace BaSys.Metadata.Validators
                 .Matches("^[a-z_][a-z0-9_]*$")
                 .WithMessage("Prefix must contain only lowercase letters, numbers, and underscores, and cannot start with a number.");
             RuleFor(x => x.Memo).MaximumLength(300);
+
+            // Apply the validator for each item in the StandardColumns collection.
+            RuleForEach(x => x.StandardColumns).SetValidator(new MetaObjectKindStandardColumnValidator());
+
+            // Custom rule to ensure at least one primary key is present if IsReference is true
+            RuleFor(x => x.StandardColumns)
+                .Must((settings, columns) => !settings.IsReference || columns.Any(c => c.IsPrimaryKey))
+                .When(x => x.IsReference)
+                .WithMessage("There must be at least one primary key in StandardColumns when IsReference is true.");
         }
     }
 }
