@@ -56,6 +56,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaSys.DTO", "src\BaSys.DTO\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaSys.Logging", "src\BaSys.Logging\BaSys.Logging.csproj", "{CBAC2DFC-64A4-452A-9761-253CD1468605}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaSys.PublicAPI", "src\BaSys.PublicAPI\BaSys.PublicAPI.csproj", "{95AD0C83-49C2-4250-9954-A801168169D4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -142,6 +144,10 @@ Global
 		{CBAC2DFC-64A4-452A-9761-253CD1468605}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CBAC2DFC-64A4-452A-9761-253CD1468605}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CBAC2DFC-64A4-452A-9761-253CD1468605}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95AD0C83-49C2-4250-9954-A801168169D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95AD0C83-49C2-4250-9954-A801168169D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95AD0C83-49C2-4250-9954-A801168169D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95AD0C83-49C2-4250-9954-A801168169D4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -167,6 +173,7 @@ Global
 		{6FFD107D-3181-4262-AB43-C17329672604} = {0271BDA0-88FC-4672-A96C-3986061802E6}
 		{B4704347-0C4A-4FD9-9149-A921915BB813} = {0271BDA0-88FC-4672-A96C-3986061802E6}
 		{CBAC2DFC-64A4-452A-9761-253CD1468605} = {0271BDA0-88FC-4672-A96C-3986061802E6}
+		{95AD0C83-49C2-4250-9954-A801168169D4} = {0271BDA0-88FC-4672-A96C-3986061802E6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {363BB08F-378B-4D54-914F-51ACDC6A7B23}

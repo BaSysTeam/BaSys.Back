@@ -21,7 +21,7 @@ public class AuthController : ControllerBase
         if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(password))
             return BadRequest("Could not create token - empty login or password");
         
-        var token = await _authService.GenerateToken(login, password);
+        var token = await _authService.GenerateToken(login, password, dbId);
         
         if (string.IsNullOrEmpty(token))
             return BadRequest("Could not create token - wrong login or password");

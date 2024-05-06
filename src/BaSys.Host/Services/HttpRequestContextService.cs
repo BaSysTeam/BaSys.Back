@@ -52,7 +52,7 @@ public class HttpRequestContextService : IHttpRequestContextService
         
         // auth from auth endpoint
         if (_httpContextAccessor.HttpContext?.Request.Path == "/api/auth" &&
-            _httpContextAccessor.HttpContext?.Request.Query.TryGetValue("dbname", out var val) == true)
+            _httpContextAccessor.HttpContext?.Request.Query.TryGetValue("dbid", out var val) == true)
         {
             dbName = val.FirstOrDefault();
             if (string.IsNullOrEmpty(dbName))

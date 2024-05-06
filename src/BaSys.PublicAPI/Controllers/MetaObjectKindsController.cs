@@ -1,0 +1,40 @@
+﻿using BaSys.Constructor.Abstractions;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace BaSys.PublicAPI.Controllers;
+
+[Route("api/public/v1/[controller]")]
+[ApiController]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+public class MetaObjectKindsController : ControllerBase
+{
+    private readonly IMetaObjectKindsService _metaObjectKindsService;
+
+    public MetaObjectKindsController(IMetaObjectKindsService metaObjectKindsService)
+    {
+        _metaObjectKindsService = metaObjectKindsService;
+    }
+    
+    [HttpGet]
+    public async Task<IActionResult> GetMetaObjectKinds()
+    {
+        var result = await _metaObjectKindsService.GetCollectionAsync();
+        return Ok(result);
+    }
+    
+    [HttpGet("{uid:guid}")]
+    public async Task<IActionResult> GetMetaObjectKinds(Guid uid)
+    {
+        var result = await _metaObjectKindsService.GetSettingsItemAsync(uid);
+        return Ok(result);
+    }
+    
+    [HttpGet("{name}")]
+    public async Task<IActionResult> GetMetaObjectKinds(string name)
+    {
+        var result = await _metaObjectKindsService.GetSettingsItemByNameAsync(name);
+        return Ok(result);
+    }
+}
