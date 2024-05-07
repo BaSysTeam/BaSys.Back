@@ -58,7 +58,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaSys.Logging", "src\BaSys.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaSys.PublicAPI", "src\BaSys.PublicAPI\BaSys.PublicAPI.csproj", "{95AD0C83-49C2-4250-9954-A801168169D4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaSys.PublicApi.Tests", "test\BaSys.PublicApi.Tests\BaSys.PublicApi.Tests.csproj", "{BB7FAF28-6D42-4004-87E3-E56538E7951F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaSys.PublicApi.IntegrationTests", "test\BaSys.PublicApi.IntegrationTests\BaSys.PublicApi.IntegrationTests.csproj", "{BB7FAF28-6D42-4004-87E3-E56538E7951F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
