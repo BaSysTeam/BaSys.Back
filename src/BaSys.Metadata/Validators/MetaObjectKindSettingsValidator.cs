@@ -31,7 +31,7 @@ namespace BaSys.Metadata.Validators
             // Custom rule to ensure at least one primary key is present if StoreData is true
             RuleFor(x => x.StandardColumns)
                 .Must((settings, columns) => !settings.StoreData || columns.Any(c => c.IsPrimaryKey))
-                .When(x => x.IsReference)
+                .When(x => x.StoreData)
                 .WithMessage("There must be at least one primary key in StandardColumns when IsReference is true.");
         }
     }
