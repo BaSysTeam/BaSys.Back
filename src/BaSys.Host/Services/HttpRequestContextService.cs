@@ -36,7 +36,7 @@ public class HttpRequestContextService : IHttpRequestContextService
         }
 
         // auth from auth endpoint
-        if (_httpContextAccessor.HttpContext?.Request.Path == "/api/auth" &&
+        if (_httpContextAccessor.HttpContext?.Request.Path == "/api/public/v1/auth" &&  //  "/api/auth"
             _httpContextAccessor.HttpContext?.Request.Query.TryGetValue("dbid", out var val) == true)
         {
             var dbName = val.FirstOrDefault();

@@ -2,9 +2,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BaSys.Host.Controllers;
+namespace BaSys.PublicAPI.Controllers;
 
-[Route("api/[controller]")]
+[Route("api/public/v1/[controller]")]
 [ApiController]
 public class AuthController : ControllerBase
 {
