@@ -19,6 +19,8 @@ namespace BaSys.Metadata.Validators
                 .Matches("^[a-z_][a-z0-9_]*$")
                 .WithMessage("Name must contain only lowercase letters, numbers, and underscores, and cannot start with a number.");
             RuleFor(x => x.Memo).MaximumLength(300);
+
+            RuleForEach(x => x.Header.Columns).SetValidator(new MetaObjectTableColumnValidator());
         }
     }
 }
