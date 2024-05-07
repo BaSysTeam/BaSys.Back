@@ -36,6 +36,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using Serilog.Sinks.MSSqlServer;
+using EnvironmentName = Microsoft.AspNetCore.Hosting.EnvironmentName;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace BaSys.Host
@@ -79,7 +80,7 @@ namespace BaSys.Host
             });
 
             // Add sa module
-            builder.Services.AddSuperAdmin(builder.Configuration.GetSection("InitAppSettings"));
+            builder.Services.AddSuperAdmin();
 
             // Add admin module
             builder.Services.AddAdmin();
