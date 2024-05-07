@@ -1,4 +1,5 @@
 ﻿@page
+@using BaSys.Common.Helpers
 @model BaSys.SuperAdmin.Pages.SuperAdmin
 
 @{
@@ -6,5 +7,5 @@
 }
 
 @section scripts {
-    <script src="~/app/super_admin/super_admin.js" asp-append-version="true"></script>
+    <script src="@ScriptPathHelper.GetScriptPath("super_admin")" asp-append-version="true"></script>
 }
