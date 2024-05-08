@@ -1,4 +1,7 @@
 ﻿using BaSys.Constructor.Abstractions;
+using BaSys.Logging.Abstractions.Abstractions;
+using BaSys.Logging.EventTypes;
+using BaSys.Logging.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,15 +14,19 @@ namespace BaSys.PublicAPI.Controllers;
 public class MetaObjectKindsController : ControllerBase
 {
     private readonly IMetaObjectKindsService _metaObjectKindsService;
+    private readonly ILoggerService _basysLogger;
 
-    public MetaObjectKindsController(IMetaObjectKindsService metaObjectKindsService)
+    public MetaObjectKindsController(IMetaObjectKindsService metaObjectKindsService,
+        ILoggerService basysLogger)
     {
         _metaObjectKindsService = metaObjectKindsService;
+        _basysLogger = basysLogger;
     }
     
     [HttpGet]
     public async Task<IActionResult> GetMetaObjectKinds()
     {
+        _basysLogger.Info("GetMetaObjectKinds", EventTypeFactory.PublicApi);
         var result = await _metaObjectKindsService.GetCollectionAsync();
         return Ok(result);
     }
