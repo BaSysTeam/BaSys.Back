@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using System.Text;
+using BaSys.Common.DTO;
 using BaSys.Common.Enums;
 using BaSys.Common.Infrastructure;
 using BaSys.Host.Abstractions;
@@ -80,13 +81,13 @@ public class UserSettingsService : IUserSettingsService
         return result;
     }
 
-    public ResultWrapper<List<LanguageDto>> GetLanguages()
+    public ResultWrapper<List<EnumValuesDto>> GetLanguages()
     {
-        var result = new ResultWrapper<List<LanguageDto>>();
-        var languages = new List<LanguageDto>();
+        var result = new ResultWrapper<List<EnumValuesDto>>();
+        var languages = new List<EnumValuesDto>();
         foreach (var lang in (Languages[]) Enum.GetValues(typeof(Languages)))
         {
-            languages.Add(new LanguageDto
+            languages.Add(new EnumValuesDto
             {
                 Id = (int)lang,
                 Name = lang.ToString()

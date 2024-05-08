@@ -1,4 +1,5 @@
-﻿using BaSys.Common.Infrastructure;
+﻿using BaSys.Common.DTO;
+using BaSys.Common.Infrastructure;
 using BaSys.DAL.Models.App;
 using BaSys.Host.DTO;
 
@@ -8,6 +9,6 @@ public interface IUserSettingsService
 {
     Task<ResultWrapper<UserSettingsDto?>> GetUserSettings();
     Task<ResultWrapper<bool>> UpdateUserSettings(UserSettingsDto userSettings);
-    ResultWrapper<List<LanguageDto>> GetLanguages();
+    ResultWrapper<List<EnumValuesDto>> GetLanguages();
     Task<ResultWrapper<bool>> ChangePassword(string? userId, string? oldPassword, string? newPassword);
 }
