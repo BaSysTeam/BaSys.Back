@@ -25,6 +25,13 @@ public class FileStorageConfigController : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet("GetStorageKinds")]
+    public IActionResult GetStorageKinds()
+    {
+        var result = _fileStorageConfigService.GetStorageKinds();
+        return Ok(result);
+    }
+
     [HttpPut]
     public async Task<IActionResult> UpdateFileStorageConfig(FileStorageConfigDto config)
     {

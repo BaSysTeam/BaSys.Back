@@ -1,6 +1,8 @@
 ﻿using System.Data;
 using BaSys.Admin.Abstractions;
 using BaSys.Admin.DTO;
+using BaSys.Common.DTO;
+using BaSys.Common.Enums;
 using BaSys.Common.Infrastructure;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
@@ -49,6 +51,23 @@ public class FileStorageConfigService : IFileStorageConfigService
         else
             result.Error(-1, "Error save config");
 
+        return result;
+    }
+    
+    public ResultWrapper<List<EnumValuesDto>> GetStorageKinds()
+    {
+        var result = new ResultWrapper<List<EnumValuesDto>>();
+        var languages = new List<EnumValuesDto>();
+        foreach (var lang in (FileStorageKinds[]) Enum.GetValues(typeof(FileStorageKinds)))
+        {
+            languages.Add(new EnumValuesDto
+            {
+                Id = (int)lang,
+                Name = lang.ToString()
+            });
+        }
+        
+        result.Success(languages);
         return result;
     }
 }
