@@ -45,7 +45,6 @@ namespace BaSys.Host.Services
                 new AppConstantsManager(_connection),
                 new LoggerConfigManager(_connection),
                 new MigrationManager(_connection),
-                new LoggerConfigManager(_connection),
                 new MetaObjectKindManager(_connection),
                 new UserSettingsManager(_connection),
                 new FileStorageConfigManager(_connection)
