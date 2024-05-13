@@ -57,10 +57,10 @@ public class WorkDbController : ControllerBase
         try
         {
             // Initialization by EF Context. Create users, roles etc.
-            var state = await _workDbService.InitWorkDb(dto.AdminLogin, dto.AdminPassword);
+            var state = await _workDbService.InitWorkDb(dto.AdminLogin, dto.AdminPassword, dbInfoRecord.Name);
 
             // Initialization by Dapper. Create system tables and fill neccessary data when DB created.
-            using (IDbConnection connection = _connectionFactory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
+            using (var connection = _connectionFactory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
             {
                 _dbInitService.SetUp(connection);
                 await _dbInitService.ExecuteAsync();

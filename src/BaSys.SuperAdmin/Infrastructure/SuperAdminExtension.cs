@@ -14,21 +14,22 @@ namespace BaSys.SuperAdmin.Infrastructure;
 
 public static class SuperAdminExtension
 {
-    public static IServiceCollection AddSuperAdmin(this IServiceCollection services,
-        IConfigurationSection configurationSection)
+    public static IServiceCollection AddSuperAdmin(this IServiceCollection services)
     {
-        var initAppSettings = configurationSection.Get<InitAppSettings>();
-        if (initAppSettings == null)
-            throw new ApplicationException("InitAppSettings is not set in the config!");
-        if (string.IsNullOrEmpty(initAppSettings.Sa?.ConnectionString))
-            throw new ApplicationException("InitAppSettings:Sa:ConnectionString is not set in the config!");
+        // var initAppSettings = configurationSection.Get<InitAppSettings>();
+        // if (initAppSettings == null)
+        //     throw new ApplicationException("InitAppSettings is not set in the config!");
+        // if (string.IsNullOrEmpty(initAppSettings.Sa?.ConnectionString))
+        //     throw new ApplicationException("InitAppSettings:Sa:ConnectionString is not set in the config!");
 
-        var connectionString = initAppSettings.Sa.ConnectionString;
+        // var connectionString = initAppSettings.Sa.ConnectionString;
 
         // add db context
         services.AddScoped<SuperAdminDbContext>(sp =>
         {
-            switch (initAppSettings.Sa.DbKind)
+            var configuration = sp.GetRequiredService<IConfiguration>();
+            var initAppSettings = configuration.GetSection("InitAppSettings").Get<InitAppSettings>();
+            switch (initAppSettings?.Sa?.DbKind)
             {
                 case DbKinds.MsSql:
                     return sp.GetRequiredService<MsSqlSuperAdminDbContext>();
@@ -36,15 +37,21 @@ public static class SuperAdminExtension
                     return sp.GetRequiredService<PgSqlSuperAdminDbContext>();
                 default:
                     throw new NotImplementedException(
-                        $"Not implemented SuperAdmin DbContext for type {initAppSettings.Sa.DbKind.ToString()}");
+                        $"Not implemented SuperAdmin DbContext for type {initAppSettings?.Sa?.DbKind.ToString()}");
             }
         });
-        services.AddDbContext<MsSqlSuperAdminDbContext>(options =>
+        services.AddDbContext<MsSqlSuperAdminDbContext>((sp, options) =>
         {
+            var configuration = sp.GetRequiredService<IConfiguration>();
+            var initAppSettings = configuration.GetSection("InitAppSettings").Get<InitAppSettings>();
+            var connectionString = initAppSettings?.Sa?.ConnectionString;
             options.UseSqlServer(connectionString);
         });
-        services.AddDbContext<PgSqlSuperAdminDbContext>(options =>
+        services.AddDbContext<PgSqlSuperAdminDbContext>((sp, options) =>
         {
+            var configuration = sp.GetRequiredService<IConfiguration>();
+            var initAppSettings = configuration.GetSection("InitAppSettings").Get<InitAppSettings>();
+            var connectionString = initAppSettings?.Sa?.ConnectionString;
             options.UseNpgsql(connectionString);
         });
 

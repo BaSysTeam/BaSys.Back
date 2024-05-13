@@ -38,6 +38,7 @@
     <ProjectReference Include="..\BaSys.Host.DAL\BaSys.Host.DAL.csproj" />
     <ProjectReference Include="..\BaSys.App\BaSys.App.csproj" />
     <ProjectReference Include="..\BaSys.Constructor\BaSys.Constructor.csproj" />
+    <ProjectReference Include="..\BaSys.PublicAPI\BaSys.PublicAPI.csproj" />
     <ProjectReference Include="..\BaSys.SuperAdmin\BaSys.SuperAdmin.csproj" />
     <ProjectReference Include="..\BaSys.Translation\BaSys.Translation.csproj" />
   </ItemGroup>

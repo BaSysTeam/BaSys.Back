@@ -14,6 +14,7 @@ namespace BaSys.Metadata.Models
         public string Prefix { get; set; } = string.Empty;
         public bool StoreData { get; set; }
         public bool IsReference { get; set; }
+        public bool AllowAttacheFiles { get; set; }
         public bool IsStandard { get; set; }
         public long Version { get; set; }
         public string Memo { get; set; } = string.Empty;
