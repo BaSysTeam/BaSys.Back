@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using BaSys.Common.DTO;
 using BaSys.Common.Infrastructure;
 using BaSys.Host.Abstractions;
 using BaSys.Host.DTO;
@@ -76,7 +77,7 @@ public class UserSettingsController : ControllerBase
         }
         catch (Exception e)
         {
-            var result = new ResultWrapper<List<LanguageDto>>();
+            var result = new ResultWrapper<List<EnumValuesDto>>();
             result.Error(-1, $"Error: {e}");
             
             return Ok(result);
@@ -99,7 +100,7 @@ public class UserSettingsController : ControllerBase
         }
         catch (Exception e)
         {
-            var result = new ResultWrapper<List<LanguageDto>>();
+            var result = new ResultWrapper<List<EnumValuesDto>>();
             result.Error(-1, $"Error: {e}");
             
             return Ok(result);

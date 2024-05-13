@@ -1,6 +1,6 @@
-﻿namespace BaSys.Host.DTO;
+﻿namespace BaSys.Common.DTO;
 
-public class LanguageDto
+public class EnumValuesDto
 {
     public int Id { get; set; }
     public string? Name { get; set; }
