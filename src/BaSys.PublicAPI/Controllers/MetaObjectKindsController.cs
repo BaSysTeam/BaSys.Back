@@ -2,6 +2,7 @@
 using BaSys.Logging.Abstractions.Abstractions;
 using BaSys.Logging.EventTypes;
 using BaSys.Logging.Infrastructure;
+using BaSys.PublicAPI.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -26,7 +27,7 @@ public class MetaObjectKindsController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetMetaObjectKinds()
     {
-        _basysLogger.Info("GetMetaObjectKinds", EventTypeFactory.PublicApi);
+        _basysLogger.Info(PublicApiLogHelper.GetMessage(HttpContext), EventTypeFactory.PublicApi);
         var result = await _metaObjectKindsService.GetCollectionAsync();
         return Ok(result);
     }
@@ -34,6 +35,7 @@ public class MetaObjectKindsController : ControllerBase
     [HttpGet("{uid:guid}")]
     public async Task<IActionResult> GetMetaObjectKinds(Guid uid)
     {
+        _basysLogger.Info(PublicApiLogHelper.GetMessage(HttpContext), EventTypeFactory.PublicApi);
         var result = await _metaObjectKindsService.GetSettingsItemAsync(uid);
         return Ok(result);
     }
@@ -43,5 +45,16 @@ public class MetaObjectKindsController : ControllerBase
     {
         var result = await _metaObjectKindsService.GetSettingsItemByNameAsync(name);
         return Ok(result);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> PostTest([FromBody]string name)
+    {
+        var logMessage = PublicApiLogHelper.GetMessage(HttpContext, new()
+        {
+            {"name", name}
+        });
+        _basysLogger.Info(logMessage, EventTypeFactory.PublicApi);
+        return Ok();
     }
 }
