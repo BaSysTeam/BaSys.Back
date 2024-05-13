@@ -2,9 +2,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BaSys.Host.Controllers;
+namespace BaSys.PublicAPI.Controllers;
 
-[Route("api/[controller]")]
+[Route("api/public/v1/[controller]")]
 [ApiController]
 public class AuthController : ControllerBase
 {
@@ -21,7 +21,7 @@ public class AuthController : ControllerBase
         if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(password))
             return BadRequest("Could not create token - empty login or password");
         
-        var token = await _authService.GenerateToken(login, password);
+        var token = await _authService.GenerateToken(login, password, dbId);
         
         if (string.IsNullOrEmpty(token))
             return BadRequest("Could not create token - wrong login or password");

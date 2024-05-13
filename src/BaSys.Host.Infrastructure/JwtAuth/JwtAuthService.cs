@@ -24,7 +24,7 @@ public class JwtAuthService : IJwtAuthService
         _configuration = configuration;
     }
     
-    public async Task<string?> GenerateToken(string login, string password)
+    public async Task<string?> GenerateToken(string login, string password, string dbId)
     {
         if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(password))
             return null;
@@ -40,7 +40,8 @@ public class JwtAuthService : IJwtAuthService
         var claims = new[]
         {
             new Claim(JwtRegisteredClaimNames.Sub, login),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new Claim("DbName", dbId)
         };
 
         var tokenKey = _configuration["Jwt:TokenKey"];

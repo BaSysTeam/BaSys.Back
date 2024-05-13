@@ -22,6 +22,7 @@ using BaSys.Host.Middlewares;
 using BaSys.Host.Services;
 using BaSys.Logging.Abstractions.Abstractions;
 using BaSys.Logging.Infrastructure;
+using BaSys.PublicAPI.Infrastructure;
 using BaSys.SuperAdmin.Abstractions;
 using BaSys.SuperAdmin.DAL;
 using BaSys.SuperAdmin.DAL.Abstractions;
@@ -35,6 +36,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using Serilog.Sinks.MSSqlServer;
+using EnvironmentName = Microsoft.AspNetCore.Hosting.EnvironmentName;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace BaSys.Host
@@ -78,7 +80,7 @@ namespace BaSys.Host
             });
 
             // Add sa module
-            builder.Services.AddSuperAdmin(builder.Configuration.GetSection("InitAppSettings"));
+            builder.Services.AddSuperAdmin();
 
             // Add admin module
             builder.Services.AddAdmin();
@@ -88,6 +90,9 @@ namespace BaSys.Host
 
             // Add logging module
             builder.Services.AddLog();
+            
+            // Add public api module
+            builder.Services.AddPublicApi();
 
             // Add mssql context
             builder.Services.AddDbContext<MsSqlDbContext>((sp, options) =>

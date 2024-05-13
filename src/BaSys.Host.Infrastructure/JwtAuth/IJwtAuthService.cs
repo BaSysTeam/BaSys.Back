@@ -2,5 +2,5 @@
 
 public interface IJwtAuthService
 {
-    Task<string?> GenerateToken(string login, string password);
+    Task<string?> GenerateToken(string login, string password, string dbId);
 }
