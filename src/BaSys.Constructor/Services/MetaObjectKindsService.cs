@@ -167,7 +167,7 @@ namespace BaSys.Constructor.Services
             }
 
             _connection.Open();
-            using (IDbTransaction transaction = _connection.BeginTransaction())
+            using (var transaction = _connection.BeginTransaction())
             {
                 var savedItem = await _provider.GetItemAsync(settings.Uid, transaction);
 
@@ -185,6 +185,20 @@ namespace BaSys.Constructor.Services
 
                     var metaObjectManager = _managerFactory.CreateMetaObjectManager(settings.Name);
                     await metaObjectManager.CreateTableAsync(transaction);
+
+                    // create AttachedFileInfo table
+                    // if (settings.AllowAttacheFiles)
+                    {
+                        var primaryKeyCol = settings.StandardColumns.FirstOrDefault(x => x.IsPrimaryKey);
+                        if (primaryKeyCol != null)
+                        {
+                            var factory = new AttachedFileInfoManagerFactory();
+                            var tableManager =
+                                factory.GetTableManager(_connection, settings.Name, primaryKeyCol.DataTypeUid);
+                            if (tableManager != null)
+                                await tableManager.CreateTableAsync(transaction);
+                        }
+                    }
 
                     transaction.Commit();
 
@@ -272,6 +286,20 @@ namespace BaSys.Constructor.Services
                     var settings = savedItem.ToSettings();
                     var metaObjectManager = _managerFactory.CreateMetaObjectManager(settings.Name);
                     await metaObjectManager.DropTableAsync(transaction);
+                    
+                    // delete AttachedFileInfo table
+                    // if (settings.AllowAttacheFiles)
+                    {
+                        var primaryKeyCol = settings.StandardColumns.FirstOrDefault(x => x.IsPrimaryKey);
+                        if (primaryKeyCol != null)
+                        {
+                            var factory = new AttachedFileInfoManagerFactory();
+                            var tableManager =
+                                factory.GetTableManager(_connection, settings.Name, DataTypeDefaults.Int.Uid);
+                            if (tableManager != null)
+                                await tableManager.DropTableAsync(transaction);
+                        }
+                    }
 
                     _logger.Write($"Delete metadata kind {savedItem}", EventTypeLevels.Info, EventTypeFactory.MetadataDelete);
                     transaction.Commit();
