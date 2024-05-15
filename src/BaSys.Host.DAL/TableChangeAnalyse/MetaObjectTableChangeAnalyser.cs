@@ -12,7 +12,7 @@ namespace BaSys.Host.DAL.Helpers
     {
         private readonly MetaObjectTable _tableBefore;
         private readonly MetaObjectTable _tableAfter;
-        private readonly List<IMetaObjectTableCommand> _commands;
+        private readonly List<IMetaObjectTableCommand> _commands = new List<IMetaObjectTableCommand>();
 
         public List<IMetaObjectTableCommand> Commands => _commands;
 
@@ -65,7 +65,7 @@ namespace BaSys.Host.DAL.Helpers
             // Find new columns.
             foreach (var column in _tableAfter.Columns)
             {
-                if (_tableAfter.Columns.All(x=>x.Uid != column.Uid))
+                if (_tableBefore.Columns.All(x=>x.Uid != column.Uid))
                 {
                     var addColumnCommand = new MetaObjectTableAddColumnCommand()
                     {
