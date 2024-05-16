@@ -2,9 +2,12 @@
 using BaSys.Constructor.Abstractions;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
+using BaSys.Host.DAL.Helpers;
+using BaSys.Host.DAL.TableManagers;
 using BaSys.Logging.Abstractions.Abstractions;
 using BaSys.Logging.EventTypes;
 using BaSys.Metadata.DTOs;
+using BaSys.Metadata.Models;
 using BaSys.Translation;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
@@ -12,22 +15,27 @@ using System.Security.AccessControl;
 
 namespace BaSys.Constructor.Services
 {
-    public sealed class MetaObjectsService :IMetaObjectsService, IDisposable
+    public sealed class MetaObjectsService : IMetaObjectsService, IDisposable
     {
         private readonly IDbConnection _connection;
         private readonly MetaObjectKindsProvider _kindsProvider;
         private readonly ILoggerService _logger;
         private readonly ISystemObjectProviderFactory _providerFactory;
+        private readonly ITableManagerFactory _tableManagerFactory;
         private bool _disposed;
 
         public MetaObjectsService(IMainConnectionFactory connectionFactory,
             ISystemObjectProviderFactory providerFactory,
+            ITableManagerFactory tableManagerFactory,
             ILoggerService logger)
         {
             _connection = connectionFactory.CreateConnection();
 
             _providerFactory = providerFactory;
             _providerFactory.SetUp(_connection);
+
+            _tableManagerFactory = tableManagerFactory;
+            _tableManagerFactory.SetUp(_connection);
 
             _kindsProvider = _providerFactory.Create<MetaObjectKindsProvider>();
 
@@ -68,13 +76,13 @@ namespace BaSys.Constructor.Services
             result.Success(settingsDto);
 
             return result;
-        } 
+        }
 
         public async Task<ResultWrapper<int>> UpdateSettingsItemAsync(MetaObjectStorableSettingsDto settingsDto)
         {
             var result = new ResultWrapper<int>();
 
-            var kindSettings = await _kindsProvider.GetSettingsAsync( settingsDto.MetaObjectKindUid, null);
+            var kindSettings = await _kindsProvider.GetSettingsAsync(settingsDto.MetaObjectKindUid, null);
 
             if (kindSettings == null)
             {
@@ -82,31 +90,53 @@ namespace BaSys.Constructor.Services
                 return result;
             }
 
-            var provider = _providerFactory.CreateMetaObjectStorableProvider(kindSettings.Name);
-
-            var savedSettings = await provider.GetSettingsItemAsync(Guid.Parse(settingsDto.Uid), null);
-
-            if (savedSettings == null)
+            _connection.Open();
+            using (IDbTransaction transaction = _connection.BeginTransaction())
             {
-                result.Error(-1, DictMain.CannotFindMetaObject, $"Uid: {settingsDto.Uid}");
-                return result;
-            }
 
-            var newSettings = settingsDto.ToModel();
-            savedSettings.CopyFrom(newSettings);
+                var provider = _providerFactory.CreateMetaObjectStorableProvider(kindSettings.Name);
 
-            try
-            {
-                var updateResult = await provider.UpdateSettingsAsync(savedSettings, null);
-                result.Success(updateResult, DictMain.ItemUpdated);
+                var savedSettings = await provider.GetSettingsItemAsync(Guid.Parse(settingsDto.Uid), transaction);
 
-                _logger.Write($"Meta object update {savedSettings}", Common.Enums.EventTypeLevels.Info, EventTypeFactory.MetadataUpdate);
-            }
-            catch(Exception ex)
-            {
-                result.Error(-1, DictMain.CannotUpdateItem, ex.Message );
-                _logger.Write($"Meta object update {savedSettings}", Common.Enums.EventTypeLevels.Error, EventTypeFactory.MetadataUpdate);
+                if (savedSettings == null)
+                {
+                    result.Error(-1, DictMain.CannotFindMetaObject, $"Uid: {settingsDto.Uid}");
+                    return result;
+                }
 
+                var newSettings = settingsDto.ToModel();
+
+                var headerChangeAnalyser = new MetaObjectTableChangeAnalyser(savedSettings.Header, newSettings.Header);
+                headerChangeAnalyser.Analyze();
+
+                savedSettings.CopyFrom(newSettings);
+
+                try
+                {
+                    var updateResult = await provider.UpdateSettingsAsync(savedSettings, transaction);
+                    result.Success(updateResult, DictMain.ItemUpdated);
+
+                    if (headerChangeAnalyser.NeedAlterTable)
+                    {
+                        var dataTypes = new PrimitiveDataTypes();
+                        var alterTableModel = headerChangeAnalyser.ToAlterModel(dataTypes);
+
+                        var dataObjectTableManager = new DataObjectManager(_connection, kindSettings, savedSettings, dataTypes);
+                        await dataObjectTableManager.AlterTableAsync(alterTableModel, transaction);
+                    }
+
+                    _logger.Write($"Meta object update {savedSettings}", Common.Enums.EventTypeLevels.Info, EventTypeFactory.MetadataUpdate);
+
+                    transaction.Commit();
+                }
+                catch (Exception ex)
+                {
+                    result.Error(-1, DictMain.CannotUpdateItem, ex.Message);
+                    _logger.Write($"Meta object update {savedSettings}", Common.Enums.EventTypeLevels.Error, EventTypeFactory.MetadataUpdate);
+
+                    transaction.Rollback();
+
+                }
             }
 
             return result;
@@ -135,6 +165,6 @@ namespace BaSys.Constructor.Services
             GC.SuppressFinalize(this);
         }
 
-       
+
     }
 }

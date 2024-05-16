@@ -39,6 +39,18 @@ namespace BaSys.FluentQueries.ScriptGenerators
 
                 n++;
             }
+
+            foreach(var columnName in _model.RemovedColumns)
+            {
+                if (n > 1)
+                    _sb.AppendLine(",");
+
+                _sb.Append("DROP COLUMN ");
+                AppendName(columnName);
+
+                n++;
+            }
+
             _sb.Append(';');
 
             query.Text = _sb.ToString(); 

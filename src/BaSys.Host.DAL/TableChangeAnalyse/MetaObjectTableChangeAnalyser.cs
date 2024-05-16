@@ -1,4 +1,5 @@
-﻿using BaSys.Host.DAL.Abstractions;
+﻿using BaSys.FluentQueries.Models;
+using BaSys.Host.DAL.Abstractions;
 using BaSys.Metadata.Models;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,7 @@ namespace BaSys.Host.DAL.Helpers
         private readonly List<IMetaObjectTableCommand> _commands = new List<IMetaObjectTableCommand>();
 
         public List<IMetaObjectTableCommand> Commands => _commands;
+        public bool NeedAlterTable { get; private set; }
 
         public MetaObjectTableChangeAnalyser(MetaObjectTable tableBefore, MetaObjectTable tableAfter)
         {
@@ -44,6 +46,7 @@ namespace BaSys.Host.DAL.Helpers
                 };
 
                 _commands.Add(changeNameCommand);
+
             }
 
             // Find droped columns.
@@ -59,6 +62,8 @@ namespace BaSys.Host.DAL.Helpers
                     };
 
                     _commands.Add(dropColumnCommand);
+
+                    NeedAlterTable = true;
                 }
             }
 
@@ -75,9 +80,46 @@ namespace BaSys.Host.DAL.Helpers
                     };
 
                     _commands.Add(addColumnCommand);    
+                    NeedAlterTable = true;
                 }
             }
 
+        }
+
+        public AlterTableModel ToAlterModel(PrimitiveDataTypes dataTypes)
+        {
+            var model = new AlterTableModel();
+
+            model.TableName = _tableAfter.Name;
+
+            foreach(var command in _commands)
+            {
+                if (command is MetaObjectTableAddColumnCommand addColumnCommand)
+                {
+                    var dataType = dataTypes.GetDataType(addColumnCommand.Column.DataTypeUid);
+
+                    if (dataType == null)
+                        continue;
+
+                    var tableColumn = new TableColumn()
+                    {
+                        Name = addColumnCommand.Column.Name,
+                        DbType = dataType.DbType,
+                        Required = addColumnCommand.Column.Required,
+                        Unique = addColumnCommand.Column.Unique,
+                        StringLength = addColumnCommand.Column.StringLength,
+                        NumberDigits = addColumnCommand.Column.NumberDigits,
+                    };
+
+                    model.NewColumns.Add(tableColumn);
+                }
+                else if (command is MetaObjectTableDropColumnCommand dropColumnCommand)
+                {
+                    model.RemovedColumns.Add(dropColumnCommand.ColumnName);
+                }
+            }
+
+            return model;
         }
     }
 }

@@ -49,7 +49,7 @@ namespace BaSys.FluentQueries.QueryBuilders
         {
             Validate();
 
-            IQuery query = null;
+            IQuery query;
 
             switch (dbKind)
             {

@@ -1,4 +1,5 @@
-﻿using BaSys.FluentQueries.Enums;
+﻿using BaSys.FluentQueries.Abstractions;
+using BaSys.FluentQueries.Enums;
 using BaSys.FluentQueries.Models;
 using BaSys.FluentQueries.QueryBuilders;
 using System;
@@ -13,11 +14,13 @@ namespace BaSys.FluentQueries.UnitTests
     [TestFixture]
     public class AlterTableBuilderTests
     {
-        [TestCase(SqlDialectKinds.MsSql, "AlterTableAddColumnsMsSQl")]
-        [TestCase(SqlDialectKinds.PgSql, "AlterTableAddColumnsPgSQl")]
-        public void AlterTable_AddColumns_Query(SqlDialectKinds dialectKind, string checkKey)
+        private TableColumn _codeColumn;
+        private TableColumn _titleColumn;
+
+        [SetUp]
+        public void SetUp()
         {
-            var codeColumn = new TableColumn()
+            _codeColumn = new TableColumn()
             {
                 Name = "code",
                 DbType = DbType.String,
@@ -25,27 +28,92 @@ namespace BaSys.FluentQueries.UnitTests
                 Required = true,
             };
 
-            var titleColumn = new TableColumn()
+            _titleColumn = new TableColumn()
             {
                 Name = "title",
                 DbType = DbType.String,
                 StringLength = 100,
                 Required = true,
             };
+        }
+
+        [TestCase(SqlDialectKinds.MsSql, "AlterTableAddOneColumnMsSQl")]
+        [TestCase(SqlDialectKinds.PgSql, "AlterTableAddOneColumnPgSQl")]
+        public void AlterTable_AddOneColumn_Query(SqlDialectKinds dialectKind, string checkKey)
+        {
+         
 
             var builder = AlterTableBuilder.Make()
                 .Table("cat_currency")
-                .AddColumn(codeColumn)
-                .AddColumn(titleColumn);
+                .AddColumn(_codeColumn);
 
             var query = builder.Query(dialectKind);
 
-            Console.WriteLine(dialectKind);
-            Console.WriteLine(query);
-            Console.WriteLine("==============");
+            PrintQuery(dialectKind, query);
 
             Assert.Pass();
 
+        }
+
+        [TestCase(SqlDialectKinds.MsSql, "AlterTableAddTwoColumnsMsSQl")]
+        [TestCase(SqlDialectKinds.PgSql, "AlterTableAddTwoColumnsPgSQl")]
+        public void AlterTable_AddTwoColumns_Query(SqlDialectKinds dialectKind, string checkKey)
+        {
+
+            var builder = AlterTableBuilder.Make()
+                .Table("cat_currency")
+                .AddColumn(_codeColumn)
+                .AddColumn(_titleColumn);
+
+            var query = builder.Query(dialectKind);
+
+            PrintQuery(dialectKind, query);
+
+            Assert.Pass();
+
+        }
+
+        [TestCase(SqlDialectKinds.MsSql, "AlterTableDropOneColumnMsSQl")]
+        [TestCase(SqlDialectKinds.PgSql, "AlterTableDropOneColumnPgSQl")]
+        public void AlterTable_DropOneColumn_Query(SqlDialectKinds dialectKind, string checkKey)
+        {
+
+
+            var builder = AlterTableBuilder.Make()
+                .Table("cat_currency")
+                .DropColumn("code");
+
+            var query = builder.Query(dialectKind);
+
+            PrintQuery(dialectKind, query);
+
+            Assert.Pass();
+
+        }
+
+        [TestCase(SqlDialectKinds.MsSql, "AlterTableDropTwoColumnsMsSQl")]
+        [TestCase(SqlDialectKinds.PgSql, "AlterTableDropTwoColumnsPgSQl")]
+        public void AlterTable_DropTwoColumns_Query(SqlDialectKinds dialectKind, string checkKey)
+        {
+
+            var builder = AlterTableBuilder.Make()
+                .Table("cat_currency")
+                .DropColumn("code")
+                .DropColumn("title");
+
+            var query = builder.Query(dialectKind);
+
+            PrintQuery(dialectKind, query);
+
+            Assert.Pass();
+
+        }
+
+        private void PrintQuery(SqlDialectKinds dialectKind, IQuery query)
+        {
+            Console.WriteLine(dialectKind);
+            Console.WriteLine(query);
+            Console.WriteLine("==============");
         }
     }
 }
