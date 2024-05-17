@@ -69,7 +69,8 @@ public class AttachedFileInfoIntProvider : SystemObjectProviderBase<AttachedFile
             IsMainImage = x.IsMainImage,
             MimeType = x.MimeType,
             MetaObjectUid = x.MetaObjectUid,
-            MetaObjectKindUid = x.MetaObjectKindUid
+            MetaObjectKindUid = x.MetaObjectKindUid,
+            UploadDate = x.UploadDate
         }).ToList();
 
         return fileList;

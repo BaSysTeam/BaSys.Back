@@ -66,4 +66,27 @@ public class AttachedFilesController : ControllerBase
         
         return Ok();
     }
+    
+    [HttpDelete]
+    public async Task<IActionResult> Delete([FromQuery]Guid metaObjectKindUid, [FromQuery]Guid fileUid)
+    {
+        var result = new ResultWrapper<bool>();
+        if (await _fileService.RemoveFileAsync(metaObjectKindUid, fileUid))
+            result.Success(true);
+        else
+            result.Error(-1, "Error delete file");
+        
+        return Ok(result);
+    }
+    
+    [HttpGet("Download")]
+    public async Task<IActionResult> Download([FromQuery] Guid metaObjectKindUid, [FromQuery] Guid fileUid)
+    {
+        var file = await _fileService.GetFileAsync(metaObjectKindUid, fileUid);
+        if (file?.Data == null)
+            return NotFound();
+        
+        var stream = new MemoryStream(file.Data);
+        return File(stream, "application/octet-stream", file.FileName);
+    }
 }

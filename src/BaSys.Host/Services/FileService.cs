@@ -83,7 +83,7 @@ public class FileService : IFileService
         }
 
         // save into external storage
-#if !DEBUG
+// #if !DEBUG
         try
         {
             var service = await _fileStorageServiceFactory.GetServiceAsync();
@@ -94,19 +94,19 @@ public class FileService : IFileService
             transaction.Rollback();
             throw;
         }
-#endif
+// #endif
 
         transaction.Commit();
     }
 
-    public async Task<bool> RemoveFileAsync(FileInfo fileInfo)
+    public async Task<bool> RemoveFileAsync(Guid metaObjectKindUid, Guid fileUid)
     {
         var connection = _connectionFactory.CreateConnection();
         connection.Open();
         var transaction = connection.BeginTransaction();
 
         // ...
-        var metaObjectKind = await _metaObjectKindsService.GetSettingsItemAsync(fileInfo.MetaObjectKindUid);
+        var metaObjectKind = await _metaObjectKindsService.GetSettingsItemAsync(metaObjectKindUid);
         if (!metaObjectKind.IsOK)
             return false;
 
@@ -120,19 +120,19 @@ public class FileService : IFileService
             if (primaryKey.DataTypeUid == DataTypeDefaults.Int.Uid)
             {
                 var provider = new AttachedFileInfoIntProvider(connection, metaObjectKind.Data.Name);
-                await provider.DeleteAsync(fileInfo.Uid, transaction);
+                await provider.DeleteAsync(fileUid, transaction);
             }
             // if (primaryKey.DataTypeUid == DataTypeDefaults.Long.Uid)
             //     await DeleteLong(connection, transaction, fileInfo.Uid, metaObjectKind.Data.Name);
             else if (primaryKey.DataTypeUid == DataTypeDefaults.String.Uid)
             {
                 var provider = new AttachedFileInfoStringProvider(connection, metaObjectKind.Data.Name);
-                await provider.DeleteAsync(fileInfo.Uid, transaction);
+                await provider.DeleteAsync(fileUid, transaction);
             }
             else if (primaryKey.DataTypeUid == DataTypeDefaults.UniqueIdentifier.Uid)
             {
                 var provider = new AttachedFileInfoGuidProvider(connection, metaObjectKind.Data.Name);
-                await provider.DeleteAsync(fileInfo.Uid, transaction);
+                await provider.DeleteAsync(fileUid, transaction);
             }
         }
         catch (Exception e)
@@ -142,25 +142,108 @@ public class FileService : IFileService
         }
 
         // delete from external storage
-#if !DEBUG
+// #if !DEBUG
         try
         {
             var service = await _fileStorageServiceFactory.GetServiceAsync();
-            await service!.RemoveAsync(fileInfo.Uid);
+            await service!.RemoveAsync(fileUid);
         }
         catch (Exception e)
         {
             transaction.Rollback();
             throw;
         }
-#endif
-        
+// #endif
+
         transaction.Commit();
 
         return true;
     }
 
-    public async Task<List<FileInfo>?> GetAttachedFilesList(Guid metaObjectKindUid, Guid metaObjectUid, string objectUid)
+    public async Task<FileInfo?> GetFileAsync(Guid metaObjectKindUid, Guid fileUid)
+    {
+        var connection = _connectionFactory.CreateConnection();
+
+        var config = (await _fileStorageConfigService.GetFileStorageConfigAsync())?.Data;
+        if (config == null)
+            return null;
+
+        var metaObjectKind = await _metaObjectKindsService.GetSettingsItemAsync(metaObjectKindUid);
+        if (!metaObjectKind.IsOK)
+            return null;
+
+        var primaryKey = metaObjectKind.Data.StandardColumns.FirstOrDefault(x => x.IsPrimaryKey);
+        if (primaryKey == null)
+            return null;
+
+        FileInfo? file = null;
+        if (primaryKey.DataTypeUid == DataTypeDefaults.Int.Uid)
+        {
+            var provider = new AttachedFileInfoIntProvider(connection, metaObjectKind.Data.Name);
+            var f = await provider.GetItemAsync(fileUid, null);
+            file = new FileInfo
+            {
+                Uid = f.Uid,
+                FileName = f.FileName,
+                MimeType = f.MimeType,
+                IsImage = f.IsImage,
+                IsMainImage = f.IsMainImage,
+                UploadDate = f.UploadDate,
+                MetaObjectUid = f.MetaObjectUid,
+                MetaObjectKindUid = f.MetaObjectKindUid
+            };
+        }
+        // else if (primaryKey.DataTypeUid == DataTypeDefaults.Long.Uid)
+        // {
+        //     var provider = new AttachedFileInfoLongProvider(connection, metaObjectKind.Data.Name);
+        //     var f = await provider.GetItemAsync(fileUid, null);
+        // }
+        else if (primaryKey.DataTypeUid == DataTypeDefaults.String.Uid)
+        {
+            var provider = new AttachedFileInfoStringProvider(connection, metaObjectKind.Data.Name);
+            var f = await provider.GetItemAsync(fileUid, null);
+            file = new FileInfo
+            {
+                Uid = f.Uid,
+                FileName = f.FileName,
+                MimeType = f.MimeType,
+                IsImage = f.IsImage,
+                IsMainImage = f.IsMainImage,
+                UploadDate = f.UploadDate,
+                MetaObjectUid = f.MetaObjectUid,
+                MetaObjectKindUid = f.MetaObjectKindUid
+            };
+        }
+        else if (primaryKey.DataTypeUid == DataTypeDefaults.UniqueIdentifier.Uid)
+        {
+            var provider = new AttachedFileInfoGuidProvider(connection, metaObjectKind.Data.Name);
+            var f = await provider.GetItemAsync(fileUid, null);
+            file = new FileInfo
+            {
+                Uid = f.Uid,
+                FileName = f.FileName,
+                MimeType = f.MimeType,
+                IsImage = f.IsImage,
+                IsMainImage = f.IsMainImage,
+                UploadDate = f.UploadDate,
+                MetaObjectUid = f.MetaObjectUid,
+                MetaObjectKindUid = f.MetaObjectKindUid
+            };
+        }
+
+        if (file == null)
+            return null;
+
+        var service = await _fileStorageServiceFactory.GetServiceAsync();
+        var fileModel = await service!.DownloadFileAsync(fileUid);
+
+        file.Data = fileModel?.Data;
+
+        return file;
+    }
+
+    public async Task<List<FileInfo>?> GetAttachedFilesList(Guid metaObjectKindUid, Guid metaObjectUid,
+        string objectUid)
     {
         var connection = _connectionFactory.CreateConnection();
 
@@ -196,6 +279,15 @@ public class FileService : IFileService
         {
             var provider = new AttachedFileInfoGuidProvider(connection, metaObjectKind.Data.Name);
             fileList = await provider.GetAttachedFilesListAsync(metaObjectKindUid, metaObjectUid, objectUid);
+        }
+
+        var service = await _fileStorageServiceFactory.GetServiceAsync();
+        foreach (var fileInfo in fileList ?? Enumerable.Empty<FileInfo>())
+        {
+            if (fileInfo.MimeType.Contains("image"))
+                fileInfo.Base64String = await service!.DownloadBase64Async(fileInfo.Uid);
+            else
+                fileInfo.Base64String = string.Empty;
         }
 
         return fileList;
