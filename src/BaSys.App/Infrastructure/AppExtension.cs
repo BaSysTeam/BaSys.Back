@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc.ApplicationParts;
+﻿using BaSys.App.Abstractions;
+using BaSys.App.Services;
+using Microsoft.AspNetCore.Mvc.ApplicationParts;
 
 namespace BaSys.App.Infrastructure
 {
@@ -11,6 +13,8 @@ namespace BaSys.App.Infrastructure
                 .PartManager
                 .ApplicationParts
                 .Add(new AssemblyPart(typeof(AppExtension).Assembly));
+
+            services.AddTransient<IDataObjectsService, DataObjectsService>();
 
             return services;
         }

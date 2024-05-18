@@ -14,15 +14,18 @@ namespace BaSys.FluentQueries.Models
         public string TableName { get; set; }
         public IReadOnlyCollection<TableColumn> Columns => _columns;
 
-        public DataModelConfiguration()
+        public DataModelConfiguration(bool fillByDefault = true)
         {
-            InitTableName();
-            InitColumns();
+            if (fillByDefault)
+            {
+                InitTableName();
+                InitColumns();
+            }
         }
 
         public TableColumn Column(string name)
         {
-            return _columns.FirstOrDefault(x=>x.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+            return _columns.FirstOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
         }
 
         public void AddColumn(TableColumn column)
@@ -46,7 +49,7 @@ namespace BaSys.FluentQueries.Models
 
             sb.AppendLine($"Table: {TableName}");
             sb.AppendLine("Columns:");
-            foreach(var column in Columns)
+            foreach (var column in Columns)
             {
                 sb.AppendLine(column.ToString());
             }
@@ -56,7 +59,7 @@ namespace BaSys.FluentQueries.Models
 
         private void InitTableName()
         {
-            TableName = typeof(T).Name; 
+            TableName = typeof(T).Name;
         }
 
         private void InitColumns()

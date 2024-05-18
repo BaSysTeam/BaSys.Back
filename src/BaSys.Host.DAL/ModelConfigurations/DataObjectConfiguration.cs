@@ -20,7 +20,7 @@ namespace BaSys.Host.DAL.ModelConfigurations
 
         public DataObjectConfiguration(MetaObjectKindSettings kindSettings, 
             MetaObjectStorableSettings objectSettings, 
-            PrimitiveDataTypes primitiveDataTypes)
+            PrimitiveDataTypes primitiveDataTypes):base(false)
         {
 
             _kindSettings = kindSettings;
