@@ -37,14 +37,11 @@ public class AttachedFilesController : ControllerBase
     }
     
     [HttpPost("Upload")]
-    public async Task<IActionResult> Upload(IFormCollection files,
-        [FromQuery]string metaObjectKindUid,
-        [FromQuery]string metaObjectUid,
-        [FromQuery]string objectUid)
+    public async Task<IActionResult> Upload(IFormCollection files)
     {
-        if (!Guid.TryParse(metaObjectUid, out var metaObjectGuid) ||
-            !Guid.TryParse(metaObjectKindUid, out var metaObjectKindGuid) ||
-            string.IsNullOrEmpty(objectUid))
+        if (!Guid.TryParse(files["metaObjectUid"], out var metaObjectUid) ||
+            !Guid.TryParse(files["metaObjectKindUid"], out var metaObjectKindUid) ||
+            string.IsNullOrEmpty(files["objectUid"]))
             return BadRequest();
         
         foreach (var file in files.Files)
@@ -53,9 +50,9 @@ public class AttachedFilesController : ControllerBase
             file.CopyTo(ms);
             var uploadedFile = new FileUploadDto
             {
-                ObjectUid = objectUid,
-                MetaObjectUid = metaObjectGuid,
-                MetaObjectKindUid = metaObjectKindGuid,
+                ObjectUid = files["objectUid"],
+                MetaObjectUid = metaObjectUid,
+                MetaObjectKindUid = metaObjectKindUid,
                 FileName = file.FileName,
                 MimeType = file.ContentType,
                 Data = ms.ToArray()

@@ -281,14 +281,14 @@ public class FileService : IFileService
             fileList = await provider.GetAttachedFilesListAsync(metaObjectKindUid, metaObjectUid, objectUid);
         }
 
-        var service = await _fileStorageServiceFactory.GetServiceAsync();
-        foreach (var fileInfo in fileList ?? Enumerable.Empty<FileInfo>())
-        {
-            if (fileInfo.MimeType.Contains("image"))
-                fileInfo.Base64String = await service!.DownloadBase64Async(fileInfo.Uid);
-            else
-                fileInfo.Base64String = string.Empty;
-        }
+        // var service = await _fileStorageServiceFactory.GetServiceAsync();
+        // foreach (var fileInfo in fileList ?? Enumerable.Empty<FileInfo>())
+        // {
+        //     if (fileInfo.MimeType.Contains("image"))
+        //         fileInfo.Base64String = await service!.DownloadBase64Async(fileInfo.Uid);
+        //     else
+        //         fileInfo.Base64String = string.Empty;
+        // }
 
         return fileList;
     }

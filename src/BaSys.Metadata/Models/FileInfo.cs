@@ -14,5 +14,4 @@ public class FileInfo
     public bool IsMainImage { get; set; }
     public DateTime UploadDate { get; set; }
     public byte[] Data { get; set; }
-    public string Base64String { get; set; }
 }
