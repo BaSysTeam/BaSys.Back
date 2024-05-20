@@ -28,7 +28,7 @@ public class AttachedFilesController : ControllerBase
             return BadRequest();
         
         var result = new ResultWrapper<List<FileInfo>>();
-
+    
         var filesList = await _fileService.GetAttachedFilesList(metaObjectKindGuid, metaObjectGuid, objectUid);
         if (filesList != null)
             result.Success(filesList);
