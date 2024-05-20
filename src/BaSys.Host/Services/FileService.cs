@@ -52,6 +52,9 @@ public class FileService : IFileService
         if (primaryKey == null)
             return;
 
+        if (!string.IsNullOrEmpty(uploadDto.MimeType) && uploadDto.MimeType.Contains("image"))
+            uploadDto.IsImage = true;
+
         var fileUid = Guid.Empty;
 
         // save into AttachedFileInfo
