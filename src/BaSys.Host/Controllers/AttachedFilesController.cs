@@ -86,4 +86,17 @@ public class AttachedFilesController : ControllerBase
         var stream = new MemoryStream(file.Data);
         return File(stream, "application/octet-stream", file.FileName);
     }
+    
+    [HttpGet("GetImageBase64")]
+    public async Task<IActionResult> GetImageBase64([FromQuery] Guid metaObjectKindUid, [FromQuery] Guid fileUid)
+    {
+        var result = new ResultWrapper<string>();
+        var imageBase64 = await _fileService.GetImageBase64(fileUid);
+        if (!string.IsNullOrEmpty(imageBase64))
+            result.Success(imageBase64);
+        else
+            result.Error(-1, "Error load image");
+        
+        return Ok(result);
+    }
 }

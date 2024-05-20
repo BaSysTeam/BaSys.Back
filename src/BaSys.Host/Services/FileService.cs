@@ -245,6 +245,14 @@ public class FileService : IFileService
         return file;
     }
 
+    public async Task<string?> GetImageBase64(Guid fileUid)
+    {
+        var service = await _fileStorageServiceFactory.GetServiceAsync();
+        var imageBase64 = await service!.DownloadBase64Async(fileUid);
+
+        return imageBase64;
+    }
+
     public async Task<List<FileInfo>?> GetAttachedFilesList(Guid metaObjectKindUid, Guid metaObjectUid,
         string objectUid)
     {
