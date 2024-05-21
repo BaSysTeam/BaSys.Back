@@ -13,5 +13,6 @@ namespace BaSys.Metadata.Models
         public string Title { get; set; }
         public string Memo { get; set; }
         public bool IsGlobal { get; set; }
+        public bool IsMain { get; set; }
     }
 }
