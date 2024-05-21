@@ -61,6 +61,24 @@ namespace BaSys.Translation {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Add files.
+        /// </summary>
+        public static string AddFilesRight {
+            get {
+                return ResourceManager.GetString("AddFilesRight", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add.
+        /// </summary>
+        public static string AddRight {
+            get {
+                return ResourceManager.GetString("AddRight", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to App constants record created.
         /// </summary>
         public static string AppConstantsRecordCreated {
@@ -295,6 +313,33 @@ namespace BaSys.Translation {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Delete files.
+        /// </summary>
+        public static string DeleteFilesRight {
+            get {
+                return ResourceManager.GetString("DeleteFilesRight", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete.
+        /// </summary>
+        public static string DeleteRight {
+            get {
+                return ResourceManager.GetString("DeleteRight", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Edit.
+        /// </summary>
+        public static string EditRight {
+            get {
+                return ResourceManager.GetString("EditRight", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Empty app constants record list.
         /// </summary>
         public static string EmptyAppConstantsRecordList {
@@ -349,6 +394,15 @@ namespace BaSys.Translation {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Full access.
+        /// </summary>
+        public static string FullAccessForMetaObjectKindRight {
+            get {
+                return ResourceManager.GetString("FullAccessForMetaObjectKindRight", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Item updated.
         /// </summary>
         public static string ItemUpdated {
@@ -390,6 +444,15 @@ namespace BaSys.Translation {
         public static string OnlyActiveAdministrator {
             get {
                 return ResourceManager.GetString("OnlyActiveAdministrator", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Read.
+        /// </summary>
+        public static string ReadRight {
+            get {
+                return ResourceManager.GetString("ReadRight", resourceCulture);
             }
         }
         
