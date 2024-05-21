@@ -1,0 +1,41 @@
+﻿using System.Data;
+using BaSys.FluentQueries.QueryBuilders;
+using BaSys.Host.DAL.Abstractions;
+using BaSys.Host.DAL.ModelConfigurations;
+using BaSys.Metadata.Models;
+using Dapper;
+
+namespace BaSys.Host.DAL.DataProviders;
+
+public class AttachedFileInfoLongProvider: SystemObjectProviderBase<AttachedFileInfo<long>>
+{
+    public AttachedFileInfoLongProvider(IDbConnection dbConnection, string kindName) : base(dbConnection, new AttachedFileInfoConfiguration<long>(kindName))
+    {
+    }
+
+    public override async Task<int> InsertAsync(AttachedFileInfo<long> item, IDbTransaction transaction)
+    {
+        _query = InsertBuilder.Make(_config)
+            .FillValuesByColumnNames(true)
+            .Query(_sqlDialect);
+
+        return await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
+    }
+
+    public async Task<Guid> InsertDataAsync(AttachedFileInfo<long> item, IDbTransaction transaction)
+    {
+        _query = InsertBuilder.Make(_config)
+            .FillValuesByColumnNames(true)
+            .Query(_sqlDialect);
+
+        await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
+
+        // get inserted uid
+        return Guid.Empty;
+    }
+
+    public override Task<int> UpdateAsync(AttachedFileInfo<long> item, IDbTransaction transaction)
+    {
+        throw new NotImplementedException();
+    }
+}
