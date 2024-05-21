@@ -398,3 +398,4 @@ FodyWeavers.xsd
 *.sln.iml
 src/BaSys.SuperAdmin/Properties/launchSettings.json
 src/BaSys.Host/appsettings.Development.json
+src/BaSys.PublicAPI/Properties/launchSettings.json

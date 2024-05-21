@@ -1,6 +1,9 @@
-﻿using BaSys.Host.DAL.Abstractions;
+﻿using BaSys.FluentQueries.Models;
+using BaSys.FluentQueries.QueryBuilders;
+using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.ModelConfigurations;
 using BaSys.Metadata.Models;
+using Dapper;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -16,6 +19,7 @@ namespace BaSys.Host.DAL.TableManagers
         {
            
         }
+
 
     }
 }
