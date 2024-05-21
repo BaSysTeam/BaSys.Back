@@ -9,7 +9,6 @@ using BaSys.Metadata.DTOs;
 using BaSys.Metadata.Models;
 using BaSys.Metadata.Validators;
 using BaSys.Translation;
-using Humanizer;
 using System.Data;
 
 namespace BaSys.Constructor.Services
@@ -74,7 +73,18 @@ namespace BaSys.Constructor.Services
                         }
 
                         var metaObjectStorableProvider = _providerFactory.CreateMetaObjectStorableProvider(metadataKindSettings.Name);
+                        var metaObjectStorableSettings = await metaObjectStorableProvider.GetSettingsItemAsync(metadataObjectUid, transaction);
+                        if (metaObjectStorableSettings == null)
+                        {
+                            result.Error(-1, DictMain.CannotFindItem, $"Uid: {metadataKindUid}");
+                            transaction.Rollback();
+                            return result;
+                        }
+
                         await metaObjectStorableProvider.DeleteAsync(metadataObjectUid, transaction);
+                        
+                        var dataObjectManager = new DataObjectManager(_connection, metadataKindSettings, metaObjectStorableSettings, new PrimitiveDataTypes());
+                        await dataObjectManager.DropTableAsync(transaction);
                     }
 
                     var deleteResult = await _nodesProvider.DeleteAsync(dto.Key, transaction);
@@ -126,8 +136,8 @@ namespace BaSys.Constructor.Services
 
             try
             {
-                var metadataNodeUid = new Guid("60738680-DAFD-42C0-8923-585FC7985176");
-                var systemNodeUid = new Guid("AE28B333-3F36-4FEC-A276-92FCCC9B435C");
+                var metadataNodeUid = MetadataGroupDefaults.MetadataGroup.Uid;
+                var systemNodeUid = MetadataGroupDefaults.SystemGroup.Uid;
 
                 var standardNodes = new List<MetadataTreeNodeDto>
                 {
@@ -135,7 +145,7 @@ namespace BaSys.Constructor.Services
                     {
                         IsGroup = true,
                         IsStandard = true,
-                        Label = "Metadata",
+                        Label = MetadataGroupDefaults.MetadataGroup.Title,
                         Key = metadataNodeUid,
                         Icon = "pi pi-folder",
                         Leaf = !await _nodesProvider.HasChildrenAsync(metadataNodeUid, null)
@@ -144,7 +154,7 @@ namespace BaSys.Constructor.Services
                     {
                         IsGroup = true,
                         IsStandard = true,
-                        Label = "System",
+                        Label = MetadataGroupDefaults.SystemGroup.Title,
                         Key = systemNodeUid,
                         Icon = "pi pi-folder",
                         Children = new List<MetadataTreeNodeDto>
@@ -202,6 +212,25 @@ namespace BaSys.Constructor.Services
             catch (Exception ex)
             {
                 result.Error(-1, DictMain.CannotCreateItem, ex.Message);
+            }
+
+            return result;
+        }
+
+        public async Task<ResultWrapper<int>> UpdateAsync(MetadataTreeNodeDto dto)
+        {
+            var result = new ResultWrapper<int>();
+
+            try
+            {
+                var model = dto.ToModel();
+                var updateResult = await _nodesProvider.UpdateAsync(model, null);
+
+                result.Success(updateResult);
+            }
+            catch (Exception ex)
+            {
+                result.Error(-1, DictMain.CannotUpdateItem, ex.Message);
             }
 
             return result;
@@ -277,6 +306,47 @@ namespace BaSys.Constructor.Services
             return result;
         }
 
+        public async Task<ResultWrapper<List<MetadataTreeNodeDto>>> GetGroupsAsync()
+        {
+            var result = new ResultWrapper<List<MetadataTreeNodeDto>>();
+
+            try
+            {
+                var collection = await _nodesProvider.GetCollectionAsync(null);
+                var groups = collection
+                    .Where(x => x.IsGroup)
+                    .Select(s => new MetadataTreeNodeDto(s))
+                    .ToList();
+
+                var metadataNode = new MetadataTreeNodeDto
+                {
+                    IsGroup = true,
+                    IsStandard = true,
+                    Label = MetadataGroupDefaults.MetadataGroup.Title,
+                    Key = MetadataGroupDefaults.MetadataGroup.Uid,
+                    Icon = "pi pi-folder",
+                };
+
+                groups.Add(metadataNode);
+
+                var treeNodes = MakeTree(groups);
+                result.Success(treeNodes);
+            }
+            catch (Exception ex)
+            {
+                result.Error(-1, "Get nodes groups error.", ex.Message);
+            }
+
+            return result;
+        }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+
         private void Dispose(bool disposing)
         {
             if (!_disposed)
@@ -291,11 +361,21 @@ namespace BaSys.Constructor.Services
             }
         }
 
-        public void Dispose()
+        private List<MetadataTreeNodeDto> MakeTree(List<MetadataTreeNodeDto> source, Guid? parentKey = null)
         {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
+            var result = new List<MetadataTreeNodeDto>();
+            var parents = source.Where(x => x.ParentKey == parentKey);
+
+            foreach (var parent in parents)
+            {
+                parent.Children = MakeTree(source, parent.Key);
+                if (!parent.Children.Any())
+                    parent.Leaf = true;
+
+                result.Add(parent);
+            }
+
+            return result;
         }
     }
 }

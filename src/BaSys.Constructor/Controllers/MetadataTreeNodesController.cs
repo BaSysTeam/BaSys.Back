@@ -22,7 +22,9 @@ namespace BaSys.Constructor.Controllers
         /// <summary>
         /// Retrieves standard nodes of the metadata tree.
         /// </summary>
-        /// <returns>An IActionResult containing the collection of metadata tree nodes.</returns>
+        /// <returns>
+        /// An IActionResult containing the collection of metadata tree nodes.
+        /// </returns>
         [HttpGet("Standard")]
         public async Task<IActionResult> GetStandard()
         {
@@ -34,11 +36,26 @@ namespace BaSys.Constructor.Controllers
         /// Retrieves children of metadata tree node by its unique identifier.
         /// </summary>
         /// <param name="uid">The unique identifier of the metadata tree node to get children.</param>
-        /// <returns>An IActionResult containing the collection of metadata tree children nodes.</returns>
+        /// <returns>
+        /// An IActionResult containing the collection of metadata tree nodes.
+        /// </returns>
         [HttpGet("Children/{uid}")]
         public async Task<IActionResult> GetChildren(Guid uid)
         {
             var result = await _metadataTreeNodesService.GetChildrenAsync(uid);
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Retrieves nodes of the metadata tree which are groups.
+        /// </summary>
+        /// <returns>
+        /// An IActionResult containing the collection of metadata tree nodes.
+        /// </returns>
+        [HttpGet("Groups")]
+        public async Task<IActionResult> GetGroups()
+        {
+            var result = await _metadataTreeNodesService.GetGroupsAsync();
             return Ok(result);
         }
 
@@ -51,6 +68,22 @@ namespace BaSys.Constructor.Controllers
         public async Task<IActionResult> Create(MetadataTreeNodeDto dto)
         {
             var result = await _metadataTreeNodesService.InsertAsync(dto);
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Updates metadata tree node.
+        /// </summary>
+        /// <param name="dto">
+        /// The metadata tree node to update.
+        /// </param>
+        /// <returns>
+        /// An IActionResult containing the updated metadata tree node.
+        /// </returns>
+        [HttpPut]
+        public async Task<IActionResult> Update(MetadataTreeNodeDto dto)
+        {
+            var result = await _metadataTreeNodesService.UpdateAsync(dto);
             return Ok(result);
         }
 
