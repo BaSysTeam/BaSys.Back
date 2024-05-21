@@ -1,5 +1,6 @@
 ﻿using BaSys.Common.Infrastructure;
 using BaSys.Constructor.Abstractions;
+using BaSys.Constructor.DTO;
 using BaSys.Metadata.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -24,9 +25,10 @@ namespace BaSys.Constructor.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllDataTypes()
         {
+            var result = new ResultWrapper<IList<DataTypeDto>>();
+            
             var dataTypes = await _dataTypesService.GetAllDataTypes();
-            var result = new ResultWrapper<IList<DataType>>();
-            result.Success(dataTypes);
+            result.Success(dataTypes.Select(x => new DataTypeDto(x)).ToList());
 
             return Ok(result);
         }

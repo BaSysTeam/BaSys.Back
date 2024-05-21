@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BaSys.Shared\BaSys.Shared.csproj" />
+    <ProjectReference Include="..\BaSys.Translation\BaSys.Translation.csproj" />
   </ItemGroup>
 
 </Project>
