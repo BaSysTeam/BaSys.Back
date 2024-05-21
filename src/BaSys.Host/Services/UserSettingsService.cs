@@ -31,7 +31,7 @@ public class UserSettingsService : IUserSettingsService
     public async Task<ResultWrapper<UserSettingsDto?>> GetUserSettings()
     {
         var result = new ResultWrapper<UserSettingsDto?>();
-       
+
         if (string.IsNullOrEmpty(_userId))
         {
             result.Error(-1, $"UserId is not set!");
@@ -41,16 +41,31 @@ public class UserSettingsService : IUserSettingsService
         using var connection = _connectionFactory.CreateConnection();
         var provider = new UserSettingsProvider(connection);
 
+        var currentUser = await _userManager.Users.FirstOrDefaultAsync(x => x.Id == _userId);
+
         UserSettingsDto userSettingsDto;
         var userSettings = await provider.GetItemByUserIdAsync(_userId);
         if (userSettings != null)
             userSettingsDto = new UserSettingsDto(userSettings);
         else
-            userSettingsDto = new UserSettingsDto();
+        {
+            userSettingsDto = new UserSettingsDto
+            {
+                UserId = currentUser?.Id ?? string.Empty
+            };
 
-        var currentUser = await _userManager.Users.FirstOrDefaultAsync(x => x.Id == _userId);
+            var insertResult = await provider.InsertAsync(userSettingsDto.ToModel(), null);
+            userSettings = await provider.GetItemByUserIdAsync(_userId);
+            if (insertResult < 1 || userSettings == null)
+            {
+                result.Error(-1, $"Cannot get user settings!");
+                return result;
+            }
+            else
+                userSettingsDto = new UserSettingsDto(userSettings);
+        }
+
         userSettingsDto.UserName = currentUser?.UserName ?? string.Empty;
-        
         result.Success(userSettingsDto);
         return result;
     }
