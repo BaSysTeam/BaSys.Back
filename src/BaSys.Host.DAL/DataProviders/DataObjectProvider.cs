@@ -63,9 +63,13 @@ namespace BaSys.Host.DAL.DataProviders
             throw new NotImplementedException();
         }
 
-        public Task<int> InsertAsync(DataObject item, IDbTransaction? transaction)
+        public async Task<int> InsertAsync(DataObject item, IDbTransaction? transaction)
         {
-            throw new NotImplementedException();
+            _query = InsertBuilder.Make(_config).FillValuesByColumnNames(true).Query(_sqlDialect);
+
+            var result = await _connection.ExecuteAsync(_query.Text, item.Header, transaction);
+
+            return result;
         }
 
         public Task<int> UpdateAsync(DataObject item, IDbTransaction? transaction)

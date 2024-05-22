@@ -1,5 +1,6 @@
 ﻿using BaSys.App.Abstractions;
 using BaSys.Common.Infrastructure;
+using BaSys.DTO.App;
 using BaSys.Host.DAL.Abstractions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -24,6 +25,14 @@ namespace BaSys.App.Controllers
         public async Task<IActionResult> GetCollection(string kind, string name)
         {
             var result =  await _service.GetCollectionAsync(kind, name);
+
+            return Ok(result);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateItem([FromBody]DataObjectDto dto)
+        {
+            var result = await _service.InsertAsync(dto);
 
             return Ok(result);
         }

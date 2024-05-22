@@ -1,12 +1,14 @@
 ﻿using BaSys.App.Abstractions;
 using BaSys.Common.Infrastructure;
 using BaSys.DAL.Models.App;
+using BaSys.DTO.App;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
 using BaSys.Logging.Abstractions.Abstractions;
 using BaSys.Metadata.Models;
 using BaSys.Translation;
 using System.Data;
+using System.Security.AccessControl;
 
 
 namespace BaSys.App.Services
@@ -65,6 +67,47 @@ namespace BaSys.App.Services
                 result.Error(-1, $"Cannot get collection {kindName}.{objectName}", $"Message: {ex.Message}, Query: {provider.LastQuery}");
             }
 
+
+            return result;
+        }
+
+        public async Task<ResultWrapper<int>> InsertAsync(DataObjectDto dto)
+        {
+            var result = new ResultWrapper<int>();
+
+            var objectKindSettings = await _kindProvider.GetSettingsAsync(dto.MetaObjectKindUid);
+
+            if (objectKindSettings == null)
+            {
+                result.Error(-1, $"{DictMain.CannotFindMetaObjectKind}", $"MetaObjectKindUid: {dto.MetaObjectKindUid}");
+                return result;
+            }
+
+            var metaObjectProvider = new MetaObjectStorableProvider(_connection, objectKindSettings.Name);
+            var metaObject = await metaObjectProvider.GetItemAsync(dto.MetaObjectUid, null);
+
+            if (metaObject == null)
+            {
+                result.Error(-1, $"{DictMain.CannotFindMetaObject}",$"MetaObjectUid: {dto.MetaObjectUid}");
+                return result;
+            }
+
+
+            var primitiveDataTypes = new PrimitiveDataTypes();
+            var provider = new DataObjectProvider(_connection, objectKindSettings, metaObject.ToSettings(), primitiveDataTypes);
+
+            var newObject = new DataObject(dto.Header);
+
+            try
+            {
+                var insertResult = await provider.InsertAsync(newObject, null);
+
+                result.Success(insertResult);
+            }
+            catch (Exception ex)
+            {
+                result.Error(-1, $"{DictMain.CannotCreateItem}", $"Message: {ex.Message}, Query: {provider.LastQuery}");
+            }
 
             return result;
         }
