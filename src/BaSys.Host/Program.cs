@@ -6,9 +6,11 @@ using BaSys.Common;
 using BaSys.Common.Enums;
 using BaSys.Common.Infrastructure;
 using BaSys.Constructor.Infrastructure;
+using BaSys.FileStorage.Infrastructure;
 using BaSys.Host.Abstractions;
 using BaSys.Host.DAL;
 using BaSys.Host.DAL.Abstractions;
+using BaSys.Host.DAL.DataProviders;
 using BaSys.Host.DAL.MsSqlContext;
 using BaSys.Host.DAL.PgSqlContext;
 using BaSys.Host.Helpers;
@@ -94,6 +96,9 @@ namespace BaSys.Host
             // Add public api module
             builder.Services.AddPublicApi();
 
+            // Add file storage
+            builder.Services.AddFileStorage();
+
             // Add mssql context
             builder.Services.AddDbContext<MsSqlDbContext>((sp, options) =>
             {
@@ -163,6 +168,7 @@ namespace BaSys.Host
 
 
             builder.Services.AddTransient<IJwtAuthService, JwtAuthService>();
+            builder.Services.AddTransient<IFileService, FileService>();
 
             builder.Services.AddSingleton<IDataSourceProvider, DataSourceProvider>();
             builder.Services.AddTransient<IMainDbCheckService, MainDbCheckService>();

@@ -17,44 +17,48 @@ public static class DataTypeDefaults
     {
         Title = "String",
         IsPrimitive = true,
-        DbType = DbType.String
+        DbType = DbType.String,
+        Type = typeof(string)
     };
 
     public static readonly DataType Int = new DataType(new Guid("b327f82a-ea96-416f-9836-785db28eccac"))
     {
         Title = "Integer",
         IsPrimitive = true,
-        DbType = DbType.Int32
+        DbType = DbType.Int32,
+        Type = typeof(int)
     };
 
     public static readonly DataType Bool = new DataType(new Guid("4bff64cf-eb01-4933-9f3d-b902336751f4"))
     {
         Title = "Boolean",
         IsPrimitive = true,
-        DbType = DbType.Byte
+        DbType = DbType.Byte,
+        Type = typeof(byte)
     };
 
     public static readonly DataType Decimal = new DataType(new Guid("a05516ac-baae-4f66-9b67-6703998a6a1b"))
     {
         Title = "Decimal",
         IsPrimitive = true,
-        DbType = DbType.Decimal
-
+        DbType = DbType.Decimal,
+        Type = typeof(decimal)
     };
 
     public static readonly DataType DateTime = new DataType(new Guid("9001eafb-efb1-442f-b288-723bb8002b12"))
     {
         Title = "DateTime",
         IsPrimitive = true,
-        DbType = DbType.DateTime
+        DbType = DbType.DateTime,
+        Type = typeof(DateTime)
     };
 
     public static readonly DataType UniqueIdentifier = new DataType(new Guid("6fa9c45b-f514-4fea-a480-8e940636a1df"))
     {
         Title = "UniqueIdentifier",
         IsPrimitive = true,
-        DbType = DbType.Guid
-
+        DbType = DbType.Guid,
+        Type = typeof(Guid)
     };
 
     public static IList<DataType> AllTypes()
@@ -66,6 +70,18 @@ public static class DataTypeDefaults
             Bool,
             Decimal,
             DateTime,
+            UniqueIdentifier
+        };
+
+        return collection;
+    }
+
+    public static IList<DataType> GetPrimaryKeyTypes()
+    {
+        var collection = new List<DataType>
+        {
+            String,
+            Int,
             UniqueIdentifier
         };
 
