@@ -31,9 +31,9 @@ namespace BaSys.App.Services
 
         }
 
-        public async Task<ResultWrapper<List<DataObject>>> GetCollectionAsync(string kindName, string objectName)
+        public async Task<ResultWrapper<DataObjectListDto>> GetCollectionAsync(string kindName, string objectName)
         {
-            var result = new ResultWrapper<List<DataObject>>();
+            var result = new ResultWrapper<DataObjectListDto>();
 
             var objectKindSettings = await _kindProvider.GetSettingsByNameAsync(kindName);
 
@@ -52,15 +52,17 @@ namespace BaSys.App.Services
                 return result;
             }
 
+            var metaObjectSettings = metaObject.ToSettings();
             var primitiveDataTypes = new PrimitiveDataTypes();
-            var provider = new DataObjectProvider(_connection, objectKindSettings, metaObject.ToSettings(), primitiveDataTypes);
+            var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, primitiveDataTypes);
 
 
             try
             {
                 var collection = await provider.GetCollectionAsync(null);
+                var listDto = new DataObjectListDto(objectKindSettings, metaObjectSettings, collection);
 
-                result.Success(collection);
+                result.Success(listDto);
             }
             catch (Exception ex)
             {

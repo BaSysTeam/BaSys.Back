@@ -7,7 +7,7 @@ namespace BaSys.App.Abstractions
 {
     public interface IDataObjectsService
     {
-        Task<ResultWrapper<List<DataObject>>> GetCollectionAsync(string kindName, string objectName);
+        Task<ResultWrapper<DataObjectListDto>> GetCollectionAsync(string kindName, string objectName);
         Task<ResultWrapper<int>> InsertAsync(DataObjectDto dto);
     }
 }

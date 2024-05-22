@@ -2,14 +2,25 @@
 {
     public sealed class DataObjectDto
     {
-        private Dictionary<string, object> _header = new Dictionary<string, object>();
 
         public Guid MetaObjectKindUid { get; set; }
         public Guid MetaObjectUid { get; set; }
-        public Dictionary<string, object> Header
+        public Dictionary<string, object> Header { get; set; } = new Dictionary<string, object>();
+
+        public DataObjectDto()
         {
-            get => _header;
-            set => _header = value;
+            
+        }
+
+        public DataObjectDto(Guid kindUid, Guid objectUid, IDictionary<string, object> data)
+        {
+            MetaObjectKindUid = kindUid;
+            MetaObjectUid = objectUid;
+
+            foreach (var key in data.Keys)
+            {
+                Header[key] = data[key];
+            }
         }
     }
 }
