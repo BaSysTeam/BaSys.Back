@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace BaSys.Host.DAL.DataProviders
 {
-    public sealed class DataObjectProvider: IDataObjectProvider
+    public sealed class DataObjectProvider : IDataObjectProvider
     {
         private readonly DataObjectConfiguration _config;
         private readonly IDbConnection _connection;
@@ -30,7 +30,7 @@ namespace BaSys.Host.DAL.DataProviders
 
         public DataObjectProvider(IDbConnection connection,
             MetaObjectKindSettings kindSettings,
-            MetaObjectStorableSettings objectSettings, 
+            MetaObjectStorableSettings objectSettings,
             PrimitiveDataTypes primitiveDataTypes)
         {
             _connection = connection;
@@ -51,7 +51,7 @@ namespace BaSys.Host.DAL.DataProviders
 
             var dynamicCollection = await _connection.QueryAsync(_query.Text, null, transaction);
 
-            var collection = new List<DataObject>();    
+            var collection = new List<DataObject>();
 
             foreach (var dynamicItem in dynamicCollection)
             {
@@ -82,7 +82,7 @@ namespace BaSys.Host.DAL.DataProviders
             {
                 return null;
             }
-           
+
         }
 
         public async Task<int> InsertAsync(DataObject item, IDbTransaction? transaction)
@@ -99,9 +99,17 @@ namespace BaSys.Host.DAL.DataProviders
             throw new NotImplementedException();
         }
 
-        public Task<int> DeleteAsync<T>(T uid, IDbTransaction? transaction)
+        public async Task<int> DeleteAsync<T>(T uid, IDbTransaction? transaction)
         {
-            throw new NotImplementedException();
+            _query = DeleteBuilder.Make()
+                .Table(_config.TableName)
+                .WhereAnd($"{_primaryKeyFieldName} = @{_primaryKeyFieldName}")
+                .Parameter($"{_primaryKeyFieldName}", uid)
+                .Query(_sqlDialect);
+
+            var result = await _connection.ExecuteAsync(_query.Text, _query.DynamicParameters, transaction);
+
+            return result;
         }
 
         private SqlDialectKinds GetDialectKind(IDbConnection connection)

@@ -44,5 +44,13 @@ namespace BaSys.App.Controllers
 
             return Ok(result);
         }
+
+        [HttpDelete("{kind}/{name}/{uid}")]
+        public async Task<IActionResult> DeleteItem(string kind, string name, string uid)
+        {
+            var result = await _service.DeleteItemAsync(kind, name, uid);
+
+            return Ok(result);
+        }
     }
 }

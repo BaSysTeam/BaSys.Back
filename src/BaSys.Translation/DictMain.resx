@@ -231,6 +231,9 @@
   <data name="FullAccessForMetaObjectKindRight" xml:space="preserve">
     <value>Full access</value>
   </data>
+  <data name="ItemDeleted" xml:space="preserve">
+    <value>Item deleted</value>
+  </data>
   <data name="ItemUpdated" xml:space="preserve">
     <value>Item updated</value>
   </data>
