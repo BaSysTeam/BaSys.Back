@@ -8,6 +8,7 @@ namespace BaSys.App.Abstractions
     public interface IDataObjectsService
     {
         Task<ResultWrapper<DataObjectListDto>> GetCollectionAsync(string kindName, string objectName);
-        Task<ResultWrapper<int>> InsertAsync(DataObjectDto dto);
+        Task<ResultWrapper<DataObjectDto>> GetItemAsync(string kindName, string objectName, string uid);
+        Task<ResultWrapper<int>> InsertAsync(DataObjectSaveDto dto);
     }
 }

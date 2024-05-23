@@ -1,10 +1,18 @@
-﻿namespace BaSys.DTO.App
+﻿using BaSys.DAL.Models.App;
+using BaSys.Metadata.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+
+namespace BaSys.DTO.App
 {
     public sealed class DataObjectDto
     {
-
-        public Guid MetaObjectKindUid { get; set; }
-        public Guid MetaObjectUid { get; set; }
+        public MetaObjectKindSettings MetaObjectKindSettings { get; set; } = new MetaObjectKindSettings();
+        public MetaObjectStorableSettings MetaObjectSettings { get; set; } = new MetaObjectStorableSettings();
         public Dictionary<string, object> Header { get; set; } = new Dictionary<string, object>();
 
         public DataObjectDto()
@@ -12,14 +20,14 @@
             
         }
 
-        public DataObjectDto(Guid kindUid, Guid objectUid, IDictionary<string, object> data)
+        public DataObjectDto(MetaObjectKindSettings kindSettings, MetaObjectStorableSettings objectSettings, DataObject dataObject)
         {
-            MetaObjectKindUid = kindUid;
-            MetaObjectUid = objectUid;
+            MetaObjectKindSettings = kindSettings;
+            MetaObjectSettings = objectSettings;
 
-            foreach (var key in data.Keys)
+            foreach (var kvp in dataObject.Header)
             {
-                Header[key] = data[key];
+                Header[kvp.Key] = dataObject.Header[kvp.Key];
             }
         }
     }

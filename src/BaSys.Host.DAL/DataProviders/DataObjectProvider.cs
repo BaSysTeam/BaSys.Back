@@ -22,6 +22,7 @@ namespace BaSys.Host.DAL.DataProviders
         private readonly DataObjectConfiguration _config;
         private readonly IDbConnection _connection;
         private readonly SqlDialectKinds _sqlDialect;
+        private readonly string _primaryKeyFieldName;
 
         protected IQuery? _query;
 
@@ -39,6 +40,9 @@ namespace BaSys.Host.DAL.DataProviders
             _config = new DataObjectConfiguration(kindSettings,
                 objectSettings,
                 primitiveDataTypes);
+
+            var primaryKey = objectSettings.Header.PrimaryKey;
+            _primaryKeyFieldName = primaryKey.Name;
         }
 
         public async Task<List<DataObject>> GetCollectionAsync(IDbTransaction? transaction)
@@ -58,9 +62,27 @@ namespace BaSys.Host.DAL.DataProviders
             return collection;
         }
 
-        public Task<DataObject> GetItemAsync<T>(T uid, IDbTransaction? transaction)
+        public async Task<DataObject?> GetItemAsync<T>(T uid, IDbTransaction? transaction)
         {
-            throw new NotImplementedException();
+            _query = SelectBuilder.Make()
+             .From(_config.TableName)
+             .Select("*")
+             .WhereAnd($"{_primaryKeyFieldName} = @{_primaryKeyFieldName}")
+             .Parameter($"{_primaryKeyFieldName}", uid)
+             .Query(_sqlDialect);
+
+            var dynamicItem = await _connection.QueryFirstOrDefaultAsync(_query.Text, _query.DynamicParameters, transaction);
+
+            if (dynamicItem != null)
+            {
+                var item = new DataObject((IDictionary<string, object>)dynamicItem);
+                return item;
+            }
+            else
+            {
+                return null;
+            }
+           
         }
 
         public async Task<int> InsertAsync(DataObject item, IDbTransaction? transaction)

@@ -23,10 +23,18 @@ public static class DataTypeDefaults
 
     public static readonly DataType Int = new DataType(new Guid("b327f82a-ea96-416f-9836-785db28eccac"))
     {
-        Title = "Integer",
+        Title = "Int",
         IsPrimitive = true,
         DbType = DbType.Int32,
         Type = typeof(int)
+    };
+
+    public static readonly DataType Long = new DataType(new Guid("daa57cb0-32eb-4709-b61f-4ea023ae31c3"))
+    {
+        Title = "Long",
+        IsPrimitive = true,
+        DbType = DbType.Int64,
+        Type = typeof(long)
     };
 
     public static readonly DataType Bool = new DataType(new Guid("4bff64cf-eb01-4933-9f3d-b902336751f4"))
@@ -67,6 +75,7 @@ public static class DataTypeDefaults
         {
             String,
             Int,
+            Long,
             Bool,
             Decimal,
             DateTime,

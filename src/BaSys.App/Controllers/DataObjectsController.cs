@@ -29,8 +29,16 @@ namespace BaSys.App.Controllers
             return Ok(result);
         }
 
+        [HttpGet("{kind}/{name}/{uid}")]
+        public async Task<IActionResult> GetItem(string kind, string name, string uid)
+        {
+            var result = await _service.GetItemAsync(kind, name, uid);
+
+            return Ok(result);
+        }
+
         [HttpPost]
-        public async Task<IActionResult> CreateItem([FromBody]DataObjectDto dto)
+        public async Task<IActionResult> CreateItem([FromBody]DataObjectSaveDto dto)
         {
             var result = await _service.InsertAsync(dto);
 

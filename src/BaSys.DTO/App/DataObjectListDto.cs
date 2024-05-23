@@ -13,7 +13,7 @@ namespace BaSys.DTO.App
         public MetaObjectKindSettings MetaObjectKindSettings { get; set; } = new MetaObjectKindSettings();
         public MetaObjectStorableSettings MetaObjectSettings { get; set; } = new MetaObjectStorableSettings();  
 
-        public List<DataObjectDto> Items { get; set; } = new List<DataObjectDto>();
+        public List<DataObjectSaveDto> Items { get; set; } = new List<DataObjectSaveDto>();
 
         public DataObjectListDto()
         {
@@ -27,7 +27,7 @@ namespace BaSys.DTO.App
 
             foreach (var dataItem in items)
             {
-                var itemDto = new DataObjectDto(kindSettings.Uid, objectSettings.Uid, dataItem.Header);
+                var itemDto = new DataObjectSaveDto(kindSettings.Uid, objectSettings.Uid, dataItem.Header);
                Items.Add(itemDto);
             }
 
