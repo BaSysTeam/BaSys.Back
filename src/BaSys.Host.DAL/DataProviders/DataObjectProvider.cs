@@ -23,6 +23,7 @@ namespace BaSys.Host.DAL.DataProviders
         private readonly IDbConnection _connection;
         private readonly SqlDialectKinds _sqlDialect;
         private readonly string _primaryKeyFieldName;
+        private DbType _primaryKeyDbType;
 
         protected IQuery? _query;
 
@@ -43,6 +44,11 @@ namespace BaSys.Host.DAL.DataProviders
 
             var primaryKey = objectSettings.Header.PrimaryKey;
             _primaryKeyFieldName = primaryKey.Name;
+
+            var pkDataType = primitiveDataTypes.GetDataType(primaryKey.DataTypeUid);
+            _primaryKeyDbType = pkDataType.DbType;
+
+
         }
 
         public async Task<List<DataObject>> GetCollectionAsync(IDbTransaction? transaction)
@@ -85,6 +91,42 @@ namespace BaSys.Host.DAL.DataProviders
 
         }
 
+        public async Task<DataObject?> GetItemAsync(string uid, IDbTransaction? transaction)
+        {
+            DataObject? item = null;
+            switch (_primaryKeyDbType)
+            {
+                case DbType.Int32:
+
+                    var intValue = int.Parse(uid);
+                    item = await GetItemAsync<int>(intValue, transaction);
+                    break;
+
+                case DbType.Int64:
+
+                    var longValue = long.Parse(uid);
+                    item = await GetItemAsync<long>(longValue, transaction);
+                    break;
+
+                case DbType.Guid:
+
+                    var guidValue = Guid.Parse(uid);
+                    item = await GetItemAsync<Guid>(guidValue, transaction);
+                    break;
+
+                case DbType.String:
+
+                    item = await GetItemAsync<string>(uid, transaction);
+                    break;
+
+                default:
+                    throw new ArgumentException($"Unsupported data type for primary key: {_primaryKeyDbType}");
+            }
+
+            return item;
+
+        }
+
         public async Task<int> InsertAsync(DataObject item, IDbTransaction? transaction)
         {
             _query = InsertBuilder.Make(_config).FillValuesByColumnNames(true).Query(_sqlDialect);
@@ -94,9 +136,19 @@ namespace BaSys.Host.DAL.DataProviders
             return result;
         }
 
-        public Task<int> UpdateAsync(DataObject item, IDbTransaction? transaction)
+        public async Task<int> UpdateAsync(DataObject item, IDbTransaction? transaction)
         {
-            throw new NotImplementedException();
+
+            var uid = item.Header[_primaryKeyFieldName];
+
+            _query = UpdateBuilder.Make(_config)
+                   .WhereAnd($"{_primaryKeyFieldName} = @{_primaryKeyFieldName}")
+                   .Parameter($"{_primaryKeyFieldName}", uid)
+                   .Query(_sqlDialect);
+
+            var result = await _connection.ExecuteAsync(_query.Text, item.Header, transaction);
+
+            return result;
         }
 
         public async Task<int> DeleteAsync<T>(T uid, IDbTransaction? transaction)

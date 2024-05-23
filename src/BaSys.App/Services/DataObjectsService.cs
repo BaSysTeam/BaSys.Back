@@ -95,63 +95,26 @@ namespace BaSys.App.Services
             }
 
             var metaObjectSettings = metaObject.ToSettings();
-
             var primitiveDataTypes = new PrimitiveDataTypes();
-            var pkColumn = metaObjectSettings.Header.PrimaryKey;
-
-            var pkDataType = primitiveDataTypes.GetDataType(pkColumn.DataTypeUid);
-
             var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, primitiveDataTypes);
 
-            DataObject? item = null;
-            if (pkDataType.Equals(DataTypeDefaults.Int))
+
+            try
             {
-                if (int.TryParse(uid, out var intValue))
+                var item = await provider.GetItemAsync(uid, null);
+                if (item != null)
                 {
-                    item = await provider.GetItemAsync<int>(intValue, null);
-                }
-                else
-                {
-                    result.Error(-1, $"Cannot parse value {uid} as int");
+                    var dto = new DataObjectDto(objectKindSettings, metaObjectSettings, item);
+                    result.Success(dto);
+
                 }
             }
-            else if (pkDataType.Equals(DataTypeDefaults.Long))
+            catch(Exception ex)
             {
-                if (long.TryParse(uid, out var longValue))
-                {
-                    item = await provider.GetItemAsync<long>(longValue, null);
-                }
-                else
-                {
-                    result.Error(-1, $"Cannot parse value {uid} as int");
-                }
-            }
-            else if (pkDataType.Equals(DataTypeDefaults.UniqueIdentifier))
-            {
-                if (Guid.TryParse(uid, out var guidValue))
-                {
-                    item = await provider.GetItemAsync<Guid>(guidValue, null);
-                }
-                else
-                {
-                    result.Error(-1, $"Cannot parse value {uid} as GUID");
-                }
-            }
-            else if (pkDataType.Equals(DataTypeDefaults.String))
-            {
-                item = await provider.GetItemAsync<string>(uid, null);
-            }
-            else
-            {
-                result.Error(-1, $"Unsupported data type for primary key: {pkDataType}");
+                result.Error(-1, $"Cannot get item.", $"Message: {ex.Message}, query: {provider.LastQuery}");
             }
 
-            if (item != null)
-            {
-                var dto = new DataObjectDto(objectKindSettings, metaObjectSettings, item);
-                result.Success(dto);
-
-            }
+          
 
             return result;
         }
@@ -192,6 +155,58 @@ namespace BaSys.App.Services
             catch (Exception ex)
             {
                 result.Error(-1, $"{DictMain.CannotCreateItem}", $"Message: {ex.Message}, Query: {provider.LastQuery}");
+            }
+
+            return result;
+        }
+
+        public async Task<ResultWrapper<int>> UpdateAsync(DataObjectSaveDto dto)
+        {
+            var result = new ResultWrapper<int>();
+
+            var objectKindSettings = await _kindProvider.GetSettingsAsync(dto.MetaObjectKindUid);
+
+            if (objectKindSettings == null)
+            {
+                result.Error(-1, $"{DictMain.CannotFindMetaObjectKind}", $"MetaObjectKindUid: {dto.MetaObjectKindUid}");
+                return result;
+            }
+
+            var metaObjectProvider = new MetaObjectStorableProvider(_connection, objectKindSettings.Name);
+            var metaObject = await metaObjectProvider.GetItemAsync(dto.MetaObjectUid, null);
+
+            if (metaObject == null)
+            {
+                result.Error(-1, $"{DictMain.CannotFindMetaObject}", $"MetaObjectUid: {dto.MetaObjectUid}");
+                return result;
+            }
+
+            var metaObjectSettigs = metaObject.ToSettings();
+            var primitiveDataTypes = new PrimitiveDataTypes();
+            var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettigs, primitiveDataTypes);
+
+            var newItem = new DataObject(dto.Header);
+
+            var uid = dto.Header[metaObjectSettigs.Header.PrimaryKey.Name];
+            var savedItem = await provider.GetItemAsync(uid?.ToString() ?? string.Empty, null);
+
+            if (savedItem == null)
+            {
+                result.Error(-1, $"Cannot find item: {uid}");
+                return result;  
+            }
+
+            savedItem.CopyFrom(newItem);
+
+            try
+            {
+                var insertResult = await provider.UpdateAsync(savedItem, null);
+
+                result.Success(insertResult);
+            }
+            catch (Exception ex)
+            {
+                result.Error(-1, $"{DictMain.CannotUpdateItem}", $"Message: {ex.Message}, Query: {provider.LastQuery}");
             }
 
             return result;
@@ -270,9 +285,13 @@ namespace BaSys.App.Services
                 result.Error(-1, $"Unsupported data type for primary key: {pkDataType}");
             }
 
-            if (deletedCount >= 0)
+            if (deletedCount > 0)
             {
                 result.Success(deletedCount, DictMain.ItemDeleted);
+            }
+            else if (deletedCount == 0)
+            {
+                result.Error(-1, $"{DictMain.CannotFindItem} {kindName}.{objectName}:{uid}");
             }
 
             return result;

@@ -45,6 +45,14 @@ namespace BaSys.App.Controllers
             return Ok(result);
         }
 
+        [HttpPut]
+        public async Task<IActionResult> UpdateItem([FromBody] DataObjectSaveDto dto)
+        {
+            var result = await _service.UpdateAsync(dto);
+
+            return Ok(result);
+        }
+
         [HttpDelete("{kind}/{name}/{uid}")]
         public async Task<IActionResult> DeleteItem(string kind, string name, string uid)
         {

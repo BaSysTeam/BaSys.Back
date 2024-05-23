@@ -24,6 +24,15 @@ namespace BaSys.DAL.Models.App
             }
         }
 
+        public void CopyFrom(DataObject source)
+        {
+            foreach(var kvp in source.Header)
+            {
+                Header[kvp.Key] = kvp.Value;
+            }
+
+        }
+
         public void SetValue(string key, object value)
         {
 

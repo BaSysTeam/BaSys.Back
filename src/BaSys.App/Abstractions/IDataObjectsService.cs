@@ -10,6 +10,7 @@ namespace BaSys.App.Abstractions
         Task<ResultWrapper<DataObjectListDto>> GetCollectionAsync(string kindName, string objectName);
         Task<ResultWrapper<DataObjectDto>> GetItemAsync(string kindName, string objectName, string uid);
         Task<ResultWrapper<int>> InsertAsync(DataObjectSaveDto dto);
+        Task<ResultWrapper<int>> UpdateAsync(DataObjectSaveDto dto);
         Task<ResultWrapper<int>> DeleteItemAsync(string kindName, string objectName, string uid);
     }
 }
