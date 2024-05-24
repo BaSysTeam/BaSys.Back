@@ -8,7 +8,7 @@
 
         public Guid MetaObjectKindUid { get; set; }
         public Guid MetaObjectUid { get; set; }
-        public Dictionary<string, object> Header { get; set; } = new Dictionary<string, object>();
+        public DataObjectDto Item { get; set; } = new DataObjectDto();
 
         public DataObjectSaveDto()
         {
@@ -20,10 +20,7 @@
             MetaObjectKindUid = kindUid;
             MetaObjectUid = objectUid;
 
-            foreach (var key in data.Keys)
-            {
-                Header[key] = data[key];
-            }
+            Item = new DataObjectDto(data);
         }
     }
 }

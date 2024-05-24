@@ -73,9 +73,9 @@ namespace BaSys.App.Services
             return result;
         }
 
-        public async Task<ResultWrapper<DataObjectDto>> GetItemAsync(string kindName, string objectName, string uid)
+        public async Task<ResultWrapper<DataObjectWithMetadataDto>> GetItemAsync(string kindName, string objectName, string uid)
         {
-            var result = new ResultWrapper<DataObjectDto>();
+            var result = new ResultWrapper<DataObjectWithMetadataDto>();
 
             var objectKindSettings = await _kindProvider.GetSettingsByNameAsync(kindName);
 
@@ -104,7 +104,7 @@ namespace BaSys.App.Services
                 var item = await provider.GetItemAsync(uid, null);
                 if (item != null)
                 {
-                    var dto = new DataObjectDto(objectKindSettings, metaObjectSettings, item);
+                    var dto = new DataObjectWithMetadataDto(objectKindSettings, metaObjectSettings, item);
                     result.Success(dto);
 
                 }
@@ -144,7 +144,7 @@ namespace BaSys.App.Services
             var primitiveDataTypes = new PrimitiveDataTypes();
             var provider = new DataObjectProvider(_connection, objectKindSettings, metaObject.ToSettings(), primitiveDataTypes);
 
-            var newObject = new DataObject(dto.Header);
+            var newObject = new DataObject(dto.Item.Header);
 
             try
             {
@@ -185,9 +185,9 @@ namespace BaSys.App.Services
             var primitiveDataTypes = new PrimitiveDataTypes();
             var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettigs, primitiveDataTypes);
 
-            var newItem = new DataObject(dto.Header);
+            var newItem = new DataObject(dto.Item.Header);
 
-            var uid = dto.Header[metaObjectSettigs.Header.PrimaryKey.Name];
+            var uid = dto.Item.Header[metaObjectSettigs.Header.PrimaryKey.Name];
             var savedItem = await provider.GetItemAsync(uid?.ToString() ?? string.Empty, null);
 
             if (savedItem == null)
