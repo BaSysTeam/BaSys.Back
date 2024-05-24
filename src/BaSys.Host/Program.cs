@@ -2,6 +2,7 @@ using System.Data;
 using System.Reflection;
 using System.Text;
 using BaSys.Admin.Infrastructure;
+using BaSys.App.Infrastructure;
 using BaSys.Common;
 using BaSys.Common.Enums;
 using BaSys.Common.Infrastructure;
@@ -81,6 +82,12 @@ namespace BaSys.Host
                 return new HostVersionService(version);
             });
 
+            builder.Services.AddControllers()
+            .AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.Converters.Add(new DictionaryStringObjectJsonConverter());
+            });
+
             // Add sa module
             builder.Services.AddSuperAdmin();
 
@@ -89,6 +96,9 @@ namespace BaSys.Host
 
             // Add constructor module
             builder.Services.AddConstructor();
+
+            // Add app module.
+            builder.Services.AddApp();
 
             // Add logging module
             builder.Services.AddLog();
