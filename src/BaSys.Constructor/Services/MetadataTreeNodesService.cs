@@ -112,6 +112,7 @@ namespace BaSys.Constructor.Services
                 var collection = await _nodesProvider.GetChildrenAsync(uid, null);
                 var children = collection
                     .Select(x => new MetadataTreeNodeDto(x))
+                    .OrderBy(x => x.Label)
                     .ToList();
 
                 foreach (var child in children)
@@ -316,6 +317,7 @@ namespace BaSys.Constructor.Services
                 var groups = collection
                     .Where(x => x.IsGroup)
                     .Select(s => new MetadataTreeNodeDto(s))
+                    .OrderBy(x => x.Label)
                     .ToList();
 
                 var metadataNode = new MetadataTreeNodeDto
