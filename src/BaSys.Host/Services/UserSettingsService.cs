@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Globalization;
+using System.Security.Claims;
 using System.Text;
 using BaSys.Common.DTO;
 using BaSys.Common.Enums;
@@ -30,9 +31,14 @@ public class UserSettingsService : IUserSettingsService
 
     public async Task<ResultWrapper<UserSettingsDto?>> GetUserSettings()
     {
+        return await GetUserSettings(_userId);
+    }
+
+    public async Task<ResultWrapper<UserSettingsDto?>> GetUserSettings(string? userId)
+    {
         var result = new ResultWrapper<UserSettingsDto?>();
 
-        if (string.IsNullOrEmpty(_userId))
+        if (string.IsNullOrEmpty(userId))
         {
             result.Error(-1, $"UserId is not set!");
             return result;
@@ -41,10 +47,10 @@ public class UserSettingsService : IUserSettingsService
         using var connection = _connectionFactory.CreateConnection();
         var provider = new UserSettingsProvider(connection);
 
-        var currentUser = await _userManager.Users.FirstOrDefaultAsync(x => x.Id == _userId);
+        var currentUser = await _userManager.Users.FirstOrDefaultAsync(x => x.Id == userId);
 
         UserSettingsDto userSettingsDto;
-        var userSettings = await provider.GetItemByUserIdAsync(_userId);
+        var userSettings = await provider.GetItemByUserIdAsync(userId);
         if (userSettings != null)
             userSettingsDto = new UserSettingsDto(userSettings);
         else
@@ -55,7 +61,7 @@ public class UserSettingsService : IUserSettingsService
             };
 
             var insertResult = await provider.InsertAsync(userSettingsDto.ToModel(), null);
-            userSettings = await provider.GetItemByUserIdAsync(_userId);
+            userSettings = await provider.GetItemByUserIdAsync(userId);
             if (insertResult < 1 || userSettings == null)
             {
                 result.Error(-1, $"Cannot get user settings!");
@@ -87,12 +93,21 @@ public class UserSettingsService : IUserSettingsService
         currentUser.UserName = userSettings.UserName;
         await _userManager.UpdateAsync(currentUser);
         
+        var userSettingsDB = await provider.GetItemByUserIdAsync(_userId);
         var state = await provider.UpdateAsync(userSettings.ToModel(), null);
         if (state == 1)
+        {
+            if (userSettingsDB != null && 
+                userSettingsDB.Language != userSettings.Language)
+            {
+                SetCulture(userSettings.Language);
+            }
+
             result.Success(true);
+        }
         else
             result.Error(-1, "UserSettings update error");
-        
+
         return result;
     }
 
@@ -158,5 +173,14 @@ public class UserSettingsService : IUserSettingsService
             
             return result;
         }
+    }
+
+    private void SetCulture(Languages userLanguage)
+    {
+        var cultureName = userLanguage == Languages.English ? "en-US" : "ru-RU";
+        var culture = CultureInfo.GetCultureInfo(cultureName);
+
+        CultureInfo.DefaultThreadCurrentCulture = culture;
+        CultureInfo.DefaultThreadCurrentUICulture = culture;
     }
 }
