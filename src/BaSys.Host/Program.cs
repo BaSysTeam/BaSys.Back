@@ -14,6 +14,7 @@ using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
 using BaSys.Host.DAL.MsSqlContext;
 using BaSys.Host.DAL.PgSqlContext;
+using BaSys.Host.Extensions;
 using BaSys.Host.Helpers;
 using BaSys.Host.Identity;
 using BaSys.Host.Identity.Models;
@@ -244,6 +245,9 @@ namespace BaSys.Host
                 .AllowAnyHeader());
 
             app.UseHttpsRedirection();
+
+            app.UseCookieRequestLocalization();
+
             app.UseStaticFiles();
 
             app.MapControllers();

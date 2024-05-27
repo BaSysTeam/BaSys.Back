@@ -10,6 +10,7 @@ using BaSys.Host.DAL.DataProviders;
 using BaSys.Host.DTO;
 using BaSys.Host.Identity.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 
 namespace BaSys.Host.Services;
@@ -19,11 +20,13 @@ public class UserSettingsService : IUserSettingsService
     private readonly IMainConnectionFactory _connectionFactory;
     private readonly UserManager<WorkDbUser> _userManager;
     private readonly string? _userId;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
     public UserSettingsService(IHttpContextAccessor httpContextAccessor,
         UserManager<WorkDbUser> userManager,
         IMainConnectionFactory connectionFactory)
     {
+        _httpContextAccessor = httpContextAccessor;
         _userId = httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
         _connectionFactory = connectionFactory;
         _userManager = userManager;
@@ -180,7 +183,10 @@ public class UserSettingsService : IUserSettingsService
         var cultureName = userLanguage == Languages.English ? "en-US" : "ru-RU";
         var culture = CultureInfo.GetCultureInfo(cultureName);
 
-        CultureInfo.DefaultThreadCurrentCulture = culture;
-        CultureInfo.DefaultThreadCurrentUICulture = culture;
+        var defaultCookieName = CookieRequestCultureProvider.DefaultCookieName;
+        var requestCulture = new RequestCulture(culture);
+        var cookieValue = CookieRequestCultureProvider.MakeCookieValue(requestCulture);
+
+        _httpContextAccessor?.HttpContext?.Response.Cookies.Append(defaultCookieName, cookieValue);
     }
 }
