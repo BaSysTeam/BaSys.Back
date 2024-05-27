@@ -43,6 +43,35 @@ namespace BaSys.Constructor.Services
 
         }
 
+        public async Task<ResultWrapper<List<MetaObjectStorableSettingsDto>>> GetMetaObjectsAsync(string kindName)
+        {
+            var result = new ResultWrapper<List<MetaObjectStorableSettingsDto>>();
+            
+            var kindSettings = await _kindsProvider.GetSettingsByNameAsync(kindName);
+            if (kindSettings == null)
+            {
+                result.Error(-1, $"{DictMain.CannotFindMetaObjectKind}: {kindName}");
+                return result;
+            }
+            
+            var provider = _providerFactory.CreateMetaObjectStorableProvider(kindSettings.Name);
+            var metaObjects = await provider.GetCollectionAsync(null);
+            
+            var list = new List<MetaObjectStorableSettingsDto>();
+            foreach (var metaObject in metaObjects)
+            {
+                list.Add(new MetaObjectStorableSettingsDto
+                {
+                    Uid = metaObject.Uid.ToString(),
+                    Title = metaObject.Title,
+                    Name = metaObject.Name
+                });
+            }
+            
+            result.Success(list);
+            return result;
+        }
+        
         public async Task<ResultWrapper<MetaObjectStorableSettingsDto>> GetSettingsItemAsync(string kindName, string objectName)
         {
             var result = new ResultWrapper<MetaObjectStorableSettingsDto>();

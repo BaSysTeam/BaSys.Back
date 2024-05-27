@@ -45,7 +45,7 @@ namespace BaSys.Host.DAL.Abstractions
             return result;
         }
 
-        public virtual async Task<T> GetItemAsync(Guid uid, IDbTransaction transaction)
+        public virtual async Task<T?> GetItemAsync(Guid uid, IDbTransaction transaction)
         {
             _query = SelectBuilder.Make()
               .From(_config.TableName)
