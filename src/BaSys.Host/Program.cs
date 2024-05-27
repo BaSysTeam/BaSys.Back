@@ -82,11 +82,11 @@ namespace BaSys.Host
                 return new HostVersionService(version);
             });
 
-            builder.Services.AddControllers()
-            .AddJsonOptions(options =>
-            {
-                options.JsonSerializerOptions.Converters.Add(new DictionaryStringObjectJsonConverter());
-            });
+            //builder.Services.AddControllers()
+            //.AddJsonOptions(options =>
+            //{
+            //    options.JsonSerializerOptions.Converters.Add(new DictionaryStringObjectJsonConverter());
+            //});
 
             // Add sa module
             builder.Services.AddSuperAdmin();

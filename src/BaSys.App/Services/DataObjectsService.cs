@@ -9,6 +9,7 @@ using BaSys.Metadata.Models;
 using BaSys.Translation;
 using System.Data;
 using System.Security.AccessControl;
+using System.Text.Json;
 
 
 namespace BaSys.App.Services
@@ -140,9 +141,43 @@ namespace BaSys.App.Services
                 return result;
             }
 
-
+            var metaObjectSettings = metaObject.ToSettings();
             var primitiveDataTypes = new PrimitiveDataTypes();
-            var provider = new DataObjectProvider(_connection, objectKindSettings, metaObject.ToSettings(), primitiveDataTypes);
+
+            // Parse header.
+            var headerParsed = new Dictionary<string, object>(); 
+            foreach(var kvp in dto.Item.Header)
+            {
+                var fieldName = kvp.Key;
+                var fieldValue = (JsonElement)kvp.Value;
+
+                var fieldSettings = metaObjectSettings.Header.Columns.FirstOrDefault(x=>x.Name.Equals(fieldName, StringComparison.OrdinalIgnoreCase));
+
+                if (fieldSettings == null)
+                {
+                    continue;
+                }
+
+                var fieldDataType = primitiveDataTypes.GetDataType(fieldSettings.DataTypeUid);
+
+                if (fieldDataType == null)
+                {
+                    continue;
+                }
+
+                switch (fieldDataType.DbType)
+                {
+                    case DbType.String:
+                        headerParsed.Add(fieldName, fieldValue.GetString() ?? string.Empty);
+                        break;
+                }
+
+               
+            }
+
+            dto.Item.Header = headerParsed;
+
+            var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, primitiveDataTypes);
 
             var newObject = new DataObject(dto.Item.Header);
 
