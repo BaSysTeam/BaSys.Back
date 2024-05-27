@@ -103,7 +103,7 @@ public class UserSettingsService : IUserSettingsService
             if (userSettingsDB != null && 
                 userSettingsDB.Language != userSettings.Language)
             {
-                SetCulture(userSettings.Language);
+                SetLocalization(userSettings.Language);
             }
 
             result.Success(true);
@@ -178,7 +178,7 @@ public class UserSettingsService : IUserSettingsService
         }
     }
 
-    private void SetCulture(Languages userLanguage)
+    private void SetLocalization(Languages userLanguage)
     {
         var cultureName = userLanguage == Languages.English ? "en-US" : "ru-RU";
         var culture = CultureInfo.GetCultureInfo(cultureName);
