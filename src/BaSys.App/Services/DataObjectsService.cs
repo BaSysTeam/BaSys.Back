@@ -9,6 +9,7 @@ using BaSys.Metadata.Models;
 using BaSys.Translation;
 using System.Data;
 using System.Security.AccessControl;
+using System.Text.Json;
 
 
 namespace BaSys.App.Services
@@ -140,9 +141,13 @@ namespace BaSys.App.Services
                 return result;
             }
 
-
+            var metaObjectSettings = metaObject.ToSettings();
             var primitiveDataTypes = new PrimitiveDataTypes();
-            var provider = new DataObjectProvider(_connection, objectKindSettings, metaObject.ToSettings(), primitiveDataTypes);
+
+            // Parse header.
+            dto.Item.Header = DataObjectParser.ParseHeader(dto.Item.Header, metaObjectSettings, primitiveDataTypes);
+
+            var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, primitiveDataTypes);
 
             var newObject = new DataObject(dto.Item.Header);
 
@@ -181,13 +186,17 @@ namespace BaSys.App.Services
                 return result;
             }
 
-            var metaObjectSettigs = metaObject.ToSettings();
+            var metaObjectSettings = metaObject.ToSettings();
             var primitiveDataTypes = new PrimitiveDataTypes();
-            var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettigs, primitiveDataTypes);
+
+            // Parse header.
+            dto.Item.Header = DataObjectParser.ParseHeader(dto.Item.Header, metaObjectSettings, primitiveDataTypes);
+
+            var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, primitiveDataTypes);
 
             var newItem = new DataObject(dto.Item.Header);
 
-            var uid = dto.Item.Header[metaObjectSettigs.Header.PrimaryKey.Name];
+            var uid = dto.Item.Header[metaObjectSettings.Header.PrimaryKey.Name];
             var savedItem = await provider.GetItemAsync(uid?.ToString() ?? string.Empty, null);
 
             if (savedItem == null)
@@ -236,54 +245,9 @@ namespace BaSys.App.Services
             var metaObjectSettings = metaObject.ToSettings();
 
             var primitiveDataTypes = new PrimitiveDataTypes();
-            var pkColumn = metaObjectSettings.Header.PrimaryKey;
-
-            var pkDataType = primitiveDataTypes.GetDataType(pkColumn.DataTypeUid);
-
             var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, primitiveDataTypes);
 
-            int deletedCount = -1;
-            if (pkDataType.Equals(DataTypeDefaults.Int))
-            {
-                if (int.TryParse(uid, out var intValue))
-                {
-                    deletedCount = await provider.DeleteAsync<int>(intValue, null);
-                }
-                else
-                {
-                    result.Error(-1, $"Cannot parse value {uid} as int");
-                }
-            }
-            else if (pkDataType.Equals(DataTypeDefaults.Long))
-            {
-                if (long.TryParse(uid, out var longValue))
-                {
-                    deletedCount = await provider.DeleteAsync<long>(longValue, null);
-                }
-                else
-                {
-                    result.Error(-1, $"Cannot parse value {uid} as int");
-                }
-            }
-            else if (pkDataType.Equals(DataTypeDefaults.UniqueIdentifier))
-            {
-                if (Guid.TryParse(uid, out var guidValue))
-                {
-                    deletedCount = await provider.DeleteAsync<Guid>(guidValue, null);
-                }
-                else
-                {
-                    result.Error(-1, $"Cannot parse value {uid} as GUID");
-                }
-            }
-            else if (pkDataType.Equals(DataTypeDefaults.String))
-            {
-                deletedCount = await provider.DeleteAsync<string>(uid, null);
-            }
-            else
-            {
-                result.Error(-1, $"Unsupported data type for primary key: {pkDataType}");
-            }
+            int deletedCount = await provider.DeleteAsync(uid, null);
 
             if (deletedCount > 0)
             {
