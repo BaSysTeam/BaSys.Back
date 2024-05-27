@@ -164,6 +164,41 @@ namespace BaSys.Host.DAL.DataProviders
             return result;
         }
 
+        public async Task<int> DeleteAsync(string uid, IDbTransaction? transaction)
+        {
+            var deletedCount = 0;
+            switch (_primaryKeyDbType)
+            {
+                case DbType.Int32:
+
+                    var intValue = int.Parse(uid);
+                    deletedCount = await DeleteAsync<int>(intValue, transaction);
+                    break;
+
+                case DbType.Int64:
+
+                    var longValue = long.Parse(uid);
+                    deletedCount = await DeleteAsync<long>(longValue, transaction);
+                    break;
+
+                case DbType.Guid:
+
+                    var guidValue = Guid.Parse(uid);
+                    deletedCount = await DeleteAsync<Guid>(guidValue, transaction);
+                    break;
+
+                case DbType.String:
+
+                    deletedCount = await DeleteAsync<string>(uid, transaction);
+                    break;
+
+                default:
+                    throw new ArgumentException($"Unsupported data type for primary key: {_primaryKeyDbType}");
+            }
+
+            return deletedCount;
+        }
+
         private SqlDialectKinds GetDialectKind(IDbConnection connection)
         {
             var dialectKind = SqlDialectKinds.MsSql;

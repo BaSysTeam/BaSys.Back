@@ -13,11 +13,13 @@ namespace BaSys.Host.DAL.Abstractions
     {
         IQuery? LastQuery { get; }
 
-        Task<int> DeleteAsync<T>(T uid, IDbTransaction? transaction);
+      
         Task<List<DataObject>> GetCollectionAsync(IDbTransaction? transaction);
         Task<DataObject?> GetItemAsync<T>(T uid, IDbTransaction? transaction);
         Task<DataObject?> GetItemAsync(string uid, IDbTransaction? transaction);
         Task<int> InsertAsync(DataObject item, IDbTransaction? transaction);
         Task<int> UpdateAsync(DataObject item, IDbTransaction? transaction);
+        Task<int> DeleteAsync<T>(T uid, IDbTransaction? transaction);
+        Task<int> DeleteAsync(string uid, IDbTransaction? transaction);
     }
 }

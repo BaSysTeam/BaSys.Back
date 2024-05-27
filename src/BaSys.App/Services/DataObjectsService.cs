@@ -236,54 +236,9 @@ namespace BaSys.App.Services
             var metaObjectSettings = metaObject.ToSettings();
 
             var primitiveDataTypes = new PrimitiveDataTypes();
-            var pkColumn = metaObjectSettings.Header.PrimaryKey;
-
-            var pkDataType = primitiveDataTypes.GetDataType(pkColumn.DataTypeUid);
-
             var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, primitiveDataTypes);
 
-            int deletedCount = -1;
-            if (pkDataType.Equals(DataTypeDefaults.Int))
-            {
-                if (int.TryParse(uid, out var intValue))
-                {
-                    deletedCount = await provider.DeleteAsync<int>(intValue, null);
-                }
-                else
-                {
-                    result.Error(-1, $"Cannot parse value {uid} as int");
-                }
-            }
-            else if (pkDataType.Equals(DataTypeDefaults.Long))
-            {
-                if (long.TryParse(uid, out var longValue))
-                {
-                    deletedCount = await provider.DeleteAsync<long>(longValue, null);
-                }
-                else
-                {
-                    result.Error(-1, $"Cannot parse value {uid} as int");
-                }
-            }
-            else if (pkDataType.Equals(DataTypeDefaults.UniqueIdentifier))
-            {
-                if (Guid.TryParse(uid, out var guidValue))
-                {
-                    deletedCount = await provider.DeleteAsync<Guid>(guidValue, null);
-                }
-                else
-                {
-                    result.Error(-1, $"Cannot parse value {uid} as GUID");
-                }
-            }
-            else if (pkDataType.Equals(DataTypeDefaults.String))
-            {
-                deletedCount = await provider.DeleteAsync<string>(uid, null);
-            }
-            else
-            {
-                result.Error(-1, $"Unsupported data type for primary key: {pkDataType}");
-            }
+            int deletedCount = await provider.DeleteAsync(uid, null);
 
             if (deletedCount > 0)
             {
