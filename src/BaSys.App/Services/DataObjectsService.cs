@@ -145,37 +145,7 @@ namespace BaSys.App.Services
             var primitiveDataTypes = new PrimitiveDataTypes();
 
             // Parse header.
-            var headerParsed = new Dictionary<string, object>(); 
-            foreach(var kvp in dto.Item.Header)
-            {
-                var fieldName = kvp.Key;
-                var fieldValue = (JsonElement)kvp.Value;
-
-                var fieldSettings = metaObjectSettings.Header.Columns.FirstOrDefault(x=>x.Name.Equals(fieldName, StringComparison.OrdinalIgnoreCase));
-
-                if (fieldSettings == null)
-                {
-                    continue;
-                }
-
-                var fieldDataType = primitiveDataTypes.GetDataType(fieldSettings.DataTypeUid);
-
-                if (fieldDataType == null)
-                {
-                    continue;
-                }
-
-                switch (fieldDataType.DbType)
-                {
-                    case DbType.String:
-                        headerParsed.Add(fieldName, fieldValue.GetString() ?? string.Empty);
-                        break;
-                }
-
-               
-            }
-
-            dto.Item.Header = headerParsed;
+            dto.Item.Header = DataObjectParser.ParseHeader(dto.Item.Header, metaObjectSettings, primitiveDataTypes);
 
             var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, primitiveDataTypes);
 
@@ -216,13 +186,17 @@ namespace BaSys.App.Services
                 return result;
             }
 
-            var metaObjectSettigs = metaObject.ToSettings();
+            var metaObjectSettings = metaObject.ToSettings();
             var primitiveDataTypes = new PrimitiveDataTypes();
-            var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettigs, primitiveDataTypes);
+
+            // Parse header.
+            dto.Item.Header = DataObjectParser.ParseHeader(dto.Item.Header, metaObjectSettings, primitiveDataTypes);
+
+            var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, primitiveDataTypes);
 
             var newItem = new DataObject(dto.Item.Header);
 
-            var uid = dto.Item.Header[metaObjectSettigs.Header.PrimaryKey.Name];
+            var uid = dto.Item.Header[metaObjectSettings.Header.PrimaryKey.Name];
             var savedItem = await provider.GetItemAsync(uid?.ToString() ?? string.Empty, null);
 
             if (savedItem == null)
