@@ -12,6 +12,7 @@ using BaSys.Logging.EventTypes;
 using BaSys.SuperAdmin.DAL.Abstractions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -138,7 +139,7 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
                 var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
-                    await SetCultureAsync();
+                    await SetLocalizationAsync();
 
                     _basysLogger.Info("User logged in", EventTypeFactory.UserLogin);
                     return LocalRedirect(returnUrl);
@@ -164,7 +165,7 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
             return Page();
         }
 
-        private async Task SetCultureAsync()
+        private async Task SetLocalizationAsync()
         {
             var userLanguage = Languages.English;
             var userId = _signInManager.UserManager.GetUserId(_signInManager.Context.User);
@@ -175,8 +176,11 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
             var cultureName = userLanguage == Languages.English ? "en-US" : "ru-RU";
             var culture = CultureInfo.GetCultureInfo(cultureName);
 
-            CultureInfo.DefaultThreadCurrentCulture = culture;
-            CultureInfo.DefaultThreadCurrentUICulture = culture;
+            var defaultCookieName = CookieRequestCultureProvider.DefaultCookieName;
+            var requestCulture = new RequestCulture(culture);
+            var cookieValue = CookieRequestCultureProvider.MakeCookieValue(requestCulture);
+
+            HttpContext.Response.Cookies.Append(defaultCookieName, cookieValue);
         }
     }
 }
