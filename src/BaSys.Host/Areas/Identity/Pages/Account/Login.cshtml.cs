@@ -3,17 +3,18 @@
 #nullable disable
 
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using BaSys.Common.Enums;
+using BaSys.Host.Abstractions;
 using BaSys.Host.Identity.Models;
-using BaSys.Host.Infrastructure.Abstractions;
 using BaSys.Logging.Abstractions.Abstractions;
 using BaSys.Logging.EventTypes;
 using BaSys.SuperAdmin.DAL.Abstractions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
 
 namespace BaSys.Host.Areas.Identity.Pages.Account
 {
@@ -22,14 +23,17 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
         private readonly SignInManager<WorkDbUser> _signInManager;
         private readonly IDbInfoRecordsProvider _dbInfoRecordsProvider;
         private readonly ILoggerService _basysLogger;
+        private readonly IUserSettingsService _userSettingsService;
 
         public LoginModel(SignInManager<WorkDbUser> signInManager,
             IDbInfoRecordsProvider dbInfoRecordsProvider,
-            ILoggerService basysLogger)
+            ILoggerService basysLogger,
+            IUserSettingsService userSettingsService)
         {
             _signInManager = signInManager;
             _dbInfoRecordsProvider = dbInfoRecordsProvider;
             _basysLogger = basysLogger;
+            _userSettingsService = userSettingsService;
         }
 
         /// <summary>
@@ -135,6 +139,8 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
                 var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
+                    await SetLocalizationAsync();
+
                     _basysLogger.Info("User logged in", EventTypeFactory.UserLogin);
                     return LocalRedirect(returnUrl);
                 }
@@ -157,6 +163,24 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
 
             // If we got this far, something failed, redisplay form
             return Page();
+        }
+
+        private async Task SetLocalizationAsync()
+        {
+            var userLanguage = Languages.English;
+            var userId = _signInManager.UserManager.GetUserId(_signInManager.Context.User);
+            var result = await _userSettingsService.GetUserSettings(userId);
+            if (result.IsOK)
+                userLanguage = result.Data.Language;
+
+            var cultureName = userLanguage == Languages.English ? "en-US" : "ru-RU";
+            var culture = CultureInfo.GetCultureInfo(cultureName);
+
+            var defaultCookieName = CookieRequestCultureProvider.DefaultCookieName;
+            var requestCulture = new RequestCulture(culture);
+            var cookieValue = CookieRequestCultureProvider.MakeCookieValue(requestCulture);
+
+            HttpContext.Response.Cookies.Append(defaultCookieName, cookieValue);
         }
     }
 }

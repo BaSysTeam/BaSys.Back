@@ -2,6 +2,7 @@ using System.Data;
 using System.Reflection;
 using System.Text;
 using BaSys.Admin.Infrastructure;
+using BaSys.App.Infrastructure;
 using BaSys.Common;
 using BaSys.Common.Enums;
 using BaSys.Common.Infrastructure;
@@ -14,6 +15,7 @@ using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
 using BaSys.Host.DAL.MsSqlContext;
 using BaSys.Host.DAL.PgSqlContext;
+using BaSys.Host.Extensions;
 using BaSys.Host.Helpers;
 using BaSys.Host.Identity;
 using BaSys.Host.Identity.Models;
@@ -82,6 +84,12 @@ namespace BaSys.Host
                 return new HostVersionService(version);
             });
 
+            //builder.Services.AddControllers()
+            //.AddJsonOptions(options =>
+            //{
+            //    options.JsonSerializerOptions.Converters.Add(new DictionaryStringObjectJsonConverter());
+            //});
+            
             // Add core
             builder.Services.AddCore();
 
@@ -93,6 +101,9 @@ namespace BaSys.Host
 
             // Add constructor module
             builder.Services.AddConstructor();
+
+            // Add app module.
+            builder.Services.AddApp();
 
             // Add logging module
             builder.Services.AddLog();
@@ -238,6 +249,9 @@ namespace BaSys.Host
                 .AllowAnyHeader());
 
             app.UseHttpsRedirection();
+
+            app.UseCookieRequestLocalization();
+
             app.UseStaticFiles();
 
             app.MapControllers();
