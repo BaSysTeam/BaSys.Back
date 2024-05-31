@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using BaSys.Constructor.Abstractions;
+using BaSys.Core.Abstractions;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Metadata.Models;
 

@@ -47,7 +47,11 @@ namespace BaSys.Host.Services
                 new MigrationManager(_connection),
                 new MetaObjectKindManager(_connection),
                 new UserSettingsManager(_connection),
-                new FileStorageConfigManager(_connection)
+                new FileStorageConfigManager(_connection),
+                new UserGroupManager(_connection),
+                new UserGroupUserManager(_connection),
+                new UserGroupRoleManager(_connection),
+                new UserGroupRightManager(_connection),
             };
 
             foreach (var tableManager in tableManagers)
