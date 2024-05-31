@@ -1,5 +1,6 @@
-﻿using BaSys.Common.Infrastructure;
-using BaSys.Constructor.Abstractions;
+﻿using System.Data;
+using BaSys.Common.Infrastructure;
+using BaSys.Core.Abstractions;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
 using BaSys.Host.DAL.Helpers;
@@ -9,11 +10,8 @@ using BaSys.Logging.EventTypes;
 using BaSys.Metadata.DTOs;
 using BaSys.Metadata.Models;
 using BaSys.Translation;
-using Microsoft.AspNetCore.Mvc;
-using System.Data;
-using System.Security.AccessControl;
 
-namespace BaSys.Constructor.Services
+namespace BaSys.Core.Services
 {
     public sealed class MetaObjectsService : IMetaObjectsService, IDisposable
     {

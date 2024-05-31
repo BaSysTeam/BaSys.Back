@@ -3,7 +3,7 @@ using System.Data;
 using BaSys.Admin.Abstractions;
 using BaSys.Admin.DTO;
 using BaSys.Common.Infrastructure;
-using BaSys.Constructor.Abstractions;
+using BaSys.Core.Abstractions;
 using BaSys.DAL.Models.App;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
@@ -120,7 +120,7 @@ public class UserGroupService : IUserGroupService, IDisposable
         
         // Global rights
         if (userGroup.GlobalRights?.Any() == true)
-            await SaveRights(userGroup.Uid, userGroup.GlobalRights, transaction);
+            await SaveGlobalRights(userGroup.Uid, userGroup.GlobalRights, transaction);
         
         // Rights
         if (userGroup.Rights?.Any() == true)
@@ -245,7 +245,7 @@ public class UserGroupService : IUserGroupService, IDisposable
                 globalRights.Add(new UserGroupRightDto
                 {
                     RightUid = globalRight.Uid,
-                    RightName = $"{globalRight.Title}: {metaObjectKind.Title}",
+                    Name = $"{globalRight.Title}: {metaObjectKind.Title}",
                     MetaObjectKindUid = metaObjectKind.Uid
                 });
             }
@@ -274,7 +274,7 @@ public class UserGroupService : IUserGroupService, IDisposable
                     rights.Add(new UserGroupRightDto
                     {
                         RightUid = right.Uid,
-                        RightName = right.Title,
+                        Name = right.Title,
                         MetaObjectUid = Guid.Parse(metaObject.Uid),
                         MetaObjectTitle = metaObject.Title,
                         MetaObjectKindUid = metaObjectKind.Uid
@@ -295,7 +295,7 @@ public class UserGroupService : IUserGroupService, IDisposable
     private async Task SaveUsers(Guid userGroupUid, List<UserGroupUserDto> userGroupUsers, IDbTransaction transaction)
     {
         var items = (await _userGroupUserProvider.GetCollectionByUserGroupUidAsync(userGroupUid, transaction)).ToList();
-        var changes = GetChanges(items.Select(x => x.UserUid), userGroupUsers.Select(x => x.UserUid));
+        var changes = GetChanges(items.Select(x => x.UserUid), userGroupUsers.Where(x => x.IsChecked).Select(x => x.UserUid));
 
         // Delete
         if (changes.ToDelete?.Any() == true)
@@ -324,7 +324,7 @@ public class UserGroupService : IUserGroupService, IDisposable
     private async Task SaveRoles(Guid userGroupUid, List<UserGroupRoleDto> userGroupRoles, IDbTransaction transaction)
     {
         var items = (await _userGroupRoleProvider.GetCollectionByUserGroupUidAsync(userGroupUid, transaction)).ToList();
-        var changes = GetChanges(items.Select(x => x.RoleUid), userGroupRoles.Select(x => x.RoleUid));
+        var changes = GetChanges(items.Select(x => x.RoleUid), userGroupRoles.Where(x => x.IsChecked).Select(x => x.RoleUid));
 
         // Delete
         if (changes.ToDelete?.Any() == true)
@@ -350,30 +350,106 @@ public class UserGroupService : IUserGroupService, IDisposable
         }
     }
 
-    private async Task SaveRights(Guid userGroupUid, List<UserGroupRightDto> rights, IDbTransaction transaction)
+    private async Task SaveGlobalRights(Guid userGroupUid, List<UserGroupRightDto> rights, IDbTransaction transaction)
     {
-        var items = (await _userGroupRightProvider.GetCollectionByUserGroupUidAsync(userGroupUid, transaction)).ToList();
-        var changes = GetChanges(items.Select(x => x.RightUid), rights.Select(x => x.RightUid));
+        var checkedRights = rights.Where(x => x.IsChecked).ToList();
+        var dbRights = (await _userGroupRightProvider.GetCollectionByUserGroupUidAsync(userGroupUid, transaction))
+            .Where(x => x.MetaObjectUid == null)
+            .ToList();
+
+        var toDelete = new List<UserGroupRight>();
+        var toInsert = new List<UserGroupRightDto>();
+        
+        // toDelete
+        foreach (var dbRight in dbRights)
+        {
+            if (!checkedRights.Any(x => x.RightUid == dbRight.RightUid &&
+                                  x.MetaObjectKindUid == dbRight.MetaObjectKindUid &&
+                                  x.MetaObjectUid == null))
+                toDelete.Add(dbRight);
+        }
+        
+        // toInsert
+        foreach (var right in checkedRights)
+        {
+            if (!dbRights.Any(x => x.RightUid == right.RightUid &&
+                                   x.MetaObjectKindUid == right.MetaObjectKindUid &&
+                                   x.MetaObjectUid == right.MetaObjectUid))
+                toInsert.Add(right);
+        }
 
         // Delete
-        if (changes.ToDelete?.Any() == true)
+        if (toDelete.Any())
         {
-            foreach (var uid in changes.ToDelete)
+            foreach (var item in toDelete)
             {
-                var item = items.First(x => x.RightUid == uid);
                 await _userGroupRightProvider.DeleteAsync(item.Uid, transaction);
             }
         }
 
         // Insert
-        if (changes.ToInsert?.Any() == true)
+        if (toInsert.Any())
         {
-            foreach (var uid in changes.ToInsert)
+            foreach (var item in toInsert)
             {
                 await _userGroupRightProvider.InsertAsync(new UserGroupRight
                 {
-                    RightUid = uid,
-                    UserGroupUid = userGroupUid
+                    RightUid = item.RightUid,
+                    UserGroupUid = userGroupUid,
+                    MetaObjectUid = item.MetaObjectUid,
+                    MetaObjectKindUid = item.MetaObjectKindUid
+                }, transaction);
+            }
+        }
+    }
+    
+    private async Task SaveRights(Guid userGroupUid, List<UserGroupRightDto> rights, IDbTransaction transaction)
+    {
+        var dbRights = (await _userGroupRightProvider.GetCollectionByUserGroupUidAsync(userGroupUid, transaction))
+            .Where(x => x.MetaObjectUid != null)
+            .ToList();
+
+        var toDelete = new List<UserGroupRight>();
+        var toInsert = new List<UserGroupRightDto>();
+        
+        // toDelete
+        foreach (var dbRight in dbRights)
+        {
+            if (!rights.Any(x => x.RightUid == dbRight.RightUid &&
+                                 x.MetaObjectKindUid == dbRight.MetaObjectKindUid &&
+                                 x.MetaObjectUid == dbRight.MetaObjectUid))
+                toDelete.Add(dbRight);
+        }
+        
+        // toInsert
+        foreach (var right in rights.Where(x => x.IsChecked))
+        {
+            if (!dbRights.Any(x => x.RightUid == right.RightUid &&
+                                   x.MetaObjectKindUid == right.MetaObjectKindUid &&
+                                   x.MetaObjectUid == right.MetaObjectUid))
+                toInsert.Add(right);
+        }
+
+        // Delete
+        if (toDelete.Any())
+        {
+            foreach (var item in toDelete)
+            {
+                await _userGroupRightProvider.DeleteAsync(item.Uid, transaction);
+            }
+        }
+
+        // Insert
+        if (toInsert.Any())
+        {
+            foreach (var item in toInsert)
+            {
+                await _userGroupRightProvider.InsertAsync(new UserGroupRight
+                {
+                    RightUid = item.RightUid,
+                    UserGroupUid = userGroupUid,
+                    MetaObjectUid = item.MetaObjectUid,
+                    MetaObjectKindUid = item.MetaObjectKindUid
                 }, transaction);
             }
         }

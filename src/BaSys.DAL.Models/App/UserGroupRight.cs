@@ -6,5 +6,5 @@ public class UserGroupRight
     public Guid UserGroupUid { get; set; }
     public Guid RightUid { get; set; }
     public Guid MetaObjectKindUid { get; set; }
-    public Guid MetaObjectUid { get; set; }
+    public Guid? MetaObjectUid { get; set; }
 }

@@ -72,36 +72,36 @@ public class UserGroupController : ControllerBase
         return Ok(result);
     }
 
-    [HttpPost("Test")]
-    public async Task<IActionResult> Test()
-    {
-        var userGroup = new UserGroupDetailDto
-        {
-            Uid = new Guid("2C879D09-5D7E-4A20-995A-946EEE98E632"),
-            Name = "Test user group 2",
-            Memo = "Test user group 2 memo",
-            CreateDate = DateTime.Now,
-            Users = new List<UserGroupUserDto>
-            {
-                new()
-                {
-                    UserUid = new Guid("daee587f-fbbd-4653-8e5a-4f3402be7b45")
-                }
-            },
-            Roles = new List<UserGroupRoleDto>
-            {
-                // new()
-                // {
-                //     RoleUid = new Guid("5483f8ff-ebf8-4cc8-8b4b-4b989886f452")
-                // },
-                new()
-                {
-                    RoleUid = new Guid("5a885da4-6d95-43b1-91ec-a23e498f6dd5")
-                }
-            }
-        };
-        
-        await _userGroupService.SaveUserGroup(userGroup);
-        return Ok();
-    }
+    // [HttpPost("Test")]
+    // public async Task<IActionResult> Test()
+    // {
+    //     var userGroup = new UserGroupDetailDto
+    //     {
+    //         Uid = new Guid("2C879D09-5D7E-4A20-995A-946EEE98E632"),
+    //         Name = "Test user group 2",
+    //         Memo = "Test user group 2 memo",
+    //         CreateDate = DateTime.Now,
+    //         Users = new List<UserGroupUserDto>
+    //         {
+    //             new()
+    //             {
+    //                 UserUid = new Guid("daee587f-fbbd-4653-8e5a-4f3402be7b45")
+    //             }
+    //         },
+    //         Roles = new List<UserGroupRoleDto>
+    //         {
+    //             // new()
+    //             // {
+    //             //     RoleUid = new Guid("5483f8ff-ebf8-4cc8-8b4b-4b989886f452")
+    //             // },
+    //             new()
+    //             {
+    //                 RoleUid = new Guid("5a885da4-6d95-43b1-91ec-a23e498f6dd5")
+    //             }
+    //         }
+    //     };
+    //     
+    //     await _userGroupService.SaveUserGroup(userGroup);
+    //     return Ok();
+    // }
 }

@@ -12,7 +12,7 @@ namespace BaSys.Metadata.Models
 
         public static ApplicationRight FullAccessForMetaObjectKindRight = new()
         {
-            Uid = new Guid("{216606B4-BCAC-4445-AE33-B0888A94E3E5}"),
+            Uid = new Guid("{316606B4-BCAC-4445-AE33-B0888A94E3E5}"),
             Title = DictMain.FullAccessForMetaObjectKindRight,
             Name = "full_access",
             IsGlobal = true,

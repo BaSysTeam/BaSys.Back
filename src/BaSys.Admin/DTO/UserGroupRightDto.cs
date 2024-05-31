@@ -7,6 +7,6 @@ public class UserGroupRightDto
     public Guid MetaObjectKindUid { get; set; }
     public Guid? MetaObjectUid { get; set; }
     public string? MetaObjectTitle { get; set; }
-    public string? RightName { get; set; }
+    public string? Name { get; set; }
     public bool IsChecked { get; set; }
 }

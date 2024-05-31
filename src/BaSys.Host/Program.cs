@@ -6,6 +6,7 @@ using BaSys.Common;
 using BaSys.Common.Enums;
 using BaSys.Common.Infrastructure;
 using BaSys.Constructor.Infrastructure;
+using BaSys.Core.Infrastructure;
 using BaSys.FileStorage.Infrastructure;
 using BaSys.Host.Abstractions;
 using BaSys.Host.DAL;
@@ -80,6 +81,9 @@ namespace BaSys.Host
                 var version = Assembly.GetAssembly(typeof(Program))?.GetName()?.Version?.ToString() ?? string.Empty;
                 return new HostVersionService(version);
             });
+
+            // Add core
+            builder.Services.AddCore();
 
             // Add sa module
             builder.Services.AddSuperAdmin();

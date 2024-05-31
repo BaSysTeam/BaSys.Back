@@ -51,6 +51,7 @@ namespace BaSys.Host.Services
                 new UserGroupManager(_connection),
                 new UserGroupUserManager(_connection),
                 new UserGroupRoleManager(_connection),
+                new UserGroupRightManager(_connection),
             };
 
             foreach (var tableManager in tableManagers)

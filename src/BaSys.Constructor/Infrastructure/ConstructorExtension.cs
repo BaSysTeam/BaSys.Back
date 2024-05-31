@@ -1,5 +1,7 @@
 ﻿using BaSys.Constructor.Abstractions;
 using BaSys.Constructor.Services;
+using BaSys.Core.Abstractions;
+using BaSys.Core.Services;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 
 namespace BaSys.Constructor.Infrastructure
@@ -14,9 +16,7 @@ namespace BaSys.Constructor.Infrastructure
                 .ApplicationParts
                 .Add(new AssemblyPart(typeof(ConstructorExtension).Assembly));
 
-            services.AddTransient<IMetaObjectKindsService, MetaObjectKindsService>();
             services.AddTransient<IMetadataTreeNodesService, MetadataTreeNodesService>();
-            services.AddTransient<IMetaObjectsService, MetaObjectsService>(); 
             services.AddTransient<IDataTypesService, DataTypesService>(); 
 
             return services;

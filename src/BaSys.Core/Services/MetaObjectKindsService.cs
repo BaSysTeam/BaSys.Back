@@ -1,20 +1,16 @@
-﻿using BaSys.Common.Infrastructure;
-using BaSys.Constructor.Abstractions;
+﻿using System.Data;
+using BaSys.Common.Enums;
+using BaSys.Common.Infrastructure;
+using BaSys.Core.Abstractions;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
-using BaSys.Metadata.Models;
-using BaSys.SuperAdmin.DAL.Abstractions;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Data;
-using System.Xml.Linq;
-using System.Linq;
 using BaSys.Host.DAL.TableManagers;
 using BaSys.Logging.Abstractions.Abstractions;
-using BaSys.Common.Enums;
 using BaSys.Logging.EventTypes;
+using BaSys.Metadata.Models;
 using BaSys.Metadata.Validators;
 
-namespace BaSys.Constructor.Services
+namespace BaSys.Core.Services
 {
     public sealed class MetaObjectKindsService : IMetaObjectKindsService, IDisposable
     {
