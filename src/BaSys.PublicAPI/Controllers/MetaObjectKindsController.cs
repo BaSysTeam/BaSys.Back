@@ -1,4 +1,5 @@
 ﻿using BaSys.Constructor.Abstractions;
+using BaSys.Core.Abstractions;
 using BaSys.Logging.Abstractions.Abstractions;
 using BaSys.Logging.EventTypes;
 using BaSys.Logging.Infrastructure;

@@ -7,6 +7,7 @@ using BaSys.Common;
 using BaSys.Common.Enums;
 using BaSys.Common.Infrastructure;
 using BaSys.Constructor.Infrastructure;
+using BaSys.Core.Infrastructure;
 using BaSys.FileStorage.Infrastructure;
 using BaSys.Host.Abstractions;
 using BaSys.Host.DAL;
@@ -88,6 +89,9 @@ namespace BaSys.Host
             //{
             //    options.JsonSerializerOptions.Converters.Add(new DictionaryStringObjectJsonConverter());
             //});
+            
+            // Add core
+            builder.Services.AddCore();
 
             // Add sa module
             builder.Services.AddSuperAdmin();

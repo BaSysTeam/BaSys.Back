@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <IsPackable>true</IsPackable>
+        <OutputType>Library</OutputType>
+        <LangVersion>12</LangVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\BaSys.Host.DAL\BaSys.Host.DAL.csproj" />
+      <ProjectReference Include="..\BaSys.Logging\BaSys.Logging.csproj" />
+      <ProjectReference Include="..\BaSys.Metadata\BaSys.Metadata.csproj" />
+    </ItemGroup>
+
+</Project>
