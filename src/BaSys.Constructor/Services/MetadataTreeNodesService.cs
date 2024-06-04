@@ -206,9 +206,9 @@ namespace BaSys.Constructor.Services
             {
                 var model = dto.ToModel();
 
-                var insertResult = await _nodesProvider.InsertAsync(model, null);
+                var insertedUid = await _nodesProvider.InsertAsync(model, null);
 
-                result.Success(insertResult);
+                result.Success(1);
             }
             catch (Exception ex)
             {

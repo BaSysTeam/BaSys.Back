@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using System.Reflection.Metadata.Ecma335;
 using BaSys.FluentQueries.QueryBuilders;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.ModelConfigurations;
@@ -14,13 +15,21 @@ public class AttachedFileInfoGuidProvider: SystemObjectProviderBase<AttachedFile
     {
     }
 
-    public override async Task<int> InsertAsync(AttachedFileInfo<Guid> item, IDbTransaction transaction)
+    public override async Task<Guid> InsertAsync(AttachedFileInfo<Guid> item, IDbTransaction transaction)
     {
+
+        if (item.Uid == Guid.Empty)
+        {
+            item.Uid = Guid.NewGuid();
+        }
+
         _query = InsertBuilder.Make(_config)
             .FillValuesByColumnNames(true)
             .Query(_sqlDialect);
 
-        return await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
+       var insertedCount  = await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
+
+        return InsertedUid(insertedCount, item.Uid);
     }
 
     public async Task<Guid> InsertDataAsync(AttachedFileInfo<Guid> item, IDbTransaction transaction)

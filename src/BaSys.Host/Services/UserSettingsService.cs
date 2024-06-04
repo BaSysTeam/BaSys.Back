@@ -63,9 +63,9 @@ public class UserSettingsService : IUserSettingsService
                 UserId = currentUser?.Id ?? string.Empty
             };
 
-            var insertResult = await provider.InsertAsync(userSettingsDto.ToModel(), null);
+            var insertedUid = await provider.InsertAsync(userSettingsDto.ToModel(), null);
             userSettings = await provider.GetItemByUserIdAsync(userId);
-            if (insertResult < 1 || userSettings == null)
+            if (insertedUid == Guid.Empty || userSettings == null)
             {
                 result.Error(-1, $"Cannot get user settings!");
                 return result;

@@ -13,15 +13,20 @@ public class UserSettingsProvider : SystemObjectProviderBase<UserSettings>
     {
     }
 
-    public override async Task<int> InsertAsync(UserSettings item, IDbTransaction transaction)
+    public override async Task<Guid> InsertAsync(UserSettings item, IDbTransaction transaction)
     {
+        if (item.Uid == Guid.Empty)
+        {
+            item.Uid = Guid.NewGuid();
+        }
+
         _query = InsertBuilder.Make(_config)
             .FillValuesByColumnNames(true)
             .Query(_sqlDialect);
 
-        var result = await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
+        var insertedCount = await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
 
-        return result;
+        return InsertedUid(insertedCount, item.Uid);
     }
 
     public override async Task<int> UpdateAsync(UserSettings item, IDbTransaction transaction)
@@ -34,7 +39,7 @@ public class UserSettingsProvider : SystemObjectProviderBase<UserSettings>
 
         return result;
     }
-    
+
     public async Task<UserSettings?> GetItemByUserIdAsync(string userId, IDbTransaction? transaction = null)
     {
         _query = SelectBuilder.Make()

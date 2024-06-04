@@ -47,8 +47,8 @@ namespace BaSys.Admin.Services
                 var collection = await _provider.GetCollectionAsync(null);
                 if (!collection.Any())
                 {
-                    var insertResult = await _provider.InsertAsync(appConstants, null);
-                    result.Success(insertResult, DictMain.AppConstantsRecordCreated);
+                    var insertedUid = await _provider.InsertAsync(appConstants, null);
+                    result.Success(1, DictMain.AppConstantsRecordCreated);
                 }
                 else
                 {

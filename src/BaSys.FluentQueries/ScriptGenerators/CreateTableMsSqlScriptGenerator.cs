@@ -7,10 +7,10 @@ using System.Text;
 
 namespace BaSys.FluentQueries.ScriptGenerators
 {
-    internal class MsSqlCreateTableScriptGenerator : CreateTableScriptGeneratorBase
+    internal class CreateTableMsSqlScriptGenerator : CreateTableScriptGeneratorBase
     {
 
-        public MsSqlCreateTableScriptGenerator(CreateTableModel model) : base(model)
+        public CreateTableMsSqlScriptGenerator(CreateTableModel model) : base(model)
         {
 
         }
@@ -27,7 +27,9 @@ namespace BaSys.FluentQueries.ScriptGenerators
                     expression += "IDENTITY(1,1) PRIMARY KEY";
                     break;
                 case DbType.Guid:
-                    expression += $"DEFAULT NEWID() PRIMARY KEY";
+                   //expression += $"DEFAULT NEWID() PRIMARY KEY";
+                    expression += $"PRIMARY KEY";
+
                     break;
                 default:
                     expression += $"PRIMARY KEY";
