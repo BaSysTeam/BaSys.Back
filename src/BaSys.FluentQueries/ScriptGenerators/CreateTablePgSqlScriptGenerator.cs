@@ -7,10 +7,10 @@ using System.Text;
 
 namespace BaSys.FluentQueries.ScriptGenerators
 {
-    internal class PgSqlCreateTableScriptGenerator : CreateTableScriptGeneratorBase
+    internal class CreateTablePgSqlScriptGenerator : CreateTableScriptGeneratorBase
     {
 
-        public PgSqlCreateTableScriptGenerator(CreateTableModel model) : base(model)
+        public CreateTablePgSqlScriptGenerator(CreateTableModel model) : base(model)
         {
 
         }
@@ -28,7 +28,9 @@ namespace BaSys.FluentQueries.ScriptGenerators
                     expression += "BIGSERIAL PRIMARY KEY";
                     break;
                 case DbType.Guid:
-                    expression += $"UUID PRIMARY KEY DEFAULT uuid_generate_v4()";
+                    //expression += $"UUID PRIMARY KEY DEFAULT uuid_generate_v4()";
+                    expression += $"UUID PRIMARY KEY";
+
                     break;
                 default:
                     expression = $"{GetDataType(column.DbType, column.StringLength)} PRIMARY KEY";

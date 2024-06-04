@@ -15,15 +15,20 @@ public class MetaObjectStorableProvider : SystemObjectProviderBase<MetaObjectSto
     {
     }
 
-    public override async Task<int> InsertAsync(MetaObjectStorable item, IDbTransaction transaction)
+    public override async Task<Guid> InsertAsync(MetaObjectStorable item, IDbTransaction transaction)
     {
+        if (item.Uid == Guid.Empty)
+        {
+            item.Uid = Guid.NewGuid();
+        }
+
         _query = InsertBuilder.Make(_config)
             .FillValuesByColumnNames(true)
             .Query(_sqlDialect);
 
-        var result = await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
+        var insertedCount = await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
 
-        return result;
+        return InsertedUid(insertedCount, item.Uid);
     }
 
     public override async Task<int> UpdateAsync(MetaObjectStorable item, IDbTransaction transaction)
@@ -60,7 +65,8 @@ public class MetaObjectStorableProvider : SystemObjectProviderBase<MetaObjectSto
             Version = settings.Version,
             SettingsStorage = settingsArr
         };
-        var result = await InsertAsync(item, transaction);
+        await InsertAsync(item, transaction);
+        var result = 1;
 
         return result;
     }

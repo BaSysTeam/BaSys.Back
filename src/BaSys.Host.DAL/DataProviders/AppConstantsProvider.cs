@@ -18,32 +18,27 @@ namespace BaSys.Host.DAL.DataProviders
         {
         }
 
-        public override async Task<int> InsertAsync(AppConstants item, IDbTransaction transaction)
+        public override async Task<Guid> InsertAsync(AppConstants item, IDbTransaction transaction)
         {
-            //var query = InsertBuilder.Make()
-            //    .Table(_tableName)
-            //    .Column("databaseuid")
-            //    .Column("applicationtitle")
-            //    .FillValuesByColumnNames(true)
-            //    .Query(_sqlDialect);
+
+            if (item.Uid == Guid.Empty)
+            {
+                item.Uid = Guid.NewGuid();
+            }
 
             _query = InsertBuilder.Make(_config)
                 .FillValuesByColumnNames(true)
                 .Query(_sqlDialect);
 
-            var result = await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
+            var insertedCount = await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
+
+            var result = InsertedUid(insertedCount, item.Uid);
 
             return result;
         }
 
         public override async Task<int> UpdateAsync(AppConstants item, IDbTransaction transaction)
         {
-            //var query = UpdateBuilder.Make()
-            //    .Table(_tableName)
-            //    .Set("databaseuid")
-            //    .Set("applicationtitle")
-            //    .WhereAnd("uid = @uid")
-            //    .Query(_sqlDialect);
 
             _query = UpdateBuilder.Make(_config)
                .WhereAnd("uid = @uid")

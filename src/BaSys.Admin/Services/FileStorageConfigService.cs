@@ -6,6 +6,7 @@ using BaSys.Common.Enums;
 using BaSys.Common.Infrastructure;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
+using MongoDB.Driver;
 
 namespace BaSys.Admin.Services;
 
@@ -21,11 +22,11 @@ public class FileStorageConfigService : IFileStorageConfigService
         providerFactory.SetUp(_connection);
         _provider = providerFactory.Create<FileStorageConfigProvider>();
     }
-    
+
     public async Task<ResultWrapper<FileStorageConfigDto>> GetFileStorageConfigAsync()
     {
         var result = new ResultWrapper<FileStorageConfigDto>();
-        
+
         var config = (await _provider.GetCollectionAsync(null)).FirstOrDefault();
         if (config == null)
             result.Success(new FileStorageConfigDto());
@@ -42,10 +43,15 @@ public class FileStorageConfigService : IFileStorageConfigService
         int count;
         var config = (await _provider.GetCollectionAsync(null)).FirstOrDefault();
         if (config == null)
-            count = await _provider.InsertAsync(fileStorageConfig.ToModel(), null);
+        {
+            await _provider.InsertAsync(fileStorageConfig.ToModel(), null);
+            count = 1;
+        }
         else
+        {
             count = await _provider.UpdateAsync(fileStorageConfig.ToModel(), null);
-        
+        }
+
         if (count == 1)
             result.Success(true);
         else
@@ -53,12 +59,12 @@ public class FileStorageConfigService : IFileStorageConfigService
 
         return result;
     }
-    
+
     public ResultWrapper<List<EnumValuesDto>> GetStorageKinds()
     {
         var result = new ResultWrapper<List<EnumValuesDto>>();
         var languages = new List<EnumValuesDto>();
-        foreach (var lang in (FileStorageKinds[]) Enum.GetValues(typeof(FileStorageKinds)))
+        foreach (var lang in (FileStorageKinds[])Enum.GetValues(typeof(FileStorageKinds)))
         {
             languages.Add(new EnumValuesDto
             {
@@ -66,7 +72,7 @@ public class FileStorageConfigService : IFileStorageConfigService
                 Name = lang.ToString()
             });
         }
-        
+
         result.Success(languages);
         return result;
     }

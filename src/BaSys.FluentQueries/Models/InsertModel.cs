@@ -1,6 +1,7 @@
 ﻿using BaSys.FluentQueries.Abstractions;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 
@@ -28,7 +29,7 @@ namespace BaSys.FluentQueries.Models
             TableName = config.TableName;
             foreach(var configColumn in config.Columns)
             {
-                if (configColumn.PrimaryKey)
+                if (configColumn.PrimaryKey && (configColumn.DbType == DbType.Int32 || configColumn.DbType == DbType.Int64))
                     continue;
 
                 _columns.Add(configColumn.Name);

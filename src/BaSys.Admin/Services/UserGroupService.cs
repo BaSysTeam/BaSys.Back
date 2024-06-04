@@ -69,9 +69,9 @@ public class UserGroupService : IUserGroupService, IDisposable
         var result = new ResultWrapper<bool>();
         var model = userGroup.ToModel();
         model.CreateDate = DateTime.UtcNow;
-        var r = await _userGroupProvider.InsertAsync(model, null);
+        var insertedUid = await _userGroupProvider.InsertAsync(model, null);
 
-        if (r == 1)
+        if (insertedUid != Guid.Empty)
             result.Success(true);
         else
             result.Error(-1, "Error create UserGroup");

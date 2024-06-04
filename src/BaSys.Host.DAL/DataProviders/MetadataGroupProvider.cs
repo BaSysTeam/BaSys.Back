@@ -23,16 +23,19 @@ namespace BaSys.Host.DAL.DataProviders
             _config = new MetadataGroupConfiguration();
         }
 
-        public override async Task<int> InsertAsync(MetadataGroup item, IDbTransaction transaction)
+        public override async Task<Guid> InsertAsync(MetadataGroup item, IDbTransaction transaction)
         {
-            var result = 0;
+            if (item.Uid == Guid.Empty)
+            {
+                item.Uid = Guid.NewGuid();
+            }
 
             _query = InsertBuilder.Make(_config)
               .FillValuesByColumnNames(true).Query(_sqlDialect);
 
-            result = await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
+            var insertedCount = await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
 
-            return result;
+            return InsertedUid(insertedCount, item.Uid);
         }
 
         public override async Task<int> UpdateAsync(MetadataGroup item, IDbTransaction transaction)

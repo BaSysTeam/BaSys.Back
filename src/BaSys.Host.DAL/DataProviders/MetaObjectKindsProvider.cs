@@ -21,21 +21,27 @@ namespace BaSys.Host.DAL.DataProviders
         {
         }
 
-        public override async Task<int> InsertAsync(MetaObjectKind item, IDbTransaction transaction)
+        public override async Task<Guid> InsertAsync(MetaObjectKind item, IDbTransaction transaction)
         {
+            if (item.Uid == Guid.Empty)
+            {
+                item.Uid = Guid.NewGuid();
+            }
+
             _query = InsertBuilder.Make(_config)
            .FillValuesByColumnNames(true).Query(_sqlDialect);
 
             item.BeforeSave();
-            var result = await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
+            var insertedCount = await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
 
-            return result;
+            return InsertedUid(insertedCount, item.Uid);
         }
 
         public async Task<int> InsertSettingsAsync(MetaObjectKindSettings settings, IDbTransaction? transaction)
         {
             var item = new MetaObjectKind(settings);
-            var result = await InsertAsync(item, transaction);
+            await InsertAsync(item, transaction);
+            var result = 1;
 
             return result;
         }
