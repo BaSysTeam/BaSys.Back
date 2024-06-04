@@ -61,6 +61,24 @@ namespace BaSys.Translation {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Add files.
+        /// </summary>
+        public static string AddFilesRight {
+            get {
+                return ResourceManager.GetString("AddFilesRight", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add.
+        /// </summary>
+        public static string AddRight {
+            get {
+                return ResourceManager.GetString("AddRight", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to App constants record created.
         /// </summary>
         public static string AppConstantsRecordCreated {
@@ -106,6 +124,24 @@ namespace BaSys.Translation {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot create item.
+        /// </summary>
+        public static string CannotCreateItem {
+            get {
+                return ResourceManager.GetString("CannotCreateItem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot create logger config record.
+        /// </summary>
+        public static string CannotCreateLoggerConfig {
+            get {
+                return ResourceManager.GetString("CannotCreateLoggerConfig", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cannot create user.
         /// </summary>
         public static string CannotCreateUser {
@@ -120,6 +156,15 @@ namespace BaSys.Translation {
         public static string CannotDeleteAppConstantsRecord {
             get {
                 return ResourceManager.GetString("CannotDeleteAppConstantsRecord", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot delete logger config.
+        /// </summary>
+        public static string CannotDeleteLoggerConfig {
+            get {
+                return ResourceManager.GetString("CannotDeleteLoggerConfig", resourceCulture);
             }
         }
         
@@ -160,6 +205,42 @@ namespace BaSys.Translation {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot find item.
+        /// </summary>
+        public static string CannotFindItem {
+            get {
+                return ResourceManager.GetString("CannotFindItem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot find logger config record.
+        /// </summary>
+        public static string CannotFindLoggerConfig {
+            get {
+                return ResourceManager.GetString("CannotFindLoggerConfig", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot find metaobject.
+        /// </summary>
+        public static string CannotFindMetaObject {
+            get {
+                return ResourceManager.GetString("CannotFindMetaObject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot find metaobject kind.
+        /// </summary>
+        public static string CannotFindMetaObjectKind {
+            get {
+                return ResourceManager.GetString("CannotFindMetaObjectKind", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cannot find user.
         /// </summary>
         public static string CannotFindUser {
@@ -187,6 +268,15 @@ namespace BaSys.Translation {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot insert item.
+        /// </summary>
+        public static string CannotInsertItem {
+            get {
+                return ResourceManager.GetString("CannotInsertItem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cannot update app constants record.
         /// </summary>
         public static string CannotUpdateAppConstantsRecord {
@@ -196,11 +286,56 @@ namespace BaSys.Translation {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot update item.
+        /// </summary>
+        public static string CannotUpdateItem {
+            get {
+                return ResourceManager.GetString("CannotUpdateItem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot update logger config.
+        /// </summary>
+        public static string CannotUpdateLoggerConfig {
+            get {
+                return ResourceManager.GetString("CannotUpdateLoggerConfig", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cannot update user.
         /// </summary>
         public static string CannotUpdateUser {
             get {
                 return ResourceManager.GetString("CannotUpdateUser", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete files.
+        /// </summary>
+        public static string DeleteFilesRight {
+            get {
+                return ResourceManager.GetString("DeleteFilesRight", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete.
+        /// </summary>
+        public static string DeleteRight {
+            get {
+                return ResourceManager.GetString("DeleteRight", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Edit.
+        /// </summary>
+        public static string EditRight {
+            get {
+                return ResourceManager.GetString("EditRight", resourceCulture);
             }
         }
         
@@ -223,6 +358,33 @@ namespace BaSys.Translation {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The connection string should not be empty.
+        /// </summary>
+        public static string EmptyConnectionString {
+            get {
+                return ResourceManager.GetString("EmptyConnectionString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The logger type should not be empty.
+        /// </summary>
+        public static string EmptyLoggerType {
+            get {
+                return ResourceManager.GetString("EmptyLoggerType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The parent uid should not be empty.
+        /// </summary>
+        public static string EmptyParentUid {
+            get {
+                return ResourceManager.GetString("EmptyParentUid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Empty users list.
         /// </summary>
         public static string EmptyUsersList {
@@ -232,11 +394,74 @@ namespace BaSys.Translation {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Full access.
+        /// </summary>
+        public static string FullAccessForMetaObjectKindRight {
+            get {
+                return ResourceManager.GetString("FullAccessForMetaObjectKindRight", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Item deleted.
+        /// </summary>
+        public static string ItemDeleted {
+            get {
+                return ResourceManager.GetString("ItemDeleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Item updated.
+        /// </summary>
+        public static string ItemUpdated {
+            get {
+                return ResourceManager.GetString("ItemUpdated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Logger config created.
+        /// </summary>
+        public static string LoggerConfigCreated {
+            get {
+                return ResourceManager.GetString("LoggerConfigCreated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Logger config deleted.
+        /// </summary>
+        public static string LoggerConfigDeleted {
+            get {
+                return ResourceManager.GetString("LoggerConfigDeleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Logger config updated.
+        /// </summary>
+        public static string LoggerConfigUpdated {
+            get {
+                return ResourceManager.GetString("LoggerConfigUpdated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The user is the only active administrator.
         /// </summary>
         public static string OnlyActiveAdministrator {
             get {
                 return ResourceManager.GetString("OnlyActiveAdministrator", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Read.
+        /// </summary>
+        public static string ReadRight {
+            get {
+                return ResourceManager.GetString("ReadRight", resourceCulture);
             }
         }
         

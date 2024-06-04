@@ -11,8 +11,10 @@ namespace BaSys.FluentQueries.Models
         private readonly List<string> _selectExpressions;
         private readonly List<QueryParameter> _parameters;
 
+        public int Top { get; set; }
         public string FromExpression { get; set; } = string.Empty;
         public string WhereExpression { get; set; } = string.Empty;
+        public string OrderByExpression { get; set;} = string.Empty;    
 
         public IReadOnlyCollection<string> SelectExpressions => _selectExpressions;
         public IReadOnlyCollection<QueryParameter> Parameters => _parameters;

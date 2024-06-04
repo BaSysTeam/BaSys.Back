@@ -117,6 +117,12 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AddFilesRight" xml:space="preserve">
+    <value>Add files</value>
+  </data>
+  <data name="AddRight" xml:space="preserve">
+    <value>Add</value>
+  </data>
   <data name="AppConstantsRecordCreated" xml:space="preserve">
     <value>App constants record created</value>
   </data>
@@ -132,11 +138,20 @@
   <data name="CannotCreateAppConstantsRecord" xml:space="preserve">
     <value>Cannot create app constants record</value>
   </data>
+  <data name="CannotCreateItem" xml:space="preserve">
+    <value>Cannot create item</value>
+  </data>
+  <data name="CannotCreateLoggerConfig" xml:space="preserve">
+    <value>Cannot create logger config record</value>
+  </data>
   <data name="CannotCreateUser" xml:space="preserve">
     <value>Cannot create user</value>
   </data>
   <data name="CannotDeleteAppConstantsRecord" xml:space="preserve">
     <value>Cannot delete app constants record</value>
+  </data>
+  <data name="CannotDeleteLoggerConfig" xml:space="preserve">
+    <value>Cannot delete logger config</value>
   </data>
   <data name="CannotDeleteUser" xml:space="preserve">
     <value>Cannot delete user</value>
@@ -150,6 +165,18 @@
   <data name="CannotFindAppConstantsRecord" xml:space="preserve">
     <value>Cannot find app constants record</value>
   </data>
+  <data name="CannotFindItem" xml:space="preserve">
+    <value>Cannot find item</value>
+  </data>
+  <data name="CannotFindLoggerConfig" xml:space="preserve">
+    <value>Cannot find logger config record</value>
+  </data>
+  <data name="CannotFindMetaObject" xml:space="preserve">
+    <value>Cannot find metaobject</value>
+  </data>
+  <data name="CannotFindMetaObjectKind" xml:space="preserve">
+    <value>Cannot find metaobject kind</value>
+  </data>
   <data name="CannotFindUser" xml:space="preserve">
     <value>Cannot find user</value>
   </data>
@@ -159,11 +186,29 @@
   <data name="CannotGetUsersList" xml:space="preserve">
     <value>Cannot get users list</value>
   </data>
+  <data name="CannotInsertItem" xml:space="preserve">
+    <value>Cannot insert item</value>
+  </data>
   <data name="CannotUpdateAppConstantsRecord" xml:space="preserve">
     <value>Cannot update app constants record</value>
   </data>
+  <data name="CannotUpdateItem" xml:space="preserve">
+    <value>Cannot update item</value>
+  </data>
+  <data name="CannotUpdateLoggerConfig" xml:space="preserve">
+    <value>Cannot update logger config</value>
+  </data>
   <data name="CannotUpdateUser" xml:space="preserve">
     <value>Cannot update user</value>
+  </data>
+  <data name="DeleteFilesRight" xml:space="preserve">
+    <value>Delete files</value>
+  </data>
+  <data name="DeleteRight" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="EditRight" xml:space="preserve">
+    <value>Edit</value>
   </data>
   <data name="EmptyAppConstantsRecordList" xml:space="preserve">
     <value>Empty app constants record list</value>
@@ -171,11 +216,41 @@
   <data name="EmptyApplicationTitle" xml:space="preserve">
     <value>The application title should not be empty</value>
   </data>
+  <data name="EmptyConnectionString" xml:space="preserve">
+    <value>The connection string should not be empty</value>
+  </data>
+  <data name="EmptyLoggerType" xml:space="preserve">
+    <value>The logger type should not be empty</value>
+  </data>
+  <data name="EmptyParentUid" xml:space="preserve">
+    <value>The parent uid should not be empty</value>
+  </data>
   <data name="EmptyUsersList" xml:space="preserve">
     <value>Empty users list</value>
   </data>
+  <data name="FullAccessForMetaObjectKindRight" xml:space="preserve">
+    <value>Full access</value>
+  </data>
+  <data name="ItemDeleted" xml:space="preserve">
+    <value>Item deleted</value>
+  </data>
+  <data name="ItemUpdated" xml:space="preserve">
+    <value>Item updated</value>
+  </data>
+  <data name="LoggerConfigCreated" xml:space="preserve">
+    <value>Logger config created</value>
+  </data>
+  <data name="LoggerConfigDeleted" xml:space="preserve">
+    <value>Logger config deleted</value>
+  </data>
+  <data name="LoggerConfigUpdated" xml:space="preserve">
+    <value>Logger config updated</value>
+  </data>
   <data name="OnlyActiveAdministrator" xml:space="preserve">
     <value>The user is the only active administrator</value>
+  </data>
+  <data name="ReadRight" xml:space="preserve">
+    <value>Read</value>
   </data>
   <data name="UserAlreadyExists" xml:space="preserve">
     <value>User already exists</value>

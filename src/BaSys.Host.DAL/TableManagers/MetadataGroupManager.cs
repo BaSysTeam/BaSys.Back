@@ -20,27 +20,6 @@ namespace BaSys.Host.DAL.TableManagers
         {
             
         }
-
-        public override async Task<int> CreateTableAsync(IDbTransaction transaction = null)
-        {
-            await base.CreateTableAsync(transaction);
-
-            //var query = CreateTableBuilder.Make()
-            //   .Table(_tableName)
-            //   .PrimaryKey("Uid", DbType.Guid)
-            //   .Column("ParentUid", DbType.Guid, false)
-            //   .StringColumn("Title", 100, true)
-            //   .StringColumn("IconClass", 20, false)
-            //   .StringColumn("Memo", 300, false)
-            //   .Column("IsStandard", DbType.Boolean, true)
-            //   .Query(_sqlDialectKind);
-
-            _query = CreateTableBuilder.Make(_config).Query(_sqlDialectKind);
-
-            var result = await _connection.ExecuteAsync(_query.Text, null, transaction);
-
-            return result;
-        }
       
     }
 }

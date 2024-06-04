@@ -25,12 +25,12 @@ public class MainDbCheckService : IMainDbCheckService
         _context = context;
     }
     
-    public async Task Check(InitAppSettings initAppSettings)
+    public async Task Check(InitAppSettings initAppSettings, string? dbName = null)
     {
         _context.Database.Migrate();
         
         await CheckRoles();
-        var adminLogin = await CheckAdminUser(initAppSettings);
+        var adminLogin = await CheckAdminUser(initAppSettings, dbName);
         await CheckAdminRoles(adminLogin);
     }
 
@@ -57,7 +57,7 @@ public class MainDbCheckService : IMainDbCheckService
         }
     }
 
-    private async Task<string?> CheckAdminUser(InitAppSettings initAppSettings)
+    private async Task<string?> CheckAdminUser(InitAppSettings initAppSettings, string? dbName = null)
     {
         var isAdminSa = string.IsNullOrEmpty(initAppSettings.MainDb?.AdminLogin) ||
                         string.IsNullOrEmpty(initAppSettings.MainDb?.AdminPassword);
@@ -77,13 +77,21 @@ public class MainDbCheckService : IMainDbCheckService
             }
 
             // add DbName claim
+            Claim? dbNameClaim = null;
             var currentUser = await _userManager.Users.FirstAsync(x => x.Email != null && x.Email.ToUpper() == adminLogin.ToUpper());
-            var claims = await _userManager.GetClaimsAsync(currentUser);
-            if (!claims.Any(c => c.Type == "DbName") && !string.IsNullOrEmpty(initAppSettings.MainDb?.Name))
+            if (string.IsNullOrEmpty(dbName))
             {
-                var dbNameClaim = new Claim("DbName", initAppSettings.MainDb.Name);
-                await _userManager.AddClaimAsync(currentUser, dbNameClaim);
+                var claims = await _userManager.GetClaimsAsync(currentUser);
+                if (!claims.Any(c => c.Type == "DbName") && !string.IsNullOrEmpty(initAppSettings.MainDb?.Name))
+                    dbNameClaim = new Claim("DbName", initAppSettings.MainDb.Name);
             }
+            else
+            {
+                dbNameClaim = new Claim("DbName", dbName);
+            }
+            
+            if (dbNameClaim != null)
+                await _userManager.AddClaimAsync(currentUser, dbNameClaim);
         }
 
         return adminLogin;

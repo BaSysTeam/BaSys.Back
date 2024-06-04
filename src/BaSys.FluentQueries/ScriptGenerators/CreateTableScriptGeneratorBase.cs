@@ -41,6 +41,11 @@ namespace BaSys.FluentQueries.ScriptGenerators
                 {
                     sb.Append(" NULL");
                 }
+
+                if (column.Unique)
+                {
+                    sb.Append(" UNIQUE");
+                }
             }
 
           

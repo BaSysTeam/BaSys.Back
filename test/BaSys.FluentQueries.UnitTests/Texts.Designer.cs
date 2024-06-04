@@ -91,5 +91,75 @@ namespace BaSys.FluentQueries.UnitTests {
                 return ResourceManager.GetString("CreateTableMetadataGroupPgSql", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CREATE TABLE sys_metadata_kinds (
+        ///uid UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
+        ///title NVARCHAR(100) NOT NULL,
+        ///prefix NVARCHAR(4) NOT NULL UNIQUE
+        ///);.
+        /// </summary>
+        internal static string CreateTableWithUniqueColumnMsSql {
+            get {
+                return ResourceManager.GetString("CreateTableWithUniqueColumnMsSql", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CREATE TABLE sys_metadata_kinds (
+        ///uid UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        ///title varchar(100) NOT NULL,
+        ///prefix varchar(4) NOT NULL UNIQUE
+        ///);.
+        /// </summary>
+        internal static string CreateTableWithUniqueColumnPgSql {
+            get {
+                return ResourceManager.GetString("CreateTableWithUniqueColumnPgSql", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to SELECT TOP 1 *
+        ///FROM my_table;.
+        /// </summary>
+        internal static string SelectTopMsSql {
+            get {
+                return ResourceManager.GetString("SelectTopMsSql", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to SELECT TOP 1 *
+        ///FROM my_table
+        ///ORDER BY name desc;.
+        /// </summary>
+        internal static string SelectTopOrderByMsSql {
+            get {
+                return ResourceManager.GetString("SelectTopOrderByMsSql", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to SELECT *
+        ///FROM my_table
+        ///ORDER BY name desc
+        ///LIMIT 1;.
+        /// </summary>
+        internal static string SelectTopOrderByPgSql {
+            get {
+                return ResourceManager.GetString("SelectTopOrderByPgSql", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to SELECT *
+        ///FROM my_table
+        ///LIMIT 1;.
+        /// </summary>
+        internal static string SelectTopPgSql {
+            get {
+                return ResourceManager.GetString("SelectTopPgSql", resourceCulture);
+            }
+        }
     }
 }

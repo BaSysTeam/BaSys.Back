@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Text;
+using System.Xml.Serialization;
 
 namespace BaSys.Metadata.Models
 {
@@ -15,6 +16,7 @@ namespace BaSys.Metadata.Models
         public bool IsPrimitive { get; set; }
         public DbType DbType { get; set; }
         public Guid? ObjectKindUid { get; set; }
+        public Type Type { get; set; }
 
         public DataType(Guid uid)
         {

@@ -3,43 +3,37 @@
 #nullable disable
 
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
+using BaSys.Common.Enums;
+using BaSys.Host.Abstractions;
 using BaSys.Host.Identity.Models;
-using BaSys.Host.Infrastructure.Abstractions;
-using BaSys.Logging.Abstractions;
+using BaSys.Logging.Abstractions.Abstractions;
 using BaSys.Logging.EventTypes;
 using BaSys.SuperAdmin.DAL.Abstractions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
-using Serilog.Events;
-using ILoggerFactory = BaSys.Logging.Abstractions.Abstractions.ILoggerFactory;
 
 namespace BaSys.Host.Areas.Identity.Pages.Account
 {
     public class LoginModel : PageModel
     {
-        private readonly ILogger<LoginModel> _logger;
         private readonly SignInManager<WorkDbUser> _signInManager;
-        private readonly UserManager<WorkDbUser> _userManager;
-        private readonly IDataSourceProvider _dataSourceProvider;
         private readonly IDbInfoRecordsProvider _dbInfoRecordsProvider;
-        private readonly ILoggerFactory _loggerFactory;
+        private readonly ILoggerService _basysLogger;
+        private readonly IUserSettingsService _userSettingsService;
 
-        public LoginModel(ILogger<LoginModel> logger,
-            SignInManager<WorkDbUser> signInManager,
-            UserManager<WorkDbUser> userManager,
-            IDataSourceProvider dataSourceProvider,
+        public LoginModel(SignInManager<WorkDbUser> signInManager,
             IDbInfoRecordsProvider dbInfoRecordsProvider,
-            ILoggerFactory loggerFactory)
+            ILoggerService basysLogger,
+            IUserSettingsService userSettingsService)
         {
-            _logger = logger;
             _signInManager = signInManager;
-            _userManager = userManager;
-            _dataSourceProvider = dataSourceProvider;
             _dbInfoRecordsProvider = dbInfoRecordsProvider;
-            _loggerFactory = loggerFactory;
+            _basysLogger = basysLogger;
+            _userSettingsService = userSettingsService;
         }
 
         /// <summary>
@@ -145,15 +139,9 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
                 var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
-                    var currentUser = await _userManager.Users.FirstAsync(x => x.Email.ToUpper() == Input.Email.ToUpper());
+                    await SetLocalizationAsync();
 
-                    // using var logger = await _loggerFactory.GetLogger();
-                    // logger.Write("foo", EventTypeLevels.Info, new UserLoginEventType());
-                    
-                    // ToDo: remove?
-                    // await _userManager.UpdateAsync(currentUser);
-
-                    _logger.LogInformation("User logged in.");
+                    _basysLogger.Info("User logged in", EventTypeFactory.UserLogin);
                     return LocalRedirect(returnUrl);
                 }
                 if (result.RequiresTwoFactor)
@@ -162,11 +150,12 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
                 }
                 if (result.IsLockedOut)
                 {
-                    _logger.LogWarning("User account locked out.");
+                    _basysLogger.Info("User account locked out", EventTypeFactory.UserLogin);
                     return RedirectToPage("./Lockout");
                 }
                 else
                 {
+                    _basysLogger.Error("Invalid login attempt", EventTypeFactory.UserLoginFail);
                     ModelState.AddModelError(string.Empty, "Invalid login attempt.");
                     return Page();
                 }
@@ -174,6 +163,24 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
 
             // If we got this far, something failed, redisplay form
             return Page();
+        }
+
+        private async Task SetLocalizationAsync()
+        {
+            var userLanguage = Languages.English;
+            var userId = _signInManager.UserManager.GetUserId(_signInManager.Context.User);
+            var result = await _userSettingsService.GetUserSettings(userId);
+            if (result.IsOK)
+                userLanguage = result.Data.Language;
+
+            var cultureName = userLanguage == Languages.English ? "en-US" : "ru-RU";
+            var culture = CultureInfo.GetCultureInfo(cultureName);
+
+            var defaultCookieName = CookieRequestCultureProvider.DefaultCookieName;
+            var requestCulture = new RequestCulture(culture);
+            var cookieValue = CookieRequestCultureProvider.MakeCookieValue(requestCulture);
+
+            HttpContext.Response.Cookies.Append(defaultCookieName, cookieValue);
         }
     }
 }

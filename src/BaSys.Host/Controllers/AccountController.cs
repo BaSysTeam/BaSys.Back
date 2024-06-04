@@ -60,6 +60,33 @@ namespace BaSys.Host.Controllers
         }
 
         /// <summary>
+        /// Gets the current authenticated user's name.
+        /// </summary>
+        /// <returns>An <see cref="IActionResult"/> containing either the current user's details or an error message if not logged in.</returns>
+        /// <remarks>
+        /// Requires the user to be authenticated.
+        /// </remarks>
+        [HttpGet("CurrentUserName")]
+        [Authorize]
+        public IActionResult CurrentUserName()
+        {
+            var result = new ResultWrapper<string>();
+
+            if (User?.Identity?.IsAuthenticated ?? false)
+            {
+                var userName = User?.Identity?.Name ?? "Unknown";
+
+                result.Success(userName);
+            }
+            else
+            {
+                result.Error(-1, "User is not logged in.");
+            }
+
+            return Ok(result);
+        }
+
+        /// <summary>
         /// Logs out the currently authenticated user.
         /// </summary>
         /// <returns>An <see cref="IActionResult"/> indicating the success or failure of the logout operation.</returns>

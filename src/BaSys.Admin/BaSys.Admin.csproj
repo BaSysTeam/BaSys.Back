@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentValidation" Version="11.9.0" />
+    <PackageReference Include="FluentValidation" Version="11.9.1" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.2" />
@@ -34,8 +34,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\BaSys.Core\BaSys.Core.csproj" />
     <ProjectReference Include="..\BaSys.DTO\BaSys.DTO.csproj" />
     <ProjectReference Include="..\BaSys.Host.DAL\BaSys.Host.DAL.csproj" />
+    <ProjectReference Include="..\BaSys.Logging.Infrastructure\BaSys.Logging.Infrastructure.csproj" />
+    <ProjectReference Include="..\BaSys.Logging\BaSys.Logging.csproj" />
     <ProjectReference Include="..\BaSys.Shared\BaSys.Shared.csproj" />
     <ProjectReference Include="..\BaSys.Translation\BaSys.Translation.csproj" />
   </ItemGroup>

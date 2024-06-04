@@ -15,8 +15,8 @@ namespace BaSys.Host.DAL.Abstractions
 
         Task<int> DeleteAsync(Guid uid, IDbTransaction transaction);
         Task<IEnumerable<T>> GetCollectionAsync(IDbTransaction transaction);
-        Task<T> GetItemAsync(Guid uid, IDbTransaction transaction);
-        Task<int> InsertAsync(T item, IDbTransaction transaction);
+        Task<T?> GetItemAsync(Guid uid, IDbTransaction transaction);
+        Task<Guid> InsertAsync(T item, IDbTransaction transaction);
         Task<int> UpdateAsync(T item, IDbTransaction transaction);
     }
 }

@@ -45,7 +45,7 @@ namespace BaSys.Host.DAL.Abstractions
             return result;
         }
 
-        public virtual async Task<T> GetItemAsync(Guid uid, IDbTransaction transaction)
+        public virtual async Task<T?> GetItemAsync(Guid uid, IDbTransaction transaction)
         {
             _query = SelectBuilder.Make()
               .From(_config.TableName)
@@ -59,7 +59,8 @@ namespace BaSys.Host.DAL.Abstractions
             return result;
         }
 
-        public abstract Task<int> InsertAsync(T item, IDbTransaction transaction);
+
+        public abstract Task<Guid> InsertAsync(T item, IDbTransaction transaction);
 
         public abstract Task<int> UpdateAsync(T item, IDbTransaction transaction);
 
@@ -74,6 +75,11 @@ namespace BaSys.Host.DAL.Abstractions
             var result = await _dbConnection.ExecuteAsync(_query.Text, _query.DynamicParameters, transaction);
 
             return result;
+        }
+
+        public virtual Guid InsertedUid(int insertedCount, Guid uid)
+        {
+            return (insertedCount > 0) ? uid : Guid.Empty;
         }
 
         private SqlDialectKinds GetDialectKind(IDbConnection connection)

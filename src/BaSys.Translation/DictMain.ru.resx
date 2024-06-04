@@ -117,6 +117,12 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AddFilesRight" xml:space="preserve">
+    <value>Добавление файлов</value>
+  </data>
+  <data name="AddRight" xml:space="preserve">
+    <value>Добавление</value>
+  </data>
   <data name="AppConstantsRecordCreated" xml:space="preserve">
     <value>Запись констант приложения создана</value>
   </data>
@@ -132,11 +138,20 @@
   <data name="CannotCreateAppConstantsRecord" xml:space="preserve">
     <value>Ошибка создания записи констант приложения</value>
   </data>
+  <data name="CannotCreateItem" xml:space="preserve">
+    <value>Ошибка создания элемента</value>
+  </data>
+  <data name="CannotCreateLoggerConfig" xml:space="preserve">
+    <value>Ошибка создания конфигурации логгера</value>
+  </data>
   <data name="CannotCreateUser" xml:space="preserve">
     <value>Ошибка создания пользователя</value>
   </data>
   <data name="CannotDeleteAppConstantsRecord" xml:space="preserve">
     <value>Ошибка удаления записи констант приложения</value>
+  </data>
+  <data name="CannotDeleteLoggerConfig" xml:space="preserve">
+    <value>Ошибка удаления конфигурации логгера</value>
   </data>
   <data name="CannotDeleteUser" xml:space="preserve">
     <value>Ошибка удаления пользователя</value>
@@ -150,6 +165,18 @@
   <data name="CannotFindAppConstantsRecord" xml:space="preserve">
     <value>Запись констант приложения не найдена</value>
   </data>
+  <data name="CannotFindItem" xml:space="preserve">
+    <value>Элемент не найден</value>
+  </data>
+  <data name="CannotFindLoggerConfig" xml:space="preserve">
+    <value>Конфигурация логгера не найдена</value>
+  </data>
+  <data name="CannotFindMetaObject" xml:space="preserve">
+    <value>Не найден объект метаданных</value>
+  </data>
+  <data name="CannotFindMetaObjectKind" xml:space="preserve">
+    <value>Не найден вид объекта метаданных</value>
+  </data>
   <data name="CannotFindUser" xml:space="preserve">
     <value>Пользователь не найден</value>
   </data>
@@ -159,11 +186,29 @@
   <data name="CannotGetUsersList" xml:space="preserve">
     <value>Ошибка получения списка пользователей</value>
   </data>
+  <data name="CannotInsertItem" xml:space="preserve">
+    <value>Не удается вставить элемент</value>
+  </data>
   <data name="CannotUpdateAppConstantsRecord" xml:space="preserve">
     <value>Ошибка сохранения записи констант приложения</value>
   </data>
+  <data name="CannotUpdateItem" xml:space="preserve">
+    <value>Ошибка записи элемента</value>
+  </data>
+  <data name="CannotUpdateLoggerConfig" xml:space="preserve">
+    <value>Ошибка сохранения конфигурации логгера</value>
+  </data>
   <data name="CannotUpdateUser" xml:space="preserve">
     <value>Ошибка сохранения пользователя</value>
+  </data>
+  <data name="DeleteFilesRight" xml:space="preserve">
+    <value>Удаление файлов</value>
+  </data>
+  <data name="DeleteRight" xml:space="preserve">
+    <value>Удаление</value>
+  </data>
+  <data name="EditRight" xml:space="preserve">
+    <value>Редактирование</value>
   </data>
   <data name="EmptyAppConstantsRecordList" xml:space="preserve">
     <value>Список записей констант приложения пуст</value>
@@ -171,11 +216,41 @@
   <data name="EmptyApplicationTitle" xml:space="preserve">
     <value>Заголовок приложения не должен быть пустым</value>
   </data>
+  <data name="EmptyConnectionString" xml:space="preserve">
+    <value>Строка подключения не должна быть пустой</value>
+  </data>
+  <data name="EmptyLoggerType" xml:space="preserve">
+    <value>Тип логгера не должен быть пустой</value>
+  </data>
+  <data name="EmptyParentUid" xml:space="preserve">
+    <value>Родительский идентификатор не должен быть пустой</value>
+  </data>
   <data name="EmptyUsersList" xml:space="preserve">
     <value>Список пользователей пуст</value>
   </data>
+  <data name="FullAccessForMetaObjectKindRight" xml:space="preserve">
+    <value>Полный доступ</value>
+  </data>
+  <data name="ItemDeleted" xml:space="preserve">
+    <value>Элемент удален</value>
+  </data>
+  <data name="ItemUpdated" xml:space="preserve">
+    <value>Элемент записан</value>
+  </data>
+  <data name="LoggerConfigCreated" xml:space="preserve">
+    <value>Конфигурация логгера создана</value>
+  </data>
+  <data name="LoggerConfigDeleted" xml:space="preserve">
+    <value>Конфигурация логгера удалена</value>
+  </data>
+  <data name="LoggerConfigUpdated" xml:space="preserve">
+    <value>Конфигурация логгера обновлена</value>
+  </data>
   <data name="OnlyActiveAdministrator" xml:space="preserve">
     <value>Пользователь единственный активный администратор</value>
+  </data>
+  <data name="ReadRight" xml:space="preserve">
+    <value>Чтение</value>
   </data>
   <data name="UserAlreadyExists" xml:space="preserve">
     <value>Пользователь уже существует</value>

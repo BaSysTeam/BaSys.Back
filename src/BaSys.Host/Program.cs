@@ -1,14 +1,21 @@
 using System.Data;
+using System.Reflection;
 using System.Text;
 using BaSys.Admin.Infrastructure;
+using BaSys.App.Infrastructure;
+using BaSys.Common;
 using BaSys.Common.Enums;
 using BaSys.Common.Infrastructure;
 using BaSys.Constructor.Infrastructure;
+using BaSys.Core.Infrastructure;
+using BaSys.FileStorage.Infrastructure;
 using BaSys.Host.Abstractions;
 using BaSys.Host.DAL;
 using BaSys.Host.DAL.Abstractions;
+using BaSys.Host.DAL.DataProviders;
 using BaSys.Host.DAL.MsSqlContext;
 using BaSys.Host.DAL.PgSqlContext;
+using BaSys.Host.Extensions;
 using BaSys.Host.Helpers;
 using BaSys.Host.Identity;
 using BaSys.Host.Identity.Models;
@@ -18,7 +25,9 @@ using BaSys.Host.Infrastructure.JwtAuth;
 using BaSys.Host.Infrastructure.Providers;
 using BaSys.Host.Middlewares;
 using BaSys.Host.Services;
+using BaSys.Logging.Abstractions.Abstractions;
 using BaSys.Logging.Infrastructure;
+using BaSys.PublicAPI.Infrastructure;
 using BaSys.SuperAdmin.Abstractions;
 using BaSys.SuperAdmin.DAL;
 using BaSys.SuperAdmin.DAL.Abstractions;
@@ -32,6 +41,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using Serilog.Sinks.MSSqlServer;
+using EnvironmentName = Microsoft.AspNetCore.Hosting.EnvironmentName;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace BaSys.Host
@@ -67,8 +77,24 @@ namespace BaSys.Host
                 }
             });
 
+            // Add host version service
+            builder.Services.AddSingleton<IHostVersionService>(provider =>
+            {
+                var version = Assembly.GetAssembly(typeof(Program))?.GetName()?.Version?.ToString() ?? string.Empty;
+                return new HostVersionService(version);
+            });
+
+            //builder.Services.AddControllers()
+            //.AddJsonOptions(options =>
+            //{
+            //    options.JsonSerializerOptions.Converters.Add(new DictionaryStringObjectJsonConverter());
+            //});
+            
+            // Add core
+            builder.Services.AddCore();
+
             // Add sa module
-            builder.Services.AddSuperAdmin(builder.Configuration.GetSection("InitAppSettings"));
+            builder.Services.AddSuperAdmin();
 
             // Add admin module
             builder.Services.AddAdmin();
@@ -76,8 +102,17 @@ namespace BaSys.Host
             // Add constructor module
             builder.Services.AddConstructor();
 
+            // Add app module.
+            builder.Services.AddApp();
+
             // Add logging module
             builder.Services.AddLog();
+            
+            // Add public api module
+            builder.Services.AddPublicApi();
+
+            // Add file storage
+            builder.Services.AddFileStorage();
 
             // Add mssql context
             builder.Services.AddDbContext<MsSqlDbContext>((sp, options) =>
@@ -148,17 +183,35 @@ namespace BaSys.Host
 
 
             builder.Services.AddTransient<IJwtAuthService, JwtAuthService>();
+            builder.Services.AddTransient<IFileService, FileService>();
 
             builder.Services.AddSingleton<IDataSourceProvider, DataSourceProvider>();
             builder.Services.AddTransient<IMainDbCheckService, MainDbCheckService>();
             builder.Services.AddTransient<IWorkDbService, WorkDbService>();
             builder.Services.AddTransient<IHttpRequestContextService, HttpRequestContextService>();
+            builder.Services.AddTransient<IUserSettingsService, UserSettingsService>();
+            builder.Services.AddTransient<IMigrationService, MigrationService>();
+            builder.Services.AddTransient<ILoggerService>(sp =>
+            {
+                var loggerFactory = sp.GetRequiredService<IBaSysLoggerFactory>();
+                var logger = loggerFactory.GetLogger().GetAwaiter().GetResult();
+                return logger;
+            });
 
             // Factory to create DB connection by connection string and db kind.
             builder.Services.AddSingleton<IBaSysConnectionFactory, BaSysConnectionFactory>();
+            builder.Services.AddTransient<IMainConnectionFactory, MainConnectionFactory>();
+
+            // Factory to create TableManagers.
+            builder.Services.AddTransient<ITableManagerFactory, TableManagerFactory>();
+
+            // Factory to create system objects DataProviders.
+            builder.Services.AddTransient<ISystemObjectProviderFactory, SystemObjectProviderFactory>();
 
             // Service to create system tables and fill constants when DB created.
             builder.Services.AddTransient<IDbInitService, DbInitService>();
+
+            builder.Services.AddSingleton<MigrationRunnerService>();
 
             builder.Services.AddSwaggerGen(options => IncludeXmlCommentsHelper.IncludeXmlComments(options));
 
@@ -196,6 +249,9 @@ namespace BaSys.Host
                 .AllowAnyHeader());
 
             app.UseHttpsRedirection();
+
+            app.UseCookieRequestLocalization();
+
             app.UseStaticFiles();
 
             app.MapControllers();
@@ -220,18 +276,16 @@ namespace BaSys.Host
                 // Initialization by EF Context. Create users, roles etc.
                 await mainDbCheckService.Check(initAppSettings);
 
-                // Initialization by Dapper. Create system tables and fill neccessary data when DB created.
+                // Initialization by Dapper. Create system tables and fill necessary data when DB created.
                 var connectionFactory = serviceScopeInner.ServiceProvider.GetRequiredService<IBaSysConnectionFactory>();
                 var dbInitService = serviceScopeInner.ServiceProvider.GetRequiredService<IDbInitService>();
 
-                var dbKind = initAppSettings.MainDb.DbKind ?? DbKinds.PgSql;
-                using (IDbConnection connection = connectionFactory.CreateConnection(initAppSettings.MainDb.ConnectionString, dbKind))
+                var dbKind = initAppSettings.MainDb!.DbKind ?? DbKinds.PgSql;
+                using (var connection = connectionFactory.CreateConnection(initAppSettings.MainDb.ConnectionString, dbKind))
                 {
                     dbInitService.SetUp(connection);
                     await dbInitService.ExecuteAsync();
-                    await dbInitService.CheckTablesAsync();
                 }
-
             };
             await systemDbService.CheckDbs();
 

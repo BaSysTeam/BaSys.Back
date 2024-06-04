@@ -12,7 +12,7 @@ namespace BaSys.Host.DAL.ModelConfigurations
     {
         public AppConstantsConfiguration()
         {
-            Table("sys_app_constants_records");
+            Table("sys_app_constants");
 
             Column("uid").IsPrimaryKey();
             Column("DataBaseUid").IsRequired();
