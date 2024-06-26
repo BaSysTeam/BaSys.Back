@@ -7,6 +7,7 @@ using BaSys.Host.DAL.DataProviders;
 using BaSys.Logging.Abstractions.Abstractions;
 using BaSys.Metadata.Models;
 using BaSys.Translation;
+using Humanizer;
 using System.Data;
 using System.Security.AccessControl;
 using System.Text.Json;
@@ -103,14 +104,20 @@ namespace BaSys.App.Services
             try
             {
                 var item = await provider.GetItemAsync(uid, null);
+
+                DataObjectWithMetadataDto dto;
                 if (item != null)
                 {
-                    var dto = new DataObjectWithMetadataDto(objectKindSettings, metaObjectSettings, item);
-                    result.Success(dto);
-
+                    dto = new DataObjectWithMetadataDto(objectKindSettings, metaObjectSettings, item);
                 }
+                else
+                {
+                    dto = new DataObjectWithMetadataDto(objectKindSettings, metaObjectSettings, new DataObject(metaObjectSettings));
+                }
+                result.Success(dto);
+
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 result.Error(-1, $"Cannot get item.", $"Message: {ex.Message}, query: {provider.LastQuery}");
             }
