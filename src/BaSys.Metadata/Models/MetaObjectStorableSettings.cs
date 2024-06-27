@@ -47,6 +47,7 @@ namespace BaSys.Metadata.Models
             if (primaryKeySettings == null)
                 throw new ArgumentNullException(nameof(primaryKeySettings), "Primary key is not specified in metaobject kind.");
 
+            // Add primary key column.
             var primaryKeyColumn = new MetaObjectTableColumn()
             {
                 Title = primaryKeySettings.Title,
@@ -60,6 +61,25 @@ namespace BaSys.Metadata.Models
             };
 
             Header.Columns.Add(primaryKeyColumn);
+
+            // Add other standard columns.
+            foreach(var stColumn in kindSettings.StandardColumns.Where(x => !x.IsPrimaryKey))
+            {
+                var newColumn = new MetaObjectTableColumn()
+                {
+                    Title= stColumn.Title,
+                    Name = stColumn.Name,
+                    DataTypeUid = stColumn.DataTypeUid,
+                    StringLength= stColumn.StringLength,
+                    NumberDigits = stColumn.NumberDigits,
+                    PrimaryKey = false,
+                    Unique = stColumn.IsUnique,
+                    Required = stColumn.IsRequired,
+                };
+
+                Header.Columns.Add(newColumn);
+            }
+
         }
 
         public void CopyFrom(MetaObjectStorableSettings source)

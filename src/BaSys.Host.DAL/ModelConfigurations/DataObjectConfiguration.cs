@@ -48,7 +48,9 @@ namespace BaSys.Host.DAL.ModelConfigurations
             {
                 Name = pkSettings.Name,
                 PrimaryKey = true,
-                DbType = _primitiveDataTypes.GetDbType(pkSettings.DataTypeUid)
+                DbType = _primitiveDataTypes.GetDbType(pkSettings.DataTypeUid),
+                StringLength = pkSettings.StringLength,
+                NumberDigits = pkSettings.NumberDigits,
             };
             AddColumn( tableColumn );
         }
