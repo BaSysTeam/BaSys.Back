@@ -127,9 +127,9 @@ namespace BaSys.App.Services
             return result;
         }
 
-        public async Task<ResultWrapper<int>> InsertAsync(DataObjectSaveDto dto)
+        public async Task<ResultWrapper<string>> InsertAsync(DataObjectSaveDto dto)
         {
-            var result = new ResultWrapper<int>();
+            var result = new ResultWrapper<string>();
 
             var objectKindSettings = await _kindProvider.GetSettingsAsync(dto.MetaObjectKindUid);
 
@@ -160,9 +160,9 @@ namespace BaSys.App.Services
 
             try
             {
-                var insertResult = await provider.InsertAsync(newObject, null);
+                var insertedUid = await provider.InsertAsync(newObject, null);
 
-                result.Success(insertResult);
+                result.Success(insertedUid, DictMain.ItemSaved);
             }
             catch (Exception ex)
             {
@@ -218,7 +218,7 @@ namespace BaSys.App.Services
             {
                 var insertResult = await provider.UpdateAsync(savedItem, null);
 
-                result.Success(insertResult);
+                result.Success(insertResult, DictMain.ItemSaved);
             }
             catch (Exception ex)
             {

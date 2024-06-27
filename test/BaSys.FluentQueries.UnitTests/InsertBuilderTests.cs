@@ -33,6 +33,27 @@ namespace BaSys.FluentQueries.UnitTests
         }
 
         [Test]
+        public void InsertBuilder_OneRowExampleReturnId_Query()
+        {
+            var builder = InsertBuilder.Make()
+                .Table("cat_currency").PrimaryKeyName("id").ReturnId(true)
+                .Column("name").Column("code").Column("title").FillValuesByColumnNames(true);
+               
+
+            var msSqlQuery = builder.Query(SqlDialectKinds.MsSql);
+            var pgSqlQuery = builder.Query(SqlDialectKinds.PgSql);
+
+            Console.WriteLine("MS SQL:");
+            Console.WriteLine(msSqlQuery.Text);
+
+            Console.WriteLine("===================");
+            Console.WriteLine("PG SQL:");
+            Console.WriteLine(pgSqlQuery.Text);
+
+            Assert.Pass();
+        }
+
+        [Test]
         public void InsertBuilder_FillValuesByColumnNames_Query()
         {
             var builder = InsertBuilder.Make()

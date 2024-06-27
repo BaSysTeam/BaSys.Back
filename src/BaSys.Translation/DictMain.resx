@@ -234,6 +234,9 @@
   <data name="ItemDeleted" xml:space="preserve">
     <value>Item deleted</value>
   </data>
+  <data name="ItemSaved" xml:space="preserve">
+    <value>Item saved</value>
+  </data>
   <data name="ItemUpdated" xml:space="preserve">
     <value>Item updated</value>
   </data>

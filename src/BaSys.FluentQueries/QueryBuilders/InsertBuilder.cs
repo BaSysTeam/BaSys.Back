@@ -45,6 +45,18 @@ namespace BaSys.FluentQueries.QueryBuilders
             return this;
         }
 
+        public InsertBuilder PrimaryKeyName(string pkName)
+        {
+            _model.PrimaryKeyName = pkName;
+            return this;
+        }
+
+        public InsertBuilder ReturnId(bool returnId)
+        {
+            _model.ReturnId = returnId;
+            return this;
+        }
+
         public InsertBuilder Value(string parameterName)
         {
             _model.AddParameter(parameterName, null);
@@ -59,7 +71,7 @@ namespace BaSys.FluentQueries.QueryBuilders
 
         public IQuery Query(SqlDialectKinds dbKind)
         {
-            // Validate();
+            _model.Validate();
 
             IQuery query = null;
 

@@ -127,11 +127,11 @@ namespace BaSys.Host.DAL.DataProviders
 
         }
 
-        public async Task<int> InsertAsync(DataObject item, IDbTransaction? transaction)
+        public async Task<string> InsertAsync(DataObject item, IDbTransaction? transaction)
         {
-            _query = InsertBuilder.Make(_config).FillValuesByColumnNames(true).Query(_sqlDialect);
+            _query = InsertBuilder.Make(_config).PrimaryKeyName(_primaryKeyFieldName).ReturnId(true).FillValuesByColumnNames(true).Query(_sqlDialect);
 
-            var result = await _connection.ExecuteAsync(_query.Text, item.Header, transaction);
+            var result = await _connection.QueryFirstOrDefaultAsync<string>(_query.Text, item.Header, transaction);
 
             return result;
         }
