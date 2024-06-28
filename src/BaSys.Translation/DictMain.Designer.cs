@@ -412,6 +412,15 @@ namespace BaSys.Translation {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Item saved.
+        /// </summary>
+        public static string ItemSaved {
+            get {
+                return ResourceManager.GetString("ItemSaved", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Item updated.
         /// </summary>
         public static string ItemUpdated {

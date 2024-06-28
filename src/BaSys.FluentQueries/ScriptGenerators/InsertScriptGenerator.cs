@@ -43,6 +43,10 @@ namespace BaSys.FluentQueries.ScriptGenerators
                 n++;
             }
             sb.AppendLine(")");
+            if(_sqlDialect == SqlDialectKinds.MsSql && _model.ReturnId)
+            {
+                sb.AppendLine($"OUTPUT INSERTED.{_model.PrimaryKeyName}");
+            }
             sb.AppendLine("VALUES");
 
             if (_model.FillValuesByColumnNames)
@@ -79,7 +83,11 @@ namespace BaSys.FluentQueries.ScriptGenerators
                     sb.Append(")");
                 }
             }
-
+            if (_sqlDialect == SqlDialectKinds.PgSql && _model.ReturnId)
+            {
+                sb.AppendLine();
+                sb.Append($"RETURNING {_model.PrimaryKeyName}");
+            }
            
             sb.Append(";");
 

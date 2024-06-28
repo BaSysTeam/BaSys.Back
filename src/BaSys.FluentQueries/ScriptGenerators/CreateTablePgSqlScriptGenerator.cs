@@ -33,7 +33,7 @@ namespace BaSys.FluentQueries.ScriptGenerators
 
                     break;
                 default:
-                    expression = $"{GetDataType(column.DbType, column.StringLength)} PRIMARY KEY";
+                    expression += $"{GetDataType(column.DbType, column.StringLength)} PRIMARY KEY";
                     break;
             }
 

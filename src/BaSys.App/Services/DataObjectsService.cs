@@ -7,6 +7,7 @@ using BaSys.Host.DAL.DataProviders;
 using BaSys.Logging.Abstractions.Abstractions;
 using BaSys.Metadata.Models;
 using BaSys.Translation;
+using Humanizer;
 using System.Data;
 using System.Security.AccessControl;
 using System.Text.Json;
@@ -103,14 +104,20 @@ namespace BaSys.App.Services
             try
             {
                 var item = await provider.GetItemAsync(uid, null);
+
+                DataObjectWithMetadataDto dto;
                 if (item != null)
                 {
-                    var dto = new DataObjectWithMetadataDto(objectKindSettings, metaObjectSettings, item);
-                    result.Success(dto);
-
+                    dto = new DataObjectWithMetadataDto(objectKindSettings, metaObjectSettings, item);
                 }
+                else
+                {
+                    dto = new DataObjectWithMetadataDto(objectKindSettings, metaObjectSettings, new DataObject(metaObjectSettings));
+                }
+                result.Success(dto);
+
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 result.Error(-1, $"Cannot get item.", $"Message: {ex.Message}, query: {provider.LastQuery}");
             }
@@ -120,9 +127,9 @@ namespace BaSys.App.Services
             return result;
         }
 
-        public async Task<ResultWrapper<int>> InsertAsync(DataObjectSaveDto dto)
+        public async Task<ResultWrapper<string>> InsertAsync(DataObjectSaveDto dto)
         {
-            var result = new ResultWrapper<int>();
+            var result = new ResultWrapper<string>();
 
             var objectKindSettings = await _kindProvider.GetSettingsAsync(dto.MetaObjectKindUid);
 
@@ -153,9 +160,9 @@ namespace BaSys.App.Services
 
             try
             {
-                var insertResult = await provider.InsertAsync(newObject, null);
+                var insertedUid = await provider.InsertAsync(newObject, null);
 
-                result.Success(insertResult);
+                result.Success(insertedUid, DictMain.ItemSaved);
             }
             catch (Exception ex)
             {
@@ -211,7 +218,7 @@ namespace BaSys.App.Services
             {
                 var insertResult = await provider.UpdateAsync(savedItem, null);
 
-                result.Success(insertResult);
+                result.Success(insertResult, DictMain.ItemSaved);
             }
             catch (Exception ex)
             {
