@@ -119,6 +119,80 @@ namespace BaSys.FluentQueries.UnitTests {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to INSERT INTO [metadata_groups]
+        ///([uid], [parentuid])
+        ///VALUES
+        ///(@uid, @parentuid);.
+        /// </summary>
+        internal static string InsertAutoFillValuesMsSql {
+            get {
+                return ResourceManager.GetString("InsertAutoFillValuesMsSql", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to INSERT INTO &quot;metadata_groups&quot;
+        ///(&quot;uid&quot;, &quot;parentuid&quot;)
+        ///VALUES
+        ///(@uid, @parentuid);.
+        /// </summary>
+        internal static string InsertAutoFillValuesPgSql {
+            get {
+                return ResourceManager.GetString("InsertAutoFillValuesPgSql", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to INSERT INTO [metadata_groups]
+        ///([uid], [parentuid])
+        ///VALUES
+        ///(@uid, @parentuid);.
+        /// </summary>
+        internal static string InsertOneRowMsSql {
+            get {
+                return ResourceManager.GetString("InsertOneRowMsSql", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to INSERT INTO &quot;metadata_groups&quot;
+        ///(&quot;uid&quot;, &quot;parentuid&quot;)
+        ///VALUES
+        ///(@uid, @parentuid);.
+        /// </summary>
+        internal static string InsertOneRowPgSql {
+            get {
+                return ResourceManager.GetString("InsertOneRowPgSql", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to INSERT INTO [cat_currency]
+        ///([name], [code], [title])
+        ///OUTPUT INSERTED.id
+        ///VALUES
+        ///(@name, @code, @title);.
+        /// </summary>
+        internal static string InsertReturnIdMsSql {
+            get {
+                return ResourceManager.GetString("InsertReturnIdMsSql", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to INSERT INTO &quot;cat_currency&quot;
+        ///(&quot;name&quot;, &quot;code&quot;, &quot;title&quot;)
+        ///VALUES
+        ///(@name, @code, @title)
+        ///RETURNING id;.
+        /// </summary>
+        internal static string InsertReturnIdPgSql {
+            get {
+                return ResourceManager.GetString("InsertReturnIdPgSql", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to SELECT TOP 1 *
         ///FROM my_table;.
         /// </summary>

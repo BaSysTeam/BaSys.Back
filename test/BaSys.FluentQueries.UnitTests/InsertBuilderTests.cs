@@ -11,67 +11,58 @@ namespace BaSys.FluentQueries.UnitTests
     [TestFixture]
     public class InsertBuilderTests
     {
-        [Test]
-        public void InsertBuilder_OneRowExample_Query()
+        [TestCase(SqlDialectKinds.MsSql, "InsertOneRowMsSql")]
+        [TestCase(SqlDialectKinds.PgSql, "InsertOneRowPgSql")]
+        public void InsertBuilder_OneRowExample_Query(SqlDialectKinds dialectKinds, string checkKey)
         {
             var builder = InsertBuilder.Make()
                 .Table("metadata_groups")
                 .Column("uid").Column("parentuid")
                 .Value("uid").Value("parentuid");
 
-            var msSqlQuery = builder.Query(SqlDialectKinds.MsSql);
-            var pgSqlQuery = builder.Query(SqlDialectKinds.PgSql);
+            var query = builder.Query(dialectKinds);
 
-            Console.WriteLine("MS SQL:");
-            Console.WriteLine(msSqlQuery.Text);
+            Console.WriteLine($"{dialectKinds}");
+            Console.Write(query);
 
-            Console.WriteLine("===================");
-            Console.WriteLine("PG SQL:");
-            Console.WriteLine(pgSqlQuery.Text);
-
-            Assert.Pass();
+            var checkText = Texts.ResourceManager.GetString(checkKey);
+            Assert.That(query.Text, Is.EqualTo(checkText));
         }
 
-        [Test]
-        public void InsertBuilder_OneRowExampleReturnId_Query()
+        [TestCase(SqlDialectKinds.MsSql, "InsertReturnIdMsSql")]
+        [TestCase(SqlDialectKinds.PgSql, "InsertReturnIdPgSql")]
+
+        public void InsertBuilder_OneRowExampleReturnId_Query(SqlDialectKinds dialectKinds, string checkKey)
         {
             var builder = InsertBuilder.Make()
                 .Table("cat_currency").PrimaryKeyName("id").ReturnId(true)
                 .Column("name").Column("code").Column("title").FillValuesByColumnNames(true);
-               
 
-            var msSqlQuery = builder.Query(SqlDialectKinds.MsSql);
-            var pgSqlQuery = builder.Query(SqlDialectKinds.PgSql);
+            var query = builder.Query(dialectKinds);
 
-            Console.WriteLine("MS SQL:");
-            Console.WriteLine(msSqlQuery.Text);
+            Console.WriteLine($"{dialectKinds}");
+            Console.Write(query);
 
-            Console.WriteLine("===================");
-            Console.WriteLine("PG SQL:");
-            Console.WriteLine(pgSqlQuery.Text);
-
-            Assert.Pass();
+            var checkText = Texts.ResourceManager.GetString(checkKey);
+            Assert.That(query.Text, Is.EqualTo(checkText));
         }
 
-        [Test]
-        public void InsertBuilder_FillValuesByColumnNames_Query()
+        [TestCase(SqlDialectKinds.MsSql, "InsertAutoFillValuesMsSql")]
+        [TestCase(SqlDialectKinds.PgSql, "InsertAutoFillValuesPgSql")]
+        public void InsertBuilder_FillValuesByColumnNames_Query(SqlDialectKinds dialectKinds, string checkKey)
         {
             var builder = InsertBuilder.Make()
                 .Table("metadata_groups")
                 .Column("uid").Column("parentuid")
                 .FillValuesByColumnNames(true);
 
-            var msSqlQuery = builder.Query(SqlDialectKinds.MsSql);
-            var pgSqlQuery = builder.Query(SqlDialectKinds.PgSql);
+            var query = builder.Query(dialectKinds);
 
-            Console.WriteLine("MS SQL:");
-            Console.WriteLine(msSqlQuery.Text);
+            Console.WriteLine($"{dialectKinds}");
+            Console.Write(query);
 
-            Console.WriteLine("===================");
-            Console.WriteLine("PG SQL:");
-            Console.WriteLine(pgSqlQuery.Text);
-
-            Assert.Pass();
+            var checkText = Texts.ResourceManager.GetString(checkKey);
+            Assert.That(query.Text, Is.EqualTo(checkText));
         }
     }
 }
