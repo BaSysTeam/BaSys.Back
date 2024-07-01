@@ -1,4 +1,4 @@
-﻿using MemoryPack;
+﻿using MessagePack;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -38,12 +38,12 @@ namespace BaSys.Metadata.Models
             IsStandard = settings.IsStandard;
             Memo = settings.Memo;
 
-            SettingsStorage = MemoryPackSerializer.Serialize(settings);
+            SettingsStorage = MessagePackSerializer.Serialize(settings);
         }
 
         public MetaObjectKindSettings ToSettings()
         {
-            var settings = MemoryPackSerializer.Deserialize<MetaObjectKindSettings>(SettingsStorage); 
+            var settings = MessagePackSerializer.Deserialize<MetaObjectKindSettings>(SettingsStorage); 
             settings.Uid = Uid;
             settings.Version = Version;
 

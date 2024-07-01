@@ -1,4 +1,4 @@
-﻿using MemoryPack;
+﻿using MessagePack;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BaSys.Metadata.Models
 {
-    [MemoryPackable]
+    [MessagePackObject(keyAsPropertyName: true)]
     public partial class MetaObjectTableColumn
     {
         public Guid Uid { get; set; } = Guid.NewGuid();
