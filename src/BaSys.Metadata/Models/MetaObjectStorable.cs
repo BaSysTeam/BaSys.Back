@@ -1,5 +1,5 @@
 ﻿using BaSys.Metadata.Abstractions;
-using MemoryPack;
+using MessagePack;
 
 namespace BaSys.Metadata.Models
 {
@@ -13,12 +13,12 @@ namespace BaSys.Metadata.Models
             Memo = settings.Memo;
             IsActive = settings.IsActive;
             
-            SettingsStorage = MemoryPackSerializer.Serialize(settings);
+            SettingsStorage = MessagePackSerializer.Serialize(settings);
         }
 
         public MetaObjectStorableSettings ToSettings()
         {
-            var settings = MemoryPackSerializer.Deserialize<MetaObjectStorableSettings>(SettingsStorage); 
+            var settings = MessagePackSerializer.Deserialize<MetaObjectStorableSettings>(SettingsStorage); 
             settings.Uid = Uid;
             settings.Version = Version;
 

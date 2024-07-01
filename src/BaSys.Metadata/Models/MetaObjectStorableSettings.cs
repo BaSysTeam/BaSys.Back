@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using MemoryPack;
+using MessagePack;
 
 namespace BaSys.Metadata.Models
 {
-    [MemoryPackable]
+    [MessagePackObject(keyAsPropertyName: true)]
     public sealed partial class MetaObjectStorableSettings
     {
         public Guid Uid { get; set; }
@@ -16,7 +16,7 @@ namespace BaSys.Metadata.Models
         public long Version { get; set; }
         public bool IsActive { get; set; }
 
-        [MemoryPackIgnore]
+        [IgnoreMember]
         public List<MetaObjectTable> Tables
         {
             get
@@ -31,7 +31,7 @@ namespace BaSys.Metadata.Models
         public MetaObjectTable Header { get; set; } = new MetaObjectTable();
         public List<MetaObjectTable> TableParts { get; set; } = new();
 
-        [MemoryPackConstructor]
+        [SerializationConstructor]
         public MetaObjectStorableSettings()
         {
 
