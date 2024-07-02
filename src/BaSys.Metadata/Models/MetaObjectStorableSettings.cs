@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BaSys.Common.Enums;
 using MessagePack;
 
 namespace BaSys.Metadata.Models
@@ -13,6 +14,7 @@ namespace BaSys.Metadata.Models
         public string Title { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public string Memo { get; set; } = string.Empty;
+        public EditMethods EditMethod { get; set; } = EditMethods.Page;
         public long Version { get; set; }
         public bool IsActive { get; set; }
 
@@ -85,6 +87,7 @@ namespace BaSys.Metadata.Models
         public void CopyFrom(MetaObjectStorableSettings source)
         {
             MetaObjectKindUid = source.Uid;
+            EditMethod = source.EditMethod;
             Title = source.Title;
             Name = source.Name;
             Memo = source.Memo;
