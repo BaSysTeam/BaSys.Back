@@ -1,4 +1,5 @@
-﻿using BaSys.Metadata.Models;
+﻿using BaSys.Common.Enums;
+using BaSys.Metadata.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,7 @@ namespace BaSys.Metadata.DTOs
 
         public string Uid { get; set; } = string.Empty;
         public Guid MetaObjectKindUid { get; set; }
+        public EditMethods EditMethod { get; set; }
         public string Title { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public string Memo { get; set; } = string.Empty;
@@ -30,6 +32,7 @@ namespace BaSys.Metadata.DTOs
         public MetaObjectStorableSettingsDto(MetaObjectStorableSettings settings, MetaObjectKindSettings kindSettings)
         {
             Uid = settings.Uid.ToString();
+            EditMethod = settings.EditMethod;
             Title = settings.Title;
             Name = settings.Name;
             Memo = settings.Memo;
@@ -48,6 +51,7 @@ namespace BaSys.Metadata.DTOs
             var model = new MetaObjectStorableSettings()
             {
                 Uid = Guid.Parse(Uid),
+                EditMethod = EditMethod,
                 Title = Title,
                 Name = Name,
                 Memo = Memo,
