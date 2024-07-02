@@ -10,6 +10,5 @@ namespace BaSys.Common.Enums
     {
         Page = 0,
         Modal = 1,
-        Inline = 2
     }
 }
