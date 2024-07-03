@@ -1,6 +1,6 @@
 ﻿using BaSys.Metadata.Models;
 
-namespace BaSys.Constructor.Abstractions;
+namespace BaSys.Core.Abstractions;
 
 public interface IDataTypesService
 {

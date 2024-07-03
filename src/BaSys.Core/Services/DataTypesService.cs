@@ -1,47 +1,43 @@
 ﻿using System.Data;
-using BaSys.Constructor.Abstractions;
 using BaSys.Core.Abstractions;
 using BaSys.Host.DAL.Abstractions;
+using BaSys.Host.DAL.DataProviders;
 using BaSys.Metadata.Models;
 
-namespace BaSys.Constructor.Services;
+namespace BaSys.Core.Services;
 
 public class DataTypesService : IDataTypesService, IDisposable
 {
-    private readonly IMetaObjectKindsService _metaObjectKindsService;
     private readonly ISystemObjectProviderFactory _providerFactory;
-    private readonly IDbConnection? _connection;
+    private readonly IDbConnection _connection;
 
-    public DataTypesService(IMetaObjectKindsService metaObjectKindsService,
-        ISystemObjectProviderFactory providerFactory,
+    public DataTypesService(ISystemObjectProviderFactory providerFactory,
         IMainConnectionFactory connectionFactory)
     {
         _connection = connectionFactory.CreateConnection();
-        _metaObjectKindsService = metaObjectKindsService;
         _providerFactory = providerFactory;
         _providerFactory.SetUp(_connection);
     }
-    
+
     public async Task<List<DataType>> GetAllDataTypes()
     {
         var primitiveDataTypes = new PrimitiveDataTypes();
         var allDataTypes = DataTypeDefaults.AllTypes().ToList();
+        var metaObjectKindProvider = _providerFactory.Create<MetaObjectKindsProvider>();
 
-        var result = await _metaObjectKindsService.GetCollectionAsync();
-        if (result.IsOK)
+        var metaObjectKinds = await metaObjectKindProvider.GetCollectionAsync(null);
+
+        foreach (var metaObjectKind in metaObjectKinds.Where(x => x.IsReference))
         {
-            foreach (var metaObjectKind in result.Data.Where(x => x.IsReference))
-            {
-                var provider = _providerFactory.CreateMetaObjectStorableProvider(metaObjectKind.Name);
-                var metaObjects = await provider.GetCollectionAsync(null);
-                var dataTypes = metaObjects.Select(x => ToDataType(x, metaObjectKind, primitiveDataTypes));
-                allDataTypes.AddRange(dataTypes);
-            }
+            var provider = _providerFactory.CreateMetaObjectStorableProvider(metaObjectKind.Name);
+            var metaObjects = await provider.GetCollectionAsync(null);
+            var dataTypes = metaObjects.Select(x => ToDataType(x, metaObjectKind, primitiveDataTypes));
+            allDataTypes.AddRange(dataTypes);
         }
-        
+
         return allDataTypes;
     }
-    
+
     public void Dispose()
     {
         if (_connection != null)
@@ -68,7 +64,7 @@ public class DataTypesService : IDataTypesService, IDisposable
         var settings = metaObject.ToSettings();
         if (settings == null)
             return dbType;
-        
+
         var headerTable = settings.Header;
         if (headerTable == null)
             return dbType;
@@ -78,7 +74,7 @@ public class DataTypesService : IDataTypesService, IDisposable
             return dbType;
 
         var dataType = primitiveDataTypes.GetDataType(primaryKeyColumn.DataTypeUid);
-        if ( dataType == null)
+        if (dataType == null)
             return dbType;
 
         return dataType.DbType;
