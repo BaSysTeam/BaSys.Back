@@ -52,6 +52,7 @@ namespace BaSys.Metadata.Models
             // Add primary key column.
             var primaryKeyColumn = new MetaObjectTableColumn()
             {
+                Uid = primaryKeySettings.Uid,
                 Title = primaryKeySettings.Title,
                 Name = primaryKeySettings.Name,
                 DataTypeUid = primaryKeySettings.DataTypeUid,
@@ -59,7 +60,8 @@ namespace BaSys.Metadata.Models
                 StringLength = primaryKeySettings.StringLength,
                 PrimaryKey = true,
                 Required = true,
-                Unique = true
+                Unique = true,
+                IsStandard = true,
             };
 
             Header.Columns.Add(primaryKeyColumn);
@@ -69,6 +71,7 @@ namespace BaSys.Metadata.Models
             {
                 var newColumn = new MetaObjectTableColumn()
                 {
+                    Uid = stColumn.Uid,
                     Title= stColumn.Title,
                     Name = stColumn.Name,
                     DataTypeUid = stColumn.DataTypeUid,
@@ -77,6 +80,7 @@ namespace BaSys.Metadata.Models
                     PrimaryKey = false,
                     Unique = stColumn.IsUnique,
                     Required = stColumn.IsRequired,
+                    IsStandard = true
                 };
 
                 Header.Columns.Add(newColumn);
