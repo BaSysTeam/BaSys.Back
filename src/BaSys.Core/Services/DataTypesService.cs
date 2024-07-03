@@ -8,15 +8,19 @@ namespace BaSys.Core.Services;
 
 public class DataTypesService : IDataTypesService, IDisposable
 {
-    private readonly ISystemObjectProviderFactory _providerFactory;
-    private readonly IDbConnection _connection;
+    private  ISystemObjectProviderFactory _providerFactory;
+    private  IDbConnection _connection;
 
-    public DataTypesService(ISystemObjectProviderFactory providerFactory,
-        IMainConnectionFactory connectionFactory)
+    public DataTypesService(ISystemObjectProviderFactory providerFactory)
     {
-        _connection = connectionFactory.CreateConnection();
         _providerFactory = providerFactory;
+    }
+
+    public void SetUp(IDbConnection connection)
+    {
+        _connection = connection;
         _providerFactory.SetUp(_connection);
+
     }
 
     public async Task<List<DataType>> GetAllDataTypes()

@@ -1,9 +1,11 @@
 ﻿using BaSys.Common.Infrastructure;
 using BaSys.Core.Abstractions;
 using BaSys.DTO.Core;
+using BaSys.Host.DAL.Abstractions;
 using BaSys.Metadata.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Data;
 
 namespace BaSys.Constructor.Controllers
 {
@@ -12,10 +14,12 @@ namespace BaSys.Constructor.Controllers
     [Authorize]
     public class DataTypesController : ControllerBase
     {
-        private readonly IDataTypesService _dataTypesService; 
-        public DataTypesController(IDataTypesService dataTypesService)
+        private readonly IDataTypesService _dataTypesService;
+        private readonly IMainConnectionFactory _connectionFactory;
+        public DataTypesController(IMainConnectionFactory connectionFactory, IDataTypesService dataTypesService)
         {
             _dataTypesService = dataTypesService;
+            _connectionFactory = connectionFactory;
         }
         
         /// <summary>
@@ -27,8 +31,12 @@ namespace BaSys.Constructor.Controllers
         {
             var result = new ResultWrapper<IList<DataTypeDto>>();
             
-            var dataTypes = await _dataTypesService.GetAllDataTypes();
-            result.Success(dataTypes.Select(x => new DataTypeDto(x)).ToList());
+            using(IDbConnection connection = _connectionFactory.CreateConnection())
+            {
+                _dataTypesService.SetUp(connection);
+                var dataTypes = await _dataTypesService.GetAllDataTypes();
+                result.Success(dataTypes.Select(x => new DataTypeDto(x)).ToList());
+            }
 
             return Ok(result);
         }
