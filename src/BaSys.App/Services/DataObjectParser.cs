@@ -16,6 +16,8 @@ namespace BaSys.App.Services
             foreach (var kvp in headerJson)
             {
                 var fieldName = kvp.Key;
+                if (kvp.Value == null) 
+                    continue;
                 var jsonValue = (JsonElement)kvp.Value;
 
                 var fieldSettings = metaObjectSettings.Header.Columns.FirstOrDefault(x => x.Name.Equals(fieldName, StringComparison.OrdinalIgnoreCase));
@@ -70,6 +72,7 @@ namespace BaSys.App.Services
                         headerParsed.Add(fieldName, dateTimeValue);
                         break;
 
+                    case DbType.Byte:
                     case DbType.Boolean:
 
                         Boolean.TryParse(strValue, out bool boolValue);
