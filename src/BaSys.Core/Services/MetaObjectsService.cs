@@ -9,6 +9,7 @@ using BaSys.Logging.Abstractions.Abstractions;
 using BaSys.Logging.EventTypes;
 using BaSys.Metadata.DTOs;
 using BaSys.Metadata.Models;
+using BaSys.Metadata.Validators;
 using BaSys.Translation;
 
 namespace BaSys.Core.Services
@@ -132,6 +133,15 @@ namespace BaSys.Core.Services
                 }
 
                 var newSettings = settingsDto.ToModel();
+
+                var validator = new MetaObjectStorableSettingsValidator(savedSettings);
+                var validationResult = validator.Validate(newSettings);
+
+                if (!validationResult.IsValid)
+                {
+                    result.Error(-1, $"Model is not valid: {validationResult.ToString()}");
+                    return result;
+                }
 
                 var headerChangeAnalyser = new MetaObjectTableChangeAnalyser(savedSettings.Header, newSettings.Header);
                 headerChangeAnalyser.Analyze();
