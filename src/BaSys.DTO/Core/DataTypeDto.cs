@@ -1,7 +1,7 @@
 ﻿using System.Data;
 using BaSys.Metadata.Models;
 
-namespace BaSys.Constructor.DTO;
+namespace BaSys.DTO.Core;
 
 public class DataTypeDto
 {
@@ -17,7 +17,7 @@ public class DataTypeDto
         DbType = dataType.DbType;
         ObjectKindUid = dataType.ObjectKindUid;
     }
-    
+
     public Guid Uid { get; }
     public string Title { get; set; } = string.Empty;
     public bool IsPrimitive { get; set; }
