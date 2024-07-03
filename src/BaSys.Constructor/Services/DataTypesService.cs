@@ -24,6 +24,7 @@ public class DataTypesService : IDataTypesService, IDisposable
     
     public async Task<List<DataType>> GetAllDataTypes()
     {
+        var primitiveDataTypes = new PrimitiveDataTypes();
         var allDataTypes = DataTypeDefaults.AllTypes().ToList();
 
         var result = await _metaObjectKindsService.GetCollectionAsync();
@@ -33,7 +34,7 @@ public class DataTypesService : IDataTypesService, IDisposable
             {
                 var provider = _providerFactory.CreateMetaObjectStorableProvider(metaObjectKind.Name);
                 var metaObjects = await provider.GetCollectionAsync(null);
-                var dataTypes = metaObjects.Select(x => ToDataType(x, metaObjectKind));
+                var dataTypes = metaObjects.Select(x => ToDataType(x, metaObjectKind, primitiveDataTypes));
                 allDataTypes.AddRange(dataTypes);
             }
         }
@@ -48,23 +49,22 @@ public class DataTypesService : IDataTypesService, IDisposable
     }
 
     #region private methods
-    private DataType ToDataType(MetaObjectStorable metaObject, MetaObjectKind metaObjectKind)
+    private DataType ToDataType(MetaObjectStorable metaObject, MetaObjectKind metaObjectKind, PrimitiveDataTypes primitiveDataTypes)
     {
         var dataType = new DataType(metaObject.Uid)
         {
             Title = $"{metaObjectKind.Title}.{metaObject.Title}",
             IsPrimitive = false,
-            DbType = GetDbType(metaObject),
+            DbType = GetDbType(metaObject, primitiveDataTypes),
             ObjectKindUid = metaObjectKind.Uid
         };
 
         return dataType;
     }
 
-    private DbType GetDbType(MetaObjectStorable metaObject)
+    private DbType GetDbType(MetaObjectStorable metaObject, PrimitiveDataTypes primitiveDataTypes)
     {
-        // ToDo: default type?
-        var dbType = DbType.Binary;
+        var dbType = DbType.String; // Default type.
         var settings = metaObject.ToSettings();
         if (settings == null)
             return dbType;
@@ -77,8 +77,11 @@ public class DataTypesService : IDataTypesService, IDisposable
         if (primaryKeyColumn == null)
             return dbType;
 
-        // ToDo: column type?
-        return dbType;
+        var dataType = primitiveDataTypes.GetDataType(primaryKeyColumn.DataTypeUid);
+        if ( dataType == null)
+            return dbType;
+
+        return dataType.DbType;
     }
     #endregion
 }
