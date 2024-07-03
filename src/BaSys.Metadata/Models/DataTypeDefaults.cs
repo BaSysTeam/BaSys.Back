@@ -91,6 +91,7 @@ public static class DataTypeDefaults
         {
             String,
             Int,
+            Long,
             UniqueIdentifier
         };
 
