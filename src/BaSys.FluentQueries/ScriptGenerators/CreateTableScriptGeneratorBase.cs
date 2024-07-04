@@ -1,4 +1,5 @@
 ﻿using BaSys.FluentQueries.Abstractions;
+using BaSys.FluentQueries.Enums;
 using BaSys.FluentQueries.Models;
 using System;
 using System.Collections.Generic;
@@ -7,11 +8,11 @@ using System.Text;
 
 namespace BaSys.FluentQueries.ScriptGenerators
 {
-    public abstract class CreateTableScriptGeneratorBase : IQueryBuilder
+    public abstract class CreateTableScriptGeneratorBase : ScriptGeneratorBase, IQueryBuilder
     {
         protected readonly CreateTableModel _model;
 
-        protected CreateTableScriptGeneratorBase(CreateTableModel model)
+        protected CreateTableScriptGeneratorBase(SqlDialectKinds sqlDialect, CreateTableModel model):base(sqlDialect)
         {
             _model = model;
         }

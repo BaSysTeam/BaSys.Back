@@ -1,5 +1,7 @@
 ﻿using BaSys.App.Abstractions;
 using BaSys.Common.Infrastructure;
+using BaSys.Core.Abstractions;
+using BaSys.Core.Services;
 using BaSys.DAL.Models.App;
 using BaSys.DTO.App;
 using BaSys.Host.DAL.Abstractions;
@@ -19,6 +21,7 @@ namespace BaSys.App.Services
     {
         private readonly IDbConnection _connection;
         private readonly MetaObjectKindsProvider _kindProvider;
+        private readonly IDataTypesService _dataTypesService;
         private readonly ILoggerService _logger;
         private bool _disposed;
 
@@ -30,6 +33,9 @@ namespace BaSys.App.Services
 
             providerFactory.SetUp(_connection);
             _kindProvider = providerFactory.Create<MetaObjectKindsProvider>();
+
+            _dataTypesService = new DataTypesService(providerFactory);
+            _dataTypesService.SetUp(_connection);
 
         }
 
@@ -114,6 +120,7 @@ namespace BaSys.App.Services
                 {
                     dto = new DataObjectWithMetadataDto(objectKindSettings, metaObjectSettings, new DataObject(metaObjectSettings));
                 }
+                dto.DataTypes =  (await _dataTypesService.GetAllDataTypes()).Select(x=>new DTO.Core.DataTypeDto(x)).ToList();
                 result.Success(dto);
 
             }

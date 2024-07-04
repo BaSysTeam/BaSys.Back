@@ -41,8 +41,8 @@ public static class DataTypeDefaults
     {
         Title = "Boolean",
         IsPrimitive = true,
-        DbType = DbType.Byte,
-        Type = typeof(byte)
+        DbType = DbType.Boolean,
+        Type = typeof(bool)
     };
 
     public static readonly DataType Decimal = new DataType(new Guid("a05516ac-baae-4f66-9b67-6703998a6a1b"))
@@ -91,6 +91,7 @@ public static class DataTypeDefaults
         {
             String,
             Int,
+            Long,
             UniqueIdentifier
         };
 

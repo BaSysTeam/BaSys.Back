@@ -9,7 +9,9 @@ public static class CoreExtension
     {
         services.AddTransient<IMetaObjectKindsService, MetaObjectKindsService>();
         services.AddTransient<IMetaObjectsService, MetaObjectsService>();
-        
+        services.AddTransient<IDataTypesService, DataTypesService>();
+
+
         return services;
     }
 }
