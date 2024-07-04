@@ -14,7 +14,9 @@ namespace BaSys.FluentQueries.Models
         private readonly List<QueryParameter> _parameters = new List<QueryParameter>();
 
         public string TableName { get; set; } = string.Empty;
+        public string PrimaryKeyName { get; set; } = string.Empty;
         public bool FillValuesByColumnNames { get; set; }
+        public bool ReturnId { get; set; }
         public IReadOnlyCollection<string> Columns => _columns;
         public IReadOnlyCollection<List<string>> Values => _values;
         public IReadOnlyCollection<QueryParameter> Parameters => _parameters;
@@ -79,6 +81,20 @@ namespace BaSys.FluentQueries.Models
         public void AddValuesRow()
         {
             _values.Add(new List<string>());    
+        }
+
+        public bool Validate()
+        {
+            if (string.IsNullOrWhiteSpace(TableName))
+                throw new InvalidOperationException($"{GetType().Name}. Table name cannot be null or whitespace.");
+
+            if (ReturnId)
+            {
+                if (string.IsNullOrEmpty(PrimaryKeyName))
+                    throw new InvalidOperationException($"{GetType().Name}. Primary key name cannot be null or whitespace if flag ReturnId is true.");
+            }
+
+            return true;
         }
 
         private List<string> LastValuesRow()

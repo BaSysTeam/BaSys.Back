@@ -1,5 +1,7 @@
 ﻿using BaSys.App.Abstractions;
 using BaSys.Common.Infrastructure;
+using BaSys.Core.Abstractions;
+using BaSys.Core.Services;
 using BaSys.DAL.Models.App;
 using BaSys.DTO.App;
 using BaSys.Host.DAL.Abstractions;
@@ -7,6 +9,7 @@ using BaSys.Host.DAL.DataProviders;
 using BaSys.Logging.Abstractions.Abstractions;
 using BaSys.Metadata.Models;
 using BaSys.Translation;
+using Humanizer;
 using System.Data;
 using System.Security.AccessControl;
 using System.Text.Json;
@@ -18,6 +21,7 @@ namespace BaSys.App.Services
     {
         private readonly IDbConnection _connection;
         private readonly MetaObjectKindsProvider _kindProvider;
+        private readonly IDataTypesService _dataTypesService;
         private readonly ILoggerService _logger;
         private bool _disposed;
 
@@ -29,6 +33,9 @@ namespace BaSys.App.Services
 
             providerFactory.SetUp(_connection);
             _kindProvider = providerFactory.Create<MetaObjectKindsProvider>();
+
+            _dataTypesService = new DataTypesService(providerFactory);
+            _dataTypesService.SetUp(_connection);
 
         }
 
@@ -103,14 +110,21 @@ namespace BaSys.App.Services
             try
             {
                 var item = await provider.GetItemAsync(uid, null);
+
+                DataObjectWithMetadataDto dto;
                 if (item != null)
                 {
-                    var dto = new DataObjectWithMetadataDto(objectKindSettings, metaObjectSettings, item);
-                    result.Success(dto);
-
+                    dto = new DataObjectWithMetadataDto(objectKindSettings, metaObjectSettings, item);
                 }
+                else
+                {
+                    dto = new DataObjectWithMetadataDto(objectKindSettings, metaObjectSettings, new DataObject(metaObjectSettings));
+                }
+                dto.DataTypes =  (await _dataTypesService.GetAllDataTypes()).Select(x=>new DTO.Core.DataTypeDto(x)).ToList();
+                result.Success(dto);
+
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 result.Error(-1, $"Cannot get item.", $"Message: {ex.Message}, query: {provider.LastQuery}");
             }
@@ -120,9 +134,9 @@ namespace BaSys.App.Services
             return result;
         }
 
-        public async Task<ResultWrapper<int>> InsertAsync(DataObjectSaveDto dto)
+        public async Task<ResultWrapper<string>> InsertAsync(DataObjectSaveDto dto)
         {
-            var result = new ResultWrapper<int>();
+            var result = new ResultWrapper<string>();
 
             var objectKindSettings = await _kindProvider.GetSettingsAsync(dto.MetaObjectKindUid);
 
@@ -153,9 +167,9 @@ namespace BaSys.App.Services
 
             try
             {
-                var insertResult = await provider.InsertAsync(newObject, null);
+                var insertedUid = await provider.InsertAsync(newObject, null);
 
-                result.Success(insertResult);
+                result.Success(insertedUid, DictMain.ItemSaved);
             }
             catch (Exception ex)
             {
@@ -211,7 +225,7 @@ namespace BaSys.App.Services
             {
                 var insertResult = await provider.UpdateAsync(savedItem, null);
 
-                result.Success(insertResult);
+                result.Success(insertResult, DictMain.ItemSaved);
             }
             catch (Exception ex)
             {

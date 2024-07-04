@@ -16,6 +16,8 @@ namespace BaSys.App.Services
             foreach (var kvp in headerJson)
             {
                 var fieldName = kvp.Key;
+                if (kvp.Value == null) 
+                    continue;
                 var jsonValue = (JsonElement)kvp.Value;
 
                 var fieldSettings = metaObjectSettings.Header.Columns.FirstOrDefault(x => x.Name.Equals(fieldName, StringComparison.OrdinalIgnoreCase));
@@ -32,47 +34,49 @@ namespace BaSys.App.Services
                     continue;
                 }
 
+                var strValue = jsonValue.ToString();
                 switch (fieldDataType.DbType)
                 {
                     case DbType.String:
 
-                        headerParsed.Add(fieldName, jsonValue.GetString() ?? string.Empty);
+                        headerParsed.Add(fieldName, strValue);
                         break;
 
                     case DbType.Int32:
 
-                        jsonValue.TryGetInt32(out var intValue);
+                        int.TryParse(strValue, out int intValue);
                         headerParsed.Add(fieldName, intValue);
                         break;
 
                     case DbType.Int64:
 
-                        jsonValue.TryGetInt64(out var longValue);
+                        long.TryParse(strValue, out var longValue);
                         headerParsed.Add(fieldName, longValue);
                         break;
 
                     case DbType.Decimal:
 
-                        jsonValue.TryGetDecimal(out var decimalValue);
+                        decimal.TryParse(strValue, out var decimalValue);
                         headerParsed.Add(fieldName, decimalValue);
                         break;
 
                     case DbType.Guid:
 
-                        jsonValue.TryGetGuid(out var guidValue);
+                        Guid.TryParse(strValue, out var guidValue);
                         headerParsed.Add(fieldName, guidValue);
                         break;
 
                     case DbType.DateTime:
 
-                        jsonValue.TryGetDateTime(out var dateTimeValue);
+                        DateTime.TryParse(strValue, out var dateTimeValue);
                         headerParsed.Add(fieldName, dateTimeValue);
                         break;
 
+                    case DbType.Byte:
                     case DbType.Boolean:
 
-                        jsonValue.TryGetByte(out var byteValue);
-                        headerParsed.Add(fieldName, byteValue == 0 ? false: true);
+                        Boolean.TryParse(strValue, out bool boolValue);
+                        headerParsed.Add(fieldName, boolValue);
                         break;
                 }
 

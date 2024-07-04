@@ -1,4 +1,4 @@
-﻿using MemoryPack;
+﻿using MessagePack;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace BaSys.Metadata.Models
 {
-    [MemoryPackable]
-    public partial class MetaObjectTableColumn
+    [MessagePackObject(keyAsPropertyName: true)]
+    public class MetaObjectTableColumn: IEquatable<MetaObjectTableColumn>
     {
         public Guid Uid { get; set; } = Guid.NewGuid();
         public string Title { get; set; } = string.Empty;
@@ -19,5 +19,36 @@ namespace BaSys.Metadata.Models
         public bool PrimaryKey { get; set; }
         public bool Required { get; set; }
         public bool Unique { get; set; }
+        public bool IsStandard { get; set; }
+
+        public bool Equals(MetaObjectTableColumn other)
+        {
+            if (other == null) return false;
+
+            return Uid == other.Uid &&
+                   Title == other.Title &&
+                   Name == other.Name &&
+                   DataTypeUid == other.DataTypeUid &&
+                   StringLength == other.StringLength &&
+                   NumberDigits == other.NumberDigits &&
+                   PrimaryKey == other.PrimaryKey &&
+                   Required == other.Required &&
+                   Unique == other.Unique &&
+                   IsStandard == other.IsStandard;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as MetaObjectTableColumn);
+        }
+
+        public override int GetHashCode()
+        {
+            
+            int hash1 = HashCode.Combine(Uid, Title, Name, DataTypeUid, StringLength, NumberDigits, PrimaryKey);
+            int hash2 = HashCode.Combine(Required, Unique, IsStandard);
+
+            return HashCode.Combine(hash1, hash2);
+        }
     }
 }

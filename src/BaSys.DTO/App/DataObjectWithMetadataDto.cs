@@ -1,4 +1,5 @@
 ﻿using BaSys.DAL.Models.App;
+using BaSys.DTO.Core;
 using BaSys.Metadata.Models;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,7 @@ namespace BaSys.DTO.App
         public MetaObjectKindSettings MetaObjectKindSettings { get; set; } = new MetaObjectKindSettings();
         public MetaObjectStorableSettings MetaObjectSettings { get; set; } = new MetaObjectStorableSettings();
         public DataObjectDto Item { get; set; } = new DataObjectDto();
+        public List<DataTypeDto> DataTypes { get; set; } = new List<DataTypeDto>();
 
         public DataObjectWithMetadataDto()
         {

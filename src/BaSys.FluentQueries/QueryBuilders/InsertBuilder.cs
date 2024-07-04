@@ -4,6 +4,7 @@ using BaSys.FluentQueries.Models;
 using BaSys.FluentQueries.ScriptGenerators;
 using System;
 using System.Collections.Generic;
+using System.Reflection.Emit;
 using System.Text;
 
 namespace BaSys.FluentQueries.QueryBuilders
@@ -45,6 +46,18 @@ namespace BaSys.FluentQueries.QueryBuilders
             return this;
         }
 
+        public InsertBuilder PrimaryKeyName(string pkName)
+        {
+            _model.PrimaryKeyName = pkName;
+            return this;
+        }
+
+        public InsertBuilder ReturnId(bool returnId)
+        {
+            _model.ReturnId = returnId;
+            return this;
+        }
+
         public InsertBuilder Value(string parameterName)
         {
             _model.AddParameter(parameterName, null);
@@ -59,24 +72,24 @@ namespace BaSys.FluentQueries.QueryBuilders
 
         public IQuery Query(SqlDialectKinds dbKind)
         {
-            // Validate();
+            _model.Validate();
 
             IQuery query = null;
 
+            InsertScriptGeneratorBase scriptGenerator = null;
             switch (dbKind)
             {
                 case SqlDialectKinds.MsSql:
-                    var msGenerator = new InsertScriptGenerator(_model, dbKind);
-                    query = msGenerator.Build();
+                    scriptGenerator = new InsertScriptGeneratorMsSql(_model);
                     break;
                 case SqlDialectKinds.PgSql:
-                    var pgGenerator = new InsertScriptGenerator(_model, dbKind);
-                    query = pgGenerator.Build();
+                    scriptGenerator = new InsertScriptGeneratorPgSql(_model);
                     break;
                 default:
                     throw new NotImplementedException($"{GetType().Name} not implemented for DbKind {dbKind}.");
-
             }
+
+            query = scriptGenerator.Build();
 
             return query;
 

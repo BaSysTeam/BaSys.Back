@@ -151,6 +151,44 @@ title varchar(100) NOT NULL,
 prefix varchar(4) NOT NULL UNIQUE
 );</value>
   </data>
+  <data name="InsertAutoFillValuesMsSql" xml:space="preserve">
+    <value>INSERT INTO [metadata_groups]
+([uid], [parentuid])
+VALUES
+(@uid, @parentuid);</value>
+  </data>
+  <data name="InsertAutoFillValuesPgSql" xml:space="preserve">
+    <value>INSERT INTO "metadata_groups"
+("uid", "parentuid")
+VALUES
+(@uid, @parentuid);</value>
+  </data>
+  <data name="InsertOneRowMsSql" xml:space="preserve">
+    <value>INSERT INTO [metadata_groups]
+([uid], [parentuid])
+VALUES
+(@uid, @parentuid);</value>
+  </data>
+  <data name="InsertOneRowPgSql" xml:space="preserve">
+    <value>INSERT INTO "metadata_groups"
+("uid", "parentuid")
+VALUES
+(@uid, @parentuid);</value>
+  </data>
+  <data name="InsertReturnIdMsSql" xml:space="preserve">
+    <value>INSERT INTO [cat_currency]
+([name], [code], [title])
+OUTPUT INSERTED.id
+VALUES
+(@name, @code, @title);</value>
+  </data>
+  <data name="InsertReturnIdPgSql" xml:space="preserve">
+    <value>INSERT INTO "cat_currency"
+("name", "code", "title")
+VALUES
+(@name, @code, @title)
+RETURNING id;</value>
+  </data>
   <data name="SelectTopMsSql" xml:space="preserve">
     <value>SELECT TOP 1 *
 FROM my_table;</value>

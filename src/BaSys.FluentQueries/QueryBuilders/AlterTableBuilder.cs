@@ -54,11 +54,11 @@ namespace BaSys.FluentQueries.QueryBuilders
             switch (dbKind)
             {
                 case SqlDialectKinds.MsSql:
-                    var msSqlBuilder = new MsSqlAlterTableScriptGenerator(_model);
+                    var msSqlBuilder = new AlterTableMsSqlScriptGenerator(_model);
                     query = msSqlBuilder.Build();
                     break;
                 case SqlDialectKinds.PgSql:
-                    var pgSqlBuilder = new PgSqlAlterTableScriptGenerator(_model);
+                    var pgSqlBuilder = new AlterTablePgSqlScriptGenerator(_model);
                     query = pgSqlBuilder.Build();
                     break;
                 default:

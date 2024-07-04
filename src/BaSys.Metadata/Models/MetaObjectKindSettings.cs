@@ -1,12 +1,12 @@
-﻿using MemoryPack;
+﻿using MessagePack;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace BaSys.Metadata.Models
 {
-    [MemoryPackable]
-    public sealed partial class MetaObjectKindSettings
+    [MessagePackObject(keyAsPropertyName: true)]
+    public sealed class MetaObjectKindSettings
     {
         public Guid Uid { get; set; }
         public string Title { get; set; } = string.Empty;

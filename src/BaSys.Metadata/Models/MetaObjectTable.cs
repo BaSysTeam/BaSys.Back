@@ -1,4 +1,4 @@
-﻿using MemoryPack;
+﻿using MessagePack;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace BaSys.Metadata.Models
 {
-    [MemoryPackable]
-    public sealed partial class MetaObjectTable
+    [MessagePackObject(keyAsPropertyName: true)]
+    public sealed class MetaObjectTable
     {
 
         public Guid Uid { get; set; } = Guid.NewGuid();
@@ -17,7 +17,7 @@ namespace BaSys.Metadata.Models
         public string Memo { get; set; }
         public List<MetaObjectTableColumn> Columns { get; set; } = new List<MetaObjectTableColumn>();
 
-        [MemoryPackIgnore]
+        [IgnoreMember]
         public MetaObjectTableColumn PrimaryKey => Columns.FirstOrDefault(x => x.PrimaryKey);
 
         public static MetaObjectTable HeaderTable()

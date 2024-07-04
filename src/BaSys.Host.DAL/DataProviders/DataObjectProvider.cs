@@ -98,19 +98,19 @@ namespace BaSys.Host.DAL.DataProviders
             {
                 case DbType.Int32:
 
-                    var intValue = int.Parse(uid);
+                    int.TryParse(uid, out var intValue);
                     item = await GetItemAsync<int>(intValue, transaction);
                     break;
 
                 case DbType.Int64:
 
-                    var longValue = long.Parse(uid);
+                    long.TryParse(uid, out var longValue);
                     item = await GetItemAsync<long>(longValue, transaction);
                     break;
 
                 case DbType.Guid:
 
-                    var guidValue = Guid.Parse(uid);
+                    Guid.TryParse(uid, out var guidValue);
                     item = await GetItemAsync<Guid>(guidValue, transaction);
                     break;
 
@@ -127,11 +127,11 @@ namespace BaSys.Host.DAL.DataProviders
 
         }
 
-        public async Task<int> InsertAsync(DataObject item, IDbTransaction? transaction)
+        public async Task<string> InsertAsync(DataObject item, IDbTransaction? transaction)
         {
-            _query = InsertBuilder.Make(_config).FillValuesByColumnNames(true).Query(_sqlDialect);
+            _query = InsertBuilder.Make(_config).PrimaryKeyName(_primaryKeyFieldName).ReturnId(true).FillValuesByColumnNames(true).Query(_sqlDialect);
 
-            var result = await _connection.ExecuteAsync(_query.Text, item.Header, transaction);
+            var result = await _connection.QueryFirstOrDefaultAsync<string>(_query.Text, item.Header, transaction);
 
             return result;
         }

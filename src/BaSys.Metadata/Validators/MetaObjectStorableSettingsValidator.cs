@@ -10,7 +10,7 @@ namespace BaSys.Metadata.Validators
 {
     public class MetaObjectStorableSettingsValidator: AbstractValidator<MetaObjectStorableSettings>
     {
-        public MetaObjectStorableSettingsValidator()
+        public MetaObjectStorableSettingsValidator(MetaObjectStorableSettings previousVersion)
         {
             RuleFor(x => x.Title).NotEmpty().MaximumLength(100);
             RuleFor(x => x.Name)
@@ -21,6 +21,27 @@ namespace BaSys.Metadata.Validators
             RuleFor(x => x.Memo).MaximumLength(300);
 
             RuleForEach(x => x.Header.Columns).SetValidator(new MetaObjectTableColumnValidator());
+
+            RuleFor(x => x.Header.Columns)
+           .Custom((columns, context) =>
+           {
+               var previousColumns = previousVersion?.Header?.Columns;
+
+               if (previousColumns != null)
+               {
+                   foreach (var column in columns)
+                   {
+                       var previousColumn = previousColumns.FirstOrDefault(pc => pc.Uid == column.Uid);
+                       if (previousColumn != null)
+                       {
+                           if (!column.Equals(previousColumn))
+                           {
+                               context.AddFailure($"Stadard Column '{column.Name}' cannot be changed.");
+                           }
+                       }
+                   }
+               }
+           });
         }
     }
 }

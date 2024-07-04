@@ -1,5 +1,7 @@
-﻿using System;
+﻿using BaSys.Metadata.Models;
+using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -13,12 +15,21 @@ namespace BaSys.DAL.Models.App
 
         public DataObject()
         {
-            
+
+        }
+
+        public DataObject(MetaObjectStorableSettings settings)
+        {
+            foreach (var column in settings.Header.Columns)
+            {
+                var emptyValue = GetEmptyValue(column);
+                Header.Add(column.Name, emptyValue);
+            }
         }
 
         public DataObject(IDictionary<string, object> header)
         {
-            foreach(var kvp in header)
+            foreach (var kvp in header)
             {
                 Header.Add(kvp.Key, kvp.Value);
             }
@@ -26,11 +37,49 @@ namespace BaSys.DAL.Models.App
 
         public void CopyFrom(DataObject source)
         {
-            foreach(var kvp in source.Header)
+            foreach (var kvp in source.Header)
             {
                 Header[kvp.Key] = kvp.Value;
             }
 
+        }
+
+        public object GetEmptyValue(MetaObjectTableColumn column)
+        {
+            var primitiveDataTypes = new PrimitiveDataTypes();
+
+            var dataType = primitiveDataTypes.GetDataType(column.DataTypeUid);
+
+            switch (dataType.DbType)
+            {
+                case DbType.String: return "";
+                case DbType.AnsiString: return "";
+                case DbType.AnsiStringFixedLength: return "";
+                case DbType.Binary: return new byte[0];
+                case DbType.Boolean: return false;
+                case DbType.Byte: return (byte)0;
+                case DbType.Currency: return 0m;
+                case DbType.Date: return DateTime.MinValue;
+                case DbType.DateTime: return DateTime.MinValue;
+                case DbType.DateTime2: return DateTime.MinValue;
+                case DbType.DateTimeOffset: return DateTimeOffset.MinValue;
+                case DbType.Decimal: return 0m;
+                case DbType.Double: return 0.0;
+                case DbType.Guid: return Guid.Empty;
+                case DbType.Int16: return (short)0;
+                case DbType.Int32: return 0;
+                case DbType.Int64: return 0L;
+                case DbType.Object: return null;
+                case DbType.SByte: return (sbyte)0;
+                case DbType.Single: return 0f;
+                case DbType.Time: return TimeSpan.Zero;
+                case DbType.UInt16: return (ushort)0;
+                case DbType.UInt32: return 0u;
+                case DbType.UInt64: return 0UL;
+                case DbType.VarNumeric: return 0m;
+                case DbType.Xml: return "";
+                default: return "";
+            }
         }
 
         public void SetValue(string key, object value)

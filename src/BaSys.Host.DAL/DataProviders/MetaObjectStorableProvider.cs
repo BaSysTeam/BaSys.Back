@@ -5,7 +5,7 @@ using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.ModelConfigurations;
 using BaSys.Metadata.Models;
 using Dapper;
-using MemoryPack;
+using MessagePack;
 
 namespace BaSys.Host.DAL.DataProviders;
 
@@ -53,7 +53,7 @@ public class MetaObjectStorableProvider : SystemObjectProviderBase<MetaObjectSto
     /// <exception cref="NotImplementedException"></exception>
     public async Task<int> InsertSettingsAsync(MetaObjectStorableSettings settings, IDbTransaction? transaction)
     {
-        var settingsArr = MemoryPackSerializer.Serialize(settings);
+        var settingsArr = MessagePackSerializer.Serialize(settings);
         var item = new MetaObjectStorable
         {
             Uid = settings.Uid,
@@ -79,7 +79,7 @@ public class MetaObjectStorableProvider : SystemObjectProviderBase<MetaObjectSto
     /// <returns></returns>
     public async Task<int> UpdateSettingsAsync(MetaObjectStorableSettings settings, IDbTransaction? transaction)
     {
-        var settingsArr = MemoryPackSerializer.Serialize(settings);
+        var settingsArr = MessagePackSerializer.Serialize(settings);
         var item = new MetaObjectStorable
         {
             Uid = settings.Uid,
