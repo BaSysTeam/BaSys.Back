@@ -16,6 +16,7 @@ namespace BaSys.Metadata.Models
         public string Name { get; set; }
         public string Memo { get; set; }
         public List<MetaObjectTableColumn> Columns { get; set; } = new List<MetaObjectTableColumn>();
+        public List<MetaObjectTableColumnRenderSettings> ColumnRenderSettings { get; set; } = new List<MetaObjectTableColumnRenderSettings>();
 
         [IgnoreMember]
         public MetaObjectTableColumn PrimaryKey => Columns.FirstOrDefault(x => x.PrimaryKey);
