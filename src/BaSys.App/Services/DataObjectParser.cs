@@ -1,6 +1,7 @@
 ﻿using BaSys.Metadata.Models;
 using Humanizer;
 using System.Data;
+using System.Globalization;
 using System.Text.Json;
 
 namespace BaSys.App.Services
@@ -56,7 +57,7 @@ namespace BaSys.App.Services
 
                     case DbType.Decimal:
 
-                        decimal.TryParse(strValue, out var decimalValue);
+                        decimal.TryParse(strValue, NumberStyles.Any, CultureInfo.InvariantCulture, out var decimalValue);
                         headerParsed.Add(fieldName, decimalValue);
                         break;
 
