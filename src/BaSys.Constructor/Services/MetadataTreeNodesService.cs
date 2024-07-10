@@ -1,11 +1,14 @@
 ﻿using BaSys.Common.Infrastructure;
 using BaSys.Constructor.Abstractions;
+using BaSys.Core.Abstractions;
+using BaSys.Core.Services;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
 using BaSys.Host.DAL.TableManagers;
 using BaSys.Logging.Abstractions.Abstractions;
 using BaSys.Logging.EventTypes;
 using BaSys.Metadata.DTOs;
+using BaSys.Metadata.Helpers;
 using BaSys.Metadata.Models;
 using BaSys.Metadata.Validators;
 using BaSys.Translation;
@@ -18,6 +21,8 @@ namespace BaSys.Constructor.Services
         private readonly IMainConnectionFactory _connectionFactory;
         private readonly ILoggerService _logger;
         private readonly ISystemObjectProviderFactory _providerFactory;
+        private readonly IDataTypesService _dataTypesService;
+
         private readonly IDbConnection _connection;
         private readonly MetadataTreeNodesProvider _nodesProvider;
         private bool _disposed;
@@ -34,6 +39,10 @@ namespace BaSys.Constructor.Services
             _connection = _connectionFactory.CreateConnection();
             _providerFactory.SetUp(_connection);
             _nodesProvider = _providerFactory.Create<MetadataTreeNodesProvider>();
+
+            _dataTypesService = new DataTypesService(providerFactory);
+            _dataTypesService.SetUp(_connection);
+
         }
 
         public async Task<ResultWrapper<int>> DeleteAsync(MetadataTreeNodeDto dto)
@@ -82,8 +91,10 @@ namespace BaSys.Constructor.Services
                         }
 
                         await metaObjectStorableProvider.DeleteAsync(metadataObjectUid, transaction);
-                        
-                        var dataObjectManager = new DataObjectManager(_connection, metadataKindSettings, metaObjectStorableSettings, new PrimitiveDataTypes());
+
+                        var allDataTypes = await _dataTypesService.GetAllDataTypes();
+                        var dataTypeIndex = new DataTypesIndex(allDataTypes);
+                        var dataObjectManager = new DataObjectManager(_connection, metadataKindSettings, metaObjectStorableSettings, dataTypeIndex);
                         await dataObjectManager.DropTableAsync(transaction);
                     }
 
@@ -279,7 +290,9 @@ namespace BaSys.Constructor.Services
                     IconClass = kindSettings.IconClass,
                 };
 
-                var dataObjectManager = new DataObjectManager(_connection, kindSettings, newMetaObjectSettings, new PrimitiveDataTypes());
+                var allDataTypes = await _dataTypesService.GetAllDataTypes();
+                var dataTypeIndex = new DataTypesIndex(allDataTypes);
+                var dataObjectManager = new DataObjectManager(_connection, kindSettings, newMetaObjectSettings, dataTypeIndex);
 
                 try
                 {

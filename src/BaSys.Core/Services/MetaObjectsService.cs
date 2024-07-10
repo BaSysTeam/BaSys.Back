@@ -8,6 +8,7 @@ using BaSys.Host.DAL.TableManagers;
 using BaSys.Logging.Abstractions.Abstractions;
 using BaSys.Logging.EventTypes;
 using BaSys.Metadata.DTOs;
+using BaSys.Metadata.Helpers;
 using BaSys.Metadata.Models;
 using BaSys.Metadata.Validators;
 using BaSys.Translation;
@@ -155,10 +156,14 @@ namespace BaSys.Core.Services
 
                     if (headerChangeAnalyser.NeedAlterTable)
                     {
-                        var dataTypes = new PrimitiveDataTypes();
-                        var alterTableModel = headerChangeAnalyser.ToAlterModel(dataTypes);
+                        var dataTypeService = new DataTypesService(_providerFactory);
+                        dataTypeService.SetUp(_connection);
+                        var allDataTypes = await dataTypeService.GetAllDataTypes();
 
-                        var dataObjectTableManager = new DataObjectManager(_connection, kindSettings, savedSettings, dataTypes);
+                        var dataTypeIndex = new DataTypesIndex(allDataTypes);
+                        var alterTableModel = headerChangeAnalyser.ToAlterModel(dataTypeIndex);
+
+                        var dataObjectTableManager = new DataObjectManager(_connection, kindSettings, savedSettings, dataTypeIndex);
                         await dataObjectTableManager.AlterTableAsync(alterTableModel, transaction);
                     }
 

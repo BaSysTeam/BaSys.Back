@@ -1,12 +1,8 @@
 ﻿using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.TableManagers;
+using BaSys.Metadata.Abstractions;
 using BaSys.Metadata.Models;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BaSys.Host.DAL
 {
@@ -47,12 +43,12 @@ namespace BaSys.Host.DAL
 
         public DataObjectManager CreateDataObjectManager(MetaObjectKindSettings kindSettings, 
             MetaObjectStorableSettings objectSettingns, 
-            PrimitiveDataTypes primitiveDataTypes)
+            IDataTypesIndex dataTypeIndex)
         {
             if (_connection == null)
                 throw new ArgumentNullException(nameof(_connection));
 
-            return new DataObjectManager(_connection, kindSettings, objectSettingns, primitiveDataTypes);
+            return new DataObjectManager(_connection, kindSettings, objectSettingns, dataTypeIndex);
         }
     }
 }
