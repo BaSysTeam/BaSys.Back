@@ -158,7 +158,7 @@ namespace BaSys.Core.Services
                     {
                         var dataTypeService = new DataTypesService(_providerFactory);
                         dataTypeService.SetUp(_connection);
-                        var allDataTypes = await dataTypeService.GetAllDataTypes();
+                        var allDataTypes = await dataTypeService.GetAllDataTypesAsync();
 
                         var dataTypeIndex = new DataTypesIndex(allDataTypes);
                         var alterTableModel = headerChangeAnalyser.ToAlterModel(dataTypeIndex);

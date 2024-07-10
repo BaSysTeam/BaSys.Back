@@ -62,9 +62,8 @@ namespace BaSys.App.Services
             }
 
             var metaObjectSettings = metaObject.ToSettings();
-            var allDataTypes = await _dataTypesService.GetAllDataTypes();
-            var dataTypeIndex = new DataTypesIndex(allDataTypes);
-            var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, dataTypeIndex);
+            var dataTypesIndex = await _dataTypesService.GetIndexAsync();
+            var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, dataTypesIndex);
 
 
             try
@@ -105,9 +104,8 @@ namespace BaSys.App.Services
             }
 
             var metaObjectSettings = metaObject.ToSettings();
-            var allDataTypes = await _dataTypesService.GetAllDataTypes();
-            var dataTypeIndex = new DataTypesIndex(allDataTypes);
-            var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, dataTypeIndex);
+            var dataTypesIndex = await _dataTypesService.GetIndexAsync();
+            var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, dataTypesIndex);
 
 
             try
@@ -123,7 +121,7 @@ namespace BaSys.App.Services
                 {
                     dto = new DataObjectWithMetadataDto(objectKindSettings, metaObjectSettings, new DataObject(metaObjectSettings));
                 }
-                dto.DataTypes =  (await _dataTypesService.GetAllDataTypes()).Select(x=>new DTO.Core.DataTypeDto(x)).ToList();
+                dto.DataTypes =  (await _dataTypesService.GetAllDataTypesAsync()).Select(x=>new DTO.Core.DataTypeDto(x)).ToList();
                 result.Success(dto);
 
             }
@@ -159,14 +157,13 @@ namespace BaSys.App.Services
             }
 
             var metaObjectSettings = metaObject.ToSettings();
-            var allDataTypes = await _dataTypesService.GetAllDataTypes();
-            var dataTypeIndex = new DataTypesIndex(allDataTypes);
+            var dataTypesIndex = await _dataTypesService.GetIndexAsync();
             var primitiveDataTypes = new PrimitiveDataTypes();
 
             // Parse header.
             dto.Item.Header = DataObjectParser.ParseHeader(dto.Item.Header, metaObjectSettings, primitiveDataTypes);
 
-            var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, dataTypeIndex);
+            var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, dataTypesIndex);
 
             var newObject = new DataObject(dto.Item.Header);
 
@@ -207,13 +204,12 @@ namespace BaSys.App.Services
 
             var metaObjectSettings = metaObject.ToSettings();
             var primitiveDataTypes = new PrimitiveDataTypes();
-            var allDataTypes = await _dataTypesService.GetAllDataTypes();
-            var dataTypeIndex = new DataTypesIndex(allDataTypes);
+            var dataTypesIndex = await _dataTypesService.GetIndexAsync();
 
             // Parse header.
             dto.Item.Header = DataObjectParser.ParseHeader(dto.Item.Header, metaObjectSettings, primitiveDataTypes);
 
-            var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, dataTypeIndex);
+            var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, dataTypesIndex);
 
             var newItem = new DataObject(dto.Item.Header);
 
@@ -266,9 +262,8 @@ namespace BaSys.App.Services
             var metaObjectSettings = metaObject.ToSettings();
 
             var primitiveDataTypes = new PrimitiveDataTypes();
-            var allDataTypes = await _dataTypesService.GetAllDataTypes();
-            var dataTypeIndex = new DataTypesIndex(allDataTypes);
-            var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, dataTypeIndex);
+            var dataTypesIndex = await _dataTypesService.GetIndexAsync();
+            var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, dataTypesIndex);
 
             int deletedCount = await provider.DeleteAsync(uid, null);
 

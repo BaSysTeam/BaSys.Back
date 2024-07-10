@@ -2,7 +2,9 @@
 using BaSys.Core.Abstractions;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
+using BaSys.Metadata.Abstractions;
 using BaSys.Metadata.Models;
+using BaSys.Metadata.Helpers;
 
 namespace BaSys.Core.Services;
 
@@ -23,7 +25,7 @@ public class DataTypesService : IDataTypesService, IDisposable
 
     }
 
-    public async Task<List<DataType>> GetAllDataTypes()
+    public async Task<List<DataType>> GetAllDataTypesAsync()
     {
         var primitiveDataTypes = new PrimitiveDataTypes();
         var allDataTypes = DataTypeDefaults.AllTypes().ToList();
@@ -40,6 +42,15 @@ public class DataTypesService : IDataTypesService, IDisposable
         }
 
         return allDataTypes;
+    }
+
+    public async Task<IDataTypesIndex> GetIndexAsync()
+    {
+        var allDataTypes = await GetAllDataTypesAsync();
+
+        var dataTypeIndex = new DataTypesIndex(allDataTypes);
+
+        return dataTypeIndex;
     }
 
     public void Dispose()

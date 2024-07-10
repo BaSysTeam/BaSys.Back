@@ -92,9 +92,8 @@ namespace BaSys.Constructor.Services
 
                         await metaObjectStorableProvider.DeleteAsync(metadataObjectUid, transaction);
 
-                        var allDataTypes = await _dataTypesService.GetAllDataTypes();
-                        var dataTypeIndex = new DataTypesIndex(allDataTypes);
-                        var dataObjectManager = new DataObjectManager(_connection, metadataKindSettings, metaObjectStorableSettings, dataTypeIndex);
+                        var dataTypesIndex = await _dataTypesService.GetIndexAsync();
+                        var dataObjectManager = new DataObjectManager(_connection, metadataKindSettings, metaObjectStorableSettings, dataTypesIndex);
                         await dataObjectManager.DropTableAsync(transaction);
                     }
 
@@ -290,9 +289,8 @@ namespace BaSys.Constructor.Services
                     IconClass = kindSettings.IconClass,
                 };
 
-                var allDataTypes = await _dataTypesService.GetAllDataTypes();
-                var dataTypeIndex = new DataTypesIndex(allDataTypes);
-                var dataObjectManager = new DataObjectManager(_connection, kindSettings, newMetaObjectSettings, dataTypeIndex);
+                var dataTypesIndex = await _dataTypesService.GetIndexAsync();
+                var dataObjectManager = new DataObjectManager(_connection, kindSettings, newMetaObjectSettings, dataTypesIndex);
 
                 try
                 {
