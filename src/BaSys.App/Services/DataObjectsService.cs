@@ -119,7 +119,7 @@ namespace BaSys.App.Services
                 }
                 else
                 {
-                    dto = new DataObjectWithMetadataDto(objectKindSettings, metaObjectSettings, new DataObject(metaObjectSettings));
+                    dto = new DataObjectWithMetadataDto(objectKindSettings, metaObjectSettings, new DataObject(metaObjectSettings, dataTypesIndex));
                 }
                 dto.DataTypes =  (await _dataTypesService.GetAllDataTypesAsync()).Select(x=>new DTO.Core.DataTypeDto(x)).ToList();
                 result.Success(dto);
