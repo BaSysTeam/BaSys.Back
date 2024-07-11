@@ -160,10 +160,9 @@ namespace BaSys.App.Services
 
             var metaObjectSettings = metaObject.ToSettings();
             var dataTypesIndex = await _dataTypesService.GetIndexAsync();
-            var primitiveDataTypes = new PrimitiveDataTypes();
 
             // Parse header.
-            dto.Item.Header = DataObjectParser.ParseHeader(dto.Item.Header, metaObjectSettings, primitiveDataTypes);
+            dto.Item.Header = DataObjectParser.ParseHeader(dto.Item.Header, metaObjectSettings, dataTypesIndex);
 
             var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, dataTypesIndex);
 
@@ -205,11 +204,10 @@ namespace BaSys.App.Services
             }
 
             var metaObjectSettings = metaObject.ToSettings();
-            var primitiveDataTypes = new PrimitiveDataTypes();
             var dataTypesIndex = await _dataTypesService.GetIndexAsync();
 
             // Parse header.
-            dto.Item.Header = DataObjectParser.ParseHeader(dto.Item.Header, metaObjectSettings, primitiveDataTypes);
+            dto.Item.Header = DataObjectParser.ParseHeader(dto.Item.Header, metaObjectSettings, dataTypesIndex);
 
             var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, dataTypesIndex);
 

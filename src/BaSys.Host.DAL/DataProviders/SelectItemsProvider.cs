@@ -70,7 +70,7 @@ namespace BaSys.Host.DAL.DataProviders
                 .Parameter($"{_primaryKeyFieldName}", uid)
                 .Query(_sqlDialect);
 
-            var item = await _connection.QueryFirstOrDefaultAsync<SelectItem>(_query.Text, null, transaction);
+            var item = await _connection.QueryFirstOrDefaultAsync<SelectItem>(_query.Text, _query.DynamicParameters, transaction);
 
             return item;
         }
