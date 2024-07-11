@@ -77,9 +77,9 @@ namespace BaSys.App.Services
 
             var objectKindSettings = metaObjectKind.ToSettings();
             var metaObjectSettings = metaObject.ToSettings();
-            var dataObjectProvider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, dataTypesIndex);
+            var selectItemsProvider = new SelectItemsProvider(_connection, objectKindSettings, metaObjectSettings, dataTypesIndex);
 
-            var collection = await dataObjectProvider.GetSelectItemsCollectionAsync(null);
+            var collection = await selectItemsProvider.GetCollectionAsync(null);
 
             result.Success(collection);
 
@@ -127,9 +127,9 @@ namespace BaSys.App.Services
 
             var objectKindSettings = metaObjectKind.ToSettings();
             var metaObjectSettings = metaObject.ToSettings();
-            var dataObjectProvider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, dataTypesIndex);
+            var selectItemsProvider = new SelectItemsProvider(_connection, objectKindSettings, metaObjectSettings, dataTypesIndex);
 
-            var selectItem = await dataObjectProvider.GetSelectItemAsync(uid, null);
+            var selectItem = await selectItemsProvider.GetItemAsync(uid, null);
 
             if (selectItem == null) {
                 result.Error(-1, $"{DictMain.CannotFindItem}. {metaObjectKind}.{metaObject}: {uid}");
