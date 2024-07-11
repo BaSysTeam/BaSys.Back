@@ -38,6 +38,8 @@ namespace BaSys.App.Services
             _dataTypesService = new DataTypesService(providerFactory);
             _dataTypesService.SetUp(_connection);
 
+            _logger = logger;
+
         }
 
         public async Task<ResultWrapper<DataObjectListDto>> GetCollectionAsync(string kindName, string objectName)

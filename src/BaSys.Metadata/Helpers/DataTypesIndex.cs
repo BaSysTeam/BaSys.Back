@@ -20,6 +20,11 @@ namespace BaSys.Metadata.Helpers
             }
         }
 
+        public bool IsDataType(Guid uid)
+        {
+            return _dataTypesIndex.ContainsKey(uid);
+        }
+
         public DataType GetDataType(Guid uid)
         {
             return _dataTypesIndex[uid];

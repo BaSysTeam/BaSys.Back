@@ -10,5 +10,6 @@ namespace BaSys.Metadata.Abstractions
         DataType GetDataTypeSafe(Guid uid);
         DbType GetDbType(Guid uid);
         DbType GetDbTypeSafe(Guid uid);
+        bool IsDataType(Guid uid); 
     }
 }

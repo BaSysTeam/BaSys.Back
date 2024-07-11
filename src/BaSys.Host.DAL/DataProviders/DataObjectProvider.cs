@@ -69,6 +69,21 @@ namespace BaSys.Host.DAL.DataProviders
             return collection;
         }
 
+        public async Task<IEnumerable<SelectItem>> GetSelectItemsCollectionAsync(IDbTransaction? transaction)
+        {
+
+            _query = SelectBuilder.Make()
+                .From(_config.TableName)
+                .Select($"{_primaryKeyFieldName} as value")
+                /// TODO: get presentation expressions instead of title
+                .Select($"title as text")
+                .Query(_sqlDialect);
+
+            var collection = await _connection.QueryAsync<SelectItem>(_query.Text, null, transaction);
+
+            return collection;
+        }
+
         public async Task<DataObject?> GetItemAsync<T>(T uid, IDbTransaction? transaction)
         {
             _query = SelectBuilder.Make()
