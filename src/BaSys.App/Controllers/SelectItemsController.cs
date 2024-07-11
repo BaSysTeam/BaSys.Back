@@ -25,10 +25,10 @@ namespace BaSys.App.Controllers
             return Ok(result);
         }
 
-        [HttpGet("{dataType:guid}/{uid}")]
-        public async Task<IActionResult> GetItem(Guid dataType, string uid)
+        [HttpGet("{dataTypeUid:guid}/{uid}")]
+        public async Task<IActionResult> GetItem(Guid dataTypeUid, string uid)
         {
-            var result = await _service.GetItemAsync(dataType, uid);
+            var result = await _service.GetItemAsync(dataTypeUid, uid);
             return Ok(result);
         }
     }

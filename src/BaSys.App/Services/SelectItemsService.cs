@@ -5,11 +5,10 @@ using BaSys.Core.Services;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
 using BaSys.Logging.Abstractions.Abstractions;
-using BaSys.Metadata.Helpers;
+using BaSys.Metadata.Abstractions;
 using BaSys.Metadata.Models;
 using BaSys.Translation;
 using System.Data;
-using System.Security.AccessControl;
 
 namespace BaSys.App.Services
 {
@@ -40,43 +39,17 @@ namespace BaSys.App.Services
         {
             var result = new ResultWrapper<IEnumerable<SelectItem>>();
 
-            // Get data type.
-            var dataTypesIndex = await _dataTypesService.GetIndexAsync();
-            if (!dataTypesIndex.IsDataType(dataTypeUid))
+            var metadataResult = await GetMetadata(dataTypeUid);
+            if (!metadataResult.IsOK)
             {
-                result.Error(-1, $"Data type not found: {dataTypeUid}");
+                result.Error(-1, metadataResult.Message, metadataResult.TechnicalInfo);
                 return result;
             }
 
-            var dataType = dataTypesIndex.GetDataTypeSafe(dataTypeUid);
-
-            if (!dataType.ObjectKindUid.HasValue)
-            {
-                result.Error(-1, $"Data type {dataTypeUid} is not object type.");
-                return result;
-            }
-
-            // Get metaobject kind and metaobject.
-            var metaObjectKind = await _kindProvider.GetItemAsync(dataType.ObjectKindUid.Value, null);
-
-            if (metaObjectKind == null)
-            {
-                result.Error(-1, $"Metaobject kind not found: {dataType.ObjectKindUid.Value}");
-                return result;
-            }
-
-            var metaObjectProvider = new MetaObjectStorableProvider(_connection, metaObjectKind.Name);
-            var metaObject = await metaObjectProvider.GetItemAsync(dataTypeUid, null);
-
-
-            if (metaObject == null)
-            {
-                result.Error(-1, $"{DictMain.CannotFindMetaObject}: {metaObjectKind.Name}.{dataTypeUid}");
-                return result;
-            }
-
+            var (dataTypesIndex, metaObjectKind, metaObject) = metadataResult.Data;
             var objectKindSettings = metaObjectKind.ToSettings();
             var metaObjectSettings = metaObject.ToSettings();
+
             var selectItemsProvider = new SelectItemsProvider(_connection, objectKindSettings, metaObjectSettings, dataTypesIndex);
 
             var collection = await selectItemsProvider.GetCollectionAsync(null);
@@ -90,6 +63,37 @@ namespace BaSys.App.Services
         {
             var result = new ResultWrapper<SelectItem>();
 
+            var metadataResult = await GetMetadata(dataTypeUid);
+            if (!metadataResult.IsOK)
+            {
+                result.Error(-1, metadataResult.Message, metadataResult.TechnicalInfo);
+                return result;
+            }
+
+            var (dataTypesIndex, metaObjectKind, metaObject) = metadataResult.Data;
+            var objectKindSettings = metaObjectKind.ToSettings();
+            var metaObjectSettings = metaObject.ToSettings();
+
+            var selectItemsProvider = new SelectItemsProvider(_connection, objectKindSettings, metaObjectSettings, dataTypesIndex);
+
+            var selectItem = await selectItemsProvider.GetItemAsync(uid, null);
+
+            if (selectItem == null)
+            {
+                result.Error(-1, $"{DictMain.CannotFindItem}. {metaObjectKind}.{metaObject}: {uid}");
+            }
+            else
+            {
+                result.Success(selectItem);
+            }
+
+            return result;
+        }
+
+        private async Task<ResultWrapper<(IDataTypesIndex, MetaObjectKind, MetaObjectStorable)>> GetMetadata(Guid dataTypeUid)
+        {
+            var result = new ResultWrapper<(IDataTypesIndex, MetaObjectKind, MetaObjectStorable)>();
+
             // Get data type.
             var dataTypesIndex = await _dataTypesService.GetIndexAsync();
             if (!dataTypesIndex.IsDataType(dataTypeUid))
@@ -108,7 +112,6 @@ namespace BaSys.App.Services
 
             // Get metaobject kind and metaobject.
             var metaObjectKind = await _kindProvider.GetItemAsync(dataType.ObjectKindUid.Value, null);
-
             if (metaObjectKind == null)
             {
                 result.Error(-1, $"Metaobject kind not found: {dataType.ObjectKindUid.Value}");
@@ -117,29 +120,17 @@ namespace BaSys.App.Services
 
             var metaObjectProvider = new MetaObjectStorableProvider(_connection, metaObjectKind.Name);
             var metaObject = await metaObjectProvider.GetItemAsync(dataTypeUid, null);
-
-
             if (metaObject == null)
             {
                 result.Error(-1, $"{DictMain.CannotFindMetaObject}: {metaObjectKind.Name}.{dataTypeUid}");
                 return result;
             }
 
-            var objectKindSettings = metaObjectKind.ToSettings();
-            var metaObjectSettings = metaObject.ToSettings();
-            var selectItemsProvider = new SelectItemsProvider(_connection, objectKindSettings, metaObjectSettings, dataTypesIndex);
-
-            var selectItem = await selectItemsProvider.GetItemAsync(uid, null);
-
-            if (selectItem == null) {
-                result.Error(-1, $"{DictMain.CannotFindItem}. {metaObjectKind}.{metaObject}: {uid}");
-            }
-            else
-            {
-                result.Success(selectItem);
-            }
+            result.Success((dataTypesIndex, metaObjectKind, metaObject));
 
             return result;
         }
+
+
     }
 }
