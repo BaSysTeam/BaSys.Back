@@ -15,6 +15,7 @@ namespace BaSys.App.Infrastructure
                 .Add(new AssemblyPart(typeof(AppExtension).Assembly));
 
             services.AddTransient<IDataObjectsService, DataObjectsService>();
+            services.AddTransient<ISelectItemService, SelectItemsService>();
 
             return services;
         }

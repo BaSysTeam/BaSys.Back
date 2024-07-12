@@ -1,5 +1,7 @@
 ﻿using BaSys.FluentQueries.Models;
 using BaSys.Host.DAL.Abstractions;
+using BaSys.Metadata.Abstractions;
+using BaSys.Metadata.Helpers;
 using BaSys.Metadata.Models;
 using System;
 using System.Collections.Generic;
@@ -86,7 +88,7 @@ namespace BaSys.Host.DAL.Helpers
 
         }
 
-        public AlterTableModel ToAlterModel(PrimitiveDataTypes dataTypes)
+        public AlterTableModel ToAlterModel(IDataTypesIndex dataTypesIndex)
         {
             var model = new AlterTableModel();
 
@@ -96,10 +98,7 @@ namespace BaSys.Host.DAL.Helpers
             {
                 if (command is MetaObjectTableAddColumnCommand addColumnCommand)
                 {
-                    var dataType = dataTypes.GetDataType(addColumnCommand.Column.DataTypeUid);
-
-                    if (dataType == null)
-                        continue;
+                    var dataType = dataTypesIndex.GetDataTypeSafe(addColumnCommand.Column.DataTypeUid);
 
                     var tableColumn = new TableColumn()
                     {

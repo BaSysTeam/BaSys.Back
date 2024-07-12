@@ -7,6 +7,7 @@ using BaSys.DTO.App;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
 using BaSys.Logging.Abstractions.Abstractions;
+using BaSys.Metadata.Helpers;
 using BaSys.Metadata.Models;
 using BaSys.Translation;
 using Humanizer;
@@ -37,6 +38,8 @@ namespace BaSys.App.Services
             _dataTypesService = new DataTypesService(providerFactory);
             _dataTypesService.SetUp(_connection);
 
+            _logger = logger;
+
         }
 
         public async Task<ResultWrapper<DataObjectListDto>> GetCollectionAsync(string kindName, string objectName)
@@ -61,8 +64,8 @@ namespace BaSys.App.Services
             }
 
             var metaObjectSettings = metaObject.ToSettings();
-            var primitiveDataTypes = new PrimitiveDataTypes();
-            var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, primitiveDataTypes);
+            var dataTypesIndex = await _dataTypesService.GetIndexAsync();
+            var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, dataTypesIndex);
 
 
             try
@@ -103,8 +106,8 @@ namespace BaSys.App.Services
             }
 
             var metaObjectSettings = metaObject.ToSettings();
-            var primitiveDataTypes = new PrimitiveDataTypes();
-            var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, primitiveDataTypes);
+            var dataTypesIndex = await _dataTypesService.GetIndexAsync();
+            var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, dataTypesIndex);
 
 
             try
@@ -118,9 +121,9 @@ namespace BaSys.App.Services
                 }
                 else
                 {
-                    dto = new DataObjectWithMetadataDto(objectKindSettings, metaObjectSettings, new DataObject(metaObjectSettings));
+                    dto = new DataObjectWithMetadataDto(objectKindSettings, metaObjectSettings, new DataObject(metaObjectSettings, dataTypesIndex));
                 }
-                dto.DataTypes =  (await _dataTypesService.GetAllDataTypes()).Select(x=>new DTO.Core.DataTypeDto(x)).ToList();
+                dto.DataTypes =  (await _dataTypesService.GetAllDataTypesAsync()).Select(x=>new DTO.Core.DataTypeDto(x)).ToList();
                 result.Success(dto);
 
             }
@@ -156,12 +159,12 @@ namespace BaSys.App.Services
             }
 
             var metaObjectSettings = metaObject.ToSettings();
-            var primitiveDataTypes = new PrimitiveDataTypes();
+            var dataTypesIndex = await _dataTypesService.GetIndexAsync();
 
             // Parse header.
-            dto.Item.Header = DataObjectParser.ParseHeader(dto.Item.Header, metaObjectSettings, primitiveDataTypes);
+            dto.Item.Header = DataObjectParser.ParseHeader(dto.Item.Header, metaObjectSettings, dataTypesIndex);
 
-            var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, primitiveDataTypes);
+            var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, dataTypesIndex);
 
             var newObject = new DataObject(dto.Item.Header);
 
@@ -201,12 +204,12 @@ namespace BaSys.App.Services
             }
 
             var metaObjectSettings = metaObject.ToSettings();
-            var primitiveDataTypes = new PrimitiveDataTypes();
+            var dataTypesIndex = await _dataTypesService.GetIndexAsync();
 
             // Parse header.
-            dto.Item.Header = DataObjectParser.ParseHeader(dto.Item.Header, metaObjectSettings, primitiveDataTypes);
+            dto.Item.Header = DataObjectParser.ParseHeader(dto.Item.Header, metaObjectSettings, dataTypesIndex);
 
-            var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, primitiveDataTypes);
+            var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, dataTypesIndex);
 
             var newItem = new DataObject(dto.Item.Header);
 
@@ -259,7 +262,8 @@ namespace BaSys.App.Services
             var metaObjectSettings = metaObject.ToSettings();
 
             var primitiveDataTypes = new PrimitiveDataTypes();
-            var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, primitiveDataTypes);
+            var dataTypesIndex = await _dataTypesService.GetIndexAsync();
+            var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, dataTypesIndex);
 
             int deletedCount = await provider.DeleteAsync(uid, null);
 

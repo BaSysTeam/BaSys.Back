@@ -1,13 +1,7 @@
 ﻿using BaSys.DAL.Models.App;
 using BaSys.FluentQueries.Models;
+using BaSys.Metadata.Abstractions;
 using BaSys.Metadata.Models;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BaSys.Host.DAL.ModelConfigurations
 {
@@ -16,16 +10,16 @@ namespace BaSys.Host.DAL.ModelConfigurations
 
         private readonly MetaObjectKindSettings _kindSettings;
         private readonly MetaObjectStorableSettings _objectSettings;
-        private readonly PrimitiveDataTypes _primitiveDataTypes;
+        private readonly IDataTypesIndex _dataTypesIndex;
 
         public DataObjectConfiguration(MetaObjectKindSettings kindSettings, 
             MetaObjectStorableSettings objectSettings, 
-            PrimitiveDataTypes primitiveDataTypes):base(false)
+            IDataTypesIndex dataTypesIndex):base(false)
         {
 
             _kindSettings = kindSettings;
             _objectSettings = objectSettings;
-            _primitiveDataTypes = primitiveDataTypes;
+            _dataTypesIndex = dataTypesIndex;
 
             Table($"{kindSettings.Prefix}_{objectSettings.Name}");
 
@@ -48,7 +42,7 @@ namespace BaSys.Host.DAL.ModelConfigurations
             {
                 Name = pkSettings.Name,
                 PrimaryKey = true,
-                DbType = _primitiveDataTypes.GetDbType(pkSettings.DataTypeUid),
+                DbType = _dataTypesIndex.GetDbType(pkSettings.DataTypeUid),
                 StringLength = pkSettings.StringLength,
                 NumberDigits = pkSettings.NumberDigits,
             };
@@ -64,7 +58,7 @@ namespace BaSys.Host.DAL.ModelConfigurations
                 {
                     Name = columnSettings.Name,
                     PrimaryKey = false,
-                    DbType = _primitiveDataTypes.GetDbType(columnSettings.DataTypeUid),
+                    DbType = _dataTypesIndex.GetDbType(columnSettings.DataTypeUid),
                     StringLength = columnSettings.StringLength,
                     NumberDigits = columnSettings.NumberDigits,
                     Required = columnSettings.Required,
