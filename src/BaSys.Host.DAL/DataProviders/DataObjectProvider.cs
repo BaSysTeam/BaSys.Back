@@ -23,6 +23,7 @@ namespace BaSys.Host.DAL.DataProviders
         private readonly DataObjectConfiguration _config;
         private readonly IDbConnection _connection;
         private readonly SqlDialectKinds _sqlDialect;
+        private readonly MetaObjectKindSettings _kindSettings;
         private readonly string _primaryKeyFieldName;
         private DbType _primaryKeyDbType;
 
@@ -43,6 +44,8 @@ namespace BaSys.Host.DAL.DataProviders
                 objectSettings,
                 dataTypeIndex);
 
+            _kindSettings = kindSettings;
+
             var primaryKey = objectSettings.Header.PrimaryKey;
             _primaryKeyFieldName = primaryKey.Name;
 
@@ -54,7 +57,14 @@ namespace BaSys.Host.DAL.DataProviders
 
         public async Task<List<DataObject>> GetCollectionAsync(IDbTransaction? transaction)
         {
-            _query = SelectBuilder.Make().From(_config.TableName).Select("*").Query(_sqlDialect);
+            var builder = SelectBuilder.Make().From(_config.TableName).Select("*");
+
+            if (!string.IsNullOrWhiteSpace(_kindSettings.OrderByExpression))
+            {
+                builder.OrderBy(_kindSettings.OrderByExpression);
+            }
+
+            _query = builder.Query(_sqlDialect);
 
             var dynamicCollection = await _connection.QueryAsync(_query.Text, null, transaction);
 
