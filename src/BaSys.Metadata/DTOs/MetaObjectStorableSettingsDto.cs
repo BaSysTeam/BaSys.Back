@@ -18,6 +18,8 @@ namespace BaSys.Metadata.DTOs
         public string Title { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public string Memo { get; set; } = string.Empty;
+        public string OrderByExpression { get; set; } = string.Empty;
+        public string DisplayExpression { get; set; } = string.Empty;
         public long Version { get; set; }
         public bool IsActive { get; set; }
 
@@ -36,6 +38,8 @@ namespace BaSys.Metadata.DTOs
             Title = settings.Title;
             Name = settings.Name;
             Memo = settings.Memo;
+            OrderByExpression = settings.OrderByExpression;
+            DisplayExpression = settings.DisplayExpression;
             IsActive = settings.IsActive;
 
             MetaObjectKindUid = kindSettings.Uid;
@@ -55,6 +59,8 @@ namespace BaSys.Metadata.DTOs
                 Title = Title,
                 Name = Name,
                 Memo = Memo,
+                OrderByExpression = OrderByExpression,
+                DisplayExpression = DisplayExpression,
                 IsActive = IsActive,
                 MetaObjectKindUid = MetaObjectKindUid,
                 Header = Header,
