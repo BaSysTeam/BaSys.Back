@@ -1,4 +1,5 @@
-﻿using BaSys.Metadata.Models;
+﻿using BaSys.Metadata.Abstractions;
+using BaSys.Metadata.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -18,11 +19,11 @@ namespace BaSys.DAL.Models.App
 
         }
 
-        public DataObject(MetaObjectStorableSettings settings)
+        public DataObject(MetaObjectStorableSettings settings, IDataTypesIndex dataTypeIndex)
         {
             foreach (var column in settings.Header.Columns)
             {
-                var emptyValue = GetEmptyValue(column);
+                var emptyValue = GetEmptyValue(column, dataTypeIndex);
                 Header.Add(column.Name, emptyValue);
             }
         }
@@ -44,11 +45,11 @@ namespace BaSys.DAL.Models.App
 
         }
 
-        public object GetEmptyValue(MetaObjectTableColumn column)
+        public object GetEmptyValue(MetaObjectTableColumn column, IDataTypesIndex dataTypeIndex)
         {
             var primitiveDataTypes = new PrimitiveDataTypes();
 
-            var dataType = primitiveDataTypes.GetDataType(column.DataTypeUid);
+            var dataType = dataTypeIndex.GetDataTypeSafe(column.DataTypeUid);
 
             switch (dataType.DbType)
             {

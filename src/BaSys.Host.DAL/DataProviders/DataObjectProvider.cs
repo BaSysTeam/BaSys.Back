@@ -4,6 +4,7 @@ using BaSys.FluentQueries.Enums;
 using BaSys.FluentQueries.QueryBuilders;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.ModelConfigurations;
+using BaSys.Metadata.Abstractions;
 using BaSys.Metadata.Models;
 using Dapper;
 using Npgsql;
@@ -32,7 +33,7 @@ namespace BaSys.Host.DAL.DataProviders
         public DataObjectProvider(IDbConnection connection,
             MetaObjectKindSettings kindSettings,
             MetaObjectStorableSettings objectSettings,
-            PrimitiveDataTypes primitiveDataTypes)
+            IDataTypesIndex dataTypeIndex)
         {
             _connection = connection;
 
@@ -40,12 +41,12 @@ namespace BaSys.Host.DAL.DataProviders
 
             _config = new DataObjectConfiguration(kindSettings,
                 objectSettings,
-                primitiveDataTypes);
+                dataTypeIndex);
 
             var primaryKey = objectSettings.Header.PrimaryKey;
             _primaryKeyFieldName = primaryKey.Name;
 
-            var pkDataType = primitiveDataTypes.GetDataType(primaryKey.DataTypeUid);
+            var pkDataType = dataTypeIndex.GetDataTypeSafe(primaryKey.DataTypeUid);
             _primaryKeyDbType = pkDataType.DbType;
 
 

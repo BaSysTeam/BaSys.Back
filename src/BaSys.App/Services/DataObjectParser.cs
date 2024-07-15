@@ -1,4 +1,5 @@
-﻿using BaSys.Metadata.Models;
+﻿using BaSys.Metadata.Abstractions;
+using BaSys.Metadata.Models;
 using Humanizer;
 using System.Data;
 using System.Globalization;
@@ -10,7 +11,7 @@ namespace BaSys.App.Services
     {
         public static Dictionary<string, object> ParseHeader(Dictionary<string, object> headerJson, 
             MetaObjectStorableSettings metaObjectSettings, 
-            PrimitiveDataTypes primitiveDataTypes)
+            IDataTypesIndex dataTypesIndex)
         {
             var headerParsed = new Dictionary<string, object>();
 
@@ -28,7 +29,7 @@ namespace BaSys.App.Services
                     continue;
                 }
 
-                var fieldDataType = primitiveDataTypes.GetDataType(fieldSettings.DataTypeUid);
+                var fieldDataType = dataTypesIndex.GetDataType(fieldSettings.DataTypeUid);
 
                 if (fieldDataType == null)
                 {

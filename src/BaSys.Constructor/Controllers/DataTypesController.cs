@@ -34,7 +34,7 @@ namespace BaSys.Constructor.Controllers
             using(IDbConnection connection = _connectionFactory.CreateConnection())
             {
                 _dataTypesService.SetUp(connection);
-                var dataTypes = await _dataTypesService.GetAllDataTypes();
+                var dataTypes = await _dataTypesService.GetAllDataTypesAsync();
                 result.Success(dataTypes.Select(x => new DataTypeDto(x)).ToList());
             }
 
