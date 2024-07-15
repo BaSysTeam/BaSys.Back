@@ -20,6 +20,7 @@ namespace BaSys.Metadata.Models
         public string Memo { get; set; } = string.Empty;
         public string IconClass { get; set; } = string.Empty;
         public string OrderByExpression { get; set;} = string.Empty;    
+        public string DisplayExpression { get; set; } = string.Empty;
 
         public List<MetaObjectKindStandardColumn> StandardColumns { get; set; }   = new List<MetaObjectKindStandardColumn>();
         public List<Guid> AvailableRoles { get; set; } = new List<Guid>();
