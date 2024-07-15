@@ -24,6 +24,7 @@ namespace BaSys.Host.DAL.DataProviders
         private readonly IDbConnection _connection;
         private readonly SqlDialectKinds _sqlDialect;
         private readonly MetaObjectKindSettings _kindSettings;
+        private readonly MetaObjectStorableSettings _objectSettings;
         private readonly string _primaryKeyFieldName;
         private DbType _primaryKeyDbType;
 
@@ -45,6 +46,7 @@ namespace BaSys.Host.DAL.DataProviders
                 dataTypeIndex);
 
             _kindSettings = kindSettings;
+            _objectSettings = objectSettings;
 
             var primaryKey = objectSettings.Header.PrimaryKey;
             _primaryKeyFieldName = primaryKey.Name;
@@ -59,9 +61,10 @@ namespace BaSys.Host.DAL.DataProviders
         {
             var builder = SelectBuilder.Make().From(_config.TableName).Select("*");
 
-            if (!string.IsNullOrWhiteSpace(_kindSettings.OrderByExpression))
+            var orderByExpression = _objectSettings.GetOrderByExpression(_kindSettings.OrderByExpression);
+            if (!string.IsNullOrWhiteSpace(orderByExpression))
             {
-                builder.OrderBy(_kindSettings.OrderByExpression);
+                builder.OrderBy(orderByExpression);
             }
 
             _query = builder.Query(_sqlDialect);

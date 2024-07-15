@@ -105,6 +105,30 @@ namespace BaSys.Metadata.Models
             TableParts = source.TableParts;
         }
 
+        public string GetOrderByExpression(string defaultExpression)
+        {
+            if (string.IsNullOrWhiteSpace(OrderByExpression))
+            {
+                return defaultExpression;
+            }
+            else
+            {
+                return OrderByExpression;
+            }
+        }
+
+        public string GetDisplayExpression(string defaultExpression)
+        {
+            if (string.IsNullOrWhiteSpace(DisplayExpression))
+            {
+                return defaultExpression;
+            }
+            else
+            {
+                return DisplayExpression;
+            }
+        }
+
         public override string ToString()
         {
             return Title;
