@@ -15,6 +15,9 @@ namespace BaSys.Metadata.Models
         public string Name { get; set; } = string.Empty;
         public string Memo { get; set; } = string.Empty;
         public EditMethods EditMethod { get; set; } = EditMethods.Page;
+        public string OrderByExpression { get; set; } = string.Empty;
+        public string DisplayExpression { get; set; } = string.Empty;
+
         public long Version { get; set; }
         public bool IsActive { get; set; }
 
@@ -95,6 +98,8 @@ namespace BaSys.Metadata.Models
             Title = source.Title;
             Name = source.Name;
             Memo = source.Memo;
+            OrderByExpression = source.OrderByExpression;
+            DisplayExpression = source.DisplayExpression;
             IsActive = source.IsActive;
             Header = source.Header;
             TableParts = source.TableParts;
