@@ -4,6 +4,7 @@ using BaSys.FluentQueries.QueryBuilders;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.ModelConfigurations;
 using BaSys.Metadata.Abstractions;
+using BaSys.Metadata.Helpers;
 using BaSys.Metadata.Models;
 using Dapper;
 using Npgsql;
@@ -11,12 +12,15 @@ using System.Data;
 
 namespace BaSys.Host.DAL.DataProviders
 {
-    public sealed class SelectItemsProvider: ISelectItemsProvider
+    public sealed class SelectItemsProvider : ISelectItemsProvider
     {
         private readonly DataObjectConfiguration _config;
         private readonly IDbConnection _connection;
         private readonly SqlDialectKinds _sqlDialect;
         private readonly string _primaryKeyFieldName;
+        private readonly MetaObjectKindSettings _kindSettings;
+        private readonly MetaObjectStorableSettings _objectSettings;
+
         private DbType _primaryKeyDbType;
 
         protected IQuery? _query;
@@ -36,6 +40,10 @@ namespace BaSys.Host.DAL.DataProviders
                 objectSettings,
                 dataTypeIndex);
 
+            _kindSettings = kindSettings;
+            _objectSettings = objectSettings;
+
+
             var primaryKey = objectSettings.Header.PrimaryKey;
             _primaryKeyFieldName = primaryKey.Name;
 
@@ -46,12 +54,19 @@ namespace BaSys.Host.DAL.DataProviders
         public async Task<IEnumerable<SelectItem>> GetCollectionAsync(IDbTransaction? transaction)
         {
 
-            _query = SelectBuilder.Make()
-                .From(_config.TableName)
-                .Select($"{_primaryKeyFieldName} as value")
-                /// TODO: get presentation expressions instead of title
-                .Select($"title as text")
-                .Query(_sqlDialect);
+            var builder = SelectBuilder.Make()
+             .From(_config.TableName)
+             .Select($"{_primaryKeyFieldName} as value");
+
+
+            var displayExpression = _objectSettings.GetDisplayExpression(_kindSettings.DisplayExpression, _primaryKeyFieldName);
+            var dislpayBuilder = new DisplayTemplateScriptGenerator(_sqlDialect);
+            var displaySqlExpression = dislpayBuilder.Build(displayExpression, null, "text");
+
+            builder.Select(displaySqlExpression);
+
+
+            _query = builder.Query(_sqlDialect);
 
             var collection = await _connection.QueryAsync<SelectItem>(_query.Text, null, transaction);
 
@@ -61,14 +76,20 @@ namespace BaSys.Host.DAL.DataProviders
         public async Task<SelectItem?> GetItemAsync<T>(T uid, IDbTransaction? transaction)
         {
 
-            _query = SelectBuilder.Make()
+            var builder = SelectBuilder.Make()
                 .From(_config.TableName)
-                .Select($"{_primaryKeyFieldName} as value")
-                /// TODO: get presentation expressions instead of title
-                .Select($"title as text")
-                .WhereAnd($"{_primaryKeyFieldName} = @{_primaryKeyFieldName}")
-                .Parameter($"{_primaryKeyFieldName}", uid)
-                .Query(_sqlDialect);
+                .Select($"{_primaryKeyFieldName} as value");
+
+            var displayExpression = _objectSettings.GetDisplayExpression(_kindSettings.DisplayExpression, _primaryKeyFieldName);
+            var dislpayBuilder = new DisplayTemplateScriptGenerator(_sqlDialect);
+            var displaySqlExpression = dislpayBuilder.Build(displayExpression, null, "text");
+
+            builder.Select(displaySqlExpression);
+
+            builder.WhereAnd($"{_primaryKeyFieldName} = @{_primaryKeyFieldName}")
+            .Parameter($"{_primaryKeyFieldName}", uid);
+
+            _query = builder.Query(_sqlDialect);
 
             var item = await _connection.QueryFirstOrDefaultAsync<SelectItem>(_query.Text, _query.DynamicParameters, transaction);
 

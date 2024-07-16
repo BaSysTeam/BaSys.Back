@@ -151,6 +151,12 @@ title varchar(100) NOT NULL,
 prefix varchar(4) NOT NULL UNIQUE
 );</value>
   </data>
+  <data name="DisplayCodeAndTitleMsSql" xml:space="preserve">
+    <value>CONCAT([tableName].[code], ' - ', [tableName].[title]) AS text</value>
+  </data>
+  <data name="DisplayCodeAndTitlePgSql" xml:space="preserve">
+    <value>CONCAT("tableName"."code", ' - ', "tableName"."title") AS text</value>
+  </data>
   <data name="InsertAutoFillValuesMsSql" xml:space="preserve">
     <value>INSERT INTO [metadata_groups]
 ([uid], [parentuid])
