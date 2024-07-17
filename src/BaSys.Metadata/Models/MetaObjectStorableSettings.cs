@@ -117,16 +117,20 @@ namespace BaSys.Metadata.Models
             }
         }
 
-        public string GetDisplayExpression(string defaultExpression)
+        public string GetDisplayExpression(string defaultExpression, string pkName)
         {
-            if (string.IsNullOrWhiteSpace(DisplayExpression))
+            var result = defaultExpression;
+            if (!string.IsNullOrWhiteSpace(DisplayExpression))
             {
-                return defaultExpression;
+                result = DisplayExpression;
             }
-            else
+
+            if (string.IsNullOrWhiteSpace(result))
             {
-                return DisplayExpression;
+                result = pkName;
             }
+
+            return result;
         }
 
         public override string ToString()
