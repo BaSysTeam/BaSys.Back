@@ -95,6 +95,8 @@ namespace BaSys.Host.DAL.DataProviders
                         continue;
                     }
 
+                    var refTableName = DataObjectConfiguration.ComposeTableName(currentKind.Name, currentMetaObject.Name);
+
                     var selectExpression = $"{_config.TableName}.{headerField.Name} AS {headerField.Name}";
                     builder.Select(selectExpression);
                 }

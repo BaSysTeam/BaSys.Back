@@ -1,23 +1,27 @@
-﻿using System;
+﻿using BaSys.FluentQueries.Enums;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
+using System.Xml.Serialization;
 
 namespace BaSys.FluentQueries.Models
 {
     public sealed class SelectModel
     {
-        private readonly List<string> _selectExpressions;
-        private readonly List<QueryParameter> _parameters;
+        private readonly List<string> _selectExpressions = new List<string>();
+        private readonly List<QueryParameter> _parameters = new List<QueryParameter>();
+        private readonly List<JoinModel> _joinExpressions = new List<JoinModel>();
 
         public int Top { get; set; }
         public string FromExpression { get; set; } = string.Empty;
         public string WhereExpression { get; set; } = string.Empty;
-        public string OrderByExpression { get; set;} = string.Empty;    
+        public string OrderByExpression { get; set; } = string.Empty;
 
         public IReadOnlyCollection<string> SelectExpressions => _selectExpressions;
         public IReadOnlyCollection<QueryParameter> Parameters => _parameters;
+        public IReadOnlyCollection<JoinModel> JoinExpressions => _joinExpressions;
 
         public SelectModel()
         {
@@ -79,6 +83,18 @@ namespace BaSys.FluentQueries.Models
         public void ClearSelectExpressions()
         {
             _selectExpressions.Clear();
+        }
+
+        public void AddJoin(JoinKinds joinKind, string tableName, IEnumerable<ConditionModel> joinCondition)
+        {
+            var joinModel = new JoinModel(joinKind, tableName, joinCondition);
+
+            _joinExpressions.Add(joinModel);
+        }
+
+        public void ClearJoins()
+        {
+            _joinExpressions.Clear();
         }
 
         private void ConcatenateWhereExpression(string whereExpression, string logicOperator)

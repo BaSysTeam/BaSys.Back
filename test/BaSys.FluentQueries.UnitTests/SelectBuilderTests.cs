@@ -1,4 +1,5 @@
 ﻿using BaSys.FluentQueries.Enums;
+using BaSys.FluentQueries.Models;
 using BaSys.FluentQueries.QueryBuilders;
 using System;
 using System.Collections.Generic;
@@ -85,6 +86,43 @@ namespace BaSys.FluentQueries.UnitTests
 
             var checkText = Texts.ResourceManager.GetString(checkKey);
             Assert.That(query.Text, Is.EqualTo(checkText));
+        }
+
+        [TestCase(SqlDialectKinds.MsSql, "SelectTopOrderByMsSql")]
+        [TestCase(SqlDialectKinds.PgSql, "SelectTopOrderByPgSql")]
+        public void SelectBuilder_Joins_Query(SqlDialectKinds dialectKinds, string checkKey)
+        {
+
+            var joinCondition = new ConditionModel()
+            {
+                LeftTable = "cat_product",
+                LeftField = "group_id",
+                ComparisionOperator = ComparisionOperators.Equal,
+                RightTable = "cat_product_group",
+                RightField = "id",
+
+            };
+
+            var conditions = new List<ConditionModel>
+            {
+                joinCondition
+            };
+
+            var builder = SelectBuilder.Make()
+                .From("cat_product")
+                .Select("cat_product.id as id")
+                .Select("cat_product.title as title")
+                .Select("cat_product.groupId as group_id")
+                .Select("cat_product_group.title as group_display")
+                .Join(JoinKinds.Left, "cat_product_group", conditions);
+
+
+            var query = builder.Query(dialectKinds);
+
+            Console.WriteLine($"{dialectKinds}");
+            Console.WriteLine(query);
+
+            Assert.Pass();
         }
     }
 }

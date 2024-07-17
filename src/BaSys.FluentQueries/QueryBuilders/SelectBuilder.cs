@@ -55,6 +55,12 @@ namespace BaSys.FluentQueries.QueryBuilders
             return this;
         }
 
+        public SelectBuilder Join(JoinKinds joinKind, string tableName, IEnumerable<ConditionModel> conditions)
+        {
+            _model.AddJoin(joinKind, tableName, conditions);
+            return this;
+        }
+
         public SelectBuilder OrderBy(string orderByExpression)
         {
             _model.OrderByExpression = orderByExpression;
