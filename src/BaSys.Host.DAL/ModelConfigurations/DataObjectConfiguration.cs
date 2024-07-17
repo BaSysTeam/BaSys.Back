@@ -5,29 +5,34 @@ using BaSys.Metadata.Models;
 
 namespace BaSys.Host.DAL.ModelConfigurations
 {
-    public sealed class DataObjectConfiguration: DataModelConfiguration<DataObject>
+    public sealed class DataObjectConfiguration : DataModelConfiguration<DataObject>
     {
 
         private readonly MetaObjectKindSettings _kindSettings;
         private readonly MetaObjectStorableSettings _objectSettings;
         private readonly IDataTypesIndex _dataTypesIndex;
 
-        public DataObjectConfiguration(MetaObjectKindSettings kindSettings, 
-            MetaObjectStorableSettings objectSettings, 
-            IDataTypesIndex dataTypesIndex):base(false)
+        public DataObjectConfiguration(MetaObjectKindSettings kindSettings,
+            MetaObjectStorableSettings objectSettings,
+            IDataTypesIndex dataTypesIndex) : base(false)
         {
 
             _kindSettings = kindSettings;
             _objectSettings = objectSettings;
             _dataTypesIndex = dataTypesIndex;
 
-            Table($"{kindSettings.Prefix}_{objectSettings.Name}");
+            Table(ComposeTableName(_kindSettings.Name, _objectSettings.Name));
 
             ClearColumns();
 
             AddPrimaryKey();
             AddColumns();
-           
+
+        }
+
+        public static string ComposeTableName(string kindPrefix, string objectName)
+        {
+            return $"{kindPrefix}_{objectName}";
         }
 
         private void AddPrimaryKey()
@@ -46,7 +51,7 @@ namespace BaSys.Host.DAL.ModelConfigurations
                 StringLength = pkSettings.StringLength,
                 NumberDigits = pkSettings.NumberDigits,
             };
-            AddColumn( tableColumn );
+            AddColumn(tableColumn);
         }
 
         private void AddColumns()
@@ -65,7 +70,7 @@ namespace BaSys.Host.DAL.ModelConfigurations
                     Unique = columnSettings.Unique,
                 };
 
-                AddColumn( tableColumn );
+                AddColumn(tableColumn);
 
             }
         }

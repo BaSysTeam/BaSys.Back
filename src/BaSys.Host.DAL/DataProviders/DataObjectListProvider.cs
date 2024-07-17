@@ -25,6 +25,7 @@ namespace BaSys.Host.DAL.DataProviders
         private readonly MetaObjectStorableSettings _objectSettings;
         private readonly IEnumerable<MetaObjectKind> _allKinds;
         private readonly IEnumerable<MetaObjectStorable> _allMetaObjects;
+        private readonly IDataTypesIndex _dataTypeIndex;
         private readonly string _primaryKeyFieldName;
         private DbType _primaryKeyDbType;
 
@@ -32,9 +33,9 @@ namespace BaSys.Host.DAL.DataProviders
 
         public IQuery? LastQuery => _query;
 
-        public DataObjectListProvider(IDbConnection connection, 
-            MetaObjectKindSettings kindSettings, 
-            MetaObjectStorableSettings objectSettings, 
+        public DataObjectListProvider(IDbConnection connection,
+            MetaObjectKindSettings kindSettings,
+            MetaObjectStorableSettings objectSettings,
             IEnumerable<MetaObjectKind> allKinds,
             IEnumerable<MetaObjectStorable> allMetaObjects,
             IDataTypesIndex dataTypeIndex)
@@ -53,6 +54,8 @@ namespace BaSys.Host.DAL.DataProviders
             _allKinds = allKinds;
             _allMetaObjects = allMetaObjects;
 
+            _dataTypeIndex = dataTypeIndex;
+
             var primaryKey = objectSettings.Header.PrimaryKey;
             _primaryKeyFieldName = primaryKey.Name;
 
@@ -67,8 +70,36 @@ namespace BaSys.Host.DAL.DataProviders
 
             foreach (var headerField in _objectSettings.Header.Columns)
             {
-                var selectExpression = $"{_config.TableName}.{headerField.Name} AS {headerField.Name}";
-                builder.Select(selectExpression);
+
+                var dataType = _dataTypeIndex.GetDataTypeSafe(headerField.DataTypeUid);
+
+                if (dataType.IsPrimitive)
+                {
+                    var selectExpression = $"{_config.TableName}.{headerField.Name} AS {headerField.Name}";
+                    builder.Select(selectExpression);
+                }
+                else
+                {
+                    // Reference type.
+                    var currentKind = _allKinds.FirstOrDefault(x => x.Uid == dataType.ObjectKindUid);
+
+                    if (currentKind == null)
+                    {
+                        continue;
+                    }
+
+                    var currentMetaObject = _allMetaObjects.FirstOrDefault(x => x.Uid == dataType.Uid);
+
+                    if ( currentMetaObject == null)
+                    {
+                        continue;
+                    }
+
+                    var selectExpression = $"{_config.TableName}.{headerField.Name} AS {headerField.Name}";
+                    builder.Select(selectExpression);
+                }
+
+
             }
 
             var orderByExpression = _objectSettings.GetOrderByExpression(_kindSettings.OrderByExpression);
