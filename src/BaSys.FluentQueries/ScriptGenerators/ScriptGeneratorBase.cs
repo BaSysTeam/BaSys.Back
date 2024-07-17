@@ -27,6 +27,45 @@ namespace BaSys.FluentQueries.ScriptGenerators
             _sb.Append(_wrapperClose);
         }
 
+        protected void Append(string text)
+        {
+            _sb.Append(text);
+        }
+
+        protected void Append(char symbol)
+        {
+            _sb.Append(symbol);
+        }
+
+        protected void AppendIf(string text, bool condition)
+        {
+            if (condition)
+            {
+                _sb.Append(text);
+            }
+        }
+
+        protected void AppendIf(char symbol, bool condition)
+        {
+            if (condition)
+            {
+                _sb.Append(symbol);
+            }
+        }
+
+        protected void AppendLine(string text = null)
+        {
+            _sb.AppendLine(text);
+        }
+
+        protected void AppendLineIf(string text, bool condition)
+        {
+            if (condition)
+            {
+                _sb.AppendLine(text);
+            }
+        }
+
         private char NameWrapperOpen(SqlDialectKinds dialectKind)
         {
             switch (dialectKind)
