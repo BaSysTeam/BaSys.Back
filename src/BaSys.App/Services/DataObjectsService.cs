@@ -73,7 +73,7 @@ namespace BaSys.App.Services
 
             foreach(var item in allKinds)
             {
-                metaObjectProvider = new MetaObjectStorableProvider(_connection, objectKindSettings.Name);
+                metaObjectProvider = new MetaObjectStorableProvider(_connection, item.Name);
                 var metaObjects = await metaObjectProvider.GetCollectionAsync(null);
 
                 allMetaObjects.AddRange(metaObjects);

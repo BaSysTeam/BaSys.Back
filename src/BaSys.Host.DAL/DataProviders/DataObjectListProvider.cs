@@ -5,6 +5,7 @@ using BaSys.FluentQueries.Models;
 using BaSys.FluentQueries.QueryBuilders;
 using BaSys.Host.DAL.ModelConfigurations;
 using BaSys.Metadata.Abstractions;
+using BaSys.Metadata.Helpers;
 using BaSys.Metadata.Models;
 using Dapper;
 using Npgsql;
@@ -102,7 +103,17 @@ namespace BaSys.Host.DAL.DataProviders
                     var refTableName = DataObjectConfiguration.ComposeTableName(currentKind.Prefix, currentMetaObject.Name);
                     var diplayExpression = currentSettings.GetDisplayExpression(currentKindSettings.DisplayExpression, currentPkName);
 
-                    builder.Field(refTableName, diplayExpression, $"{headerField.Name}_display");
+                    if (diplayExpression.Contains("{{"))
+                    {
+                        var displayTemplateGenerator = new DisplayTemplateScriptGenerator(_sqlDialect);
+                        var displayExpression = displayTemplateGenerator.Build(diplayExpression, refTableName, $"{headerField.Name}_display");
+
+                        builder.Select(displayExpression);
+                    }
+                    else
+                    {
+                        builder.Field(refTableName, diplayExpression, $"{headerField.Name}_display");
+                    }
 
                     if (!joins.ContainsKey(refTableName))
                     {
@@ -115,8 +126,10 @@ namespace BaSys.Host.DAL.DataProviders
                             RightField = currentPkName
                         };
 
-                        var conditions = new List<ConditionModel>();
-                        conditions.Add(condition);
+                        var conditions = new List<ConditionModel>
+                        {
+                            condition
+                        };
 
                         builder.Join(JoinKinds.Left, refTableName, conditions);
 
