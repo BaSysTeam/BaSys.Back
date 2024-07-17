@@ -11,6 +11,7 @@ namespace BaSys.FluentQueries.Models
     public sealed class SelectModel
     {
         private readonly List<string> _selectExpressions = new List<string>();
+        private readonly List<SelectFieldModel> _fields = new List<SelectFieldModel>();
         private readonly List<QueryParameter> _parameters = new List<QueryParameter>();
         private readonly List<JoinModel> _joinExpressions = new List<JoinModel>();
 
@@ -22,6 +23,7 @@ namespace BaSys.FluentQueries.Models
         public IReadOnlyCollection<string> SelectExpressions => _selectExpressions;
         public IReadOnlyCollection<QueryParameter> Parameters => _parameters;
         public IReadOnlyCollection<JoinModel> JoinExpressions => _joinExpressions;
+        public IReadOnlyCollection<SelectFieldModel> Fields => _fields;
 
         public SelectModel()
         {
@@ -95,6 +97,16 @@ namespace BaSys.FluentQueries.Models
         public void ClearJoins()
         {
             _joinExpressions.Clear();
+        }
+
+        public void AddField(SelectFieldModel field)
+        {
+            _fields.Add(field);
+        }
+
+        public void ClearFields()
+        {
+            _fields.Clear();
         }
 
         private void ConcatenateWhereExpression(string whereExpression, string logicOperator)

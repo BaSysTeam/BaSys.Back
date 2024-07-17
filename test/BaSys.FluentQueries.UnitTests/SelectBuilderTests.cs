@@ -110,12 +110,11 @@ namespace BaSys.FluentQueries.UnitTests
 
             var builder = SelectBuilder.Make()
                 .From("cat_product")
-                .Select("cat_product.id as id")
-                .Select("cat_product.title as title")
-                .Select("cat_product.groupId as group_id")
-                .Select("cat_product_group.title as group_display")
+                .Field("id", "id")
+                .Field("title", "title")
+                .Field("groupId", "group_id")
+                .Field("cat_product_group", "title", "group_display")
                 .Join(JoinKinds.Left, "cat_product_group", conditions);
-
 
             var query = builder.Query(dialectKinds);
 

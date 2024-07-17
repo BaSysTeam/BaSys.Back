@@ -21,7 +21,7 @@ namespace BaSys.FluentQueries.ScriptGenerators
         {
             var query = new Query();
 
-            _sb.Append("SELECT ");
+            Append("SELECT ");
             if (_model.Top > 0 && _sqlDialect == SqlDialectKinds.MsSql)
             {
                 _sb.Append($"TOP {_model.Top} ");
@@ -31,16 +31,35 @@ namespace BaSys.FluentQueries.ScriptGenerators
             foreach (var selectExpression in _model.SelectExpressions)
             {
                 if (n > 1)
-                    _sb.AppendLine(", ");
+                    AppendLine(", ");
 
-                _sb.Append(selectExpression);
+                Append(selectExpression);
 
                 n++;
             }
-            _sb.AppendLine();
 
-            _sb.Append("FROM ");
-            _sb.Append(_model.FromExpression);
+            // Add Select Fields.
+            foreach(var selectField in _model.Fields)
+            {
+                AppendLineIf(", ", n > 1);
+
+                var tableName = string.IsNullOrWhiteSpace(selectField.TableName) ? _model.FromExpression : selectField.TableName;
+                AppendName(tableName);
+                Append('.');
+                AppendName(selectField.FieldName);
+
+                if (!string.IsNullOrEmpty(selectField.Alias))
+                {
+                    Append(" AS ");
+                    Append(selectField.Alias);
+                }
+
+                n++;
+            }
+            AppendLine();
+
+            Append("FROM ");
+            AppendName(_model.FromExpression);
 
             // JOINS
             if (_model.JoinExpressions.Any())
@@ -53,23 +72,23 @@ namespace BaSys.FluentQueries.ScriptGenerators
 
             if (!string.IsNullOrEmpty(_model.WhereExpression))
             {
-                _sb.AppendLine();
-                _sb.Append("WHERE ");
-                _sb.Append(_model.WhereExpression);
+                AppendLine(string.Empty);
+                Append("WHERE ");
+                Append(_model.WhereExpression);
             }
             if (!string.IsNullOrEmpty(_model.OrderByExpression))
             {
-                _sb.AppendLine();
-                _sb.Append("ORDER BY ");
-                _sb.Append(_model.OrderByExpression);
+                AppendLine();
+                Append("ORDER BY ");
+                Append(_model.OrderByExpression);
 
             }
             if (_model.Top > 0 && _sqlDialect == SqlDialectKinds.PgSql)
             {
-                _sb.AppendLine();
-                _sb.Append($"LIMIT {_model.Top}");
+                AppendLine();
+                Append($"LIMIT {_model.Top}");
             }
-            _sb.Append(";");
+            Append(";");
 
 
             query.Text = _sb.ToString();
@@ -80,33 +99,33 @@ namespace BaSys.FluentQueries.ScriptGenerators
 
         private void BuildJoinExpression(JoinModel joinModel)
         {
-            _sb.AppendLine();
-            _sb.Append(GetJoinKind(joinModel.JoinKind));
-            _sb.Append(' ');
-            _sb.AppendLine("JOIN");
+            AppendLine();
+            Append(GetJoinKind(joinModel.JoinKind));
+            Append(' ');
+            AppendLine("JOIN");
 
             AppendName(joinModel.TableName);
-            _sb.Append(" ON ");
+            Append(" ON ");
 
             var n = 1;
             foreach (var condtion in joinModel.JoinConditions)
             {
                 if (n > 1)
                 {
-                    _sb.Append(' ');
-                    _sb.Append(GetLogicalOperator(condtion.LogicalOperator));
+                    Append(' ');
+                    Append(GetLogicalOperator(condtion.LogicalOperator));
                 }
 
                 AppendName(condtion.LeftTable);
-                _sb.Append(".");
+                Append(".");
                 AppendName(condtion.LeftField);
 
-                _sb.Append(' ');
-                _sb.Append(GetComparisionOperator(condtion.ComparisionOperator));
-                _sb.Append(' ');
+                Append(' ');
+                Append(GetComparisionOperator(condtion.ComparisionOperator));
+                Append(' ');
 
                 AppendName(condtion.RightTable);
-                _sb.Append(".");
+                Append(".");
                 AppendName(condtion.RightField);
 
                 n++;

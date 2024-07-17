@@ -1,6 +1,7 @@
 ﻿using BaSys.DAL.Models.App;
 using BaSys.FluentQueries.Abstractions;
 using BaSys.FluentQueries.Enums;
+using BaSys.FluentQueries.Models;
 using BaSys.FluentQueries.QueryBuilders;
 using BaSys.Host.DAL.ModelConfigurations;
 using BaSys.Metadata.Abstractions;
@@ -66,21 +67,20 @@ namespace BaSys.Host.DAL.DataProviders
 
         public async Task<List<DataObject>> GetCollectionWithDisplaysAsync(IDbTransaction? transaction)
         {
+
+            var joins = new Dictionary<string, bool>();
+
             var builder = SelectBuilder.Make().From(_config.TableName);
 
             foreach (var headerField in _objectSettings.Header.Columns)
             {
 
                 var dataType = _dataTypeIndex.GetDataTypeSafe(headerField.DataTypeUid);
+                builder.Field(_config.TableName, headerField.Name, headerField.Name);
 
-                if (dataType.IsPrimitive)
+                if (!dataType.IsPrimitive)
                 {
-                    var selectExpression = $"{_config.TableName}.{headerField.Name} AS {headerField.Name}";
-                    builder.Select(selectExpression);
-                }
-                else
-                {
-                    // Reference type.
+                    // Reference type. Get display field for reference type.
                     var currentKind = _allKinds.FirstOrDefault(x => x.Uid == dataType.ObjectKindUid);
 
                     if (currentKind == null)
@@ -90,17 +90,40 @@ namespace BaSys.Host.DAL.DataProviders
 
                     var currentMetaObject = _allMetaObjects.FirstOrDefault(x => x.Uid == dataType.Uid);
 
-                    if ( currentMetaObject == null)
+                    if (currentMetaObject == null)
                     {
                         continue;
                     }
 
-                    var refTableName = DataObjectConfiguration.ComposeTableName(currentKind.Name, currentMetaObject.Name);
+                    var currentKindSettings = currentKind.ToSettings();
+                    var currentSettings = currentMetaObject.ToSettings();
+                    var currentPkName = currentSettings.Header.PrimaryKey.Name;
 
-                    var selectExpression = $"{_config.TableName}.{headerField.Name} AS {headerField.Name}";
-                    builder.Select(selectExpression);
+                    var refTableName = DataObjectConfiguration.ComposeTableName(currentKind.Prefix, currentMetaObject.Name);
+                    var diplayExpression = currentSettings.GetDisplayExpression(currentKindSettings.DisplayExpression, currentPkName);
+
+                    builder.Field(refTableName, diplayExpression, $"{headerField.Name}_display");
+
+                    if (!joins.ContainsKey(refTableName))
+                    {
+                        var condition = new ConditionModel()
+                        {
+                            LeftTable = _config.TableName,
+                            LeftField = headerField.Name,
+                            ComparisionOperator = ComparisionOperators.Equal,
+                            RightTable = refTableName,
+                            RightField = currentPkName
+                        };
+
+                        var conditions = new List<ConditionModel>();
+                        conditions.Add(condition);
+
+                        builder.Join(JoinKinds.Left, refTableName, conditions);
+
+                        joins.Add(refTableName, true);
+                    }
+
                 }
-
 
             }
 
