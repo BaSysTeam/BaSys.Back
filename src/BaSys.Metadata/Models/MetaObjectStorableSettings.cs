@@ -28,13 +28,13 @@ namespace BaSys.Metadata.Models
             {
                 var tables = new List<MetaObjectTable>();
                 tables.Add(Header);
-                tables.AddRange(TableParts);
+                tables.AddRange(DetailTables);
 
                 return tables;
             }
         }
         public MetaObjectTable Header { get; set; } = new MetaObjectTable();
-        public List<MetaObjectTable> TableParts { get; set; } = new();
+        public List<MetaObjectTable> DetailTables { get; set; } = new();
 
         [SerializationConstructor]
         public MetaObjectStorableSettings()
@@ -102,7 +102,7 @@ namespace BaSys.Metadata.Models
             DisplayExpression = source.DisplayExpression;
             IsActive = source.IsActive;
             Header = source.Header;
-            TableParts = source.TableParts;
+            DetailTables = source.DetailTables;
         }
 
         public string GetOrderByExpression(string defaultExpression)

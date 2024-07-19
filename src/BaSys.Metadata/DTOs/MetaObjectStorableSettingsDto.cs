@@ -46,7 +46,7 @@ namespace BaSys.Metadata.DTOs
             MetaObjectKindTitle = kindSettings.Title;
 
             Header = settings.Header;
-            TableParts = settings.TableParts;
+            TableParts = settings.DetailTables;
 
         }
 
@@ -64,7 +64,7 @@ namespace BaSys.Metadata.DTOs
                 IsActive = IsActive,
                 MetaObjectKindUid = MetaObjectKindUid,
                 Header = Header,
-                TableParts = TableParts,
+                DetailTables = TableParts,
             };
 
             return model;
