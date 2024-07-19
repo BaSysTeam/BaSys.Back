@@ -1,5 +1,6 @@
 ﻿using BaSys.FluentQueries.Models;
 using BaSys.Host.DAL.Abstractions;
+using BaSys.Host.DAL.Helpers;
 using BaSys.Metadata.Abstractions;
 using BaSys.Metadata.Helpers;
 using BaSys.Metadata.Models;
@@ -9,15 +10,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BaSys.Host.DAL.Helpers
+namespace BaSys.Host.DAL.TableChangeAnalyse
 {
     public sealed class MetaObjectTableChangeAnalyser
     {
         private readonly MetaObjectTable _tableBefore;
         private readonly MetaObjectTable _tableAfter;
-        private readonly List<IMetaObjectTableCommand> _commands = new List<IMetaObjectTableCommand>();
+        private readonly List<IMetaObjectChangeCommand> _commands = new List<IMetaObjectChangeCommand>();
 
-        public List<IMetaObjectTableCommand> Commands => _commands;
+        public List<IMetaObjectChangeCommand> Commands => _commands;
         public bool NeedAlterTable { get; private set; }
 
         public MetaObjectTableChangeAnalyser(MetaObjectTable tableBefore, MetaObjectTable tableAfter)
@@ -52,9 +53,9 @@ namespace BaSys.Host.DAL.Helpers
             }
 
             // Find droped columns.
-            foreach(var column in _tableBefore.Columns)
+            foreach (var column in _tableBefore.Columns)
             {
-                if (_tableAfter.Columns.All(x=>x.Uid != column.Uid))
+                if (_tableAfter.Columns.All(x => x.Uid != column.Uid))
                 {
                     var dropColumnCommand = new MetaObjectTableDropColumnCommand()
                     {
@@ -72,7 +73,7 @@ namespace BaSys.Host.DAL.Helpers
             // Find new columns.
             foreach (var column in _tableAfter.Columns)
             {
-                if (_tableBefore.Columns.All(x=>x.Uid != column.Uid))
+                if (_tableBefore.Columns.All(x => x.Uid != column.Uid))
                 {
                     var addColumnCommand = new MetaObjectTableAddColumnCommand()
                     {
@@ -81,7 +82,7 @@ namespace BaSys.Host.DAL.Helpers
                         Column = column
                     };
 
-                    _commands.Add(addColumnCommand);    
+                    _commands.Add(addColumnCommand);
                     NeedAlterTable = true;
                 }
             }
@@ -94,7 +95,7 @@ namespace BaSys.Host.DAL.Helpers
 
             model.TableName = _tableAfter.Name;
 
-            foreach(var command in _commands)
+            foreach (var command in _commands)
             {
                 if (command is MetaObjectTableAddColumnCommand addColumnCommand)
                 {

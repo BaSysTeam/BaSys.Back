@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BaSys.Host.DAL.Abstractions
 {
-    public interface IMetaObjectTableCommand
+    public interface IMetaObjectChangeCommand
     {
         Guid TableUid { get; set; }
         string TableName { get; set; }

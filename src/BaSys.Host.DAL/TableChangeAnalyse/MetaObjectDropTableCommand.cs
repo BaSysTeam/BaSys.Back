@@ -5,12 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BaSys.Host.DAL.Helpers
+namespace BaSys.Host.DAL.TableChangeAnalyse
 {
-    public sealed class MetaObjectTableDropColumnCommand: IMetaObjectChangeCommand
+    public sealed class MetaObjectDropTableCommand: IMetaObjectChangeCommand
     {
         public Guid TableUid { get; set; }
         public string TableName { get; set; } = string.Empty;
-        public string ColumnName { get; set; } = string.Empty;
     }
 }
