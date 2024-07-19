@@ -4,6 +4,7 @@ using BaSys.Core.Abstractions;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
 using BaSys.Host.DAL.Helpers;
+using BaSys.Host.DAL.TableChangeAnalyse;
 using BaSys.Host.DAL.TableManagers;
 using BaSys.Logging.Abstractions.Abstractions;
 using BaSys.Logging.EventTypes;
@@ -146,6 +147,10 @@ namespace BaSys.Core.Services
 
                 var headerChangeAnalyser = new MetaObjectTableChangeAnalyser(savedSettings.Header, newSettings.Header);
                 headerChangeAnalyser.Analyze();
+
+                var metaObjectChangeAnalyser = new MetaObjectStorableChangeAnalyser(savedSettings, newSettings);
+                metaObjectChangeAnalyser.Analyze();
+
 
                 savedSettings.CopyFrom(newSettings);
 

@@ -1,11 +1,5 @@
 ﻿using BaSys.Host.DAL.Abstractions;
-using BaSys.Host.DAL.Helpers;
 using BaSys.Metadata.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BaSys.Host.DAL.TableChangeAnalyse
 {
@@ -36,7 +30,13 @@ namespace BaSys.Host.DAL.TableChangeAnalyse
             if (_settingsBefore.Uid != _settingsAfter.Uid)
                 throw new ArgumentException($"MetaObject before and after are different.");
 
-            // Find droped tables.
+            CheckRemovedTables();
+            CheckCreatedTables();
+
+        }
+
+        private void CheckRemovedTables()
+        {
             foreach (var table in _settingsBefore.DetailTables)
             {
                 if (_settingsAfter.DetailTables.All(x => x.Uid != table.Uid))
@@ -51,8 +51,10 @@ namespace BaSys.Host.DAL.TableChangeAnalyse
 
                 }
             }
+        }
 
-            // Find new tables.
+        private void CheckCreatedTables()
+        {
             foreach (var table in _settingsAfter.DetailTables)
             {
                 if (_settingsBefore.DetailTables.All(x => x.Uid != table.Uid))
@@ -66,7 +68,6 @@ namespace BaSys.Host.DAL.TableChangeAnalyse
                     _commands.Add(createTableCommand);
                 }
             }
-
         }
     }
 }
