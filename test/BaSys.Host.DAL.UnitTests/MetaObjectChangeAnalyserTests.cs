@@ -1,4 +1,5 @@
 ﻿using BaSys.Host.DAL.TableChangeAnalyse;
+using BaSys.Metadata.Helpers;
 using BaSys.Metadata.Models;
 
 namespace BaSys.Host.DAL.UnitTests
@@ -38,7 +39,8 @@ namespace BaSys.Host.DAL.UnitTests
         {
             _settingsAfter.DetailTables.Add(_productTable);
 
-            var analyzer = new MetaObjectStorableChangeAnalyser(_settingsBefore, _settingsAfter);
+            var dataTypeIndex = new DataTypesIndex(DataTypeDefaults.AllTypes());
+            var analyzer = new MetaObjectStorableChangeAnalyser(_settingsBefore, _settingsAfter, dataTypeIndex);
             analyzer.Analyze();
 
             Assert.That(analyzer.Commands.Count, Is.EqualTo(1));
@@ -54,7 +56,8 @@ namespace BaSys.Host.DAL.UnitTests
 
             _settingsAfter.DetailTables.Add(_infoTable);
 
-            var analyzer = new MetaObjectStorableChangeAnalyser(_settingsBefore, _settingsAfter);
+            var dataTypeIndex = new DataTypesIndex(DataTypeDefaults.AllTypes());
+            var analyzer = new MetaObjectStorableChangeAnalyser(_settingsBefore, _settingsAfter, dataTypeIndex);
             analyzer.Analyze();
 
             Assert.That(analyzer.Commands.Count, Is.EqualTo(1));

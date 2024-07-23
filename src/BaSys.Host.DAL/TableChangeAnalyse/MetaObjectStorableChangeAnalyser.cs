@@ -1,4 +1,5 @@
 ﻿using BaSys.Host.DAL.Abstractions;
+using BaSys.Metadata.Abstractions;
 using BaSys.Metadata.Models;
 
 namespace BaSys.Host.DAL.TableChangeAnalyse
@@ -7,12 +8,15 @@ namespace BaSys.Host.DAL.TableChangeAnalyse
     {
         private readonly MetaObjectStorableSettings _settingsBefore;
         private readonly MetaObjectStorableSettings _settingsAfter;
+        private readonly IDataTypesIndex _dataTypeIndex;
 
         public MetaObjectStorableChangeAnalyser(MetaObjectStorableSettings settingsBefore,
-            MetaObjectStorableSettings settingsAfter)
+            MetaObjectStorableSettings settingsAfter, 
+            IDataTypesIndex dataTypeIndex)
         {
             _settingsBefore = settingsBefore;
             _settingsAfter = settingsAfter;
+            _dataTypeIndex = dataTypeIndex;
         }
 
         private readonly List<IMetaObjectChangeCommand> _commands = new List<IMetaObjectChangeCommand>();
@@ -32,6 +36,7 @@ namespace BaSys.Host.DAL.TableChangeAnalyse
 
             CheckRemovedTables();
             CheckCreatedTables();
+            CheckChangedTables();
 
         }
 
@@ -67,6 +72,35 @@ namespace BaSys.Host.DAL.TableChangeAnalyse
 
                     _commands.Add(createTableCommand);
                 }
+            }
+        }
+
+        private void CheckChangedTables()
+        {
+            foreach (var table in _settingsAfter.DetailTables)
+            {
+                 var tableBefore = _settingsBefore.DetailTables.FirstOrDefault(x=> x.Uid == table.Uid);
+
+                if (tableBefore == null)
+                {
+                    continue;
+                }
+
+                var tableChangeAnalyser = new MetaObjectTableChangeAnalyser(tableBefore, table);
+                tableChangeAnalyser.Analyze();
+
+                if (tableChangeAnalyser.NeedAlterTable)
+                {
+                    var newCommand = new MetaObjectAlterTableCommand()
+                    {
+                        TableUid = table.Uid,
+                        TableName = table.Name,
+                        AlterTableModel = tableChangeAnalyser.ToAlterModel(_dataTypeIndex)
+                    };
+
+                    _commands.Add(newCommand);
+                }
+
             }
         }
     }

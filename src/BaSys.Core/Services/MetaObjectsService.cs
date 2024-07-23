@@ -146,17 +146,17 @@ namespace BaSys.Core.Services
                     return result;
                 }
 
-                var headerChangeAnalyser = new MetaObjectTableChangeAnalyser(savedSettings.Header, newSettings.Header);
-                headerChangeAnalyser.Analyze();
-
-                var metaObjectChangeAnalyser = new MetaObjectStorableChangeAnalyser(savedSettings, newSettings);
-                metaObjectChangeAnalyser.Analyze();
-
                 var dataTypeService = new DataTypesService(_providerFactory);
                 dataTypeService.SetUp(_connection);
                 var allDataTypes = await dataTypeService.GetAllDataTypesAsync();
 
                 var dataTypeIndex = new DataTypesIndex(allDataTypes);
+
+                var headerChangeAnalyser = new MetaObjectTableChangeAnalyser(savedSettings.Header, newSettings.Header);
+                headerChangeAnalyser.Analyze();
+
+                var metaObjectChangeAnalyser = new MetaObjectStorableChangeAnalyser(savedSettings, newSettings, dataTypeIndex);
+                metaObjectChangeAnalyser.Analyze();
 
                 var previousSettings = savedSettings.Clone();
                 savedSettings.CopyFrom(newSettings);
@@ -199,6 +199,17 @@ namespace BaSys.Core.Services
                                     var detailTableManager = new DataObjectDetailTableManager(_connection, kindSettings, savedSettings, tableSettings, dataTypeIndex);
 
                                     await detailTableManager.CreateTableAsync(transaction);
+                                }
+                            }
+                            else if (command is MetaObjectAlterTableCommand)
+                            {
+                                var alterCommand = (MetaObjectAlterTableCommand)command;
+                                var tableSettings = savedSettings.DetailTables.FirstOrDefault(x => x.Uid == command.TableUid);
+                                if (tableSettings != null)
+                                {
+                                    var detailTableManager = new DataObjectDetailTableManager(_connection, kindSettings, savedSettings, tableSettings, dataTypeIndex);
+
+                                    await detailTableManager.AlterTableAsync(alterCommand.AlterTableModel, transaction);
                                 }
                             }
                         }
