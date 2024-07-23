@@ -13,5 +13,13 @@ namespace BaSys.Metadata.Models
         // Have to be equal uid of MetaObjectTableColumn.
         public Guid Uid { get; set; }
         public Guid ControlKindUid { get; set; }
+
+        public MetaObjectTableColumnRenderSettings Clone()
+        {
+            var clone = new MetaObjectTableColumnRenderSettings();
+            clone.Uid = Uid;
+            clone.ControlKindUid = ControlKindUid;
+            return clone;
+        }
     }
 }

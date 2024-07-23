@@ -24,7 +24,7 @@ namespace BaSys.Metadata.DTOs
         public bool IsActive { get; set; }
 
         public MetaObjectTable Header { get; set; } = new MetaObjectTable();
-        public List<MetaObjectTable> TableParts { get; set; } = new();
+        public List<MetaObjectTable> DetailTables { get; set; } = new();
 
         public MetaObjectStorableSettingsDto()
         {
@@ -46,7 +46,7 @@ namespace BaSys.Metadata.DTOs
             MetaObjectKindTitle = kindSettings.Title;
 
             Header = settings.Header;
-            TableParts = settings.TableParts;
+            DetailTables = settings.DetailTables;
 
         }
 
@@ -64,7 +64,7 @@ namespace BaSys.Metadata.DTOs
                 IsActive = IsActive,
                 MetaObjectKindUid = MetaObjectKindUid,
                 Header = Header,
-                TableParts = TableParts,
+                DetailTables = DetailTables,
             };
 
             return model;

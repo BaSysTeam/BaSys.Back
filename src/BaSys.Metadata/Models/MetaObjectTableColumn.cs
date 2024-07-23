@@ -50,5 +50,20 @@ namespace BaSys.Metadata.Models
 
             return HashCode.Combine(hash1, hash2);
         }
+
+        public MetaObjectTableColumn Clone()
+        {
+            var clone = new MetaObjectTableColumn();
+            clone.Uid = Uid;
+            clone.Title = Title;
+            clone.Name = Name;
+            clone.DataTypeUid = DataTypeUid;
+            clone.StringLength = StringLength;
+            clone.NumberDigits = NumberDigits;
+            clone.PrimaryKey = PrimaryKey;
+            clone.Unique = Unique;
+            clone.IsStandard = IsStandard;
+            return clone;
+        }
     }
 }
