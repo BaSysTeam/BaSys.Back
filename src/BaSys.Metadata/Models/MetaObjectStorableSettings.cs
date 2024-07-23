@@ -105,6 +105,27 @@ namespace BaSys.Metadata.Models
             DetailTables = source.DetailTables;
         }
 
+        public MetaObjectStorableSettings Clone()
+        {
+            var clone = new MetaObjectStorableSettings();
+            clone.Uid = Uid;
+            clone.EditMethod = EditMethod;
+            clone.Title = Title;
+            clone.Name = Name;
+            clone.Memo = Memo;
+            clone.OrderByExpression = OrderByExpression;
+            clone.DisplayExpression = DisplayExpression;
+            clone.IsActive = IsActive;
+
+            clone.Header = Header.Clone();
+
+            foreach (var item in DetailTables) { 
+                clone.DetailTables.Add(item.Clone());
+            }
+
+            return clone;
+        }
+
         public string GetOrderByExpression(string defaultExpression)
         {
             if (string.IsNullOrWhiteSpace(OrderByExpression))

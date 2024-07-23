@@ -158,7 +158,7 @@ namespace BaSys.Core.Services
 
                 var dataTypeIndex = new DataTypesIndex(allDataTypes);
 
-
+                var previousSettings = savedSettings.Clone();
                 savedSettings.CopyFrom(newSettings);
 
                 try
@@ -181,21 +181,25 @@ namespace BaSys.Core.Services
                         foreach (var command in metaObjectChangeAnalyser.Commands)
                         {
 
-                            var tableSettings = savedSettings.DetailTables.FirstOrDefault(x => x.Uid == command.TableUid);
-                            if (tableSettings == null)
-                            {
-                                continue;
-                            }
-
-                            var detailTableManager = new DataObjectDetailTableManager(_connection, kindSettings, savedSettings, tableSettings, dataTypeIndex);
-
                             if (command is MetaObjectDropTableCommand)
                             {
-                                await detailTableManager.DropTableAsync(transaction);
+                                var tableSettings = previousSettings.DetailTables.FirstOrDefault(x => x.Uid == command.TableUid);
+                                if (tableSettings != null)
+                                {
+                                    var detailTableManager = new DataObjectDetailTableManager(_connection, kindSettings, savedSettings, tableSettings, dataTypeIndex);
+                                    await detailTableManager.DropTableAsync(transaction);
+                                }
+
                             }
                             else if (command is MetaObjectCreateTableCommand)
                             {
-                                await detailTableManager.CreateTableAsync(transaction);
+                                var tableSettings = savedSettings.DetailTables.FirstOrDefault(x => x.Uid == command.TableUid);
+                                if (tableSettings != null)
+                                {
+                                    var detailTableManager = new DataObjectDetailTableManager(_connection, kindSettings, savedSettings, tableSettings, dataTypeIndex);
+
+                                    await detailTableManager.CreateTableAsync(transaction);
+                                }
                             }
                         }
                     }

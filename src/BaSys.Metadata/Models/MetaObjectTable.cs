@@ -21,6 +21,27 @@ namespace BaSys.Metadata.Models
         [IgnoreMember]
         public MetaObjectTableColumn PrimaryKey => Columns.FirstOrDefault(x => x.PrimaryKey);
 
+        public MetaObjectTable Clone()
+        {
+            var clone = new MetaObjectTable();
+            clone.Uid = Uid;
+            clone.Title = Title;
+            clone.Name = Name;
+            clone.Memo = Memo;
+
+            foreach(var source in Columns)
+            {
+                clone.Columns.Add(source.Clone());
+            }
+
+            foreach(var source in ColumnRenderSettings)
+            {
+                clone.ColumnRenderSettings.Add(source.Clone());
+            }
+
+            return clone;
+        }
+
         public static MetaObjectTable HeaderTable()
         {
             var table = new MetaObjectTable()
