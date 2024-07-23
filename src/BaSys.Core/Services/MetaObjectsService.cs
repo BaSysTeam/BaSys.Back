@@ -8,6 +8,7 @@ using BaSys.Host.DAL.TableChangeAnalyse;
 using BaSys.Host.DAL.TableManagers;
 using BaSys.Logging.Abstractions.Abstractions;
 using BaSys.Logging.EventTypes;
+using BaSys.Metadata.Abstractions;
 using BaSys.Metadata.DTOs;
 using BaSys.Metadata.Helpers;
 using BaSys.Metadata.Models;
@@ -47,17 +48,17 @@ namespace BaSys.Core.Services
         public async Task<ResultWrapper<List<MetaObjectStorableSettingsDto>>> GetMetaObjectsAsync(string kindName)
         {
             var result = new ResultWrapper<List<MetaObjectStorableSettingsDto>>();
-            
+
             var kindSettings = await _kindsProvider.GetSettingsByNameAsync(kindName);
             if (kindSettings == null)
             {
                 result.Error(-1, $"{DictMain.CannotFindMetaObjectKind}: {kindName}");
                 return result;
             }
-            
+
             var provider = _providerFactory.CreateMetaObjectStorableProvider(kindSettings.Name);
             var metaObjects = await provider.GetCollectionAsync(null);
-            
+
             var list = new List<MetaObjectStorableSettingsDto>();
             foreach (var metaObject in metaObjects)
             {
@@ -68,11 +69,11 @@ namespace BaSys.Core.Services
                     Name = metaObject.Name
                 });
             }
-            
+
             result.Success(list);
             return result;
         }
-        
+
         public async Task<ResultWrapper<MetaObjectStorableSettingsDto>> GetSettingsItemAsync(string kindName, string objectName)
         {
             var result = new ResultWrapper<MetaObjectStorableSettingsDto>();
@@ -151,6 +152,12 @@ namespace BaSys.Core.Services
                 var metaObjectChangeAnalyser = new MetaObjectStorableChangeAnalyser(savedSettings, newSettings);
                 metaObjectChangeAnalyser.Analyze();
 
+                var dataTypeService = new DataTypesService(_providerFactory);
+                dataTypeService.SetUp(_connection);
+                var allDataTypes = await dataTypeService.GetAllDataTypesAsync();
+
+                var dataTypeIndex = new DataTypesIndex(allDataTypes);
+
 
                 savedSettings.CopyFrom(newSettings);
 
@@ -161,15 +168,36 @@ namespace BaSys.Core.Services
 
                     if (headerChangeAnalyser.NeedAlterTable)
                     {
-                        var dataTypeService = new DataTypesService(_providerFactory);
-                        dataTypeService.SetUp(_connection);
-                        var allDataTypes = await dataTypeService.GetAllDataTypesAsync();
 
-                        var dataTypeIndex = new DataTypesIndex(allDataTypes);
                         var alterTableModel = headerChangeAnalyser.ToAlterModel(dataTypeIndex);
 
                         var dataObjectTableManager = new DataObjectManager(_connection, kindSettings, savedSettings, dataTypeIndex);
                         await dataObjectTableManager.AlterTableAsync(alterTableModel, transaction);
+                    }
+
+                    if (metaObjectChangeAnalyser.Commands.Any())
+                    {
+
+                        foreach (var command in metaObjectChangeAnalyser.Commands)
+                        {
+
+                            var tableSettings = savedSettings.DetailTables.FirstOrDefault(x => x.Uid == command.TableUid);
+                            if (tableSettings == null)
+                            {
+                                continue;
+                            }
+
+                            var detailTableManager = new DataObjectDetailTableManager(_connection, kindSettings, savedSettings, tableSettings, dataTypeIndex);
+
+                            if (command is MetaObjectDropTableCommand)
+                            {
+                                await detailTableManager.DropTableAsync(transaction);
+                            }
+                            else if (command is MetaObjectCreateTableCommand)
+                            {
+                                await detailTableManager.CreateTableAsync(transaction);
+                            }
+                        }
                     }
 
                     _logger.Write($"Meta object update {savedSettings}", Common.Enums.EventTypeLevels.Info, EventTypeFactory.MetadataUpdate);

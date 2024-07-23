@@ -27,7 +27,7 @@ namespace BaSys.Host.DAL.ModelConfigurations
             _tableSettings = tableSettings;
             _dataTypesIndex = dataTypesIndex;
 
-            Table(ComposeTableName(_kindSettings.Name, _objectSettings.Name, _tableSettings.Name));
+            Table(ComposeTableName(_kindSettings.Prefix, _objectSettings.Name, _tableSettings.Name));
             AddColumns();
         }
 
