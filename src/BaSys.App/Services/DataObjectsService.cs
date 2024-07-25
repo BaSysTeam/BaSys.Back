@@ -151,6 +151,54 @@ namespace BaSys.App.Services
             return result;
         }
 
+        public async Task<ResultWrapper<DataObjectDetailsTableDto>> GetDetailsTableAsync(string kindName, string objectName, string uid, string tableName)
+        {
+            var result = new ResultWrapper<DataObjectDetailsTableDto>();
+
+            var objectKindSettings = await _kindProvider.GetSettingsByNameAsync(kindName);
+
+            if (objectKindSettings == null)
+            {
+                result.Error(-1, $"{DictMain.CannotFindMetaObjectKind}: {kindName}");
+                return result;
+            }
+
+            var metaObjectProvider = new MetaObjectStorableProvider(_connection, objectKindSettings.Name);
+            var metaObject = await metaObjectProvider.GetItemByNameAsync(objectName, null);
+
+            if (metaObject == null)
+            {
+                result.Error(-1, $"{DictMain.CannotFindMetaObject}: {kindName}.{objectName}");
+                return result;
+            }
+
+            var metaObjectSettings = metaObject.ToSettings();
+
+            var detailTableSettings = metaObjectSettings.DetailTables.FirstOrDefault(x => x.Name.Equals(tableName, StringComparison.InvariantCultureIgnoreCase));
+
+            if (detailTableSettings == null)
+            {
+                result.Error(-1, $"Cannot find detail table: {kindName}.{objectName}.details.{tableName}");
+                return result;
+            }
+
+            var dataTypesIndex = await _dataTypesService.GetIndexAsync();
+            var provider = new DataObjectDetailsTableProvider(_connection, objectKindSettings, metaObjectSettings, detailTableSettings, dataTypesIndex);
+
+            try
+            {
+                var table = await provider.GetTableAsync(null);
+                var tableDto = new DataObjectDetailsTableDto(table);    
+                result.Success(tableDto);
+            }
+            catch(Exception ex)
+            {
+                result.Error(-1, $"Cannot get table.", $"Message: {ex.Message}, Query: {provider.LastQuery}");
+            }
+
+            return result;
+        }
+
         public async Task<ResultWrapper<string>> InsertAsync(DataObjectSaveDto dto)
         {
             var result = new ResultWrapper<string>();
@@ -315,7 +363,6 @@ namespace BaSys.App.Services
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
-
 
     }
 }

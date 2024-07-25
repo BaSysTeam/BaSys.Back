@@ -13,7 +13,7 @@ namespace BaSys.DAL.Models.App
     public sealed class DataObject
     {
         public Dictionary<string, object> Header { get; set; } = new Dictionary<string, object>();
-        public List<DataObjectDetailTable> DetailTables { get; set; } = new List<DataObjectDetailTable>();
+        public List<DataObjectDetailsTable> DetailTables { get; set; } = new List<DataObjectDetailsTable>();
 
         public DataObject()
         {
