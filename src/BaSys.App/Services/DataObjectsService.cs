@@ -47,7 +47,7 @@ namespace BaSys.App.Services
             var result = new ResultWrapper<DataObjectListDto>();
 
             var allKinds = await _kindProvider.GetCollectionAsync(null);
-            var kind = allKinds.FirstOrDefault(x=>x.Name.Equals(kindName, StringComparison.OrdinalIgnoreCase));   
+            var kind = allKinds.FirstOrDefault(x => x.Name.Equals(kindName, StringComparison.OrdinalIgnoreCase));
 
             if (kind == null)
             {
@@ -71,7 +71,7 @@ namespace BaSys.App.Services
 
             var allMetaObjects = new List<MetaObjectStorable>();
 
-            foreach(var item in allKinds)
+            foreach (var item in allKinds)
             {
                 metaObjectProvider = new MetaObjectStorableProvider(_connection, item.Name);
                 var metaObjects = await metaObjectProvider.GetCollectionAsync(null);
@@ -137,7 +137,7 @@ namespace BaSys.App.Services
                 {
                     dto = new DataObjectWithMetadataDto(objectKindSettings, metaObjectSettings, new DataObject(metaObjectSettings, dataTypesIndex));
                 }
-                dto.DataTypes =  (await _dataTypesService.GetAllDataTypesAsync()).Select(x=>new DTO.Core.DataTypeDto(x)).ToList();
+                dto.DataTypes = (await _dataTypesService.GetAllDataTypesAsync()).Select(x => new DTO.Core.DataTypeDto(x)).ToList();
                 result.Success(dto);
 
             }
@@ -146,7 +146,7 @@ namespace BaSys.App.Services
                 result.Error(-1, $"Cannot get item.", $"Message: {ex.Message}, query: {provider.LastQuery}");
             }
 
-          
+
 
             return result;
         }
@@ -155,14 +155,16 @@ namespace BaSys.App.Services
         {
             var result = new ResultWrapper<DataObjectDetailsTableDto>();
 
-            var objectKindSettings = await _kindProvider.GetSettingsByNameAsync(kindName);
+            var allKinds = await _kindProvider.GetCollectionAsync(null);
+            var kind = allKinds.FirstOrDefault(x => x.Name.Equals(kindName, StringComparison.OrdinalIgnoreCase));
 
-            if (objectKindSettings == null)
+            if (kind == null)
             {
                 result.Error(-1, $"{DictMain.CannotFindMetaObjectKind}: {kindName}");
                 return result;
             }
 
+            var objectKindSettings = kind.ToSettings();
             var metaObjectProvider = new MetaObjectStorableProvider(_connection, objectKindSettings.Name);
             var metaObject = await metaObjectProvider.GetItemByNameAsync(objectName, null);
 
@@ -183,15 +185,32 @@ namespace BaSys.App.Services
             }
 
             var dataTypesIndex = await _dataTypesService.GetIndexAsync();
-            var provider = new DataObjectDetailsTableProvider(_connection, objectKindSettings, metaObjectSettings, detailTableSettings, dataTypesIndex);
+
+            var allMetaObjects = new List<MetaObjectStorable>();
+
+            foreach (var item in allKinds)
+            {
+                metaObjectProvider = new MetaObjectStorableProvider(_connection, item.Name);
+                var metaObjects = await metaObjectProvider.GetCollectionAsync(null);
+
+                allMetaObjects.AddRange(metaObjects);
+            }
+
+            var provider = new DataObjectDetailsTableProvider(_connection,
+                objectKindSettings,
+                metaObjectSettings,
+                detailTableSettings,
+                allKinds,
+                allMetaObjects,
+                dataTypesIndex);
 
             try
             {
-                var table = await provider.GetTableAsync(null);
-                var tableDto = new DataObjectDetailsTableDto(table);    
+                var table = await provider.GetTableWithDisplaysAsync(null);
+                var tableDto = new DataObjectDetailsTableDto(table);
                 result.Success(tableDto);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 result.Error(-1, $"Cannot get table.", $"Message: {ex.Message}, Query: {provider.LastQuery}");
             }
@@ -281,7 +300,7 @@ namespace BaSys.App.Services
             if (savedItem == null)
             {
                 result.Error(-1, $"Cannot find item: {uid}");
-                return result;  
+                return result;
             }
 
             savedItem.CopyFrom(newItem);

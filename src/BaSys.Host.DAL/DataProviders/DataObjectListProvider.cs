@@ -73,11 +73,11 @@ namespace BaSys.Host.DAL.DataProviders
 
             var builder = SelectBuilder.Make().From(_config.TableName);
 
-            foreach (var headerField in _objectSettings.Header.Columns)
+            foreach (var column in _objectSettings.Header.Columns)
             {
 
-                var dataType = _dataTypeIndex.GetDataTypeSafe(headerField.DataTypeUid);
-                builder.Field(_config.TableName, headerField.Name, headerField.Name);
+                var dataType = _dataTypeIndex.GetDataTypeSafe(column.DataTypeUid);
+                builder.Field(_config.TableName, column.Name, column.Name);
 
                 if (!dataType.IsPrimitive)
                 {
@@ -106,13 +106,13 @@ namespace BaSys.Host.DAL.DataProviders
                     if (diplayExpression.Contains("{{"))
                     {
                         var displayTemplateGenerator = new DisplayTemplateScriptGenerator(_sqlDialect);
-                        var displayExpression = displayTemplateGenerator.Build(diplayExpression, refTableName, $"{headerField.Name}_display");
+                        var displayExpression = displayTemplateGenerator.Build(diplayExpression, refTableName, $"{column.Name}_display");
 
                         builder.Select(displayExpression);
                     }
                     else
                     {
-                        builder.Field(refTableName, diplayExpression, $"{headerField.Name}_display");
+                        builder.Field(refTableName, diplayExpression, $"{column.Name}_display");
                     }
 
                     if (!joins.ContainsKey(refTableName))
@@ -120,7 +120,7 @@ namespace BaSys.Host.DAL.DataProviders
                         var condition = new ConditionModel()
                         {
                             LeftTable = _config.TableName,
-                            LeftField = headerField.Name,
+                            LeftField = column.Name,
                             ComparisionOperator = ComparisionOperators.Equal,
                             RightTable = refTableName,
                             RightField = currentPkName

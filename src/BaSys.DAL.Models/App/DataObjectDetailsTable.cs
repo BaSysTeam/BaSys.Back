@@ -10,6 +10,7 @@ namespace BaSys.DAL.Models.App
     {
         public Guid Uid { get; set; }
         public string Name { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;   
         public List<DataObjectDetailsTableRow> Rows { get; set; } = new List<DataObjectDetailsTableRow>();
     }
 }
