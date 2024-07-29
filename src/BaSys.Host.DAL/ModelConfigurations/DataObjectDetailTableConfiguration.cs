@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace BaSys.Host.DAL.ModelConfigurations
 {
-    public sealed class DataObjectDetailTableConfiguration: DataModelConfiguration<DataObjectDetailTable>
+    public sealed class DataObjectDetailTableConfiguration: DataModelConfiguration<DataObjectDetailsTable>
     {
         private readonly MetaObjectKindSettings _kindSettings;
         private readonly MetaObjectStorableSettings _objectSettings;
