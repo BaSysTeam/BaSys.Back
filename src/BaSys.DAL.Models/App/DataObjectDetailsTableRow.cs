@@ -9,24 +9,24 @@ namespace BaSys.DAL.Models.App
 {
     public sealed class DataObjectDetailsTableRow
     {
-        public Guid Uid
+        public long Id
         {
             get
             {
-                if (Fields.TryGetValue("uid", out var value))
+                if (Fields.TryGetValue("id", out var value))
                 {
-                    if (value is Guid guidValue)
+                    if (value is long longValue)
                     {
-                        return guidValue;
+                        return longValue;
                     }
 
                 }
 
-                return Guid.Empty;
+                return 0;
             }
             set
             {
-                Fields["uid"] = value;
+                Fields["id"] = value;
             }
 
         }
