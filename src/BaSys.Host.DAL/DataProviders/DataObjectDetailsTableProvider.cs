@@ -197,9 +197,13 @@ namespace BaSys.Host.DAL.DataProviders
 
             var insertedCount = 0;
 
+            var rowNumber = 1;
             foreach(var row in table.Rows)
             {
+                row.RowNumber = rowNumber;
                 var result = await _connection.ExecuteAsync(_query.Text, row.Fields, transaction);
+
+                rowNumber++;
                 insertedCount += result;
             }
 
