@@ -242,6 +242,7 @@ namespace BaSys.App.Services
             var metaObjectSettings = metaObject.ToSettings();
             var dataTypesIndex = await _dataTypesService.GetIndexAsync();
 
+
             // Parse header.
             dto.Item.Header = DataObjectParser.ParseHeader(dto.Item.Header, metaObjectSettings, dataTypesIndex);
 
@@ -267,13 +268,15 @@ namespace BaSys.App.Services
         {
             var result = new ResultWrapper<int>();
 
-            var objectKindSettings = await _kindProvider.GetSettingsAsync(dto.MetaObjectKindUid);
+            var allKinds = await _kindProvider.GetCollectionAsync(null);
+            var kind = allKinds.FirstOrDefault(x => x.Uid == dto.MetaObjectKindUid);
 
-            if (objectKindSettings == null)
+            if (kind == null)
             {
                 result.Error(-1, $"{DictMain.CannotFindMetaObjectKind}", $"MetaObjectKindUid: {dto.MetaObjectKindUid}");
                 return result;
             }
+            var objectKindSettings = kind.ToSettings();
 
             var metaObjectProvider = new MetaObjectStorableProvider(_connection, objectKindSettings.Name);
             var metaObject = await metaObjectProvider.GetItemAsync(dto.MetaObjectUid, null);
@@ -286,16 +289,25 @@ namespace BaSys.App.Services
 
             var metaObjectSettings = metaObject.ToSettings();
             var dataTypesIndex = await _dataTypesService.GetIndexAsync();
+            var allMetaObjects = new List<MetaObjectStorable>();
+
+            foreach (var item in allKinds)
+            {
+                metaObjectProvider = new MetaObjectStorableProvider(_connection, item.Name);
+                var metaObjects = await metaObjectProvider.GetCollectionAsync(null);
+
+                allMetaObjects.AddRange(metaObjects);
+            }
 
             // Parse header.
-            dto.Item.Header = DataObjectParser.ParseHeader(dto.Item.Header, metaObjectSettings, dataTypesIndex);
+            var parsedDto = DataObjectParser.Parse(dto.Item, metaObjectSettings, dataTypesIndex);
+            var newItem = parsedDto.ToObject();
 
             var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, dataTypesIndex);
 
-            var newItem = new DataObject(dto.Item.Header);
-
             var uid = dto.Item.Header[metaObjectSettings.Header.PrimaryKey.Name];
-            var savedItem = await provider.GetItemAsync(uid?.ToString() ?? string.Empty, null);
+            var objectUid = uid?.ToString() ?? string.Empty;
+            var savedItem = await provider.GetItemAsync(objectUid, null);
 
             if (savedItem == null)
             {
@@ -308,6 +320,23 @@ namespace BaSys.App.Services
             try
             {
                 var insertResult = await provider.UpdateAsync(savedItem, null);
+                foreach(var table in savedItem.DetailTables)
+                {
+                    var tableSettings = metaObjectSettings.DetailTables.FirstOrDefault(x=>x.Uid == table.Uid);
+                    if (tableSettings == null)
+                    {
+                        continue;
+                    }
+                    var tableProvider = new DataObjectDetailsTableProvider(_connection, 
+                        objectKindSettings, 
+                        metaObjectSettings, 
+                        tableSettings, 
+                        allKinds, 
+                        allMetaObjects, 
+                        dataTypesIndex);
+
+                    await tableProvider.UpdateAsync(objectUid, table, null);
+                }
 
                 result.Success(insertResult, DictMain.ItemSaved);
             }

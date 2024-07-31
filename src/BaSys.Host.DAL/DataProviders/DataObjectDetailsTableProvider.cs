@@ -188,6 +188,72 @@ namespace BaSys.Host.DAL.DataProviders
 
         }
 
+        public async Task<int> UpdateAsync(string objectUid, DataObjectDetailsTable table, IDbTransaction? transaction)
+        {
+
+            await DeleteObjectRowsAsync(objectUid, transaction);
+
+            _query = InsertBuilder.Make(_config).PrimaryKeyName(_primaryKeyFieldName).FillValuesByColumnNames(true).Query(_sqlDialect);
+
+            var insertedCount = 0;
+
+            foreach(var row in table.Rows)
+            {
+                var result = await _connection.ExecuteAsync(_query.Text, row.Fields, transaction);
+                insertedCount += result;
+            }
+
+            return insertedCount;
+        }
+
+        public async Task<int> DeleteObjectRowsAsync<T>(T objectUid, IDbTransaction? transaction)
+        {
+            _query = DeleteBuilder.Make()
+                .Table(_config.TableName)
+                .WhereAnd($"object_uid = @objectUid")
+                .Parameter($"objectUid", objectUid)
+                .Query(_sqlDialect);
+
+            var result = await _connection.ExecuteAsync(_query.Text, _query.DynamicParameters, transaction);
+
+            return result;
+        }
+
+        public async Task<int> DeleteObjectRowsAsync(string uid, IDbTransaction? transaction)
+        {
+            var deletedCount = 0;
+            switch (_primaryKeyDbType)
+            {
+                case DbType.Int32:
+
+                    var intValue = int.Parse(uid);
+                    deletedCount = await DeleteObjectRowsAsync<int>(intValue, transaction);
+                    break;
+
+                case DbType.Int64:
+
+                    var longValue = long.Parse(uid);
+                    deletedCount = await DeleteObjectRowsAsync<long>(longValue, transaction);
+                    break;
+
+                case DbType.Guid:
+
+                    var guidValue = Guid.Parse(uid);
+                    deletedCount = await DeleteObjectRowsAsync<Guid>(guidValue, transaction);
+                    break;
+
+                case DbType.String:
+
+                    deletedCount = await DeleteObjectRowsAsync<string>(uid, transaction);
+                    break;
+
+                default:
+                    throw new ArgumentException($"Unsupported data type for primary key: {_primaryKeyDbType}");
+            }
+
+            return deletedCount;
+        }
+
         private SqlDialectKinds GetDialectKind(IDbConnection connection)
         {
             var dialectKind = SqlDialectKinds.MsSql;

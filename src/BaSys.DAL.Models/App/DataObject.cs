@@ -44,6 +44,11 @@ namespace BaSys.DAL.Models.App
                 Header[kvp.Key] = kvp.Value;
             }
 
+            foreach (var tableSource in source.DetailTables)
+            {
+                DetailTables.Add(tableSource);
+            }
+
         }
 
         public object GetEmptyValue(MetaObjectTableColumn column, IDataTypesIndex dataTypeIndex)
