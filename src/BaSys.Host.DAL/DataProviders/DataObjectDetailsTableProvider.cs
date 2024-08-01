@@ -8,14 +8,10 @@ using BaSys.Host.DAL.ModelConfigurations;
 using BaSys.Metadata.Abstractions;
 using BaSys.Metadata.Helpers;
 using BaSys.Metadata.Models;
+using BaSys.Host.DAL.Helpers;
 using Dapper;
 using Npgsql;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BaSys.Host.DAL.DataProviders
 {
@@ -49,7 +45,7 @@ namespace BaSys.Host.DAL.DataProviders
 
             _connection = connection;
 
-            _sqlDialect = GetDialectKind(connection);
+            _sqlDialect = SqlDialectKindHelper.GetDialectKind(connection);
 
             _kindSettings = kindSettings;
             _objectSettings = objectSettings;
@@ -70,36 +66,14 @@ namespace BaSys.Host.DAL.DataProviders
         }
 
 
-        public async Task<DataObjectDetailsTable?> GetTableAsync(string objectUid, IDbTransaction? transaction)
+        public async Task<DataObjectDetailsTable> GetTableAsync(string objectUid, IDbTransaction? transaction)
         {
-            DataObjectDetailsTable? table = null;
-            switch (_primaryKeyDbType)
+
+            DataObjectDetailsTable? table = await ExecuteStronglyTypedAsync<DataObjectDetailsTable?>(objectUid, GetTableAsync, transaction);
+
+            if (table == null)
             {
-                case DbType.Int32:
-
-                    int.TryParse(objectUid, out var intValue);
-                    table = await GetTableAsync<int>(intValue, transaction);
-                    break;
-
-                case DbType.Int64:
-
-                    long.TryParse(objectUid, out var longValue);
-                    table = await GetTableAsync<long>(longValue, transaction);
-                    break;
-
-                case DbType.Guid:
-
-                    Guid.TryParse(objectUid, out var guidValue);
-                    table = await GetTableAsync<Guid>(guidValue, transaction);
-                    break;
-
-                case DbType.String:
-
-                    table = await GetTableAsync<string>(objectUid, transaction);
-                    break;
-
-                default:
-                    throw new ArgumentException($"Unsupported data type for primary key: {_primaryKeyDbType}");
+                table = InitEmptyTable();
             }
 
             return table;
@@ -119,12 +93,7 @@ namespace BaSys.Host.DAL.DataProviders
 
             var dynamicCollection = await _connection.QueryAsync(_query.Text, null, transaction);
 
-            var detailTable = new DataObjectDetailsTable()
-            {
-                Uid = _tableSettings.Uid,
-                Name = _tableSettings.Name,
-                Title = _tableSettings.Title,
-            };
+            var detailTable = InitEmptyTable();
 
             foreach (var dynamicItem in dynamicCollection)
             {
@@ -136,43 +105,21 @@ namespace BaSys.Host.DAL.DataProviders
 
         }
 
-        public async Task<DataObjectDetailsTable?> GetTableWithDisplaysAsync(string objectUid, IDbTransaction? transaction)
+        public async Task<DataObjectDetailsTable> GetTableWithDisplaysAsync(string objectUid, IDbTransaction? transaction)
         {
-            DataObjectDetailsTable? table = null;
-            switch (_primaryKeyDbType)
+
+            DataObjectDetailsTable? table = await ExecuteStronglyTypedAsync<DataObjectDetailsTable>(objectUid, GetTableWithDisplaysGenericAsync, transaction);
+
+            if (table == null)
             {
-                case DbType.Int32:
-
-                    int.TryParse(objectUid, out var intValue);
-                    table = await GetTableWithDisplaysAsync<int>(intValue, transaction);
-                    break;
-
-                case DbType.Int64:
-
-                    long.TryParse(objectUid, out var longValue);
-                    table = await GetTableWithDisplaysAsync<long>(longValue, transaction);
-                    break;
-
-                case DbType.Guid:
-
-                    Guid.TryParse(objectUid, out var guidValue);
-                    table = await GetTableWithDisplaysAsync<Guid>(guidValue, transaction);
-                    break;
-
-                case DbType.String:
-
-                    table = await GetTableWithDisplaysAsync<string>(objectUid, transaction);
-                    break;
-
-                default:
-                    throw new ArgumentException($"Unsupported data type for primary key: {_primaryKeyDbType}");
+                table = InitEmptyTable();
             }
 
             return table;
 
         }
 
-        public async Task<DataObjectDetailsTable> GetTableWithDisplaysAsync<T>(T objectUid, IDbTransaction? transaction)
+        public async Task<DataObjectDetailsTable> GetTableWithDisplaysGenericAsync<T>(T objectUid, IDbTransaction? transaction)
         {
 
             var joins = new Dictionary<string, bool>();
@@ -253,12 +200,7 @@ namespace BaSys.Host.DAL.DataProviders
 
             var dynamicCollection = await _connection.QueryAsync(_query.Text, _query.DynamicParameters, transaction);
 
-            var detailTable = new DataObjectDetailsTable()
-            {
-                Uid = _tableSettings.Uid,
-                Name = _tableSettings.Name,
-                Title = _tableSettings.Title,
-            };
+            var detailTable = InitEmptyTable();
 
             foreach (var dynamicItem in dynamicCollection)
             {
@@ -272,37 +214,10 @@ namespace BaSys.Host.DAL.DataProviders
 
         public async Task<int> InsertAsync(string objectUid, DataObjectDetailsTable table, IDbTransaction? transaction)
         {
-            var deletedCount = 0;
-            switch (_primaryKeyDbType)
-            {
-                case DbType.Int32:
 
-                    var intValue = int.Parse(objectUid);
-                    deletedCount = await InsertAsync<int>(intValue, table, transaction);
-                    break;
+            var affectedRows = await ExecuteStronglyTypedAsync<int>(objectUid, table, InsertAsync, transaction);
 
-                case DbType.Int64:
-
-                    var longValue = long.Parse(objectUid);
-                    deletedCount = await InsertAsync<long>(longValue, table, transaction);
-                    break;
-
-                case DbType.Guid:
-
-                    var guidValue = Guid.Parse(objectUid);
-                    deletedCount = await InsertAsync<Guid>(guidValue, table, transaction);
-                    break;
-
-                case DbType.String:
-
-                    deletedCount = await InsertAsync<string>(objectUid, table, transaction);
-                    break;
-
-                default:
-                    throw new ArgumentException($"Unsupported data type for primary key: {_primaryKeyDbType}");
-            }
-
-            return deletedCount;
+            return affectedRows;
         }
 
         public async Task<int> InsertAsync<T>(T objectUid, DataObjectDetailsTable table, IDbTransaction? transaction)
@@ -326,18 +241,16 @@ namespace BaSys.Host.DAL.DataProviders
             return insertedCount;
         }
 
-
-
         public async Task<int> UpdateAsync(string objectUid, DataObjectDetailsTable table, IDbTransaction? transaction)
         {
 
-            await DeleteObjectRowsAsync(objectUid, transaction);
-            var insertedCount = await InsertAsync(objectUid, table, transaction); 
+            await DeleteTableAsync(objectUid, transaction);
+            var insertedCount = await InsertAsync(objectUid, table, transaction);
 
             return insertedCount;
         }
 
-        public async Task<int> DeleteObjectRowsAsync<T>(T objectUid, IDbTransaction? transaction)
+        public async Task<int> DeleteTableAsync<T>(T objectUid, IDbTransaction? transaction)
         {
             _query = DeleteBuilder.Make()
                 .Table(_config.TableName)
@@ -350,50 +263,82 @@ namespace BaSys.Host.DAL.DataProviders
             return result;
         }
 
-        public async Task<int> DeleteObjectRowsAsync(string uid, IDbTransaction? transaction)
+        public async Task<int> DeleteTableAsync(string uid, IDbTransaction? transaction)
         {
-            var deletedCount = 0;
-            switch (_primaryKeyDbType)
-            {
-                case DbType.Int32:
-
-                    var intValue = int.Parse(uid);
-                    deletedCount = await DeleteObjectRowsAsync<int>(intValue, transaction);
-                    break;
-
-                case DbType.Int64:
-
-                    var longValue = long.Parse(uid);
-                    deletedCount = await DeleteObjectRowsAsync<long>(longValue, transaction);
-                    break;
-
-                case DbType.Guid:
-
-                    var guidValue = Guid.Parse(uid);
-                    deletedCount = await DeleteObjectRowsAsync<Guid>(guidValue, transaction);
-                    break;
-
-                case DbType.String:
-
-                    deletedCount = await DeleteObjectRowsAsync<string>(uid, transaction);
-                    break;
-
-                default:
-                    throw new ArgumentException($"Unsupported data type for primary key: {_primaryKeyDbType}");
-            }
+            var deletedCount = await ExecuteStronglyTypedAsync<int>(uid, DeleteTableAsync, transaction);
 
             return deletedCount;
         }
 
-        private SqlDialectKinds GetDialectKind(IDbConnection connection)
+        private async Task<TResult> ExecuteStronglyTypedAsync<TResult>(string objectUid,
+            Func<object, IDbTransaction?, Task<TResult>> func,
+            IDbTransaction? transaction)
         {
-            var dialectKind = SqlDialectKinds.MsSql;
-            if (connection is NpgsqlConnection)
+            TResult? result = default;
+            switch (_primaryKeyDbType)
             {
-                dialectKind = SqlDialectKinds.PgSql;
+                case DbType.Int32:
+                    if (int.TryParse(objectUid, out var intValue))
+                        result = await func(intValue, transaction);
+                    break;
+                case DbType.Int64:
+                    if (long.TryParse(objectUid, out var longValue))
+                        result = await func(longValue, transaction);
+                    break;
+                case DbType.Guid:
+                    if (Guid.TryParse(objectUid, out var guidValue))
+                        result = await func(guidValue, transaction);
+                    break;
+                case DbType.String:
+                    result = await func(objectUid, transaction);
+                    break;
+                default:
+                    throw new ArgumentException($"Unsupported data type for primary key: {_primaryKeyDbType}");
             }
-
-            return dialectKind;
+            return result;
         }
+
+        private async Task<TResult?> ExecuteStronglyTypedAsync<TResult>(string objectUid,
+            DataObjectDetailsTable table,
+           Func<object, DataObjectDetailsTable, IDbTransaction?, Task<TResult?>> func,
+           IDbTransaction? transaction)
+        {
+            TResult? result = default;
+            switch (_primaryKeyDbType)
+            {
+                case DbType.Int32:
+                    if (int.TryParse(objectUid, out var intValue))
+                        result = await func(intValue, table, transaction);
+                    break;
+                case DbType.Int64:
+                    if (long.TryParse(objectUid, out var longValue))
+                        result = await func(longValue, table, transaction);
+                    break;
+                case DbType.Guid:
+                    if (Guid.TryParse(objectUid, out var guidValue))
+                        result = await func(guidValue, table, transaction);
+                    break;
+                case DbType.String:
+                    result = await func(objectUid, table, transaction);
+                    break;
+                default:
+                    throw new ArgumentException($"Unsupported data type for primary key: {_primaryKeyDbType}");
+            }
+            return result;
+        }
+
+        private DataObjectDetailsTable InitEmptyTable()
+        {
+            var table = new DataObjectDetailsTable()
+            {
+                Name = _tableSettings.Name,
+                Title = _tableSettings.Title,
+                Uid = _tableSettings.Uid,
+            };
+
+            return table;
+        }
+
+    
     }
 }

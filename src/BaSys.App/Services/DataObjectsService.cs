@@ -437,22 +437,33 @@ namespace BaSys.App.Services
                 var dataTypesIndex = await _dataTypesService.GetIndexAsync();
                 var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, dataTypesIndex);
 
-                int deletedCount = await provider.DeleteAsync(uid, transaction);
-                foreach (var tableSettings in metaObjectSettings.DetailTables)
+                int deletedCount = 0;
+                try
                 {
-              
-                    var tableProvider = new DataObjectDetailsTableProvider(_connection,
-                        objectKindSettings,
-                        metaObjectSettings,
-                        tableSettings,
-                        allKinds,
-                        allMetaObjects,
-                        dataTypesIndex);
+                    deletedCount = await provider.DeleteAsync(uid, transaction);
+                    foreach (var tableSettings in metaObjectSettings.DetailTables)
+                    {
 
-                    await tableProvider.DeleteObjectRowsAsync(uid, transaction);
+                        var tableProvider = new DataObjectDetailsTableProvider(_connection,
+                            objectKindSettings,
+                            metaObjectSettings,
+                            tableSettings,
+                            allKinds,
+                            allMetaObjects,
+                            dataTypesIndex);
+
+                        await tableProvider.DeleteTableAsync(uid, transaction);
+                    }
+
+                    transaction.Commit();
                 }
-
-                transaction.Commit();
+                catch(Exception ex)
+                {
+                    transaction.Rollback();
+                    result.Error(-1, $"Cannot delete item {kindName}.{objectName}:{uid}", ex.Message);
+                    return result;
+                }
+             
 
                 if (deletedCount > 0)
                 {
