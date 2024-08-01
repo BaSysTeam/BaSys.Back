@@ -395,39 +395,75 @@ namespace BaSys.App.Services
         {
             var result = new ResultWrapper<int>();
 
-            var objectKindSettings = await _kindProvider.GetSettingsByNameAsync(kindName);
-
-            if (objectKindSettings == null)
+            _connection.Open();
+            using (IDbTransaction transaction = _connection.BeginTransaction())
             {
-                result.Error(-1, $"{DictMain.CannotFindMetaObjectKind}: {kindName}");
-                return result;
+
+                var allKinds = await _kindProvider.GetCollectionAsync(transaction);
+                var kind = allKinds.FirstOrDefault(x => x.Name.Equals(kindName, StringComparison.InvariantCultureIgnoreCase));
+
+                if (kind == null)
+                {
+                    transaction.Rollback();
+                    result.Error(-1, $"{DictMain.CannotFindMetaObjectKind}: {kindName}");
+                    return result;
+                }
+
+                var objectKindSettings = kind.ToSettings();
+
+
+                var metaObjectProvider = new MetaObjectStorableProvider(_connection, objectKindSettings.Name);
+                var metaObject = await metaObjectProvider.GetItemByNameAsync(objectName, transaction);
+
+                if (metaObject == null)
+                {
+                    transaction.Rollback();
+                    result.Error(-1, $"{DictMain.CannotFindMetaObject}: {kindName}.{objectName}");
+                    return result;
+                }
+
+                var metaObjectSettings = metaObject.ToSettings();
+
+                var allMetaObjects = new List<MetaObjectStorable>();
+
+                foreach (var item in allKinds)
+                {
+                    metaObjectProvider = new MetaObjectStorableProvider(_connection, item.Name);
+                    var metaObjects = await metaObjectProvider.GetCollectionAsync(transaction);
+
+                    allMetaObjects.AddRange(metaObjects);
+                }
+
+                var dataTypesIndex = await _dataTypesService.GetIndexAsync();
+                var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, dataTypesIndex);
+
+                int deletedCount = await provider.DeleteAsync(uid, transaction);
+                foreach (var tableSettings in metaObjectSettings.DetailTables)
+                {
+              
+                    var tableProvider = new DataObjectDetailsTableProvider(_connection,
+                        objectKindSettings,
+                        metaObjectSettings,
+                        tableSettings,
+                        allKinds,
+                        allMetaObjects,
+                        dataTypesIndex);
+
+                    await tableProvider.DeleteObjectRowsAsync(uid, transaction);
+                }
+
+                transaction.Commit();
+
+                if (deletedCount > 0)
+                {
+                    result.Success(deletedCount, DictMain.ItemDeleted);
+                }
+                else if (deletedCount == 0)
+                {
+                    result.Error(-1, $"{DictMain.CannotFindItem} {kindName}.{objectName}:{uid}");
+                }
             }
-
-            var metaObjectProvider = new MetaObjectStorableProvider(_connection, objectKindSettings.Name);
-            var metaObject = await metaObjectProvider.GetItemByNameAsync(objectName, null);
-
-            if (metaObject == null)
-            {
-                result.Error(-1, $"{DictMain.CannotFindMetaObject}: {kindName}.{objectName}");
-                return result;
-            }
-
-            var metaObjectSettings = metaObject.ToSettings();
-
-            var primitiveDataTypes = new PrimitiveDataTypes();
-            var dataTypesIndex = await _dataTypesService.GetIndexAsync();
-            var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, dataTypesIndex);
-
-            int deletedCount = await provider.DeleteAsync(uid, null);
-
-            if (deletedCount > 0)
-            {
-                result.Success(deletedCount, DictMain.ItemDeleted);
-            }
-            else if (deletedCount == 0)
-            {
-                result.Error(-1, $"{DictMain.CannotFindItem} {kindName}.{objectName}:{uid}");
-            }
+         
 
             return result;
         }
