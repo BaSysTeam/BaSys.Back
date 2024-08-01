@@ -44,6 +44,10 @@ namespace BaSys.DAL.Models.App
                     return string.Empty;
                 }
             }
+            set
+            {
+                Fields["object_uid"] = value;
+            }
         }
 
         public int RowNumber

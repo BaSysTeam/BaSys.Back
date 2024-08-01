@@ -11,6 +11,7 @@ using BaSys.Metadata.Helpers;
 using BaSys.Metadata.Models;
 using BaSys.Translation;
 using Humanizer;
+using MongoDB.Bson;
 using System.Data;
 using System.Security.AccessControl;
 using System.Text.Json;
@@ -222,45 +223,78 @@ namespace BaSys.App.Services
         {
             var result = new ResultWrapper<string>();
 
-            var objectKindSettings = await _kindProvider.GetSettingsAsync(dto.MetaObjectKindUid);
-
-            if (objectKindSettings == null)
+            _connection.Open();
+            using (IDbTransaction transaction = _connection.BeginTransaction())
             {
-                result.Error(-1, $"{DictMain.CannotFindMetaObjectKind}", $"MetaObjectKindUid: {dto.MetaObjectKindUid}");
-                return result;
+                var allKinds = await _kindProvider.GetCollectionAsync(transaction);
+                var kind = allKinds.FirstOrDefault(x => x.Uid == dto.MetaObjectKindUid);
+
+                if (kind == null)
+                {
+                    result.Error(-1, $"{DictMain.CannotFindMetaObjectKind}", $"MetaObjectKindUid: {dto.MetaObjectKindUid}");
+                    transaction.Rollback();
+                    return result;
+                }
+
+                var objectKindSettings = kind.ToSettings();
+                var metaObjectProvider = new MetaObjectStorableProvider(_connection, objectKindSettings.Name);
+                var metaObject = await metaObjectProvider.GetItemAsync(dto.MetaObjectUid, transaction);
+
+                if (metaObject == null)
+                {
+                    result.Error(-1, $"{DictMain.CannotFindMetaObject}", $"MetaObjectUid: {dto.MetaObjectUid}");
+                    transaction.Rollback();
+                    return result;
+                }
+
+                var metaObjectSettings = metaObject.ToSettings();
+                var dataTypesIndex = await _dataTypesService.GetIndexAsync();
+                var allMetaObjects = new List<MetaObjectStorable>();
+
+                foreach (var item in allKinds)
+                {
+                    metaObjectProvider = new MetaObjectStorableProvider(_connection, item.Name);
+                    var metaObjects = await metaObjectProvider.GetCollectionAsync(transaction);
+
+                    allMetaObjects.AddRange(metaObjects);
+                }
+
+
+                // Parse header.
+                var parsedDto = DataObjectParser.Parse(dto.Item, metaObjectSettings, dataTypesIndex);
+                var newObject = parsedDto.ToObject();
+
+                var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, dataTypesIndex);
+
+                try
+                {
+                    var insertedUid = await provider.InsertAsync(newObject, transaction);
+                    foreach (var table in newObject.DetailTables)
+                    {
+                        var tableSettings = metaObjectSettings.DetailTables.FirstOrDefault(x => x.Uid == table.Uid);
+                        if (tableSettings == null)
+                        {
+                            continue;
+                        }
+                        var tableProvider = new DataObjectDetailsTableProvider(_connection,
+                            objectKindSettings,
+                            metaObjectSettings,
+                            tableSettings,
+                            allKinds,
+                            allMetaObjects,
+                            dataTypesIndex);
+
+                        await tableProvider.InsertAsync(insertedUid, table, transaction);
+                    }
+
+                    transaction.Commit();
+                    result.Success(insertedUid, DictMain.ItemSaved);
+                }
+                catch (Exception ex)
+                {
+                    result.Error(-1, $"{DictMain.CannotCreateItem}", $"Message: {ex.Message}, Query: {provider.LastQuery}");
+                }
             }
-
-            var metaObjectProvider = new MetaObjectStorableProvider(_connection, objectKindSettings.Name);
-            var metaObject = await metaObjectProvider.GetItemAsync(dto.MetaObjectUid, null);
-
-            if (metaObject == null)
-            {
-                result.Error(-1, $"{DictMain.CannotFindMetaObject}", $"MetaObjectUid: {dto.MetaObjectUid}");
-                return result;
-            }
-
-            var metaObjectSettings = metaObject.ToSettings();
-            var dataTypesIndex = await _dataTypesService.GetIndexAsync();
-
-
-            // Parse header.
-            dto.Item.Header = DataObjectParser.ParseHeader(dto.Item.Header, metaObjectSettings, dataTypesIndex);
-
-            var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, dataTypesIndex);
-
-            var newObject = new DataObject(dto.Item.Header);
-
-            try
-            {
-                var insertedUid = await provider.InsertAsync(newObject, null);
-
-                result.Success(insertedUid, DictMain.ItemSaved);
-            }
-            catch (Exception ex)
-            {
-                result.Error(-1, $"{DictMain.CannotCreateItem}", $"Message: {ex.Message}, Query: {provider.LastQuery}");
-            }
-
             return result;
         }
 

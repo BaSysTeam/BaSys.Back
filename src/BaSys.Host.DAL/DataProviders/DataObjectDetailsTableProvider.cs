@@ -69,9 +69,51 @@ namespace BaSys.Host.DAL.DataProviders
             _primaryKeyDbType = pkDataType.DbType;
         }
 
-        public async Task<DataObjectDetailsTable> GetTableAsync(IDbTransaction? transaction)
+
+        public async Task<DataObjectDetailsTable?> GetTableAsync(string objectUid, IDbTransaction? transaction)
         {
-            var builder = SelectBuilder.Make().From(_config.TableName).Select("*").OrderBy("row_number");
+            DataObjectDetailsTable? table = null;
+            switch (_primaryKeyDbType)
+            {
+                case DbType.Int32:
+
+                    int.TryParse(objectUid, out var intValue);
+                    table = await GetTableAsync<int>(intValue, transaction);
+                    break;
+
+                case DbType.Int64:
+
+                    long.TryParse(objectUid, out var longValue);
+                    table = await GetTableAsync<long>(longValue, transaction);
+                    break;
+
+                case DbType.Guid:
+
+                    Guid.TryParse(objectUid, out var guidValue);
+                    table = await GetTableAsync<Guid>(guidValue, transaction);
+                    break;
+
+                case DbType.String:
+
+                    table = await GetTableAsync<string>(objectUid, transaction);
+                    break;
+
+                default:
+                    throw new ArgumentException($"Unsupported data type for primary key: {_primaryKeyDbType}");
+            }
+
+            return table;
+
+        }
+
+        public async Task<DataObjectDetailsTable> GetTableAsync<T>(T objectUid, IDbTransaction? transaction)
+        {
+            var builder = SelectBuilder.Make().From(_config.TableName).Select("*");
+
+            var condition = $"{ScriptGeneratorBase.WrapName(_config.TableName, _sqlDialect)}.{ScriptGeneratorBase.WrapName("object_uid", _sqlDialect)} = @object_uid";
+            builder.WhereAnd(condition)
+             .Parameter($"object_uid", objectUid);
+            builder.OrderBy("row_number");
 
             _query = builder.Query(_sqlDialect);
 
@@ -228,10 +270,43 @@ namespace BaSys.Host.DAL.DataProviders
 
         }
 
-        public async Task<int> UpdateAsync(string objectUid, DataObjectDetailsTable table, IDbTransaction? transaction)
+        public async Task<int> InsertAsync(string objectUid, DataObjectDetailsTable table, IDbTransaction? transaction)
         {
+            var deletedCount = 0;
+            switch (_primaryKeyDbType)
+            {
+                case DbType.Int32:
 
-            await DeleteObjectRowsAsync(objectUid, transaction);
+                    var intValue = int.Parse(objectUid);
+                    deletedCount = await InsertAsync<int>(intValue, table, transaction);
+                    break;
+
+                case DbType.Int64:
+
+                    var longValue = long.Parse(objectUid);
+                    deletedCount = await InsertAsync<long>(longValue, table, transaction);
+                    break;
+
+                case DbType.Guid:
+
+                    var guidValue = Guid.Parse(objectUid);
+                    deletedCount = await InsertAsync<Guid>(guidValue, table, transaction);
+                    break;
+
+                case DbType.String:
+
+                    deletedCount = await InsertAsync<string>(objectUid, table, transaction);
+                    break;
+
+                default:
+                    throw new ArgumentException($"Unsupported data type for primary key: {_primaryKeyDbType}");
+            }
+
+            return deletedCount;
+        }
+
+        public async Task<int> InsertAsync<T>(T objectUid, DataObjectDetailsTable table, IDbTransaction? transaction)
+        {
 
             _query = InsertBuilder.Make(_config).PrimaryKeyName(_primaryKeyFieldName).FillValuesByColumnNames(true).Query(_sqlDialect);
 
@@ -241,11 +316,23 @@ namespace BaSys.Host.DAL.DataProviders
             foreach (var row in table.Rows)
             {
                 row.RowNumber = rowNumber;
+                row.ObjectUid = objectUid;
                 var result = await _connection.ExecuteAsync(_query.Text, row.Fields, transaction);
 
                 rowNumber++;
                 insertedCount += result;
             }
+
+            return insertedCount;
+        }
+
+
+
+        public async Task<int> UpdateAsync(string objectUid, DataObjectDetailsTable table, IDbTransaction? transaction)
+        {
+
+            await DeleteObjectRowsAsync(objectUid, transaction);
+            var insertedCount = await InsertAsync(objectUid, table, transaction); 
 
             return insertedCount;
         }
