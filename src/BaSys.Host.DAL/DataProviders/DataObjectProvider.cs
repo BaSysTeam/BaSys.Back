@@ -1,59 +1,27 @@
 ﻿using BaSys.DAL.Models.App;
-using BaSys.FluentQueries.Abstractions;
-using BaSys.FluentQueries.Enums;
 using BaSys.FluentQueries.QueryBuilders;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.ModelConfigurations;
 using BaSys.Metadata.Abstractions;
 using BaSys.Metadata.Models;
 using Dapper;
-using Npgsql;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BaSys.Host.DAL.DataProviders
 {
-    public sealed class DataObjectProvider : IDataObjectProvider
+    public sealed class DataObjectProvider : DataObjectProviderBase, IDataObjectProvider
     {
         private readonly DataObjectConfiguration _config;
-        private readonly IDbConnection _connection;
-        private readonly SqlDialectKinds _sqlDialect;
-        private readonly MetaObjectKindSettings _kindSettings;
-        private readonly MetaObjectStorableSettings _objectSettings;
-        private readonly string _primaryKeyFieldName;
-        private DbType _primaryKeyDbType;
-
-        protected IQuery? _query;
-
-        public IQuery? LastQuery => _query;
 
         public DataObjectProvider(IDbConnection connection,
             MetaObjectKindSettings kindSettings,
             MetaObjectStorableSettings objectSettings,
-            IDataTypesIndex dataTypeIndex)
+            IDataTypesIndex dataTypesIndex) : base(connection, kindSettings, objectSettings, dataTypesIndex)
         {
-            _connection = connection;
-
-            _sqlDialect = GetDialectKind(connection);
 
             _config = new DataObjectConfiguration(kindSettings,
                 objectSettings,
-                dataTypeIndex);
-
-            _kindSettings = kindSettings;
-            _objectSettings = objectSettings;
-
-            var primaryKey = objectSettings.Header.PrimaryKey;
-            _primaryKeyFieldName = primaryKey.Name;
-
-            var pkDataType = dataTypeIndex.GetDataTypeSafe(primaryKey.DataTypeUid);
-            _primaryKeyDbType = pkDataType.DbType;
-
+                _dataTypesIndex);
 
         }
 
@@ -107,35 +75,8 @@ namespace BaSys.Host.DAL.DataProviders
 
         public async Task<DataObject?> GetItemAsync(string uid, IDbTransaction? transaction)
         {
-            DataObject? item = null;
-            switch (_primaryKeyDbType)
-            {
-                case DbType.Int32:
 
-                    int.TryParse(uid, out var intValue);
-                    item = await GetItemAsync<int>(intValue, transaction);
-                    break;
-
-                case DbType.Int64:
-
-                    long.TryParse(uid, out var longValue);
-                    item = await GetItemAsync<long>(longValue, transaction);
-                    break;
-
-                case DbType.Guid:
-
-                    Guid.TryParse(uid, out var guidValue);
-                    item = await GetItemAsync<Guid>(guidValue, transaction);
-                    break;
-
-                case DbType.String:
-
-                    item = await GetItemAsync<string>(uid, transaction);
-                    break;
-
-                default:
-                    throw new ArgumentException($"Unsupported data type for primary key: {_primaryKeyDbType}");
-            }
+            DataObject? item = await ExecuteStronglyTypedAsync(uid, GetItemAsync, transaction);
 
             return item;
 
@@ -180,48 +121,12 @@ namespace BaSys.Host.DAL.DataProviders
 
         public async Task<int> DeleteAsync(string uid, IDbTransaction? transaction)
         {
-            var deletedCount = 0;
-            switch (_primaryKeyDbType)
-            {
-                case DbType.Int32:
 
-                    var intValue = int.Parse(uid);
-                    deletedCount = await DeleteAsync<int>(intValue, transaction);
-                    break;
-
-                case DbType.Int64:
-
-                    var longValue = long.Parse(uid);
-                    deletedCount = await DeleteAsync<long>(longValue, transaction);
-                    break;
-
-                case DbType.Guid:
-
-                    var guidValue = Guid.Parse(uid);
-                    deletedCount = await DeleteAsync<Guid>(guidValue, transaction);
-                    break;
-
-                case DbType.String:
-
-                    deletedCount = await DeleteAsync<string>(uid, transaction);
-                    break;
-
-                default:
-                    throw new ArgumentException($"Unsupported data type for primary key: {_primaryKeyDbType}");
-            }
+            var deletedCount = await ExecuteStronglyTypedAsync(uid, DeleteAsync, transaction);
 
             return deletedCount;
         }
 
-        private SqlDialectKinds GetDialectKind(IDbConnection connection)
-        {
-            var dialectKind = SqlDialectKinds.MsSql;
-            if (connection is NpgsqlConnection)
-            {
-                dialectKind = SqlDialectKinds.PgSql;
-            }
 
-            return dialectKind;
-        }
     }
 }
