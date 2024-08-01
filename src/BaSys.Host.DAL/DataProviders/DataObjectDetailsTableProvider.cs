@@ -3,6 +3,7 @@ using BaSys.FluentQueries.Abstractions;
 using BaSys.FluentQueries.Enums;
 using BaSys.FluentQueries.Models;
 using BaSys.FluentQueries.QueryBuilders;
+using BaSys.FluentQueries.ScriptGenerators;
 using BaSys.Host.DAL.ModelConfigurations;
 using BaSys.Metadata.Abstractions;
 using BaSys.Metadata.Helpers;
@@ -93,14 +94,50 @@ namespace BaSys.Host.DAL.DataProviders
 
         }
 
-        public async Task<DataObjectDetailsTable> GetTableWithDisplaysAsync(IDbTransaction? transaction)
+        public async Task<DataObjectDetailsTable?> GetTableWithDisplaysAsync(string objectUid, IDbTransaction? transaction)
+        {
+            DataObjectDetailsTable? table = null;
+            switch (_primaryKeyDbType)
+            {
+                case DbType.Int32:
+
+                    int.TryParse(objectUid, out var intValue);
+                    table = await GetTableWithDisplaysAsync<int>(intValue, transaction);
+                    break;
+
+                case DbType.Int64:
+
+                    long.TryParse(objectUid, out var longValue);
+                    table = await GetTableWithDisplaysAsync<long>(longValue, transaction);
+                    break;
+
+                case DbType.Guid:
+
+                    Guid.TryParse(objectUid, out var guidValue);
+                    table = await GetTableWithDisplaysAsync<Guid>(guidValue, transaction);
+                    break;
+
+                case DbType.String:
+
+                    table = await GetTableWithDisplaysAsync<string>(objectUid, transaction);
+                    break;
+
+                default:
+                    throw new ArgumentException($"Unsupported data type for primary key: {_primaryKeyDbType}");
+            }
+
+            return table;
+
+        }
+
+        public async Task<DataObjectDetailsTable> GetTableWithDisplaysAsync<T>(T objectUid, IDbTransaction? transaction)
         {
 
             var joins = new Dictionary<string, bool>();
 
             var builder = SelectBuilder.Make().From(_config.TableName);
 
-            foreach(var column in _tableSettings.Columns)
+            foreach (var column in _tableSettings.Columns)
             {
                 var dataType = _dataTypesIndex.GetDataTypeSafe(column.DataTypeUid);
                 builder.Field(_config.TableName, column.Name, column.Name);
@@ -143,7 +180,7 @@ namespace BaSys.Host.DAL.DataProviders
 
                     if (!joins.ContainsKey(refTableName))
                     {
-                        var condition = new ConditionModel()
+                        var joinCondition = new ConditionModel()
                         {
                             LeftTable = _config.TableName,
                             LeftField = column.Name,
@@ -154,7 +191,7 @@ namespace BaSys.Host.DAL.DataProviders
 
                         var conditions = new List<ConditionModel>
                         {
-                            condition
+                            joinCondition
                         };
 
                         builder.Join(JoinKinds.Left, refTableName, conditions);
@@ -165,11 +202,14 @@ namespace BaSys.Host.DAL.DataProviders
                 }
             }
 
+            var condition = $"{ScriptGeneratorBase.WrapName(_config.TableName, _sqlDialect)}.{ScriptGeneratorBase.WrapName("object_uid", _sqlDialect)} = @object_uid";
+            builder.WhereAnd(condition)
+             .Parameter($"object_uid", objectUid);
             builder.OrderBy("row_number");
 
             _query = builder.Query(_sqlDialect);
 
-            var dynamicCollection = await _connection.QueryAsync(_query.Text, null, transaction);
+            var dynamicCollection = await _connection.QueryAsync(_query.Text, _query.DynamicParameters, transaction);
 
             var detailTable = new DataObjectDetailsTable()
             {
@@ -198,7 +238,7 @@ namespace BaSys.Host.DAL.DataProviders
             var insertedCount = 0;
 
             var rowNumber = 1;
-            foreach(var row in table.Rows)
+            foreach (var row in table.Rows)
             {
                 row.RowNumber = rowNumber;
                 var result = await _connection.ExecuteAsync(_query.Text, row.Fields, transaction);

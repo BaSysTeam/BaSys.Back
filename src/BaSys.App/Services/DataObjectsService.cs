@@ -206,7 +206,7 @@ namespace BaSys.App.Services
 
             try
             {
-                var table = await provider.GetTableWithDisplaysAsync(null);
+                var table = await provider.GetTableWithDisplaysAsync(uid, null);
                 var tableDto = new DataObjectDetailsTableDto(table);
                 result.Success(tableDto);
             }

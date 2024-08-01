@@ -66,7 +66,7 @@ namespace BaSys.FluentQueries.ScriptGenerators
             }
         }
 
-        private char NameWrapperOpen(SqlDialectKinds dialectKind)
+        public static char NameWrapperOpen(SqlDialectKinds dialectKind)
         {
             switch (dialectKind)
             {
@@ -79,7 +79,7 @@ namespace BaSys.FluentQueries.ScriptGenerators
             }
         }
 
-        private char NameWrapperClosed(SqlDialectKinds dialectKind)
+        public static char NameWrapperClosed(SqlDialectKinds dialectKind)
         {
             switch (dialectKind)
             {
@@ -90,6 +90,11 @@ namespace BaSys.FluentQueries.ScriptGenerators
                 default:
                     throw new NotImplementedException();
             }
+        }
+
+        public static string WrapName(string input, SqlDialectKinds dialectKind) {
+
+            return $"{NameWrapperOpen(dialectKind)}{input}{NameWrapperClosed(dialectKind)}";
         }
     }
 }
