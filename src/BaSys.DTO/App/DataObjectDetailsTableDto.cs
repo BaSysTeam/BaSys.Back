@@ -29,5 +29,22 @@ namespace BaSys.DTO.App
                 Rows.Add(row.Fields);
             }
         }
+
+        public DataObjectDetailsTable ToObject()
+        {
+            var table = new DataObjectDetailsTable()
+            {
+                Name = Name,
+                Uid = Uid,
+            };
+
+            foreach(var sourceRow in Rows)
+            {
+                var destinationRow = new DataObjectDetailsTableRow(sourceRow);
+                table.Rows.Add(destinationRow);
+            }
+
+            return table;
+        }
     }
 }

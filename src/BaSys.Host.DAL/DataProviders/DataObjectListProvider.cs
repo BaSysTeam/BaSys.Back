@@ -1,69 +1,36 @@
 ﻿using BaSys.DAL.Models.App;
-using BaSys.FluentQueries.Abstractions;
 using BaSys.FluentQueries.Enums;
 using BaSys.FluentQueries.Models;
 using BaSys.FluentQueries.QueryBuilders;
+using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.ModelConfigurations;
 using BaSys.Metadata.Abstractions;
 using BaSys.Metadata.Helpers;
 using BaSys.Metadata.Models;
 using Dapper;
-using Npgsql;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BaSys.Host.DAL.DataProviders
 {
-    public sealed class DataObjectListProvider
+    public sealed class DataObjectListProvider: DataObjectProviderBase
     {
         private readonly DataObjectConfiguration _config;
-        private readonly IDbConnection _connection;
-        private readonly SqlDialectKinds _sqlDialect;
-        private readonly MetaObjectKindSettings _kindSettings;
-        private readonly MetaObjectStorableSettings _objectSettings;
         private readonly IEnumerable<MetaObjectKind> _allKinds;
         private readonly IEnumerable<MetaObjectStorable> _allMetaObjects;
-        private readonly IDataTypesIndex _dataTypeIndex;
-        private readonly string _primaryKeyFieldName;
-        private DbType _primaryKeyDbType;
-
-        protected IQuery? _query;
-
-        public IQuery? LastQuery => _query;
 
         public DataObjectListProvider(IDbConnection connection,
             MetaObjectKindSettings kindSettings,
             MetaObjectStorableSettings objectSettings,
             IEnumerable<MetaObjectKind> allKinds,
             IEnumerable<MetaObjectStorable> allMetaObjects,
-            IDataTypesIndex dataTypeIndex)
+            IDataTypesIndex dataTypesIndex): base(connection, kindSettings, objectSettings, dataTypesIndex)
         {
-            _connection = connection;
-
-            _sqlDialect = GetDialectKind(connection);
-
             _config = new DataObjectConfiguration(kindSettings,
                 objectSettings,
-                dataTypeIndex);
-
-            _kindSettings = kindSettings;
-            _objectSettings = objectSettings;
+                _dataTypesIndex);
 
             _allKinds = allKinds;
             _allMetaObjects = allMetaObjects;
-
-            _dataTypeIndex = dataTypeIndex;
-
-            var primaryKey = objectSettings.Header.PrimaryKey;
-            _primaryKeyFieldName = primaryKey.Name;
-
-            var pkDataType = dataTypeIndex.GetDataTypeSafe(primaryKey.DataTypeUid);
-            _primaryKeyDbType = pkDataType.DbType;
-
         }
 
         public async Task<List<DataObject>> GetCollectionWithDisplaysAsync(IDbTransaction? transaction)
@@ -76,7 +43,7 @@ namespace BaSys.Host.DAL.DataProviders
             foreach (var column in _objectSettings.Header.Columns)
             {
 
-                var dataType = _dataTypeIndex.GetDataTypeSafe(column.DataTypeUid);
+                var dataType = _dataTypesIndex.GetDataTypeSafe(column.DataTypeUid);
                 builder.Field(_config.TableName, column.Name, column.Name);
 
                 if (!dataType.IsPrimitive)
@@ -159,17 +126,6 @@ namespace BaSys.Host.DAL.DataProviders
             }
 
             return collection;
-        }
-
-        private SqlDialectKinds GetDialectKind(IDbConnection connection)
-        {
-            var dialectKind = SqlDialectKinds.MsSql;
-            if (connection is NpgsqlConnection)
-            {
-                dialectKind = SqlDialectKinds.PgSql;
-            }
-
-            return dialectKind;
         }
     }
 }

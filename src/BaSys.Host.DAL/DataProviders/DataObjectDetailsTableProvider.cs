@@ -1,41 +1,24 @@
 ﻿using BaSys.DAL.Models.App;
-using BaSys.FluentQueries.Abstractions;
 using BaSys.FluentQueries.Enums;
 using BaSys.FluentQueries.Models;
 using BaSys.FluentQueries.QueryBuilders;
+using BaSys.FluentQueries.ScriptGenerators;
+using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.ModelConfigurations;
 using BaSys.Metadata.Abstractions;
 using BaSys.Metadata.Helpers;
 using BaSys.Metadata.Models;
 using Dapper;
-using Npgsql;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BaSys.Host.DAL.DataProviders
 {
-    public sealed class DataObjectDetailsTableProvider
+    public sealed class DataObjectDetailsTableProvider : DataObjectProviderBase
     {
         private readonly DataObjectDetailTableConfiguration _config;
-        private readonly IDbConnection _connection;
-        private readonly SqlDialectKinds _sqlDialect;
-        private readonly MetaObjectKindSettings _kindSettings;
-        private readonly MetaObjectStorableSettings _objectSettings;
         private readonly MetaObjectTable _tableSettings;
-        private readonly IDataTypesIndex _dataTypesIndex;
         private readonly IEnumerable<MetaObjectKind> _allKinds;
         private readonly IEnumerable<MetaObjectStorable> _allMetaObjects;
-
-        private readonly string _primaryKeyFieldName;
-        private DbType _primaryKeyDbType;
-
-        protected IQuery? _query;
-
-        public IQuery? LastQuery => _query;
 
         public DataObjectDetailsTableProvider(IDbConnection connection,
             MetaObjectKindSettings kindSettings,
@@ -43,45 +26,45 @@ namespace BaSys.Host.DAL.DataProviders
             MetaObjectTable tableSettings,
             IEnumerable<MetaObjectKind> allKinds,
             IEnumerable<MetaObjectStorable> allMetaObjects,
-            IDataTypesIndex dataTypesIndex)
+            IDataTypesIndex dataTypesIndex) : base(connection, kindSettings, objectSettings, dataTypesIndex)
         {
 
-            _connection = connection;
-
-            _sqlDialect = GetDialectKind(connection);
-
-            _kindSettings = kindSettings;
-            _objectSettings = objectSettings;
             _tableSettings = tableSettings;
 
             _allKinds = allKinds;
             _allMetaObjects = allMetaObjects;
 
-            _dataTypesIndex = dataTypesIndex;
-
             _config = new DataObjectDetailTableConfiguration(_kindSettings, _objectSettings, _tableSettings, _dataTypesIndex);
-
-            var primaryKey = objectSettings.Header.PrimaryKey;
-            _primaryKeyFieldName = primaryKey.Name;
-
-            var pkDataType = _dataTypesIndex.GetDataTypeSafe(primaryKey.DataTypeUid);
-            _primaryKeyDbType = pkDataType.DbType;
         }
 
-        public async Task<DataObjectDetailsTable> GetTableAsync(IDbTransaction? transaction)
+        public async Task<DataObjectDetailsTable> GetTableAsync(string objectUid, IDbTransaction? transaction)
         {
-            var builder = SelectBuilder.Make().From(_config.TableName).Select("*").OrderBy("row_number");
+
+            DataObjectDetailsTable? table = await ExecuteStronglyTypedAsync<DataObjectDetailsTable?>(objectUid, GetTableAsync, transaction);
+
+            if (table == null)
+            {
+                table = InitEmptyTable();
+            }
+
+            return table;
+
+        }
+
+        public async Task<DataObjectDetailsTable> GetTableAsync<T>(T objectUid, IDbTransaction? transaction)
+        {
+            var builder = SelectBuilder.Make().From(_config.TableName).Select("*");
+
+            var condition = $"{ScriptGeneratorBase.WrapName(_config.TableName, _sqlDialect)}.{ScriptGeneratorBase.WrapName("object_uid", _sqlDialect)} = @object_uid";
+            builder.WhereAnd(condition)
+             .Parameter($"object_uid", objectUid);
+            builder.OrderBy("row_number");
 
             _query = builder.Query(_sqlDialect);
 
             var dynamicCollection = await _connection.QueryAsync(_query.Text, null, transaction);
 
-            var detailTable = new DataObjectDetailsTable()
-            {
-                Uid = _tableSettings.Uid,
-                Name = _tableSettings.Name,
-                Title = _tableSettings.Title,
-            };
+            var detailTable = InitEmptyTable();
 
             foreach (var dynamicItem in dynamicCollection)
             {
@@ -93,14 +76,28 @@ namespace BaSys.Host.DAL.DataProviders
 
         }
 
-        public async Task<DataObjectDetailsTable> GetTableWithDisplaysAsync(IDbTransaction? transaction)
+        public async Task<DataObjectDetailsTable> GetTableWithDisplaysAsync(string objectUid, IDbTransaction? transaction)
+        {
+
+            DataObjectDetailsTable? table = await ExecuteStronglyTypedAsync<DataObjectDetailsTable>(objectUid, GetTableWithDisplaysAsync, transaction);
+
+            if (table == null)
+            {
+                table = InitEmptyTable();
+            }
+
+            return table;
+
+        }
+
+        public async Task<DataObjectDetailsTable> GetTableWithDisplaysAsync<T>(T objectUid, IDbTransaction? transaction)
         {
 
             var joins = new Dictionary<string, bool>();
 
             var builder = SelectBuilder.Make().From(_config.TableName);
 
-            foreach(var column in _tableSettings.Columns)
+            foreach (var column in _tableSettings.Columns)
             {
                 var dataType = _dataTypesIndex.GetDataTypeSafe(column.DataTypeUid);
                 builder.Field(_config.TableName, column.Name, column.Name);
@@ -143,7 +140,7 @@ namespace BaSys.Host.DAL.DataProviders
 
                     if (!joins.ContainsKey(refTableName))
                     {
-                        var condition = new ConditionModel()
+                        var joinCondition = new ConditionModel()
                         {
                             LeftTable = _config.TableName,
                             LeftField = column.Name,
@@ -154,7 +151,7 @@ namespace BaSys.Host.DAL.DataProviders
 
                         var conditions = new List<ConditionModel>
                         {
-                            condition
+                            joinCondition
                         };
 
                         builder.Join(JoinKinds.Left, refTableName, conditions);
@@ -165,18 +162,16 @@ namespace BaSys.Host.DAL.DataProviders
                 }
             }
 
+            var condition = $"{ScriptGeneratorBase.WrapName(_config.TableName, _sqlDialect)}.{ScriptGeneratorBase.WrapName("object_uid", _sqlDialect)} = @object_uid";
+            builder.WhereAnd(condition)
+             .Parameter($"object_uid", objectUid);
             builder.OrderBy("row_number");
 
             _query = builder.Query(_sqlDialect);
 
-            var dynamicCollection = await _connection.QueryAsync(_query.Text, null, transaction);
+            var dynamicCollection = await _connection.QueryAsync(_query.Text, _query.DynamicParameters, transaction);
 
-            var detailTable = new DataObjectDetailsTable()
-            {
-                Uid = _tableSettings.Uid,
-                Name = _tableSettings.Name,
-                Title = _tableSettings.Title,
-            };
+            var detailTable = InitEmptyTable();
 
             foreach (var dynamicItem in dynamicCollection)
             {
@@ -188,15 +183,75 @@ namespace BaSys.Host.DAL.DataProviders
 
         }
 
-        private SqlDialectKinds GetDialectKind(IDbConnection connection)
+        public async Task<int> InsertAsync(string objectUid, DataObjectDetailsTable table, IDbTransaction? transaction)
         {
-            var dialectKind = SqlDialectKinds.MsSql;
-            if (connection is NpgsqlConnection)
+
+            var affectedRows = await ExecuteStronglyTypedAsync<int>(objectUid, table, InsertAsync, transaction);
+
+            return affectedRows;
+        }
+
+        public async Task<int> InsertAsync<T>(T objectUid, DataObjectDetailsTable table, IDbTransaction? transaction)
+        {
+
+            _query = InsertBuilder.Make(_config).PrimaryKeyName(_primaryKeyFieldName).FillValuesByColumnNames(true).Query(_sqlDialect);
+
+            var insertedCount = 0;
+
+            var rowNumber = 1;
+            foreach (var row in table.Rows)
             {
-                dialectKind = SqlDialectKinds.PgSql;
+                row.RowNumber = rowNumber;
+                row.ObjectUid = objectUid;
+                var result = await _connection.ExecuteAsync(_query.Text, row.Fields, transaction);
+
+                rowNumber++;
+                insertedCount += result;
             }
 
-            return dialectKind;
+            return insertedCount;
         }
+
+        public async Task<int> UpdateAsync(string objectUid, DataObjectDetailsTable table, IDbTransaction? transaction)
+        {
+
+            await DeleteTableAsync(objectUid, transaction);
+            var insertedCount = await InsertAsync(objectUid, table, transaction);
+
+            return insertedCount;
+        }
+
+        public async Task<int> DeleteTableAsync<T>(T objectUid, IDbTransaction? transaction)
+        {
+            _query = DeleteBuilder.Make()
+                .Table(_config.TableName)
+                .WhereAnd($"object_uid = @objectUid")
+                .Parameter($"objectUid", objectUid)
+                .Query(_sqlDialect);
+
+            var result = await _connection.ExecuteAsync(_query.Text, _query.DynamicParameters, transaction);
+
+            return result;
+        }
+
+        public async Task<int> DeleteTableAsync(string uid, IDbTransaction? transaction)
+        {
+            var deletedCount = await ExecuteStronglyTypedAsync<int>(uid, DeleteTableAsync, transaction);
+
+            return deletedCount;
+        }
+
+        private DataObjectDetailsTable InitEmptyTable()
+        {
+            var table = new DataObjectDetailsTable()
+            {
+                Name = _tableSettings.Name,
+                Title = _tableSettings.Title,
+                Uid = _tableSettings.Uid,
+            };
+
+            return table;
+        }
+
     }
 }

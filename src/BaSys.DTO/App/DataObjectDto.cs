@@ -10,6 +10,7 @@ namespace BaSys.DTO.App
     public sealed class DataObjectDto
     {
         public Dictionary<string, object> Header { get; set; } = new Dictionary<string, object>();
+        public List<DataObjectDetailsTableDto> DetailsTables { get; set; } = new List<DataObjectDetailsTableDto>();
 
         public DataObjectDto()
         {
@@ -30,6 +31,18 @@ namespace BaSys.DTO.App
             {
                 Header[kvp.Key] = dataObject.Header[kvp.Key];
             }
+        }
+
+        public DataObject ToObject()
+        {
+            var dataObject = new DataObject(Header);
+            foreach (var sourceTable in DetailsTables)
+            {
+                var destinationTable = sourceTable.ToObject();
+                dataObject.DetailTables.Add(destinationTable);
+            }
+
+            return dataObject;
         }
     }
 }
