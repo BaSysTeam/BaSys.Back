@@ -26,6 +26,11 @@ namespace BaSys.FluentQueries.ScriptGenerators
             var n = 1;
             foreach (var column in _model.Columns)
             {
+                if (column.Equals(_model.PrimaryKeyName, StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
                 AppendIf(", ", n > 1);
                 AppendName(column);
                 n++;

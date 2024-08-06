@@ -127,6 +127,10 @@ namespace BaSys.Host.DAL.Helpers
                     writer.StartRow();
                     foreach (DataColumn column in dataTable.Columns)
                     {
+                        if (column.ColumnName == "id")
+                        {
+                            continue;
+                        }
                         writer.Write(row[column.ColumnName]);
                     }
                 }
@@ -136,7 +140,7 @@ namespace BaSys.Host.DAL.Helpers
 
         private string BuildCopyCommand(DataTable dataTable)
         {
-            var builder = InsertBuilder.Make().Table(_tableName);
+            var builder = InsertBuilder.Make().Table(_tableName).PrimaryKeyName("id");
             foreach(DataColumn column in dataTable.Columns)
             {
                 builder.Column(column.ColumnName);
