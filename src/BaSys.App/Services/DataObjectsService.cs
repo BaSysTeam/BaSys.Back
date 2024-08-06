@@ -86,7 +86,7 @@ namespace BaSys.App.Services
             try
             {
                 var collection = await provider.GetCollectionWithDisplaysAsync(null);
-                var listDto = new DataObjectListDto(objectKindSettings, metaObjectSettings, collection);
+                var listDto = new DataObjectListDto(objectKindSettings, metaObjectSettings, collection, dataTypesIndex.ToList());
 
                 result.Success(listDto);
             }
