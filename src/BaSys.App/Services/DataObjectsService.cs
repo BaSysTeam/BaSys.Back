@@ -103,13 +103,16 @@ namespace BaSys.App.Services
         {
             var result = new ResultWrapper<DataObjectWithMetadataDto>();
 
-            var objectKindSettings = await _kindProvider.GetSettingsByNameAsync(kindName);
+            var allKinds = await _kindProvider.GetCollectionAsync(null);
+            var kind = allKinds.FirstOrDefault(x => x.Name.Equals(kindName, StringComparison.OrdinalIgnoreCase));
 
-            if (objectKindSettings == null)
+            if (kind == null)
             {
                 result.Error(-1, $"{DictMain.CannotFindMetaObjectKind}: {kindName}");
                 return result;
             }
+
+            var objectKindSettings = kind.ToSettings();
 
             var metaObjectProvider = new MetaObjectStorableProvider(_connection, objectKindSettings.Name);
             var metaObject = await metaObjectProvider.GetItemByNameAsync(objectName, null);
@@ -122,12 +125,24 @@ namespace BaSys.App.Services
 
             var metaObjectSettings = metaObject.ToSettings();
             var dataTypesIndex = await _dataTypesService.GetIndexAsync();
-            var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, dataTypesIndex);
+
+            var allMetaObjects = new List<MetaObjectStorable>();
+
+            foreach (var item in allKinds)
+            {
+                metaObjectProvider = new MetaObjectStorableProvider(_connection, item.Name);
+                var metaObjects = await metaObjectProvider.GetCollectionAsync(null);
+
+                allMetaObjects.AddRange(metaObjects);
+            }
+
+            // var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, dataTypesIndex);
+            var provider = new DataObjectListProvider(_connection, objectKindSettings, metaObjectSettings, allKinds, allMetaObjects, dataTypesIndex);
 
 
             try
             {
-                var item = await provider.GetItemAsync(uid, null);
+                var item = await provider.GetItemWithDisplaysAsync(uid, null);
 
                 DataObjectWithMetadataDto dto;
                 if (item != null)
@@ -146,8 +161,6 @@ namespace BaSys.App.Services
             {
                 result.Error(-1, $"Cannot get item.", $"Message: {ex.Message}, query: {provider.LastQuery}");
             }
-
-
 
             return result;
         }
