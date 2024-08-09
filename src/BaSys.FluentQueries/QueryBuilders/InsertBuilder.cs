@@ -95,6 +95,24 @@ namespace BaSys.FluentQueries.QueryBuilders
 
         }
 
+        public IQuery BulkCopyQuery(SqlDialectKinds dbKind)
+        {
+            _model.Validate();
+
+            IQuery query = null;
+            if (dbKind == SqlDialectKinds.PgSql)
+            {
+                var scriptGenerator = new BulkCopyPgSqlScriptGenerator(_model, dbKind);
+                query = scriptGenerator.Build();
+            }
+            else
+            {
+                throw new NotImplementedException($"COPY command not implemented for DbKind {dbKind}.");
+            }
+
+            return query;
+        }
+
         public static InsertBuilder Make()
         {
             return new InsertBuilder();

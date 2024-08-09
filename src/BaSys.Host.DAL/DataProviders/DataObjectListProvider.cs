@@ -12,7 +12,7 @@ using System.Data;
 
 namespace BaSys.Host.DAL.DataProviders
 {
-    public sealed class DataObjectListProvider: DataObjectProviderBase
+    public sealed class DataObjectListProvider : DataObjectProviderBase
     {
         private readonly DataObjectConfiguration _config;
         private readonly IEnumerable<MetaObjectKind> _allKinds;
@@ -23,7 +23,7 @@ namespace BaSys.Host.DAL.DataProviders
             MetaObjectStorableSettings objectSettings,
             IEnumerable<MetaObjectKind> allKinds,
             IEnumerable<MetaObjectStorable> allMetaObjects,
-            IDataTypesIndex dataTypesIndex): base(connection, kindSettings, objectSettings, dataTypesIndex)
+            IDataTypesIndex dataTypesIndex) : base(connection, kindSettings, objectSettings, dataTypesIndex)
         {
             _config = new DataObjectConfiguration(kindSettings,
                 objectSettings,
@@ -35,7 +35,54 @@ namespace BaSys.Host.DAL.DataProviders
 
         public async Task<List<DataObject>> GetCollectionWithDisplaysAsync(IDbTransaction? transaction)
         {
+            var builder = BuildQueryWithDisplays();
 
+            _query = builder.Query(_sqlDialect);
+
+            var dynamicCollection = await _connection.QueryAsync(_query.Text, null, transaction);
+
+            var collection = new List<DataObject>();
+
+            foreach (var dynamicItem in dynamicCollection)
+            {
+                var item = new DataObject((IDictionary<string, object>)dynamicItem);
+                collection.Add(item);
+            }
+
+            return collection;
+        }
+
+        public async Task<DataObject?> GetItemWithDisplaysAsync(string uid, IDbTransaction? transaction)
+        {
+
+            DataObject? item = await ExecuteStronglyTypedAsync(uid, GetItemWithDisplaysAsync, transaction);
+
+            return item;
+
+        }
+
+        public async Task<DataObject?> GetItemWithDisplaysAsync<T>(T uid, IDbTransaction? transaction)
+        {
+            _query = BuildQueryWithDisplays()
+                .WhereAnd($"{_config.TableName}.{_primaryKeyFieldName} = @{_primaryKeyFieldName}")
+                .Parameter($"{_primaryKeyFieldName}", uid)
+                .Query(_sqlDialect);
+
+            var dynamicItem = await _connection.QueryFirstOrDefaultAsync(_query.Text, _query.DynamicParameters, transaction);
+
+            if (dynamicItem != null)
+            {
+                var item = new DataObject((IDictionary<string, object>)dynamicItem);
+                return item;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        private SelectBuilder BuildQueryWithDisplays()
+        {
             var joins = new Dictionary<string, bool>();
 
             var builder = SelectBuilder.Make().From(_config.TableName);
@@ -113,19 +160,7 @@ namespace BaSys.Host.DAL.DataProviders
                 builder.OrderBy(orderByExpression);
             }
 
-            _query = builder.Query(_sqlDialect);
-
-            var dynamicCollection = await _connection.QueryAsync(_query.Text, null, transaction);
-
-            var collection = new List<DataObject>();
-
-            foreach (var dynamicItem in dynamicCollection)
-            {
-                var item = new DataObject((IDictionary<string, object>)dynamicItem);
-                collection.Add(item);
-            }
-
-            return collection;
+            return builder;
         }
     }
 }

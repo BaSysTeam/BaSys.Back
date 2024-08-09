@@ -4,12 +4,14 @@ using BaSys.FluentQueries.Models;
 using BaSys.FluentQueries.QueryBuilders;
 using BaSys.FluentQueries.ScriptGenerators;
 using BaSys.Host.DAL.Abstractions;
+using BaSys.Host.DAL.Helpers;
 using BaSys.Host.DAL.ModelConfigurations;
 using BaSys.Metadata.Abstractions;
 using BaSys.Metadata.Helpers;
 using BaSys.Metadata.Models;
 using Dapper;
 using System.Data;
+using System.Diagnostics;
 
 namespace BaSys.Host.DAL.DataProviders
 {
@@ -193,19 +195,43 @@ namespace BaSys.Host.DAL.DataProviders
 
         public async Task<int> InsertAsync<T>(T objectUid, DataObjectDetailsTable table, IDbTransaction? transaction)
         {
-
-            _query = InsertBuilder.Make(_config).PrimaryKeyName(_primaryKeyFieldName).FillValuesByColumnNames(true).Query(_sqlDialect);
-
             var insertedCount = 0;
 
-            var rowNumber = 1;
-            foreach (var row in table.Rows)
+            if (_sqlDialect == SqlDialectKinds.PgSql)
             {
-                row.RowNumber = rowNumber;
-                row.ObjectUid = objectUid;
-                var result = await _connection.ExecuteAsync(_query.Text, row.Fields, transaction);
+                var rowNumber = 1;
+                foreach (var row in table.Rows)
+                {
+                    row.RowNumber = rowNumber;
+                    row.ObjectUid = objectUid;
 
-                rowNumber++;
+                    rowNumber++;
+                    insertedCount += 1;
+                }
+
+                var bulkInsertHelper = new BulkInsertHelper(_connection, _sqlDialect, _tableSettings, _config.TableName, _dataTypesIndex);
+                bulkInsertHelper.Execute(table);
+            }
+            else
+            {
+                // TODO: Delete after implement Bulk insert for MS SQL.
+                _query = InsertBuilder.Make(_config).PrimaryKeyName(_primaryKeyFieldName).FillValuesByColumnNames(true).Query(_sqlDialect);
+
+                 insertedCount = 0;
+
+                var data = new List<Dictionary<string, object>>();
+                var rowNumber = 1;
+                foreach (var row in table.Rows)
+                {
+                    row.RowNumber = rowNumber;
+                    row.ObjectUid = objectUid;
+
+                    data.Add(row.Fields);
+                    rowNumber++;
+
+                }
+
+                var result = await _connection.ExecuteAsync(_query.Text, data, transaction);
                 insertedCount += result;
             }
 
