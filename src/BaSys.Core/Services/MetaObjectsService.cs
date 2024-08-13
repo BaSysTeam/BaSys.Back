@@ -9,7 +9,7 @@ using BaSys.Host.DAL.TableManagers;
 using BaSys.Logging.Abstractions.Abstractions;
 using BaSys.Logging.EventTypes;
 using BaSys.Metadata.Abstractions;
-using BaSys.Metadata.DTOs;
+using BaSys.DTO.Metadata;
 using BaSys.Metadata.Helpers;
 using BaSys.Metadata.Models;
 using BaSys.Metadata.Validators;
