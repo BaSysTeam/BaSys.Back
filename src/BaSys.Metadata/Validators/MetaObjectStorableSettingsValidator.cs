@@ -34,7 +34,7 @@ namespace BaSys.Metadata.Validators
                        var previousColumn = previousColumns.FirstOrDefault(pc => pc.Uid == column.Uid);
                        if (previousColumn != null)
                        {
-                           if (!column.Equals(previousColumn))
+                           if (!column.Equals(previousColumn) && column.IsStandard)
                            {
                                context.AddFailure($"Stadard Column '{column.Name}' cannot be changed.");
                            }
