@@ -10,15 +10,17 @@ namespace BaSys.Metadata.Models
     [MessagePackObject(keyAsPropertyName: true)]
     public sealed class MetaObjectTableColumnRenderSettings
     {
-        // Have to be equal uid of MetaObjectTableColumn.
-        public Guid Uid { get; set; }
-        public Guid ControlKindUid { get; set; }
+     
+        public string ControlKindUid { get; set; }
+        public bool Readonly { get; set; }
+        public bool Hidden { get; set; }
 
         public MetaObjectTableColumnRenderSettings Clone()
         {
             var clone = new MetaObjectTableColumnRenderSettings();
-            clone.Uid = Uid;
             clone.ControlKindUid = ControlKindUid;
+            clone.Readonly = Readonly;
+            clone.Hidden = Hidden;
             return clone;
         }
     }

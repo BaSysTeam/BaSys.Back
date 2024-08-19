@@ -19,6 +19,7 @@ namespace BaSys.Metadata.Models
         public bool PrimaryKey { get; set; }
         public bool Required { get; set; }
         public bool Unique { get; set; }
+        public MetaObjectTableColumnRenderSettings RenderSettings { get; set; } = new MetaObjectTableColumnRenderSettings();
         public bool IsStandard { get; set; }
 
         public bool Equals(MetaObjectTableColumn other)
@@ -63,6 +64,8 @@ namespace BaSys.Metadata.Models
             clone.PrimaryKey = PrimaryKey;
             clone.Unique = Unique;
             clone.IsStandard = IsStandard;
+
+            clone.RenderSettings = RenderSettings.Clone();
             return clone;
         }
     }

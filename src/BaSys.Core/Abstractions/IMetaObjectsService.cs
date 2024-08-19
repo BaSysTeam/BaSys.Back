@@ -1,5 +1,5 @@
 ﻿using BaSys.Common.Infrastructure;
-using BaSys.Metadata.DTOs;
+using BaSys.DTO.Metadata;
 
 namespace BaSys.Core.Abstractions;
 

@@ -16,7 +16,6 @@ namespace BaSys.Metadata.Models
         public string Name { get; set; }
         public string Memo { get; set; }
         public List<MetaObjectTableColumn> Columns { get; set; } = new List<MetaObjectTableColumn>();
-        public List<MetaObjectTableColumnRenderSettings> ColumnRenderSettings { get; set; } = new List<MetaObjectTableColumnRenderSettings>();
 
         [IgnoreMember]
         public MetaObjectTableColumn PrimaryKey => Columns.FirstOrDefault(x => x.PrimaryKey);
@@ -34,10 +33,6 @@ namespace BaSys.Metadata.Models
                 clone.Columns.Add(source.Clone());
             }
 
-            foreach(var source in ColumnRenderSettings)
-            {
-                clone.ColumnRenderSettings.Add(source.Clone());
-            }
 
             return clone;
         }

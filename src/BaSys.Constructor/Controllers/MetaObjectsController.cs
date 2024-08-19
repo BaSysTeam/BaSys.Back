@@ -1,7 +1,7 @@
 ﻿using BaSys.Common.Infrastructure;
 using BaSys.Constructor.Abstractions;
 using BaSys.Core.Abstractions;
-using BaSys.Metadata.DTOs;
+using BaSys.DTO.Metadata;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
