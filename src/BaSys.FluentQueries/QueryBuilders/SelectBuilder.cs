@@ -29,6 +29,30 @@ namespace BaSys.FluentQueries.QueryBuilders
             return this;
         }
 
+        public SelectBuilder Field(string field)
+        {
+            var newField = new SelectFieldModel(string.Empty, field, string.Empty);
+            _model.AddField(newField);
+
+            return this;
+        }
+
+        public SelectBuilder Field(string field, string alias)
+        {
+            var newField = new SelectFieldModel(string.Empty, field, alias);
+            _model.AddField(newField);
+
+            return this;
+        }
+
+        public SelectBuilder Field(string tableName, string field, string alias)
+        {
+            var newField = new SelectFieldModel(tableName, field, alias);
+            _model.AddField(newField);
+
+            return this;
+        }
+
         public SelectBuilder Top(int top)
         {
             _model.Top = top;
@@ -52,6 +76,12 @@ namespace BaSys.FluentQueries.QueryBuilders
         {
             _model.WhereAnd(whereExpression);
 
+            return this;
+        }
+
+        public SelectBuilder Join(JoinKinds joinKind, string tableName, IEnumerable<ConditionModel> conditions)
+        {
+            _model.AddJoin(joinKind, tableName, conditions);
             return this;
         }
 

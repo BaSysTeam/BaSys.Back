@@ -11,6 +11,7 @@ using BaSys.Metadata.Helpers;
 using BaSys.Metadata.Models;
 using BaSys.Translation;
 using Humanizer;
+using MongoDB.Bson;
 using System.Data;
 using System.Security.AccessControl;
 using System.Text.Json;
@@ -46,13 +47,16 @@ namespace BaSys.App.Services
         {
             var result = new ResultWrapper<DataObjectListDto>();
 
-            var objectKindSettings = await _kindProvider.GetSettingsByNameAsync(kindName);
+            var allKinds = await _kindProvider.GetCollectionAsync(null);
+            var kind = allKinds.FirstOrDefault(x => x.Name.Equals(kindName, StringComparison.OrdinalIgnoreCase));
 
-            if (objectKindSettings == null)
+            if (kind == null)
             {
                 result.Error(-1, $"{DictMain.CannotFindMetaObjectKind}: {kindName}");
                 return result;
             }
+
+            var objectKindSettings = kind.ToSettings();
 
             var metaObjectProvider = new MetaObjectStorableProvider(_connection, objectKindSettings.Name);
             var metaObject = await metaObjectProvider.GetItemByNameAsync(objectName, null);
@@ -65,13 +69,24 @@ namespace BaSys.App.Services
 
             var metaObjectSettings = metaObject.ToSettings();
             var dataTypesIndex = await _dataTypesService.GetIndexAsync();
-            var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, dataTypesIndex);
+
+            var allMetaObjects = new List<MetaObjectStorable>();
+
+            foreach (var item in allKinds)
+            {
+                metaObjectProvider = new MetaObjectStorableProvider(_connection, item.Name);
+                var metaObjects = await metaObjectProvider.GetCollectionAsync(null);
+
+                allMetaObjects.AddRange(metaObjects);
+            }
+
+            var provider = new DataObjectListProvider(_connection, objectKindSettings, metaObjectSettings, allKinds, allMetaObjects, dataTypesIndex);
 
 
             try
             {
-                var collection = await provider.GetCollectionAsync(null);
-                var listDto = new DataObjectListDto(objectKindSettings, metaObjectSettings, collection);
+                var collection = await provider.GetCollectionWithDisplaysAsync(null);
+                var listDto = new DataObjectListDto(objectKindSettings, metaObjectSettings, collection, dataTypesIndex.ToList());
 
                 result.Success(listDto);
             }
@@ -88,13 +103,16 @@ namespace BaSys.App.Services
         {
             var result = new ResultWrapper<DataObjectWithMetadataDto>();
 
-            var objectKindSettings = await _kindProvider.GetSettingsByNameAsync(kindName);
+            var allKinds = await _kindProvider.GetCollectionAsync(null);
+            var kind = allKinds.FirstOrDefault(x => x.Name.Equals(kindName, StringComparison.OrdinalIgnoreCase));
 
-            if (objectKindSettings == null)
+            if (kind == null)
             {
                 result.Error(-1, $"{DictMain.CannotFindMetaObjectKind}: {kindName}");
                 return result;
             }
+
+            var objectKindSettings = kind.ToSettings();
 
             var metaObjectProvider = new MetaObjectStorableProvider(_connection, objectKindSettings.Name);
             var metaObject = await metaObjectProvider.GetItemByNameAsync(objectName, null);
@@ -107,12 +125,24 @@ namespace BaSys.App.Services
 
             var metaObjectSettings = metaObject.ToSettings();
             var dataTypesIndex = await _dataTypesService.GetIndexAsync();
-            var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, dataTypesIndex);
+
+            var allMetaObjects = new List<MetaObjectStorable>();
+
+            foreach (var item in allKinds)
+            {
+                metaObjectProvider = new MetaObjectStorableProvider(_connection, item.Name);
+                var metaObjects = await metaObjectProvider.GetCollectionAsync(null);
+
+                allMetaObjects.AddRange(metaObjects);
+            }
+
+            // var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, dataTypesIndex);
+            var provider = new DataObjectListProvider(_connection, objectKindSettings, metaObjectSettings, allKinds, allMetaObjects, dataTypesIndex);
 
 
             try
             {
-                var item = await provider.GetItemAsync(uid, null);
+                var item = await provider.GetItemWithDisplaysAsync(uid, null);
 
                 DataObjectWithMetadataDto dto;
                 if (item != null)
@@ -123,7 +153,7 @@ namespace BaSys.App.Services
                 {
                     dto = new DataObjectWithMetadataDto(objectKindSettings, metaObjectSettings, new DataObject(metaObjectSettings, dataTypesIndex));
                 }
-                dto.DataTypes =  (await _dataTypesService.GetAllDataTypesAsync()).Select(x=>new DTO.Core.DataTypeDto(x)).ToList();
+                dto.DataTypes = (await _dataTypesService.GetAllDataTypesAsync()).Select(x => new DTO.Core.DataTypeDto(x)).ToList();
                 result.Success(dto);
 
             }
@@ -132,124 +162,23 @@ namespace BaSys.App.Services
                 result.Error(-1, $"Cannot get item.", $"Message: {ex.Message}, query: {provider.LastQuery}");
             }
 
-          
-
             return result;
         }
 
-        public async Task<ResultWrapper<string>> InsertAsync(DataObjectSaveDto dto)
+        public async Task<ResultWrapper<DataObjectDetailsTableDto>> GetDetailsTableAsync(string kindName, string objectName, string uid, string tableName)
         {
-            var result = new ResultWrapper<string>();
+            var result = new ResultWrapper<DataObjectDetailsTableDto>();
 
-            var objectKindSettings = await _kindProvider.GetSettingsAsync(dto.MetaObjectKindUid);
+            var allKinds = await _kindProvider.GetCollectionAsync(null);
+            var kind = allKinds.FirstOrDefault(x => x.Name.Equals(kindName, StringComparison.OrdinalIgnoreCase));
 
-            if (objectKindSettings == null)
-            {
-                result.Error(-1, $"{DictMain.CannotFindMetaObjectKind}", $"MetaObjectKindUid: {dto.MetaObjectKindUid}");
-                return result;
-            }
-
-            var metaObjectProvider = new MetaObjectStorableProvider(_connection, objectKindSettings.Name);
-            var metaObject = await metaObjectProvider.GetItemAsync(dto.MetaObjectUid, null);
-
-            if (metaObject == null)
-            {
-                result.Error(-1, $"{DictMain.CannotFindMetaObject}", $"MetaObjectUid: {dto.MetaObjectUid}");
-                return result;
-            }
-
-            var metaObjectSettings = metaObject.ToSettings();
-            var dataTypesIndex = await _dataTypesService.GetIndexAsync();
-
-            // Parse header.
-            dto.Item.Header = DataObjectParser.ParseHeader(dto.Item.Header, metaObjectSettings, dataTypesIndex);
-
-            var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, dataTypesIndex);
-
-            var newObject = new DataObject(dto.Item.Header);
-
-            try
-            {
-                var insertedUid = await provider.InsertAsync(newObject, null);
-
-                result.Success(insertedUid, DictMain.ItemSaved);
-            }
-            catch (Exception ex)
-            {
-                result.Error(-1, $"{DictMain.CannotCreateItem}", $"Message: {ex.Message}, Query: {provider.LastQuery}");
-            }
-
-            return result;
-        }
-
-        public async Task<ResultWrapper<int>> UpdateAsync(DataObjectSaveDto dto)
-        {
-            var result = new ResultWrapper<int>();
-
-            var objectKindSettings = await _kindProvider.GetSettingsAsync(dto.MetaObjectKindUid);
-
-            if (objectKindSettings == null)
-            {
-                result.Error(-1, $"{DictMain.CannotFindMetaObjectKind}", $"MetaObjectKindUid: {dto.MetaObjectKindUid}");
-                return result;
-            }
-
-            var metaObjectProvider = new MetaObjectStorableProvider(_connection, objectKindSettings.Name);
-            var metaObject = await metaObjectProvider.GetItemAsync(dto.MetaObjectUid, null);
-
-            if (metaObject == null)
-            {
-                result.Error(-1, $"{DictMain.CannotFindMetaObject}", $"MetaObjectUid: {dto.MetaObjectUid}");
-                return result;
-            }
-
-            var metaObjectSettings = metaObject.ToSettings();
-            var dataTypesIndex = await _dataTypesService.GetIndexAsync();
-
-            // Parse header.
-            dto.Item.Header = DataObjectParser.ParseHeader(dto.Item.Header, metaObjectSettings, dataTypesIndex);
-
-            var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, dataTypesIndex);
-
-            var newItem = new DataObject(dto.Item.Header);
-
-            var uid = dto.Item.Header[metaObjectSettings.Header.PrimaryKey.Name];
-            var savedItem = await provider.GetItemAsync(uid?.ToString() ?? string.Empty, null);
-
-            if (savedItem == null)
-            {
-                result.Error(-1, $"Cannot find item: {uid}");
-                return result;  
-            }
-
-            savedItem.CopyFrom(newItem);
-
-            try
-            {
-                var insertResult = await provider.UpdateAsync(savedItem, null);
-
-                result.Success(insertResult, DictMain.ItemSaved);
-            }
-            catch (Exception ex)
-            {
-                result.Error(-1, $"{DictMain.CannotUpdateItem}", $"Message: {ex.Message}, Query: {provider.LastQuery}");
-            }
-
-            return result;
-        }
-
-        public async Task<ResultWrapper<int>> DeleteItemAsync(string kindName, string objectName, string uid)
-        {
-            var result = new ResultWrapper<int>();
-
-            var objectKindSettings = await _kindProvider.GetSettingsByNameAsync(kindName);
-
-            if (objectKindSettings == null)
+            if (kind == null)
             {
                 result.Error(-1, $"{DictMain.CannotFindMetaObjectKind}: {kindName}");
                 return result;
             }
 
+            var objectKindSettings = kind.ToSettings();
             var metaObjectProvider = new MetaObjectStorableProvider(_connection, objectKindSettings.Name);
             var metaObject = await metaObjectProvider.GetItemByNameAsync(objectName, null);
 
@@ -261,20 +190,304 @@ namespace BaSys.App.Services
 
             var metaObjectSettings = metaObject.ToSettings();
 
-            var primitiveDataTypes = new PrimitiveDataTypes();
+            var detailTableSettings = metaObjectSettings.DetailTables.FirstOrDefault(x => x.Name.Equals(tableName, StringComparison.InvariantCultureIgnoreCase));
+
+            if (detailTableSettings == null)
+            {
+                result.Error(-1, $"Cannot find detail table: {kindName}.{objectName}.details.{tableName}");
+                return result;
+            }
+
             var dataTypesIndex = await _dataTypesService.GetIndexAsync();
-            var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, dataTypesIndex);
 
-            int deletedCount = await provider.DeleteAsync(uid, null);
+            var allMetaObjects = new List<MetaObjectStorable>();
 
-            if (deletedCount > 0)
+            foreach (var item in allKinds)
             {
-                result.Success(deletedCount, DictMain.ItemDeleted);
+                metaObjectProvider = new MetaObjectStorableProvider(_connection, item.Name);
+                var metaObjects = await metaObjectProvider.GetCollectionAsync(null);
+
+                allMetaObjects.AddRange(metaObjects);
             }
-            else if (deletedCount == 0)
+
+            var provider = new DataObjectDetailsTableProvider(_connection,
+                objectKindSettings,
+                metaObjectSettings,
+                detailTableSettings,
+                allKinds,
+                allMetaObjects,
+                dataTypesIndex);
+
+            try
             {
-                result.Error(-1, $"{DictMain.CannotFindItem} {kindName}.{objectName}:{uid}");
+                var table = await provider.GetTableWithDisplaysAsync(uid, null);
+                var tableDto = new DataObjectDetailsTableDto(table);
+                result.Success(tableDto);
             }
+            catch (Exception ex)
+            {
+                result.Error(-1, $"Cannot get table.", $"Message: {ex.Message}, Query: {provider.LastQuery}");
+            }
+
+            return result;
+        }
+
+        public async Task<ResultWrapper<string>> InsertAsync(DataObjectSaveDto dto)
+        {
+            var result = new ResultWrapper<string>();
+
+            _connection.Open();
+            using (IDbTransaction transaction = _connection.BeginTransaction())
+            {
+                var allKinds = await _kindProvider.GetCollectionAsync(transaction);
+                var kind = allKinds.FirstOrDefault(x => x.Uid == dto.MetaObjectKindUid);
+
+                if (kind == null)
+                {
+                    result.Error(-1, $"{DictMain.CannotFindMetaObjectKind}", $"MetaObjectKindUid: {dto.MetaObjectKindUid}");
+                    transaction.Rollback();
+                    return result;
+                }
+
+                var objectKindSettings = kind.ToSettings();
+                var metaObjectProvider = new MetaObjectStorableProvider(_connection, objectKindSettings.Name);
+                var metaObject = await metaObjectProvider.GetItemAsync(dto.MetaObjectUid, transaction);
+
+                if (metaObject == null)
+                {
+                    result.Error(-1, $"{DictMain.CannotFindMetaObject}", $"MetaObjectUid: {dto.MetaObjectUid}");
+                    transaction.Rollback();
+                    return result;
+                }
+
+                var metaObjectSettings = metaObject.ToSettings();
+                var dataTypesIndex = await _dataTypesService.GetIndexAsync();
+                var allMetaObjects = new List<MetaObjectStorable>();
+
+                foreach (var item in allKinds)
+                {
+                    metaObjectProvider = new MetaObjectStorableProvider(_connection, item.Name);
+                    var metaObjects = await metaObjectProvider.GetCollectionAsync(transaction);
+
+                    allMetaObjects.AddRange(metaObjects);
+                }
+
+
+                // Parse header.
+                var parsedDto = DataObjectParser.Parse(dto.Item, metaObjectSettings, dataTypesIndex);
+                var newObject = parsedDto.ToObject();
+
+                var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, dataTypesIndex);
+
+                try
+                {
+                    var insertedUid = await provider.InsertAsync(newObject, transaction);
+                    foreach (var table in newObject.DetailTables)
+                    {
+                        var tableSettings = metaObjectSettings.DetailTables.FirstOrDefault(x => x.Uid == table.Uid);
+                        if (tableSettings == null)
+                        {
+                            continue;
+                        }
+                        var tableProvider = new DataObjectDetailsTableProvider(_connection,
+                            objectKindSettings,
+                            metaObjectSettings,
+                            tableSettings,
+                            allKinds,
+                            allMetaObjects,
+                            dataTypesIndex);
+
+                        await tableProvider.InsertAsync(insertedUid, table, transaction);
+                    }
+
+                    transaction.Commit();
+                    result.Success(insertedUid, DictMain.ItemSaved);
+                }
+                catch (Exception ex)
+                {
+                    result.Error(-1, $"{DictMain.CannotCreateItem}", $"Message: {ex.Message}, Query: {provider.LastQuery}");
+                }
+            }
+            return result;
+        }
+
+        public async Task<ResultWrapper<int>> UpdateAsync(DataObjectSaveDto dto)
+        {
+            var result = new ResultWrapper<int>();
+
+            _connection.Open();
+            using (IDbTransaction transaction = _connection.BeginTransaction())
+            {
+
+                var allKinds = await _kindProvider.GetCollectionAsync(transaction);
+                var kind = allKinds.FirstOrDefault(x => x.Uid == dto.MetaObjectKindUid);
+
+                if (kind == null)
+                {
+                    transaction.Rollback();
+                    result.Error(-1, $"{DictMain.CannotFindMetaObjectKind}", $"MetaObjectKindUid: {dto.MetaObjectKindUid}");
+                    return result;
+                }
+                var objectKindSettings = kind.ToSettings();
+
+                var metaObjectProvider = new MetaObjectStorableProvider(_connection, objectKindSettings.Name);
+                var metaObject = await metaObjectProvider.GetItemAsync(dto.MetaObjectUid, transaction);
+
+                if (metaObject == null)
+                {
+                    result.Error(-1, $"{DictMain.CannotFindMetaObject}", $"MetaObjectUid: {dto.MetaObjectUid}");
+                    return result;
+                }
+
+                var metaObjectSettings = metaObject.ToSettings();
+                var dataTypesIndex = await _dataTypesService.GetIndexAsync();
+                var allMetaObjects = new List<MetaObjectStorable>();
+
+                foreach (var item in allKinds)
+                {
+                    metaObjectProvider = new MetaObjectStorableProvider(_connection, item.Name);
+                    var metaObjects = await metaObjectProvider.GetCollectionAsync(transaction);
+
+                    allMetaObjects.AddRange(metaObjects);
+                }
+
+                // Parse header.
+                var parsedDto = DataObjectParser.Parse(dto.Item, metaObjectSettings, dataTypesIndex);
+                var newItem = parsedDto.ToObject();
+
+                var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, dataTypesIndex);
+
+                var uid = dto.Item.Header[metaObjectSettings.Header.PrimaryKey.Name];
+                var objectUid = uid?.ToString() ?? string.Empty;
+                var savedItem = await provider.GetItemAsync(objectUid, transaction);
+
+                if (savedItem == null)
+                {
+                    transaction.Rollback();
+                    result.Error(-1, $"Cannot find item: {uid}");
+                    return result;
+                }
+
+                savedItem.CopyFrom(newItem);
+
+                try
+                {
+                    var updateResult = await provider.UpdateAsync(savedItem, transaction);
+                    foreach (var table in savedItem.DetailTables)
+                    {
+                        var tableSettings = metaObjectSettings.DetailTables.FirstOrDefault(x => x.Uid == table.Uid);
+                        if (tableSettings == null)
+                        {
+                            continue;
+                        }
+                        var tableProvider = new DataObjectDetailsTableProvider(_connection,
+                            objectKindSettings,
+                            metaObjectSettings,
+                            tableSettings,
+                            allKinds,
+                            allMetaObjects,
+                            dataTypesIndex);
+
+                        await tableProvider.UpdateAsync(objectUid, table, transaction);
+                    }
+
+                    transaction.Commit();
+                    result.Success(updateResult, DictMain.ItemSaved);
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    result.Error(-1, $"{DictMain.CannotUpdateItem}", $"Message: {ex.Message}, Query: {provider.LastQuery}");
+                }
+            }
+
+            return result;
+        }
+
+        public async Task<ResultWrapper<int>> DeleteItemAsync(string kindName, string objectName, string uid)
+        {
+            var result = new ResultWrapper<int>();
+
+            _connection.Open();
+            using (IDbTransaction transaction = _connection.BeginTransaction())
+            {
+
+                var allKinds = await _kindProvider.GetCollectionAsync(transaction);
+                var kind = allKinds.FirstOrDefault(x => x.Name.Equals(kindName, StringComparison.InvariantCultureIgnoreCase));
+
+                if (kind == null)
+                {
+                    transaction.Rollback();
+                    result.Error(-1, $"{DictMain.CannotFindMetaObjectKind}: {kindName}");
+                    return result;
+                }
+
+                var objectKindSettings = kind.ToSettings();
+
+
+                var metaObjectProvider = new MetaObjectStorableProvider(_connection, objectKindSettings.Name);
+                var metaObject = await metaObjectProvider.GetItemByNameAsync(objectName, transaction);
+
+                if (metaObject == null)
+                {
+                    transaction.Rollback();
+                    result.Error(-1, $"{DictMain.CannotFindMetaObject}: {kindName}.{objectName}");
+                    return result;
+                }
+
+                var metaObjectSettings = metaObject.ToSettings();
+
+                var allMetaObjects = new List<MetaObjectStorable>();
+
+                foreach (var item in allKinds)
+                {
+                    metaObjectProvider = new MetaObjectStorableProvider(_connection, item.Name);
+                    var metaObjects = await metaObjectProvider.GetCollectionAsync(transaction);
+
+                    allMetaObjects.AddRange(metaObjects);
+                }
+
+                var dataTypesIndex = await _dataTypesService.GetIndexAsync();
+                var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, dataTypesIndex);
+
+                int deletedCount = 0;
+                try
+                {
+                    deletedCount = await provider.DeleteAsync(uid, transaction);
+                    foreach (var tableSettings in metaObjectSettings.DetailTables)
+                    {
+
+                        var tableProvider = new DataObjectDetailsTableProvider(_connection,
+                            objectKindSettings,
+                            metaObjectSettings,
+                            tableSettings,
+                            allKinds,
+                            allMetaObjects,
+                            dataTypesIndex);
+
+                        await tableProvider.DeleteTableAsync(uid, transaction);
+                    }
+
+                    transaction.Commit();
+                }
+                catch(Exception ex)
+                {
+                    transaction.Rollback();
+                    result.Error(-1, $"Cannot delete item {kindName}.{objectName}:{uid}", ex.Message);
+                    return result;
+                }
+             
+
+                if (deletedCount > 0)
+                {
+                    result.Success(deletedCount, DictMain.ItemDeleted);
+                }
+                else if (deletedCount == 0)
+                {
+                    result.Error(-1, $"{DictMain.CannotFindItem} {kindName}.{objectName}:{uid}");
+                }
+            }
+         
 
             return result;
         }
@@ -301,7 +514,6 @@ namespace BaSys.App.Services
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
-
 
     }
 }

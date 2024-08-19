@@ -59,6 +59,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Update="wwwroot\app\app\favicon-16x16.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\app\app\favicon-32x32.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\app\app\favicon.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Update="wwwroot\app\super_admin\img\primeicons.943ab24c.svg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

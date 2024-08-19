@@ -15,6 +15,9 @@ namespace BaSys.Metadata.Models
         public string Name { get; set; } = string.Empty;
         public string Memo { get; set; } = string.Empty;
         public EditMethods EditMethod { get; set; } = EditMethods.Page;
+        public string OrderByExpression { get; set; } = string.Empty;
+        public string DisplayExpression { get; set; } = string.Empty;
+
         public long Version { get; set; }
         public bool IsActive { get; set; }
 
@@ -25,13 +28,13 @@ namespace BaSys.Metadata.Models
             {
                 var tables = new List<MetaObjectTable>();
                 tables.Add(Header);
-                tables.AddRange(TableParts);
+                tables.AddRange(DetailTables);
 
                 return tables;
             }
         }
         public MetaObjectTable Header { get; set; } = new MetaObjectTable();
-        public List<MetaObjectTable> TableParts { get; set; } = new();
+        public List<MetaObjectTable> DetailTables { get; set; } = new();
 
         [SerializationConstructor]
         public MetaObjectStorableSettings()
@@ -95,9 +98,60 @@ namespace BaSys.Metadata.Models
             Title = source.Title;
             Name = source.Name;
             Memo = source.Memo;
+            OrderByExpression = source.OrderByExpression;
+            DisplayExpression = source.DisplayExpression;
             IsActive = source.IsActive;
             Header = source.Header;
-            TableParts = source.TableParts;
+            DetailTables = source.DetailTables;
+        }
+
+        public MetaObjectStorableSettings Clone()
+        {
+            var clone = new MetaObjectStorableSettings();
+            clone.Uid = Uid;
+            clone.EditMethod = EditMethod;
+            clone.Title = Title;
+            clone.Name = Name;
+            clone.Memo = Memo;
+            clone.OrderByExpression = OrderByExpression;
+            clone.DisplayExpression = DisplayExpression;
+            clone.IsActive = IsActive;
+
+            clone.Header = Header.Clone();
+
+            foreach (var item in DetailTables) { 
+                clone.DetailTables.Add(item.Clone());
+            }
+
+            return clone;
+        }
+
+        public string GetOrderByExpression(string defaultExpression)
+        {
+            if (string.IsNullOrWhiteSpace(OrderByExpression))
+            {
+                return defaultExpression;
+            }
+            else
+            {
+                return OrderByExpression;
+            }
+        }
+
+        public string GetDisplayExpression(string defaultExpression, string pkName)
+        {
+            var result = defaultExpression;
+            if (!string.IsNullOrWhiteSpace(DisplayExpression))
+            {
+                result = DisplayExpression;
+            }
+
+            if (string.IsNullOrWhiteSpace(result))
+            {
+                result = pkName;
+            }
+
+            return result;
         }
 
         public override string ToString()

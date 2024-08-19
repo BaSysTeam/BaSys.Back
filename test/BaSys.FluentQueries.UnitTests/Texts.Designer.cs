@@ -119,6 +119,24 @@ namespace BaSys.FluentQueries.UnitTests {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to CONCAT([tableName].[code], &apos; - &apos;, [tableName].[title]) AS text.
+        /// </summary>
+        internal static string DisplayCodeAndTitleMsSql {
+            get {
+                return ResourceManager.GetString("DisplayCodeAndTitleMsSql", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CONCAT(&quot;tableName&quot;.&quot;code&quot;, &apos; - &apos;, &quot;tableName&quot;.&quot;title&quot;) AS text.
+        /// </summary>
+        internal static string DisplayCodeAndTitlePgSql {
+            get {
+                return ResourceManager.GetString("DisplayCodeAndTitlePgSql", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to INSERT INTO [metadata_groups]
         ///([uid], [parentuid])
         ///VALUES

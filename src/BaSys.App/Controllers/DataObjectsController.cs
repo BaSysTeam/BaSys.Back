@@ -37,6 +37,14 @@ namespace BaSys.App.Controllers
             return Ok(result);
         }
 
+        [HttpGet("{kind}/{name}/{uid}/details/{tableName}")]
+        public async Task<IActionResult> GetDetailsTable(string kind, string name, string uid, string tableName)
+        {
+            var result = await _service.GetDetailsTableAsync(kind, name, uid, tableName);
+
+            return Ok(result);
+        }
+
         [HttpPost]
         public async Task<IActionResult> CreateItem([FromBody]DataObjectSaveDto dto)
         {

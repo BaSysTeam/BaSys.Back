@@ -19,6 +19,7 @@ namespace BaSys.Metadata.Models
         public bool PrimaryKey { get; set; }
         public bool Required { get; set; }
         public bool Unique { get; set; }
+        public MetaObjectTableColumnRenderSettings RenderSettings { get; set; } = new MetaObjectTableColumnRenderSettings();
         public bool IsStandard { get; set; }
 
         public bool Equals(MetaObjectTableColumn other)
@@ -49,6 +50,23 @@ namespace BaSys.Metadata.Models
             int hash2 = HashCode.Combine(Required, Unique, IsStandard);
 
             return HashCode.Combine(hash1, hash2);
+        }
+
+        public MetaObjectTableColumn Clone()
+        {
+            var clone = new MetaObjectTableColumn();
+            clone.Uid = Uid;
+            clone.Title = Title;
+            clone.Name = Name;
+            clone.DataTypeUid = DataTypeUid;
+            clone.StringLength = StringLength;
+            clone.NumberDigits = NumberDigits;
+            clone.PrimaryKey = PrimaryKey;
+            clone.Unique = Unique;
+            clone.IsStandard = IsStandard;
+
+            clone.RenderSettings = RenderSettings.Clone();
+            return clone;
         }
     }
 }
