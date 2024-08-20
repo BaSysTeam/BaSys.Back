@@ -21,6 +21,7 @@ namespace BaSys.Metadata.Models
         public bool Unique { get; set; }
         public MetaObjectTableColumnRenderSettings RenderSettings { get; set; } = new MetaObjectTableColumnRenderSettings();
         public bool IsStandard { get; set; }
+        public string Formula { get; set; } = string.Empty;
 
         public bool Equals(MetaObjectTableColumn other)
         {
@@ -64,6 +65,8 @@ namespace BaSys.Metadata.Models
             clone.PrimaryKey = PrimaryKey;
             clone.Unique = Unique;
             clone.IsStandard = IsStandard;
+
+            clone.Formula = Formula;
 
             clone.RenderSettings = RenderSettings.Clone();
             return clone;
