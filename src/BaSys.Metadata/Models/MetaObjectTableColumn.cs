@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace BaSys.Metadata.Models
 {
     [MessagePackObject(keyAsPropertyName: true)]
-    public class MetaObjectTableColumn: IEquatable<MetaObjectTableColumn>
+    public class MetaObjectTableColumn : IEquatable<MetaObjectTableColumn>
     {
         public Guid Uid { get; set; } = Guid.NewGuid();
         public string Title { get; set; } = string.Empty;
@@ -22,6 +22,8 @@ namespace BaSys.Metadata.Models
         public MetaObjectTableColumnRenderSettings RenderSettings { get; set; } = new MetaObjectTableColumnRenderSettings();
         public bool IsStandard { get; set; }
         public string Formula { get; set; } = string.Empty;
+
+        public List<DependencyInfo> Dependencies { get; set; } = new List<DependencyInfo>();
 
         public bool Equals(MetaObjectTableColumn other)
         {
@@ -46,7 +48,7 @@ namespace BaSys.Metadata.Models
 
         public override int GetHashCode()
         {
-            
+
             int hash1 = HashCode.Combine(Uid, Title, Name, DataTypeUid, StringLength, NumberDigits, PrimaryKey);
             int hash2 = HashCode.Combine(Required, Unique, IsStandard);
 
@@ -69,7 +71,24 @@ namespace BaSys.Metadata.Models
             clone.Formula = Formula;
 
             clone.RenderSettings = RenderSettings.Clone();
+
+            foreach (var sourceDependency in Dependencies)
+            {
+                clone.Dependencies.Add(sourceDependency.Clone());
+            }
+
             return clone;
         }
+
+        public void ClearDependecies()
+        {
+            Dependencies.Clear();
+        }
+
+        public override string ToString()
+        {
+            return $"{Title}/{Name}";
+        }
+
     }
 }

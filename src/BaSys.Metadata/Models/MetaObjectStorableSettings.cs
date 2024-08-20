@@ -70,15 +70,15 @@ namespace BaSys.Metadata.Models
             Header.Columns.Add(primaryKeyColumn);
 
             // Add other standard columns.
-            foreach(var stColumn in kindSettings.StandardColumns.Where(x => !x.IsPrimaryKey))
+            foreach (var stColumn in kindSettings.StandardColumns.Where(x => !x.IsPrimaryKey))
             {
                 var newColumn = new MetaObjectTableColumn()
                 {
                     Uid = stColumn.Uid,
-                    Title= stColumn.Title,
+                    Title = stColumn.Title,
                     Name = stColumn.Name,
                     DataTypeUid = stColumn.DataTypeUid,
-                    StringLength= stColumn.StringLength,
+                    StringLength = stColumn.StringLength,
                     NumberDigits = stColumn.NumberDigits,
                     PrimaryKey = false,
                     Unique = stColumn.IsUnique,
@@ -119,11 +119,20 @@ namespace BaSys.Metadata.Models
 
             clone.Header = Header.Clone();
 
-            foreach (var item in DetailTables) { 
+            foreach (var item in DetailTables)
+            {
                 clone.DetailTables.Add(item.Clone());
             }
 
             return clone;
+        }
+
+        public void ClearDependencies()
+        {
+            foreach (var table in Tables)
+            {
+                table.ClearDependencies();
+            }
         }
 
         public string GetOrderByExpression(string defaultExpression)
@@ -156,7 +165,7 @@ namespace BaSys.Metadata.Models
 
         public override string ToString()
         {
-            return Title;
+            return $"{Title}/{Name}";
         }
     }
 }
