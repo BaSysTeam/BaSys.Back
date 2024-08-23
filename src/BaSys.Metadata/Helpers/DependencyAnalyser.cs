@@ -77,7 +77,7 @@ namespace BaSys.Metadata.Helpers
                             {
                                 var dependencyInfo = new DependencyInfo()
                                 {
-                                    Kind = Common.Enums.DependencyKinds.HeaderField,
+                                    Kind = Common.Enums.DependencyKinds.RowField,
                                     FieldUid = column.Uid,
                                     TableUid = table.Uid,
                                 };

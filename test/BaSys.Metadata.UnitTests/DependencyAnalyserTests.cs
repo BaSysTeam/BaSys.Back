@@ -1,10 +1,12 @@
 ﻿using BaSys.Metadata.Helpers;
 using BaSys.Metadata.Models;
+using BaSys.Common.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BaSys.Metadata.UnitTests.Helpers;
 
 namespace BaSys.Metadata.UnitTests
 {
@@ -14,7 +16,7 @@ namespace BaSys.Metadata.UnitTests
         [Test]
         public void Analyse_RowPriceCalc_Dependencies()
         {
-            var settings = BuildPriceCalculationExample();
+            var settings = ExampleBuilder.BuildProductOperation();
             var analyser = new DependencyAnalyser();
             analyser.Analyse(settings);
 
@@ -32,6 +34,21 @@ namespace BaSys.Metadata.UnitTests
         }
 
         [Test]
+        public void Analyse_DiscountInHeader_Dependencies()
+        {
+            var settings = ExampleBuilder.BuildDiscountInHeaderExample();
+            var analyser = new DependencyAnalyser();
+            analyser.Analyse(settings);
+
+            var discountColumn = settings.Header.GetColumn("discount");
+
+            Assert.That(discountColumn.Dependencies.Count(), Is.EqualTo(1));
+
+            var dependecy = discountColumn?.Dependencies[0];
+            Assert.That(dependecy.Kind, Is.EqualTo(DependencyKinds.RowField));
+        }
+
+        [Test]
         public void ExtractArguments_TwoArgsExpression_ListOfArguments()
         {
             var analyser = new DependencyAnalyser();
@@ -43,7 +60,7 @@ namespace BaSys.Metadata.UnitTests
 
         }
 
-        [TestCase("$r.quantity","$r","quantity")]
+        [TestCase("$r.quantity", "$r", "quantity")]
         [TestCase("$h.rate", "$h", "rate")]
         public void ParseArgumentExpression_Expression_ParseResult(string expression, string prefixCheck, string nameCheck)
         {
@@ -55,52 +72,5 @@ namespace BaSys.Metadata.UnitTests
 
         }
 
-        private MetaObjectStorableSettings BuildPriceCalculationExample()
-        {
-            var settings = new MetaObjectStorableSettings();
-            settings.Header.Columns.Add(new MetaObjectTableColumn()
-            {
-                Title = "Id",
-                Name = "id",
-                DataTypeUid = DataTypeDefaults.Int.Uid,
-                PrimaryKey = true,
-            });
-
-            var tableProducts = new MetaObjectTable();
-            tableProducts.Title = "Products";
-            tableProducts.Name = "products";
-
-            var columnProduct = new MetaObjectTableColumn()
-            {
-                Name = "product"
-            };
-            var columnQuantity = new MetaObjectTableColumn()
-            {
-                Title = "Quantity",
-                Name = "quantity",
-                DataTypeUid = DataTypeDefaults.Decimal.Uid,
-            };
-            var columnPrice = new MetaObjectTableColumn()
-            {
-                Title = "Price",
-                Name = "price",
-                DataTypeUid = DataTypeDefaults.Decimal.Uid,
-            };
-            var columnAmount = new MetaObjectTableColumn()
-            {
-                Title = "Amount",
-                Name = "amount",
-                DataTypeUid = DataTypeDefaults.Decimal.Uid,
-                Formula = "$r.price * $r.quantity"
-            };
-            tableProducts.Columns.Add(columnProduct);
-            tableProducts.Columns.Add(columnQuantity);
-            tableProducts.Columns.Add(columnPrice);
-            tableProducts.Columns.Add(columnAmount);
-
-            settings.DetailTables.Add(tableProducts);
-
-            return settings;
-        }
     }
 }
