@@ -14,10 +14,16 @@ namespace BaSys.Metadata.UnitTests.Helpers
             var settings = new MetaObjectStorableSettings();
             settings.Header.Columns.Add(new MetaObjectTableColumn()
             {
-                Title = "Id",
                 Name = "id",
                 DataTypeUid = DataTypeDefaults.Int.Uid,
                 PrimaryKey = true,
+            });
+            settings.Header.Columns.Add(new MetaObjectTableColumn()
+            {
+                Name = "total",
+                DataTypeUid = DataTypeDefaults.Decimal.Uid,
+                Formula = "$t.products.sum(\"amount\")"
+
             });
 
             var tableProducts = BuildProductTable();

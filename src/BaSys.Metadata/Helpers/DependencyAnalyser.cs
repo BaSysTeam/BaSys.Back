@@ -40,6 +40,30 @@ namespace BaSys.Metadata.Helpers
 
                         }
                     }
+                    else if(prefix.Equals("$t", StringComparison.OrdinalIgnoreCase))
+                    {
+                        // Table total expressions.
+                        var (tableName, columnName) = ParseTableExpression(name);
+
+                        var tableSettings = settings.DetailTables.FirstOrDefault(x=>x.Name.Equals(tableName, StringComparison.OrdinalIgnoreCase));
+                        if (tableSettings == null)
+                        {
+                            continue;
+                        }
+
+                        var dependentColumn = tableSettings.GetColumn(columnName);
+
+                        if (dependentColumn != null)
+                        {
+                            var dependencyInfo = new DependencyInfo()
+                            {
+                                Kind = Common.Enums.DependencyKinds.HeaderField,
+                                FieldUid = column.Uid,
+                                TableUid = settings.Header.Uid,
+                            };
+                            dependentColumn.Dependencies.Add(dependencyInfo);
+                        }
+                    }
 
                 }
             }
@@ -97,7 +121,7 @@ namespace BaSys.Metadata.Helpers
             if (string.IsNullOrEmpty(formula))
                 return new List<string>();
 
-            var regex = new Regex(@"\$[rh]\.[a-zA-Z_]\w*");
+            var regex = new Regex(@"\$[hrt]\.[a-zA-Z_]\w*(\.\w+)*(\(.*?\))?");
             var matches = regex.Matches(formula);
             var arguments = new HashSet<string>();
 
@@ -113,7 +137,7 @@ namespace BaSys.Metadata.Helpers
         {
             var prefix = string.Empty;
             var name = string.Empty;
-            var ind = argument.LastIndexOf('.');
+            var ind = argument.IndexOf('.');
             if (ind > -1)
             {
                 prefix = argument.Substring(0, ind);
@@ -126,6 +150,36 @@ namespace BaSys.Metadata.Helpers
 
             return new Tuple<string, string>(prefix, name);
 
+        }
+
+        public Tuple<string, string> ParseTableExpression(string expression)
+        {
+            var tableName = string.Empty;
+            var columnName = string.Empty;
+
+            var ind = expression.IndexOf('.');
+            if (ind > -1)
+            {
+                tableName = expression.Substring(0, ind);
+            }
+            columnName = ExtractNameFromExpression(expression);
+
+            return new Tuple<string, string>(tableName, columnName);
+        }
+
+        public static string ExtractNameFromExpression(string expression)
+        {
+            // Regular expression to match any function name followed by a string inside quotes
+            string pattern = @"\.\w+\(\s*""([^""]+)""\s*\)";
+
+            Match match = Regex.Match(expression, pattern);
+
+            if (match.Success)
+            {
+                return match.Groups[1].Value;
+            }
+
+            return null;
         }
     }
 }

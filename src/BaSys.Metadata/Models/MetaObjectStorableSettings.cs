@@ -163,6 +163,11 @@ namespace BaSys.Metadata.Models
             return result;
         }
 
+        public MetaObjectTable GetTable(string tableName)
+        {
+            return this.DetailTables.FirstOrDefault(x=>x.Name.Equals(tableName, StringComparison.OrdinalIgnoreCase));
+        }
+
         public override string ToString()
         {
             return $"{Title}/{Name}";
