@@ -170,13 +170,14 @@ namespace BaSys.Metadata.Helpers
         public static string ExtractNameFromExpression(string expression)
         {
             // Regular expression to match any function name followed by a string inside quotes
-            string pattern = @"\.\w+\(\s*""([^""]+)""\s*\)";
+            //string pattern = @"\.\w+\(\s*""([^""]+)""\s*\)";
+            string pattern = @"(\w+)\.\w+\(\s*['""]([^'""]+)['""]\s*\)";
 
             Match match = Regex.Match(expression, pattern);
 
             if (match.Success)
             {
-                return match.Groups[1].Value;
+                return match.Groups[2].Value;
             }
 
             return null;

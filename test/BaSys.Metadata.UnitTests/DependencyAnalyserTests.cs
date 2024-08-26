@@ -90,6 +90,7 @@ namespace BaSys.Metadata.UnitTests
         [TestCase("$r.quantity", "$r", "quantity")]
         [TestCase("$h.rate", "$h", "rate")]
         [TestCase("$t.products.sum(\"amount\")", "$t", "products.sum(\"amount\")")]
+        [TestCase("$t.products.sum('amount')", "$t", "products.sum('amount')")]
         public void ParseArgumentExpression_Expression_ParseResult(string expression, string prefixCheck, string nameCheck)
         {
             var analyser = new DependencyAnalyser();
@@ -101,6 +102,7 @@ namespace BaSys.Metadata.UnitTests
         }
 
         [TestCase("products.sum(\"amount\")", "products", "amount")]
+        [TestCase("products.sum('amount')", "products", "amount")]
         public void ParseTableExpression_Expression_ParseResult(string expression, string tableNameCheck, string columnNameCheck)
         {
             var analyser = new DependencyAnalyser();
