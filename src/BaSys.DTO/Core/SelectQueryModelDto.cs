@@ -12,5 +12,6 @@ namespace BaSys.DTO.Core
         public string FromExpression { get; set; } = string.Empty;
         public string WhereExpression { get; set; } = string.Empty;
         public string OrderByExpression { get; set; } = string.Empty;
+        public List<QueryParameterDto> Parameters { get; set; } = new List<QueryParameterDto>();
     }
 }
