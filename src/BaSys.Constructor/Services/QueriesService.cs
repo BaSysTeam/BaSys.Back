@@ -8,6 +8,7 @@ using BaSys.Host.DAL.DataProviders;
 using BaSys.Logging.Abstractions.Abstractions;
 using Microsoft.DotNet.Scaffolding.Shared;
 using System.Data;
+using BaSys.Host.DAL.ModelConfigurations;
 
 namespace BaSys.Constructor.Services
 {
@@ -37,6 +38,23 @@ namespace BaSys.Constructor.Services
         {
             var result = new ResultWrapper<DataTableDto>();
 
+            if (queryModelDto.FromExpression.Contains('.'))
+            {
+               
+                var (kindName, objectName) = parseTableName(queryModelDto.FromExpression);
+                var kindProvider = _providerFactory.Create<MetaObjectKindsProvider>();
+                var kindSettings = await kindProvider.GetSettingsByNameAsync(kindName);
+
+                if(kindSettings == null)
+                {
+                    result.Error(-1, $"Cannot find kind by name: {kindName}");
+                    return result;
+                }
+
+                var tableName = DataObjectConfiguration.ComposeTableName(kindSettings.Prefix, objectName);
+                queryModelDto.FromExpression = tableName;
+
+            }
             var selectModel = ConvertToQueryModel(queryModelDto);
 
             var provider = new QueriesProvider(_connection);
@@ -92,6 +110,19 @@ namespace BaSys.Constructor.Services
             GC.SuppressFinalize(this);
         }
 
+        private Tuple<string, string> parseTableName(string tableName)
+        {
+            var kindName = string.Empty;
+            var objectName = string.Empty;
 
+            var ind = tableName.IndexOf(".");
+            if (ind > -1)
+            {
+                 kindName = tableName.Substring(0, ind);
+                 objectName = tableName.Substring(ind+1);
+            }
+
+            return new Tuple<string, string>(kindName, objectName);
+        }
     }
 }
