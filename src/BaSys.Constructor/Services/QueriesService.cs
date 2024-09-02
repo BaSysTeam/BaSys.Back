@@ -9,6 +9,8 @@ using BaSys.Logging.Abstractions.Abstractions;
 using Microsoft.DotNet.Scaffolding.Shared;
 using System.Data;
 using BaSys.Host.DAL.ModelConfigurations;
+using System.Text.Json;
+using BaSys.Core.Helpers;
 
 namespace BaSys.Constructor.Services
 {
@@ -83,6 +85,15 @@ namespace BaSys.Constructor.Services
             queryModel.FromExpression = dto.FromExpression;
             queryModel.WhereExpression = dto.WhereExpression;
             queryModel.OrderByExpression = dto.OrderByExpression;
+
+            foreach(var parameterDto in dto.Parameters)
+            {
+              
+                var jsonValue = (JsonElement)parameterDto.Value;
+                var parameterValue = ValueParser.Parse(jsonValue.ToString(), parameterDto.DbType);
+
+                queryModel.AddParameter(parameterDto.Name, parameterValue, parameterDto.DbType);
+            }
 
             return queryModel;
         }
