@@ -11,6 +11,6 @@ namespace BaSys.DTO.Core
     {
         public string Name { get; set; } = string.Empty;
         public object? Value { get; set; }
-        public DbType DbType { get; set; }
+        public DbType? DbType { get; set; }
     }
 }
