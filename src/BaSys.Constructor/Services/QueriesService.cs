@@ -109,6 +109,7 @@ namespace BaSys.Constructor.Services
         {
             var queryModel = new SelectModel();
             queryModel.AddSelectExpression(" * ");
+            queryModel.Top = dto.Top;
             queryModel.FromExpression = dto.FromExpression;
             queryModel.WhereExpression = dto.WhereExpression;
             queryModel.OrderByExpression = dto.OrderByExpression;
