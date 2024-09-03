@@ -108,7 +108,18 @@ namespace BaSys.Constructor.Services
             MetaObjectStorableSettings? objectSettings)
         {
             var queryModel = new SelectModel();
-            queryModel.AddSelectExpression(" * ");
+          
+
+            foreach(var expression in dto.SelectExpressions)
+            {
+                queryModel.AddSelectExpression(expression);
+            }
+
+            if (!queryModel.SelectExpressions.Any())
+            {
+                queryModel.AddSelectExpression(" * ");
+            }
+
             queryModel.Top = dto.Top;
             queryModel.FromExpression = dto.FromExpression;
             queryModel.WhereExpression = dto.WhereExpression;
