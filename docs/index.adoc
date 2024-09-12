@@ -1,0 +1,5 @@
+= Project Documentation
+:lang: en
+
+== Welcome
+This is the main page of your project documentation.
