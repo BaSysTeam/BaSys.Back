@@ -160,6 +160,8 @@ namespace BaSys.Core.Services
 
                 var previousSettings = savedSettings.Clone();
                 savedSettings.CopyFrom(newSettings);
+                var dependencyAnalyser = new DependencyAnalyser();
+                dependencyAnalyser.Analyse(savedSettings);
 
                 try
                 {

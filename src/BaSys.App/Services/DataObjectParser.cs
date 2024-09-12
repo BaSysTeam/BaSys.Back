@@ -1,4 +1,5 @@
-﻿using BaSys.DTO.App;
+﻿using BaSys.Core.Helpers;
+using BaSys.DTO.App;
 using BaSys.Metadata.Abstractions;
 using BaSys.Metadata.Models;
 using Humanizer;
@@ -67,50 +68,52 @@ namespace BaSys.App.Services
                     }
 
                     var strValue = jsonValue.ToString();
-                    switch (fieldDataType.DbType)
-                    {
-                        case DbType.String:
+                    var parsedValue = ValueParser.Parse(strValue, fieldDataType.DbType);
+                    parsedRow.Add(fieldName, parsedValue);
+                    //switch (fieldDataType.DbType)
+                    //{
+                    //    case DbType.String:
 
-                            parsedRow.Add(fieldName, strValue);
-                            break;
+                    //        parsedRow.Add(fieldName, strValue);
+                    //        break;
 
-                        case DbType.Int32:
+                    //    case DbType.Int32:
 
-                            int.TryParse(strValue, out int intValue);
-                            parsedRow.Add(fieldName, intValue);
-                            break;
+                    //        int.TryParse(strValue, out int intValue);
+                    //        parsedRow.Add(fieldName, intValue);
+                    //        break;
 
-                        case DbType.Int64:
+                    //    case DbType.Int64:
 
-                            long.TryParse(strValue, out var longValue);
-                            parsedRow.Add(fieldName, longValue);
-                            break;
+                    //        long.TryParse(strValue, out var longValue);
+                    //        parsedRow.Add(fieldName, longValue);
+                    //        break;
 
-                        case DbType.Decimal:
+                    //    case DbType.Decimal:
 
-                            decimal.TryParse(strValue, NumberStyles.Any, CultureInfo.InvariantCulture, out var decimalValue);
-                            parsedRow.Add(fieldName, decimalValue);
-                            break;
+                    //        decimal.TryParse(strValue, NumberStyles.Any, CultureInfo.InvariantCulture, out var decimalValue);
+                    //        parsedRow.Add(fieldName, decimalValue);
+                    //        break;
 
-                        case DbType.Guid:
+                    //    case DbType.Guid:
 
-                            Guid.TryParse(strValue, out var guidValue);
-                            parsedRow.Add(fieldName, guidValue);
-                            break;
+                    //        Guid.TryParse(strValue, out var guidValue);
+                    //        parsedRow.Add(fieldName, guidValue);
+                    //        break;
 
-                        case DbType.DateTime:
+                    //    case DbType.DateTime:
 
-                            DateTime.TryParse(strValue, out var dateTimeValue);
-                            parsedRow.Add(fieldName, dateTimeValue);
-                            break;
+                    //        DateTime.TryParse(strValue, out var dateTimeValue);
+                    //        parsedRow.Add(fieldName, dateTimeValue);
+                    //        break;
 
-                        case DbType.Byte:
-                        case DbType.Boolean:
+                    //    case DbType.Byte:
+                    //    case DbType.Boolean:
 
-                            Boolean.TryParse(strValue, out bool boolValue);
-                            parsedRow.Add(fieldName, boolValue);
-                            break;
-                    }
+                    //        Boolean.TryParse(strValue, out bool boolValue);
+                    //        parsedRow.Add(fieldName, boolValue);
+                    //        break;
+                    //}
 
                 }
                 table.Rows.Add(parsedRow);
@@ -147,50 +150,52 @@ namespace BaSys.App.Services
                 }
 
                 var strValue = jsonValue.ToString();
-                switch (fieldDataType.DbType)
-                {
-                    case DbType.String:
+                var parsedValue = ValueParser.Parse(strValue, fieldDataType.DbType);
+                headerParsed.Add(fieldName, parsedValue);
+                //switch (fieldDataType.DbType)
+                //{
+                //    case DbType.String:
 
-                        headerParsed.Add(fieldName, strValue);
-                        break;
+                //        headerParsed.Add(fieldName, strValue);
+                //        break;
 
-                    case DbType.Int32:
+                //    case DbType.Int32:
 
-                        int.TryParse(strValue, out int intValue);
-                        headerParsed.Add(fieldName, intValue);
-                        break;
+                //        int.TryParse(strValue, out int intValue);
+                //        headerParsed.Add(fieldName, intValue);
+                //        break;
 
-                    case DbType.Int64:
+                //    case DbType.Int64:
 
-                        long.TryParse(strValue, out var longValue);
-                        headerParsed.Add(fieldName, longValue);
-                        break;
+                //        long.TryParse(strValue, out var longValue);
+                //        headerParsed.Add(fieldName, longValue);
+                //        break;
 
-                    case DbType.Decimal:
+                //    case DbType.Decimal:
 
-                        decimal.TryParse(strValue, NumberStyles.Any, CultureInfo.InvariantCulture, out var decimalValue);
-                        headerParsed.Add(fieldName, decimalValue);
-                        break;
+                //        decimal.TryParse(strValue, NumberStyles.Any, CultureInfo.InvariantCulture, out var decimalValue);
+                //        headerParsed.Add(fieldName, decimalValue);
+                //        break;
 
-                    case DbType.Guid:
+                //    case DbType.Guid:
 
-                        Guid.TryParse(strValue, out var guidValue);
-                        headerParsed.Add(fieldName, guidValue);
-                        break;
+                //        Guid.TryParse(strValue, out var guidValue);
+                //        headerParsed.Add(fieldName, guidValue);
+                //        break;
 
-                    case DbType.DateTime:
+                //    case DbType.DateTime:
 
-                        DateTime.TryParse(strValue, out var dateTimeValue);
-                        headerParsed.Add(fieldName, dateTimeValue);
-                        break;
+                //        DateTime.TryParse(strValue, out var dateTimeValue);
+                //        headerParsed.Add(fieldName, dateTimeValue);
+                //        break;
 
-                    case DbType.Byte:
-                    case DbType.Boolean:
+                //    case DbType.Byte:
+                //    case DbType.Boolean:
 
-                        Boolean.TryParse(strValue, out bool boolValue);
-                        headerParsed.Add(fieldName, boolValue);
-                        break;
-                }
+                //        Boolean.TryParse(strValue, out bool boolValue);
+                //        headerParsed.Add(fieldName, boolValue);
+                //        break;
+                //}
 
             }
 

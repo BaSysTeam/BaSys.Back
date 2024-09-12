@@ -18,6 +18,9 @@ namespace BaSys.Metadata.Models
         public List<MetaObjectTableColumn> Columns { get; set; } = new List<MetaObjectTableColumn>();
 
         [IgnoreMember]
+        public List<MetaObjectTableColumn> ColumnsWithFormulas => Columns.Where(x=>!string.IsNullOrWhiteSpace(x.Formula)).ToList();
+
+        [IgnoreMember]
         public MetaObjectTableColumn PrimaryKey => Columns.FirstOrDefault(x => x.PrimaryKey);
 
         public MetaObjectTable Clone()
@@ -35,6 +38,29 @@ namespace BaSys.Metadata.Models
 
 
             return clone;
+        }
+
+        public void ClearDependencies()
+        {
+            foreach(var column in Columns)
+            {
+                column.ClearDependecies();
+            }
+        }
+
+        public MetaObjectTableColumn GetColumn(string name)
+        {
+            return Columns.FirstOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+        }
+
+        public MetaObjectTableColumn GetColumn(Guid uid)
+        {
+            return Columns.FirstOrDefault(x => x.Uid == uid);
+        }
+
+        public override string ToString()
+        {
+            return $"{Title}/{Name}";
         }
 
         public static MetaObjectTable HeaderTable()
