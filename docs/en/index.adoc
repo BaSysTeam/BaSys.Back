@@ -1,0 +1,8 @@
+= BaSYS: Documentation
+:lang: en
+:toc:
+:toc-title: Table of Contents
+
+== Introduction
+
+This is the main documentation page in English.

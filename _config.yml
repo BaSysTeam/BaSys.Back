@@ -1,0 +1,17 @@
+# Configuration for Jekyll
+theme: jekyll-theme-slate
+
+# Enable AsciiDoc plugin
+plugins:
+  - jekyll-asciidoc
+
+# Configure language options
+defaults:
+  - scope:
+      path: "docs/en"
+    values:
+      lang: "en"
+  - scope:
+      path: "docs/ru"
+    values:
+      lang: "ru"
