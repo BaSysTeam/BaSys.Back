@@ -21,6 +21,15 @@ namespace BaSys.Host.DAL.DataProviders
         {
         }
 
+        public override async Task<IEnumerable<MetaObjectKind>> GetCollectionAsync(IDbTransaction transaction)
+        {
+            _query = SelectBuilder.Make().From(_config.TableName).Select("*").OrderBy("title").Query(_sqlDialect);
+
+            var result = await _dbConnection.QueryAsync<MetaObjectKind>(_query.Text, null, transaction);
+
+            return result;
+        }
+
         public override async Task<Guid> InsertAsync(MetaObjectKind item, IDbTransaction transaction)
         {
             if (item.Uid == Guid.Empty)
