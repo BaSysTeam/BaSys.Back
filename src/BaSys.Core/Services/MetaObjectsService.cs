@@ -14,6 +14,7 @@ using BaSys.Metadata.Helpers;
 using BaSys.Metadata.Models;
 using BaSys.Metadata.Validators;
 using BaSys.Translation;
+using BaSys.DTO.Constructor;
 
 namespace BaSys.Core.Services
 {
@@ -71,6 +72,31 @@ namespace BaSys.Core.Services
             }
 
             result.Success(list);
+            return result;
+        }
+
+        public async Task<ResultWrapper<MetaObjectListDto>> GetKindListAsync(string kindName)
+        {
+            var result = new ResultWrapper<MetaObjectListDto>();
+
+            var kindSettings = await _kindsProvider.GetSettingsByNameAsync(kindName);
+
+            if (kindSettings == null)
+            {
+                result.Error(-1, $"{DictMain.CannotFindMetaObjectKind}: {kindName}");
+                return result;
+            }
+
+            var provider = _providerFactory.CreateMetaObjectStorableProvider(kindSettings.Name);
+
+            var items = await provider.GetCollectionAsync(null);
+
+            var listDto = new MetaObjectListDto();
+            listDto.Title = kindSettings.Title;
+            listDto.Items = items.Select(x => new MetaObjectDto() { Uid = x.Uid.ToString(), Name = x.Name, Title = x.Title, Memo = x.Memo }).ToList();
+
+            result.Success(listDto);
+
             return result;
         }
 
