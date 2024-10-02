@@ -15,6 +15,7 @@ using BaSys.Metadata.Models;
 using BaSys.Metadata.Validators;
 using BaSys.Translation;
 using BaSys.DTO.Constructor;
+using BaSys.Metadata.DTOs;
 
 namespace BaSys.Core.Services
 {
@@ -25,6 +26,7 @@ namespace BaSys.Core.Services
         private readonly ILoggerService _logger;
         private readonly ISystemObjectProviderFactory _providerFactory;
         private readonly ITableManagerFactory _tableManagerFactory;
+        private readonly IDataTypesService _dataTypesService;
         private bool _disposed;
 
         public MetaObjectsService(IMainConnectionFactory connectionFactory,
@@ -41,6 +43,9 @@ namespace BaSys.Core.Services
             _tableManagerFactory.SetUp(_connection);
 
             _kindsProvider = _providerFactory.Create<MetaObjectKindsProvider>();
+
+            _dataTypesService = new DataTypesService(providerFactory);
+            _dataTypesService.SetUp(_connection);
 
             _logger = logger;
 
@@ -93,9 +98,70 @@ namespace BaSys.Core.Services
 
             var listDto = new MetaObjectListDto();
             listDto.Title = kindSettings.Title;
-            listDto.Items = items.Select(x => new MetaObjectDto() { Uid = x.Uid.ToString(), Name = x.Name, Title = x.Title, Memo = x.Memo }).ToList();
+            listDto.MetaObjectKindUid = kindSettings.Uid.ToString();
+            listDto.Items = items.Select(x => new MetaObjectDto(x) ).ToList();
 
             result.Success(listDto);
+
+            return result;
+        }
+
+        public async Task<ResultWrapper<int>> CreateMetaObjectAsync(CreateMetaObjectDto dto)
+        {
+            var result = new ResultWrapper<int>();
+
+            var validator = new CreateMetaObjectDtoValidator();
+            var validationResult = validator.Validate(dto);
+            if (!validationResult.IsValid)
+            {
+                result.Error(-1, $"{DictMain.CannotCreateItem}.{validationResult}");
+                return result;
+            }
+
+            _connection.Open();
+            using (IDbTransaction transaction = _connection.BeginTransaction())
+            {
+                var metadataKindProvider = _providerFactory.Create<MetaObjectKindsProvider>();
+                var kindSettings = await metadataKindProvider.GetSettingsByNameAsync(dto.Kind, transaction);
+
+                if (kindSettings == null)
+                {
+                    result.Error(-1, DictMain.CannotFindItem, $"Kind: {dto.Kind}");
+                    transaction.Rollback();
+                    return result;
+                }
+
+                var metaObjectStorableProvider = _providerFactory.CreateMetaObjectStorableProvider(kindSettings.Name);
+                var newMetaObjectSettings = new MetaObjectStorableSettings(kindSettings)
+                {
+                    Name = dto.Name,
+                    Title = dto.Title,
+                    Memo = dto.Memo,
+                };
+            
+
+                var dataTypesIndex = await _dataTypesService.GetIndexAsync();
+                var dataObjectManager = new DataObjectManager(_connection, kindSettings, newMetaObjectSettings, dataTypesIndex);
+
+                try
+                {
+                    var insertedCount = await metaObjectStorableProvider.InsertSettingsAsync(newMetaObjectSettings, transaction);
+
+                    await dataObjectManager.CreateTableAsync(transaction);
+
+                    _logger.Write($"MetaObject created.", Common.Enums.EventTypeLevels.Info, EventTypeFactory.MetadataCreate);
+
+                    transaction.Commit();
+                    result.Success(insertedCount);
+
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    result.Error(-1, DictMain.CannotCreateItem, ex.Message);
+                    _logger.Write($"Cannot create MetaObject.", Common.Enums.EventTypeLevels.Error, EventTypeFactory.MetadataCreate);
+                }
+            }
 
             return result;
         }

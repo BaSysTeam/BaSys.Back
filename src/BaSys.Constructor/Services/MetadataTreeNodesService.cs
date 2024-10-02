@@ -251,69 +251,69 @@ namespace BaSys.Constructor.Services
         {
             var result = new ResultWrapper<int>();
 
-            var validator = new CreateMetaObjectDtoValidator();
-            var validationResult = validator.Validate(dto);
-            if (!validationResult.IsValid)
-            {
-                result.Error(-1, $"{DictMain.CannotCreateItem}.{validationResult}");
-                return result;
-            }
+            //var validator = new createmetaobjectdtovalidator();
+            //var validationresult = validator.validate(dto);
+            //if (!validationresult.isvalid)
+            //{
+            //    result.error(-1, $"{dictmain.cannotcreateitem}.{validationresult}");
+            //    return result;
+            //}
 
-            _connection.Open();
-            using (IDbTransaction transaction = _connection.BeginTransaction())
-            {
-                var metadataKindProvider = _providerFactory.Create<MetaObjectKindsProvider>();
-                var kindSettings = await metadataKindProvider.GetSettingsAsync(dto.MetaObjectKindUid, transaction);
+            //_connection.open();
+            //using (idbtransaction transaction = _connection.begintransaction())
+            //{
+            //    var metadatakindprovider = _providerfactory.create<metaobjectkindsprovider>();
+            //    var kindsettings = await metadatakindprovider.getsettingsasync(dto.metaobjectkinduid, transaction);
 
-                if (kindSettings == null)
-                {
-                    result.Error(-1, DictMain.CannotFindItem, $"Uid: {dto.MetaObjectKindUid}");
-                    transaction.Rollback();
-                    return result;
-                }
+            //    if (kindsettings == null)
+            //    {
+            //        result.error(-1, dictmain.cannotfinditem, $"uid: {dto.metaobjectkinduid}");
+            //        transaction.rollback();
+            //        return result;
+            //    }
 
-                var metaObjectStorableProvider = _providerFactory.CreateMetaObjectStorableProvider(kindSettings.Name);
-                var newMetaObjectSettings = new MetaObjectStorableSettings(kindSettings)
-                {
-                    Name = dto.Name,
-                    Title = dto.Title,
-                    Memo = dto.Memo,
-                };
-                var newTreeNode = new MetadataTreeNode()
-                {
-                    ParentUid = dto.ParentUid,
-                    Title = $"{kindSettings.Title}.{dto.Title}",
-                    MetadataKindUid = kindSettings.Uid,
-                    MetaObjectKindName = kindSettings.Name,
-                    MetaObjectName = newMetaObjectSettings.Name,
-                    IconClass = kindSettings.IconClass,
-                };
+            //    var metaobjectstorableprovider = _providerfactory.createmetaobjectstorableprovider(kindsettings.name);
+            //    var newmetaobjectsettings = new metaobjectstorablesettings(kindsettings)
+            //    {
+            //        name = dto.name,
+            //        title = dto.title,
+            //        memo = dto.memo,
+            //    };
+            //    var newtreenode = new metadatatreenode()
+            //    {
+            //        parentuid = dto.parentuid,
+            //        title = $"{kindsettings.title}.{dto.title}",
+            //        metadatakinduid = kindsettings.uid,
+            //        metaobjectkindname = kindsettings.name,
+            //        metaobjectname = newmetaobjectsettings.name,
+            //        iconclass = kindsettings.iconclass,
+            //    };
 
-                var dataTypesIndex = await _dataTypesService.GetIndexAsync();
-                var dataObjectManager = new DataObjectManager(_connection, kindSettings, newMetaObjectSettings, dataTypesIndex);
+            //    var datatypesindex = await _datatypesservice.getindexasync();
+            //    var dataobjectmanager = new dataobjectmanager(_connection, kindsettings, newmetaobjectsettings, datatypesindex);
 
-                try
-                {
-                    var insertedCount = await metaObjectStorableProvider.InsertSettingsAsync(newMetaObjectSettings, transaction);
-                    var savedMetaObject = await metaObjectStorableProvider.GetItemByNameAsync(newMetaObjectSettings.Name, transaction);
+            //    try
+            //    {
+            //        var insertedcount = await metaobjectstorableprovider.insertsettingsasync(newmetaobjectsettings, transaction);
+            //        var savedmetaobject = await metaobjectstorableprovider.getitembynameasync(newmetaobjectsettings.name, transaction);
 
-                    newTreeNode.MetadataObjectUid = savedMetaObject.Uid;
-                    await _nodesProvider.InsertAsync(newTreeNode, transaction);
-                    await dataObjectManager.CreateTableAsync(transaction);
+            //        newtreenode.metadataobjectuid = savedmetaobject.uid;
+            //        await _nodesprovider.insertasync(newtreenode, transaction);
+            //        await dataobjectmanager.createtableasync(transaction);
 
-                    _logger.Write($"Metadata item created.", Common.Enums.EventTypeLevels.Info, EventTypeFactory.MetadataCreate);
+            //        _logger.write($"metadata item created.", common.enums.eventtypelevels.info, eventtypefactory.metadatacreate);
 
-                    transaction.Commit();
-                    result.Success(insertedCount);
+            //        transaction.commit();
+            //        result.success(insertedcount);
 
-                }
-                catch (Exception ex)
-                {
-                    transaction.Rollback();
-                    result.Error(-1, DictMain.CannotCreateItem, ex.Message);
-                    _logger.Write($"Cannot create metadata item.", Common.Enums.EventTypeLevels.Error, EventTypeFactory.MetadataCreate);
-                }
-            }
+            //    }
+            //    catch (exception ex)
+            //    {
+            //        transaction.rollback();
+            //        result.error(-1, dictmain.cannotcreateitem, ex.message);
+            //        _logger.write($"cannot create metadata item.", common.enums.eventtypelevels.error, eventtypefactory.metadatacreate);
+            //    }
+            //}
 
             return result;
         }

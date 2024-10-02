@@ -2,6 +2,7 @@
 using BaSys.Constructor.Abstractions;
 using BaSys.Core.Abstractions;
 using BaSys.DTO.Metadata;
+using BaSys.Metadata.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -34,6 +35,14 @@ namespace BaSys.Constructor.Controllers
             var metaObjectSettings = await _metaObjectService.GetSettingsItemAsync(kind, name);
 
             return Ok(metaObjectSettings);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateMetaObject(CreateMetaObjectDto dto)
+        {
+            var result = await _metaObjectService.CreateMetaObjectAsync(dto);
+
+            return Ok(result);
         }
 
         [HttpPut]

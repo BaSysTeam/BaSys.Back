@@ -9,6 +9,7 @@ namespace BaSys.DTO.Constructor
 {
     public sealed class MetaObjectListDto
     {
+        public string MetaObjectKindUid { get; set; } = string.Empty;
         public string Title { get; set; } = string.Empty;
         public List<MetaObjectDto> Items { get; set; } = new List<MetaObjectDto>();
     }

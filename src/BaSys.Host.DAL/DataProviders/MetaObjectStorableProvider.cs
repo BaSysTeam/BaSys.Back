@@ -15,6 +15,15 @@ public class MetaObjectStorableProvider : SystemObjectProviderBase<MetaObjectSto
     {
     }
 
+    public override async Task<IEnumerable<MetaObjectStorable>> GetCollectionAsync(IDbTransaction transaction)
+    {
+        _query = SelectBuilder.Make().From(_config.TableName).Select("*").OrderBy("title").Query(_sqlDialect);
+
+        var result = await _dbConnection.QueryAsync<MetaObjectStorable>(_query.Text, null, transaction);
+
+        return result;
+    }
+
     public override async Task<Guid> InsertAsync(MetaObjectStorable item, IDbTransaction transaction)
     {
         if (item.Uid == Guid.Empty)
