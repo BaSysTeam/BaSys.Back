@@ -380,7 +380,7 @@ namespace BaSys.Core.Services
 
             var deletedCount = await metaObjectProvider.DeleteAsync(metaObject.Uid, null);
 
-            result.Success(deletedCount);
+            result.Success(deletedCount, DictMain.ItemDeleted);
 
             return result;
         }
