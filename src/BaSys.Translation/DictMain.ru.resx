@@ -150,6 +150,9 @@
   <data name="CannotDeleteAppConstantsRecord" xml:space="preserve">
     <value>Ошибка удаления записи констант приложения</value>
   </data>
+  <data name="CannotDeleteItem" xml:space="preserve">
+    <value>Ошибка удаления элемента </value>
+  </data>
   <data name="CannotDeleteLoggerConfig" xml:space="preserve">
     <value>Ошибка удаления конфигурации логгера</value>
   </data>
@@ -254,6 +257,9 @@
   </data>
   <data name="ReadRight" xml:space="preserve">
     <value>Чтение</value>
+  </data>
+  <data name="ThereAreSomeDataItems" xml:space="preserve">
+    <value>Обнаружены элементы данных</value>
   </data>
   <data name="UserAlreadyExists" xml:space="preserve">
     <value>Пользователь уже существует</value>

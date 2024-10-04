@@ -12,4 +12,5 @@ public interface IMetaObjectsService
     Task<ResultWrapper<int>> CreateMetaObjectAsync(CreateMetaObjectDto createDto);
     Task<ResultWrapper<int>> UpdateSettingsItemAsync(MetaObjectStorableSettingsDto settingsDto);
     Task<ResultWrapper<List<MetaObjectStorableSettingsDto>>> GetMetaObjectsAsync(string kindName);
+    Task<ResultWrapper<int>> DeleteAsync(string kindName, string objectName);
 }

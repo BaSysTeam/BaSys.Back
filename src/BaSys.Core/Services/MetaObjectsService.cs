@@ -16,6 +16,7 @@ using BaSys.Metadata.Validators;
 using BaSys.Translation;
 using BaSys.DTO.Constructor;
 using BaSys.Metadata.DTOs;
+using BaSys.Common.Enums;
 
 namespace BaSys.Core.Services
 {
@@ -322,6 +323,64 @@ namespace BaSys.Core.Services
 
                 }
             }
+
+            return result;
+        }
+
+        public async Task<ResultWrapper<int>> DeleteAsync(string kindName, string objectName)
+        {
+            var result = new ResultWrapper<int>();
+
+            try
+            {
+                result = await ExecuteDeleteAsync(kindName, objectName);
+                _logger.Write($"Meta object delete {kindName}.{objectName}", EventTypeLevels.Info, EventTypeFactory.MetadataDelete);
+            }
+            catch (Exception ex) {
+
+                result.Error(-1, $"{DictMain.CannotDeleteItem}. Message: {ex.Message}");
+                _logger.Write($"Meta object delete {kindName}.{objectName}", EventTypeLevels.Error, EventTypeFactory.MetadataDelete);
+            }
+
+            return result;
+        }
+
+        private async Task<ResultWrapper<int>> ExecuteDeleteAsync(string kindName, string objectName)
+        {
+            var result = new ResultWrapper<int>();
+
+            var kindSettings = await _kindsProvider.GetSettingsByNameAsync(kindName);
+
+            if (kindSettings == null)
+            {
+                result.Error(-1, $"{DictMain.CannotFindMetaObjectKind}: {kindName}");
+                return result;
+            }
+
+            var metaObjectProvider = _providerFactory.CreateMetaObjectStorableProvider(kindSettings.Name);
+            var metaObject = await metaObjectProvider.GetItemByNameAsync(objectName, null);
+
+            if (metaObject == null)
+            {
+                result.Error(-1, $"{DictMain.CannotFindMetaObject}: {kindName}.{objectName}");
+                return result;
+            }
+            var metaObjectSettings = metaObject.ToSettings();
+
+            var dataTypesIndex = await _dataTypesService.GetIndexAsync();
+            var dataObjectProvider = new DataObjectProvider(_connection, kindSettings, metaObjectSettings, dataTypesIndex);
+
+            var count = await dataObjectProvider.CountAsync(null);
+
+            if (count > 0)
+            {
+                result.Error(-1, $"{DictMain.CannotDeleteItem}. {DictMain.ThereAreSomeDataItems}: {count}.");
+                return result;
+            }
+
+            var deletedCount = await metaObjectProvider.DeleteAsync(metaObject.Uid, null);
+
+            result.Success(deletedCount);
 
             return result;
         }

@@ -160,6 +160,15 @@ namespace BaSys.Translation {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot delete item.
+        /// </summary>
+        public static string CannotDeleteItem {
+            get {
+                return ResourceManager.GetString("CannotDeleteItem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cannot delete logger config.
         /// </summary>
         public static string CannotDeleteLoggerConfig {
@@ -471,6 +480,15 @@ namespace BaSys.Translation {
         public static string ReadRight {
             get {
                 return ResourceManager.GetString("ReadRight", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to There are some data items.
+        /// </summary>
+        public static string ThereAreSomeDataItems {
+            get {
+                return ResourceManager.GetString("ThereAreSomeDataItems", resourceCulture);
             }
         }
         

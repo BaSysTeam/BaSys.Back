@@ -51,5 +51,12 @@ namespace BaSys.Constructor.Controllers
             var result = await _metaObjectService.UpdateSettingsItemAsync(settingsDto);
             return Ok(result);
         }
+
+        [HttpDelete("{kind}/{name}")]
+        public async Task<IActionResult> DeleteObject(string kind, string name)
+        {
+            var result = await _metaObjectService.DeleteAsync(kind, name);
+            return Ok(result);
+        }
     }
 }

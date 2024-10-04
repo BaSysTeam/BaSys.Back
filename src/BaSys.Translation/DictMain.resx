@@ -150,6 +150,9 @@
   <data name="CannotDeleteAppConstantsRecord" xml:space="preserve">
     <value>Cannot delete app constants record</value>
   </data>
+  <data name="CannotDeleteItem" xml:space="preserve">
+    <value>Cannot delete item</value>
+  </data>
   <data name="CannotDeleteLoggerConfig" xml:space="preserve">
     <value>Cannot delete logger config</value>
   </data>
@@ -254,6 +257,9 @@
   </data>
   <data name="ReadRight" xml:space="preserve">
     <value>Read</value>
+  </data>
+  <data name="ThereAreSomeDataItems" xml:space="preserve">
+    <value>There are some data items</value>
   </data>
   <data name="UserAlreadyExists" xml:space="preserve">
     <value>User already exists</value>
