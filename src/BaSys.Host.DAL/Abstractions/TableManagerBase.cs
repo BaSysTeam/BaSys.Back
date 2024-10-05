@@ -42,7 +42,6 @@ namespace BaSys.Host.DAL.Abstractions
         public virtual async Task<int> DropTableAsync(IDbTransaction? transaction = null)
         {
             _query = DropTableBuilder.Make().Table(_tableName).Query(_sqlDialectKind);
-            
 
             var result = await _connection.ExecuteAsync(_query.Text, null, transaction);
 

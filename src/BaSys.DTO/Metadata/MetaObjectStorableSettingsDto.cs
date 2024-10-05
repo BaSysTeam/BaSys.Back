@@ -55,7 +55,6 @@ namespace BaSys.DTO.Metadata
         {
             var model = new MetaObjectStorableSettings()
             {
-                Uid = Guid.Parse(Uid),
                 EditMethod = EditMethod,
                 Title = Title,
                 Name = Name,
@@ -67,6 +66,15 @@ namespace BaSys.DTO.Metadata
                 Header = Header,
                 DetailTables = DetailTables,
             };
+
+            if(Guid.TryParse(Uid, out var uid))
+            {
+                model.Uid = uid;
+            }
+            else
+            {
+                model.Uid = Guid.NewGuid();
+            }
 
             return model;
         }

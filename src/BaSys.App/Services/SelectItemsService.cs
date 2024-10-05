@@ -95,7 +95,7 @@ namespace BaSys.App.Services
             var result = new ResultWrapper<(IDataTypesIndex, MetaObjectKind, MetaObjectStorable)>();
 
             // Get data type.
-            var dataTypesIndex = await _dataTypesService.GetIndexAsync();
+            var dataTypesIndex = await _dataTypesService.GetIndexAsync(null);
             if (!dataTypesIndex.IsDataType(dataTypeUid))
             {
                 result.Error(-1, $"Data type not found: {dataTypeUid}");

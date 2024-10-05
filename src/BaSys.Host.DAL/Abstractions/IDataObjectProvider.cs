@@ -21,5 +21,6 @@ namespace BaSys.Host.DAL.Abstractions
         Task<int> UpdateAsync(DataObject item, IDbTransaction? transaction);
         Task<int> DeleteAsync<T>(T uid, IDbTransaction? transaction);
         Task<int> DeleteAsync(string uid, IDbTransaction? transaction);
+        Task<long> CountAsync(IDbTransaction? transaction);
     }
 }

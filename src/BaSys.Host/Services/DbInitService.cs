@@ -41,7 +41,6 @@ namespace BaSys.Host.Services
 
             var tableManagers = new List<TableManagerBase>
             {
-                new MetadataTreeNodeManager(_connection),
                 new AppConstantsManager(_connection),
                 new LoggerConfigManager(_connection),
                 new MigrationManager(_connection),

@@ -2,6 +2,7 @@
 using BaSys.FluentQueries.QueryBuilders;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.ModelConfigurations;
+using BaSys.Host.DAL.QueryResults;
 using BaSys.Metadata.Abstractions;
 using BaSys.Metadata.Models;
 using Dapper;
@@ -127,6 +128,14 @@ namespace BaSys.Host.DAL.DataProviders
             return deletedCount;
         }
 
+        public async Task<long> CountAsync(IDbTransaction? transaction)
+        {
+            _query = SelectBuilder.Make().From(_config.TableName).Select("count(1) as ItemsCount").Query(_sqlDialect);
+
+            var result = await _connection.QueryFirstOrDefaultAsync<ItemsCountResult>( _query.Text, null, transaction);
+
+            return result.ItemsCount;
+        }
 
     }
 }

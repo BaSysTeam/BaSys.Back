@@ -14,6 +14,8 @@ using BaSys.Metadata.Helpers;
 using BaSys.Metadata.Models;
 using BaSys.Metadata.Validators;
 using BaSys.Translation;
+using BaSys.DTO.Constructor;
+using BaSys.Common.Enums;
 
 namespace BaSys.Core.Services
 {
@@ -24,6 +26,7 @@ namespace BaSys.Core.Services
         private readonly ILoggerService _logger;
         private readonly ISystemObjectProviderFactory _providerFactory;
         private readonly ITableManagerFactory _tableManagerFactory;
+        private readonly IDataTypesService _dataTypesService;
         private bool _disposed;
 
         public MetaObjectsService(IMainConnectionFactory connectionFactory,
@@ -40,6 +43,9 @@ namespace BaSys.Core.Services
             _tableManagerFactory.SetUp(_connection);
 
             _kindsProvider = _providerFactory.Create<MetaObjectKindsProvider>();
+
+            _dataTypesService = new DataTypesService(providerFactory);
+            _dataTypesService.SetUp(_connection);
 
             _logger = logger;
 
@@ -71,6 +77,90 @@ namespace BaSys.Core.Services
             }
 
             result.Success(list);
+            return result;
+        }
+
+        public async Task<ResultWrapper<MetaObjectListDto>> GetKindListAsync(string kindName)
+        {
+            var result = new ResultWrapper<MetaObjectListDto>();
+
+            var kindSettings = await _kindsProvider.GetSettingsByNameAsync(kindName);
+
+            if (kindSettings == null)
+            {
+                result.Error(-1, $"{DictMain.CannotFindMetaObjectKind}: {kindName}");
+                return result;
+            }
+
+            var provider = _providerFactory.CreateMetaObjectStorableProvider(kindSettings.Name);
+
+            var items = await provider.GetCollectionAsync(null);
+
+            var listDto = new MetaObjectListDto();
+            listDto.Title = kindSettings.Title;
+            listDto.MetaObjectKindUid = kindSettings.Uid.ToString();
+            listDto.Items = items.Select(x => new MetaObjectDto(x)).ToList();
+
+            result.Success(listDto);
+
+            return result;
+        }
+
+        public async Task<ResultWrapper<int>> CreateAsync(MetaObjectStorableSettingsDto settingsDto)
+        {
+            var result = new ResultWrapper<int>();
+
+            _connection.Open();
+            using (IDbTransaction transaction = _connection.BeginTransaction())
+            {
+
+                try
+                {
+
+                    result = await ExecuteCreateAsync(settingsDto, transaction);
+                    _logger.Write($"MetaObject created.", Common.Enums.EventTypeLevels.Info, EventTypeFactory.MetadataCreate);
+
+                    transaction.Commit();
+
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    result.Error(-1, $"{DictMain.CannotCreateItem}: {ex.Message}", ex.StackTrace);
+                    _logger.Write($"Cannot create MetaObject.", Common.Enums.EventTypeLevels.Error, EventTypeFactory.MetadataCreate);
+                }
+            }
+
+            return result;
+        }
+
+        private async Task<ResultWrapper<int>> ExecuteCreateAsync(MetaObjectStorableSettingsDto settingsDto, IDbTransaction transaction)
+        {
+            var result = new ResultWrapper<int>();
+
+            var metadataKindProvider = _providerFactory.Create<MetaObjectKindsProvider>();
+            var kindSettings = await metadataKindProvider.GetSettingsAsync(settingsDto.MetaObjectKindUid, transaction);
+
+            if (kindSettings == null)
+            {
+                result.Error(-1, DictMain.CannotFindItem, $"Uid: {settingsDto.Uid}");
+                transaction.Rollback();
+                return result;
+            }
+
+            var metaObjectStorableProvider = _providerFactory.CreateMetaObjectStorableProvider(kindSettings.Name);
+            var newSettings = settingsDto.ToModel();
+
+
+            var dataTypesIndex = await _dataTypesService.GetIndexAsync(transaction);
+            var dataObjectManager = new DataObjectManager(_connection, kindSettings, newSettings, dataTypesIndex);
+
+            var insertedCount = await metaObjectStorableProvider.InsertSettingsAsync(newSettings, transaction);
+
+            await dataObjectManager.CreateTableAsync(transaction);
+
+            result.Success(insertedCount);
+
             return result;
         }
 
@@ -148,7 +238,7 @@ namespace BaSys.Core.Services
 
                 var dataTypeService = new DataTypesService(_providerFactory);
                 dataTypeService.SetUp(_connection);
-                var allDataTypes = await dataTypeService.GetAllDataTypesAsync();
+                var allDataTypes = await dataTypeService.GetAllDataTypesAsync(transaction);
 
                 var dataTypeIndex = new DataTypesIndex(allDataTypes);
 
@@ -230,6 +320,85 @@ namespace BaSys.Core.Services
 
                 }
             }
+
+            return result;
+        }
+
+        public async Task<ResultWrapper<int>> DeleteAsync(string kindName, string objectName)
+        {
+            var result = new ResultWrapper<int>();
+            _connection.Open();
+            using (IDbTransaction transaction = _connection.BeginTransaction())
+            {
+                try
+                {
+                    result = await ExecuteDeleteAsync(kindName, objectName, transaction);
+                    if (result.IsOK)
+                    {
+                        transaction.Commit();
+                        _logger.Write($"Meta object delete {kindName}.{objectName}", EventTypeLevels.Info, EventTypeFactory.MetadataDelete);
+                    }
+                    else
+                    {
+                        transaction.Rollback();
+                        _logger.Write($"Meta object delete {kindName}.{objectName}", EventTypeLevels.Error, EventTypeFactory.MetadataDelete);
+                    }
+                   
+                }
+                catch (Exception ex)
+                {
+
+                    result.Error(-1, $"{DictMain.CannotDeleteItem}: {ex.Message}", ex.StackTrace);
+                    _logger.Write($"Meta object delete {kindName}.{objectName}", EventTypeLevels.Error, EventTypeFactory.MetadataDelete);
+                    transaction.Rollback();
+                }
+            }
+
+            return result;
+        }
+
+        private async Task<ResultWrapper<int>> ExecuteDeleteAsync(string kindName, string objectName, IDbTransaction transaction)
+        {
+            var result = new ResultWrapper<int>();
+
+            var kindSettings = await _kindsProvider.GetSettingsByNameAsync(kindName, transaction);
+
+            if (kindSettings == null)
+            {
+                result.Error(-1, $"{DictMain.CannotFindMetaObjectKind}: {kindName}");
+                return result;
+            }
+
+            var metaObjectProvider = _providerFactory.CreateMetaObjectStorableProvider(kindSettings.Name);
+            var metaObject = await metaObjectProvider.GetItemByNameAsync(objectName, transaction);
+
+            if (metaObject == null)
+            {
+                result.Error(-1, $"{DictMain.CannotFindMetaObject}: {kindName}.{objectName}");
+                return result;
+            }
+            var metaObjectSettings = metaObject.ToSettings();
+
+            var dataTypesIndex = await _dataTypesService.GetIndexAsync(transaction);
+            var dataObjectProvider = new DataObjectProvider(_connection, kindSettings, metaObjectSettings, dataTypesIndex);
+            var dataObjectManager = new DataObjectManager(_connection, kindSettings, metaObjectSettings, dataTypesIndex);
+
+            if (await dataObjectManager.TableExistsAsync(transaction))
+            {
+                var count = await dataObjectProvider.CountAsync(transaction);
+
+                if (count > 0)
+                {
+                    result.Error(-1, $"{DictMain.CannotDeleteItem}. {DictMain.ThereAreSomeDataItems}: {count}.");
+                    return result;
+                }
+
+                await dataObjectManager.DropTableAsync(transaction);
+            }
+
+            var deletedCount = await metaObjectProvider.DeleteAsync(metaObject.Uid, transaction);
+
+            result.Success(deletedCount, DictMain.ItemDeleted);
 
             return result;
         }

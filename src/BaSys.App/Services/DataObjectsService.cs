@@ -68,7 +68,7 @@ namespace BaSys.App.Services
             }
 
             var metaObjectSettings = metaObject.ToSettings();
-            var dataTypesIndex = await _dataTypesService.GetIndexAsync();
+            var dataTypesIndex = await _dataTypesService.GetIndexAsync(null);
 
             var allMetaObjects = new List<MetaObjectStorable>();
 
@@ -124,7 +124,7 @@ namespace BaSys.App.Services
             }
 
             var metaObjectSettings = metaObject.ToSettings();
-            var dataTypesIndex = await _dataTypesService.GetIndexAsync();
+            var dataTypesIndex = await _dataTypesService.GetIndexAsync(null);
 
             var allMetaObjects = new List<MetaObjectStorable>();
 
@@ -153,7 +153,7 @@ namespace BaSys.App.Services
                 {
                     dto = new DataObjectWithMetadataDto(objectKindSettings, metaObjectSettings, new DataObject(metaObjectSettings, dataTypesIndex));
                 }
-                dto.DataTypes = (await _dataTypesService.GetAllDataTypesAsync()).Select(x => new DTO.Core.DataTypeDto(x)).ToList();
+                dto.DataTypes = (await _dataTypesService.GetAllDataTypesAsync(null)).Select(x => new DTO.Core.DataTypeDto(x)).ToList();
                 result.Success(dto);
 
             }
@@ -198,7 +198,7 @@ namespace BaSys.App.Services
                 return result;
             }
 
-            var dataTypesIndex = await _dataTypesService.GetIndexAsync();
+            var dataTypesIndex = await _dataTypesService.GetIndexAsync(null);
 
             var allMetaObjects = new List<MetaObjectStorable>();
 
@@ -261,7 +261,7 @@ namespace BaSys.App.Services
                 }
 
                 var metaObjectSettings = metaObject.ToSettings();
-                var dataTypesIndex = await _dataTypesService.GetIndexAsync();
+                var dataTypesIndex = await _dataTypesService.GetIndexAsync(null);
                 var allMetaObjects = new List<MetaObjectStorable>();
 
                 foreach (var item in allKinds)
@@ -340,7 +340,7 @@ namespace BaSys.App.Services
                 }
 
                 var metaObjectSettings = metaObject.ToSettings();
-                var dataTypesIndex = await _dataTypesService.GetIndexAsync();
+                var dataTypesIndex = await _dataTypesService.GetIndexAsync(transaction);
                 var allMetaObjects = new List<MetaObjectStorable>();
 
                 foreach (var item in allKinds)
@@ -447,7 +447,7 @@ namespace BaSys.App.Services
                     allMetaObjects.AddRange(metaObjects);
                 }
 
-                var dataTypesIndex = await _dataTypesService.GetIndexAsync();
+                var dataTypesIndex = await _dataTypesService.GetIndexAsync(transaction);
                 var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, dataTypesIndex);
 
                 int deletedCount = 0;

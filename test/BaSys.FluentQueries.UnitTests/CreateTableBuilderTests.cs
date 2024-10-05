@@ -44,7 +44,7 @@ namespace BaSys.FluentQueries.UnitTests
         public void CreateTable_MetadataGroupByConfig_Query()
         {
 
-            var config = new MetadataGroupConfiguration();
+            var config = new MetaObjectKindConfiguration();
 
             var builder = CreateTableBuilder.Make(config);
 

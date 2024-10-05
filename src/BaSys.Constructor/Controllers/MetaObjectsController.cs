@@ -20,6 +20,14 @@ namespace BaSys.Constructor.Controllers
             _metaObjectService = metaObjectService; 
         }
 
+        [HttpGet("{kind}")]
+        public async Task<IActionResult> GetKindList(string kind)
+        {
+            var metaObjectSettings = await _metaObjectService.GetKindListAsync(kind);
+
+            return Ok(metaObjectSettings);
+        }
+
         [HttpGet("{kind}/{name}")]
         public async Task<IActionResult> GetMetaObject(string kind, string name)
         {
@@ -28,10 +36,25 @@ namespace BaSys.Constructor.Controllers
             return Ok(metaObjectSettings);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> CreateMetaObject(MetaObjectStorableSettingsDto settingsDto)
+        {
+            var result = await _metaObjectService.CreateAsync(settingsDto);
+
+            return Ok(result);
+        }
+
         [HttpPut]
         public async Task<IActionResult> UpdateMetaObject(MetaObjectStorableSettingsDto settingsDto)
         {
             var result = await _metaObjectService.UpdateSettingsItemAsync(settingsDto);
+            return Ok(result);
+        }
+
+        [HttpDelete("{kind}/{name}")]
+        public async Task<IActionResult> DeleteObject(string kind, string name)
+        {
+            var result = await _metaObjectService.DeleteAsync(kind, name);
             return Ok(result);
         }
     }
