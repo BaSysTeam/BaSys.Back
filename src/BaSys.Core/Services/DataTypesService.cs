@@ -25,18 +25,18 @@ public class DataTypesService : IDataTypesService, IDisposable
 
     }
 
-    public async Task<List<DataType>> GetAllDataTypesAsync()
+    public async Task<List<DataType>> GetAllDataTypesAsync(IDbTransaction transaction)
     {
         var primitiveDataTypes = new PrimitiveDataTypes();
         var allDataTypes = DataTypeDefaults.AllTypes().ToList();
         var metaObjectKindProvider = _providerFactory.Create<MetaObjectKindsProvider>();
 
-        var metaObjectKinds = await metaObjectKindProvider.GetCollectionAsync(null);
+        var metaObjectKinds = await metaObjectKindProvider.GetCollectionAsync(transaction);
 
         foreach (var metaObjectKind in metaObjectKinds.Where(x => x.IsReference))
         {
             var provider = _providerFactory.CreateMetaObjectStorableProvider(metaObjectKind.Name);
-            var metaObjects = await provider.GetCollectionAsync(null);
+            var metaObjects = await provider.GetCollectionAsync(transaction);
             var dataTypes = metaObjects.Select(x => ToDataType(x, metaObjectKind, primitiveDataTypes));
             allDataTypes.AddRange(dataTypes);
         }
@@ -44,9 +44,9 @@ public class DataTypesService : IDataTypesService, IDisposable
         return allDataTypes;
     }
 
-    public async Task<IDataTypesIndex> GetIndexAsync()
+    public async Task<IDataTypesIndex> GetIndexAsync(IDbTransaction transaction)
     {
-        var allDataTypes = await GetAllDataTypesAsync();
+        var allDataTypes = await GetAllDataTypesAsync(transaction);
 
         var dataTypeIndex = new DataTypesIndex(allDataTypes);
 

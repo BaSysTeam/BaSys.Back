@@ -7,6 +7,6 @@ namespace BaSys.Core.Abstractions;
 public interface IDataTypesService
 {
     void SetUp(IDbConnection connection);
-    Task<List<DataType>> GetAllDataTypesAsync();
-    Task<IDataTypesIndex> GetIndexAsync();
+    Task<List<DataType>> GetAllDataTypesAsync(IDbTransaction transaction);
+    Task<IDataTypesIndex> GetIndexAsync(IDbTransaction transaction);
 }

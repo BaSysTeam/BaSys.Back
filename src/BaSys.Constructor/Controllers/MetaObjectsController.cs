@@ -38,9 +38,9 @@ namespace BaSys.Constructor.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateMetaObject(CreateMetaObjectDto dto)
+        public async Task<IActionResult> CreateMetaObject(MetaObjectStorableSettingsDto settingsDto)
         {
-            var result = await _metaObjectService.CreateMetaObjectAsync(dto);
+            var result = await _metaObjectService.CreateAsync(settingsDto);
 
             return Ok(result);
         }

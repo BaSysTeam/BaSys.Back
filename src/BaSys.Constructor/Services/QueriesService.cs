@@ -56,7 +56,7 @@ namespace BaSys.Constructor.Services
             try
             {
                 MetaObjectStorableSettings? objectSettings = await GetObjectSettingsAsync(queryModelDto);
-                var dataTypesIndex = await _dataTypesService.GetIndexAsync();
+                var dataTypesIndex = await _dataTypesService.GetIndexAsync(null);
                 var selectModel = ConvertToQueryModel(queryModelDto, dataTypesIndex, objectSettings);
                 var dataTableDto = await ExecuteQueryAsync(_queriesProvider, selectModel);
                 result.Success(dataTableDto);

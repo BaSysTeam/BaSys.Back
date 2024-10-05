@@ -92,7 +92,7 @@ namespace BaSys.Constructor.Services
 
                         await metaObjectStorableProvider.DeleteAsync(metadataObjectUid, transaction);
 
-                        var dataTypesIndex = await _dataTypesService.GetIndexAsync();
+                        var dataTypesIndex = await _dataTypesService.GetIndexAsync(null);
                         var dataObjectManager = new DataObjectManager(_connection, metadataKindSettings, metaObjectStorableSettings, dataTypesIndex);
                         await dataObjectManager.DropTableAsync(transaction);
                     }
