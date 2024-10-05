@@ -25,7 +25,7 @@ namespace BaSys.FluentQueries.UnitTests
         [Test]
         public void TableName_SetInConfiguration_TableName()
         {
-            var config = new MetadataGroupConfiguration();
+            var config = new MetaObjectKindConfiguration();
 
             Console.WriteLine(config.ToString());
 
@@ -35,7 +35,7 @@ namespace BaSys.FluentQueries.UnitTests
         [Test]
         public void PrimaryKey_SetInConfiguration_Exists()
         {
-            var config = new MetadataGroupConfiguration();
+            var config = new MetaObjectKindConfiguration();
 
             Console.WriteLine(config.ToString());
             var column = config.Column("uid");
@@ -48,7 +48,7 @@ namespace BaSys.FluentQueries.UnitTests
         [Test]
         public void Columns_SetInConfiguration_Check()
         {
-            var config = new MetadataGroupConfiguration();
+            var config = new MetaObjectKindConfiguration();
 
             Console.WriteLine(config.ToString());
             var titleColumn = config.Column("title");
