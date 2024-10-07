@@ -10,6 +10,7 @@ public interface IMetaObjectKindsService
     Task<ResultWrapper<IEnumerable<MetaObjectKind>>> GetCollectionAsync();
     Task<ResultWrapper<IEnumerable<MetaObjectKindSettings>>> GetSettingsCollection();
     Task<ResultWrapper<MetaObjectKindSettings>> InsertSettingsAsync(MetaObjectKindSettings settings);
+    Task<ResultWrapper<int>> InsertStandardItemsAsync();
     Task<ResultWrapper<int>> UpdateSettingsAsync(MetaObjectKindSettings settings);
     Task<ResultWrapper<int>> DeleteAsync(Guid uid);
 }
