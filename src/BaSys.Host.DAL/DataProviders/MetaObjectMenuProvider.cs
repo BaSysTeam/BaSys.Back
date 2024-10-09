@@ -31,6 +31,7 @@ namespace BaSys.Host.DAL.DataProviders
             {
                 item.Uid = Guid.NewGuid();
             }
+            item.BeforeSave();
 
             _query = InsertBuilder.Make(_config)
                 .FillValuesByColumnNames(true)
@@ -43,11 +44,11 @@ namespace BaSys.Host.DAL.DataProviders
 
         public override async Task<int> UpdateAsync(MetaObjectMenu item, IDbTransaction transaction)
         {
+            item.BeforeSave();
+
             _query = UpdateBuilder.Make(_config)
            .WhereAnd("uid = @uid")
            .Query(_sqlDialect);
-
-
 
             var result = await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
 

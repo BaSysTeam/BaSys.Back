@@ -92,16 +92,37 @@ namespace BaSys.Core.Services
                 return result;
             }
 
-            var provider = _providerFactory.CreateMetaObjectStorableProvider(kindSettings.Name);
+            if (kindName == "menu")
+            {
+                var provider = _providerFactory.Create<MetaObjectMenuProvider>();
 
-            var items = await provider.GetCollectionAsync(null);
+                var collection = await provider.GetCollectionAsync(null);
+                var listDto = new MetaObjectListDto
+                {
+                    Title = "Menu",
+                    MetaObjectKindUid = MetaObjectKindDefaults.Menu.Uid.ToString(),
+                    Items = collection.Select(x => new MetaObjectDto(x)).ToList()
+                };
 
-            var listDto = new MetaObjectListDto();
-            listDto.Title = kindSettings.Title;
-            listDto.MetaObjectKindUid = kindSettings.Uid.ToString();
-            listDto.Items = items.Select(x => new MetaObjectDto(x)).ToList();
+                result.Success(listDto);
+            }
+            else
+            {
+                var provider = _providerFactory.CreateMetaObjectStorableProvider(kindSettings.Name);
 
-            result.Success(listDto);
+                var items = await provider.GetCollectionAsync(null);
+
+                var listDto = new MetaObjectListDto
+                {
+                    Title = kindSettings.Title,
+                    MetaObjectKindUid = kindSettings.Uid.ToString(),
+                    Items = items.Select(x => new MetaObjectDto(x)).ToList()
+                };
+
+                result.Success(listDto);
+            }
+
+         
 
             return result;
         }
