@@ -1,6 +1,7 @@
 ﻿using BaSys.FluentQueries.Abstractions;
 using BaSys.FluentQueries.Enums;
 using BaSys.FluentQueries.QueryBuilders;
+using BaSys.Host.DAL.Helpers;
 using BaSys.Metadata.Models;
 using Dapper;
 using Npgsql;
@@ -28,7 +29,7 @@ namespace BaSys.Host.DAL.Abstractions
         protected SystemObjectProviderBase(IDbConnection dbConnection, IDataModelConfiguration config)
         {
             _dbConnection = dbConnection;
-            _sqlDialect = GetDialectKind(dbConnection);
+            _sqlDialect = SqlDialectKindHelper.GetDialectKind(dbConnection);
             _config = config;
 
             if (_config.TableName.Substring(0, 4) != "sys_")
@@ -82,15 +83,6 @@ namespace BaSys.Host.DAL.Abstractions
             return (insertedCount > 0) ? uid : Guid.Empty;
         }
 
-        private SqlDialectKinds GetDialectKind(IDbConnection connection)
-        {
-            var dialectKind = SqlDialectKinds.MsSql;
-            if (connection is NpgsqlConnection)
-            {
-                dialectKind = SqlDialectKinds.PgSql;
-            }
-
-            return dialectKind;
-        }
+      
     }
 }

@@ -1,11 +1,10 @@
-﻿using System;
+﻿using MessagePack;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BaSys.Metadata.Models.MenuModel
 {
+    [MessagePackObject(keyAsPropertyName: true)]
     public sealed class MenuSettingsGroupItem
     {
         public Guid Uid { get; set; }
