@@ -94,7 +94,7 @@ namespace BaSys.Core.Services
             try
             {
                 var insertedCount = await _menuProvider.InsertSettingsAsync(settings, null);
-                result.Success(insertedCount);
+                result.Success(insertedCount, DictMain.ItemSaved);
             }
             catch (Exception ex)
             {
@@ -118,6 +118,7 @@ namespace BaSys.Core.Services
 
                 savedSettings.CopyFrom(settings);
                 var insertedCount = await _menuProvider.UpdateSettingsAsync(savedSettings, null);
+                result.Success(insertedCount, DictMain.ItemSaved);
             }
             catch (Exception ex)
             {
@@ -157,7 +158,7 @@ namespace BaSys.Core.Services
             }
 
             var deletedCount = await _menuProvider.DeleteAsync(item.Uid, null);
-            result.Success(deletedCount);
+            result.Success(deletedCount, DictMain.ItemDeleted);
 
             return result;
         }

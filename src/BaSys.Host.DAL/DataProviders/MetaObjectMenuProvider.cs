@@ -11,7 +11,9 @@ namespace BaSys.Host.DAL.DataProviders
 {
     public class MetaObjectMenuProvider : SystemObjectProviderBase<MetaObjectMenu>
     {
-        public MetaObjectMenuProvider(IDbConnection dbConnection, string kindName) : base(dbConnection, new MetadataObjectConfiguration(kindName))
+        public const string KindName = "menu";
+
+        public MetaObjectMenuProvider(IDbConnection dbConnection) : base(dbConnection, new MetadataObjectConfiguration(KindName))
         {
 
         }
