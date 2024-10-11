@@ -110,7 +110,7 @@ namespace BaSys.Core.Services
 
             if (kindName == "menu")
             {
-                var provider = _providerFactory.Create<MetaObjectMenuProvider>();
+                var provider = _providerFactory.Create<MetaMenuProvider>();
 
                 var collection = await provider.GetCollectionAsync(null);
                 var listDto = new MetaObjectListDto
@@ -400,7 +400,7 @@ namespace BaSys.Core.Services
 
             if (kindName == MetaObjectKindDefaults.Menu.Name)
             {
-                var provider = _providerFactory.Create<MetaObjectMenuProvider>();
+                var provider = _providerFactory.Create<MetaMenuProvider>();
                 var item = await provider.GetItemByNameAsync(objectName, transaction);
                 if (item == null)
                 {

@@ -11,7 +11,7 @@ namespace BaSys.Metadata.Models
 {
     public sealed class MetaObjectMenu: MetaObjectBase
     {
-        public void FillBySettings(MetaObjectMenuSettings settings)
+        public void FillBySettings(MenuSettings settings)
         {
             MetaObjectKindUid = MetaObjectKindDefaults.Menu.Uid;
             Title = settings.Title;
@@ -22,9 +22,9 @@ namespace BaSys.Metadata.Models
             SettingsStorage = MessagePackSerializer.Serialize(settings);
         }
 
-        public MetaObjectMenuSettings ToSettings()
+        public MenuSettings ToSettings()
         {
-            var settings = MessagePackSerializer.Deserialize<MetaObjectMenuSettings>(SettingsStorage);
+            var settings = MessagePackSerializer.Deserialize<MenuSettings>(SettingsStorage);
             settings.Uid = Uid;
             settings.Version = Version;
 

@@ -11,9 +11,9 @@ namespace BaSys.Constructor.Controllers
     [Authorize(Roles = ApplicationRole.Designer)]
     public class MetaMenusController : ControllerBase
     {
-        private readonly IMetaObjectMenusService _menuService;
+        private readonly IMetaMenusService _menuService;
 
-        public MetaMenusController(IMetaObjectMenusService menuService)
+        public MetaMenusController(IMetaMenusService menuService)
         {
             _menuService = menuService;
         }
@@ -35,7 +35,7 @@ namespace BaSys.Constructor.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateMetaObject(MetaObjectMenuSettings settings)
+        public async Task<IActionResult> CreateMetaObject(MenuSettings settings)
         {
             var result = await _menuService.CreateAsync(settings);
 
@@ -43,7 +43,7 @@ namespace BaSys.Constructor.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateMetaObject(MetaObjectMenuSettings settings)
+        public async Task<IActionResult> UpdateMetaObject(MenuSettings settings)
         {
             var result = await _menuService.UpdateSettingsItemAsync(settings);
             return Ok(result);
