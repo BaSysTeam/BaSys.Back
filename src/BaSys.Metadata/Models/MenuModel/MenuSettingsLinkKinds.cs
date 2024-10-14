@@ -8,7 +8,7 @@ namespace BaSys.Metadata.Models.MenuModel
 {
     public enum MenuSettingsLinkKinds
     {
-        Link = 0,
-        Delimiter = 1,
+        Link = 1,
+        Separator = 2,
     }
 }

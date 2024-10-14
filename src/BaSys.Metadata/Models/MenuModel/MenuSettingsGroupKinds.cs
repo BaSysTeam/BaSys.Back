@@ -8,8 +8,8 @@ namespace BaSys.Metadata.Models.MenuModel
 {
     public enum MenuSettingsGroupKinds
     {
-        Link = 0,
-        Delimiter = 1,
-        Group = 2,
+        Link = 1,
+        Separator = 2,
+        Group = 3,
     }
 }
