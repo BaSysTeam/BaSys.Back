@@ -18,11 +18,18 @@ namespace BaSys.Host.DAL.DataProviders
 
         }
 
-        public override async Task<IEnumerable<MetaObjectMenu>> GetCollectionAsync(IDbTransaction transaction)
+        public async Task<IEnumerable<MetaObjectMenu>> GetCollectionAsync(bool? isActive, IDbTransaction? transaction)
         {
-            _query = SelectBuilder.Make().From(_config.TableName).Select("*").OrderBy("title").Query(_sqlDialect);
+             var builder = SelectBuilder.Make().From(_config.TableName).Select("*").OrderBy("title");
 
-            var result = await _dbConnection.QueryAsync<MetaObjectMenu>(_query.Text, null, transaction);
+            if (isActive.HasValue)
+            {
+                builder.WhereAnd("isactive = @isActive").Parameter("isActive", isActive.Value, DbType.Boolean);
+            }
+
+            _query = builder.Query(_sqlDialect);
+
+            var result = await _dbConnection.QueryAsync<MetaObjectMenu>(_query.Text, _query.DynamicParameters, transaction);
 
             return result;
         }

@@ -46,7 +46,7 @@ namespace BaSys.Core.Services
 
             try
             {
-                var collection = await _menuProvider.GetCollectionAsync(null);
+                var collection = await _menuProvider.GetCollectionAsync(null, null);
                 var listDto = new MetaObjectListDto
                 {
                     Title = "Menu",
