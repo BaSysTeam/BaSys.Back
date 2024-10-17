@@ -17,5 +17,18 @@ namespace BaSys.Metadata.Models.MenuModel
         public int ItemsPerColumn { get; set; }
         public string MetaObjectKindUid { get; set; }
         public List<MenuSettingsColumn> Items { get; set; } = new List<MenuSettingsColumn>();
+
+        public Guid MetaObjectKindUidParsed
+        {
+            get
+            {
+                if (Guid.TryParse(MetaObjectKindUid, out var uid))
+                {
+                    return uid;
+                }
+                return Guid.Empty;
+            }
+        }
     }
 }
+

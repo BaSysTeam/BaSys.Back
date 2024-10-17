@@ -15,6 +15,6 @@ namespace BaSys.DTO.App
         public bool Visible { get; set; } = true;
         public bool Separator { get; set; }
 
-        public List<MenuItemDto> Items { get; set;} = new List<MenuItemDto>();
+        public List<MenuItemDto> Items { get; set; } = new List<MenuItemDto>();
     }
 }

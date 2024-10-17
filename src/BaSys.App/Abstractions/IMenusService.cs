@@ -5,6 +5,6 @@ namespace BaSys.App.Abstractions
 {
     public interface IMenusService
     {
-        Task<ResultWrapper<IEnumerable<MenuItemDto>>> GetCollectionAsync();
+        Task<ResultWrapper<IEnumerable<MenuGroupDto>>> GetCollectionAsync();
     }
 }
