@@ -16,6 +16,7 @@ namespace BaSys.App.Infrastructure
 
             services.AddTransient<IDataObjectsService, DataObjectsService>();
             services.AddTransient<ISelectItemService, SelectItemsService>();
+            services.AddTransient<IMenusService, MenusService>();
 
             return services;
         }
