@@ -1,13 +1,10 @@
 ﻿using BaSys.App.Abstractions;
 using BaSys.Common.Infrastructure;
-using BaSys.Core.Abstractions;
 using BaSys.DTO.App;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
-using BaSys.Logging.Abstractions.Abstractions;
 using BaSys.Metadata.Models;
 using BaSys.Metadata.Models.MenuModel;
-using NuGet.Configuration;
 using System.Data;
 
 namespace BaSys.App.Services
@@ -35,6 +32,22 @@ namespace BaSys.App.Services
         {
             var result = new ResultWrapper<IEnumerable<MenuGroupDto>>();
 
+            try
+            {
+                var menuCollection = await ExecuteGetCollectionAsync();
+                result.Success(menuCollection);
+            }
+            catch (Exception ex)
+            {
+
+                result.Error(-1, $"Cannot build menu: {ex.Message}", ex.StackTrace);
+            }
+
+            return result;
+        }
+
+        private async Task<IEnumerable<MenuGroupDto>> ExecuteGetCollectionAsync()
+        {
             var metaMenus = await _menuProvider.GetCollectionAsync(true, null);
             var allKinds = await _kindProvider.GetCollectionAsync(null);
 
@@ -50,105 +63,57 @@ namespace BaSys.App.Services
                         continue;
                     }
 
-                    switch (settingsItem.Kind)
+                    var menuGroup = new MenuGroupDto(settingsItem);
+                    if (settingsItem.Kind == MenuSettingsGroupKinds.Group)
                     {
-                        case MenuSettingsGroupKinds.Separator:
-                            var newSeparator = new MenuGroupDto()
-                            {
-                                Separator = true,
-                                Key = settingsItem.Uid.ToString()
-                            };
-                            menuCollection.Add(newSeparator);
-                            break;
-                        case MenuSettingsGroupKinds.Link:
-                            var newLink = new MenuGroupDto()
-                            {
-                                Label = settingsItem.Title,
-                                Icon = settingsItem.IconClass,
-                                Url = settingsItem.Url,
-                                Key = settingsItem.Uid.ToString()
-                            };
-                            menuCollection.Add(newLink);
-                            break;
-                        case MenuSettingsGroupKinds.Group:
-                            var menuGroup = new MenuGroupDto()
-                            {
-                                Label = settingsItem.Title,
-                                Icon = settingsItem.IconClass,
-                                Url = null,
-                                Key = settingsItem.Uid.ToString()
-                            };
-
-                            if (settingsItem.AutoFill)
-                            {
-                                await AutoFillMenuGroupAsync(settingsItem, allKinds, menuGroup);
-                            }
-                            else
-                            {
-                                foreach(var settingsColumn in settingsItem.Items)
-                                {
-                                    var menuColumn = new List<MenuItemDto>();
-                                    foreach (var settingsSubItem in settingsColumn.Items)
-                                    {
-                                        var menuSubGroup = new MenuItemDto() { 
-                                            Label = settingsSubItem.Title, 
-                                            Visible = settingsSubItem.IsVisible
-                                        };
-
-
-                                        foreach (var settingsLinkItem in settingsSubItem.Items)
-                                        {
-                                            if (!settingsLinkItem.IsVisible)
-                                            {
-                                                continue;
-                                            }
-                                            if (settingsLinkItem.Kind == MenuSettingsLinkKinds.Separator)
-                                            {
-                                                var newMenuSeparator = new MenuItemDto() { Separator = true, 
-                                                    Visible = settingsLinkItem.IsVisible };
-
-                                                menuSubGroup.Items.Add(newMenuSeparator);
-
-
-                                            }
-                                            else if (settingsLinkItem.Kind == MenuSettingsLinkKinds.Link)
-                                            {
-                                                var newLinkItem = new MenuItemDto()
-                                                {
-                                                    Label = settingsLinkItem.Title,
-                                                    Icon = settingsLinkItem.IconClass,
-                                                    Url = settingsLinkItem.Url,
-                                                    Key = settingsLinkItem.Uid.ToString()
-                                                };
-                                                menuSubGroup.Items.Add(newLinkItem);
-                                            }
-                                           
-
-                                        }
-
-                                        menuColumn.Add(menuSubGroup);
-
-                                    }
-                                    menuGroup.Items.Add(menuColumn);
-                                }
-                            }
-
-                            menuCollection.Add(menuGroup);
-                            break;
-                        default:
-                            break;
+                        if (settingsItem.AutoFill)
+                        {
+                            await AutoFillMenuGroupAsync(settingsItem, allKinds, menuGroup);
+                        }
+                        else
+                        {
+                            FillMenuGroup(settingsItem, menuGroup);
+                        }
                     }
+                    menuCollection.Add(menuGroup);
+
                 }
 
             }
 
-            result.Success(menuCollection);
-
-            return result;
+            return menuCollection;
         }
 
-        private async Task AutoFillMenuGroupAsync(MenuSettingsGroupItem settingsItem, 
-            IEnumerable<MetaObjectKind> allKinds, 
+        private void FillMenuGroup(MenuSettingsGroupItem settingsItem, MenuGroupDto menuGroup)
+        {
+            foreach (var settingsColumn in settingsItem.Items)
+            {
+                var menuColumn = new List<MenuItemDto>();
+                foreach (var settingsSubItem in settingsColumn.Items)
+                {
+                    var menuSubGroup = new MenuItemDto(settingsSubItem);
+
+                    foreach (var settingsLinkItem in settingsSubItem.Items)
+                    {
+                        if (!settingsLinkItem.IsVisible)
+                        {
+                            continue;
+                        }
+
+                        var newLinkItem = new MenuItemDto(settingsLinkItem);
+                        menuSubGroup.Items.Add(newLinkItem);
+
+                    }
+
+                    menuColumn.Add(menuSubGroup);
+
+                }
+                menuGroup.Items.Add(menuColumn);
+            }
+        }
+
+        private async Task AutoFillMenuGroupAsync(MenuSettingsGroupItem settingsItem,
+            IEnumerable<MetaObjectKind> allKinds,
             MenuGroupDto menuGroup)
         {
             var kind = allKinds.FirstOrDefault(x => x.Uid == settingsItem.MetaObjectKindUidParsed);
@@ -198,8 +163,6 @@ namespace BaSys.App.Services
                         _connection.Dispose();
                 }
 
-                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
-                // TODO: set large fields to null
                 _disposed = true;
             }
         }
