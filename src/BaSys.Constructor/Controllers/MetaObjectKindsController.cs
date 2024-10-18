@@ -96,6 +96,19 @@ namespace BaSys.Constructor.Controllers
         }
 
         /// <summary>
+        /// Creates standard meta object kinds.
+        /// </summary>
+        /// <returns>An IActionResult containing info about created item count.</returns>
+        [HttpPost("Standard")]
+        public async Task<IActionResult> CreateStandardItems()
+        {
+            var result = await _metaObjectKindsService.InsertStandardItemsAsync();
+
+            return Ok(result);
+
+        }
+
+        /// <summary>
         /// Updates an existing metaobject kind setting.
         /// </summary>
         /// <param name="settings">The metaobject kind settings to update.</param>

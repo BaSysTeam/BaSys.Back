@@ -84,6 +84,22 @@ namespace BaSys.Core.Services
         {
             var result = new ResultWrapper<MetaObjectListDto>();
 
+            try
+            {
+                result = await ExecuteGetKindListAsync(kindName);
+               
+            }
+            catch (Exception ex) {
+                result.Error(-1, $"Cannot get data: {ex.Message}", ex.StackTrace);
+            }
+
+            return result;
+        }
+
+        private async Task<ResultWrapper<MetaObjectListDto>> ExecuteGetKindListAsync(string kindName)
+        {
+            var result = new ResultWrapper<MetaObjectListDto>();
+
             var kindSettings = await _kindsProvider.GetSettingsByNameAsync(kindName);
 
             if (kindSettings == null)
@@ -92,16 +108,37 @@ namespace BaSys.Core.Services
                 return result;
             }
 
-            var provider = _providerFactory.CreateMetaObjectStorableProvider(kindSettings.Name);
+            if (kindName == "menu")
+            {
+                var provider = _providerFactory.Create<MetaMenuProvider>();
 
-            var items = await provider.GetCollectionAsync(null);
+                var collection = await provider.GetCollectionAsync(null);
+                var listDto = new MetaObjectListDto
+                {
+                    Title = "Menu",
+                    MetaObjectKindUid = MetaObjectKindDefaults.Menu.Uid.ToString(),
+                    Items = collection.Select(x => new MetaObjectDto(x)).ToList()
+                };
 
-            var listDto = new MetaObjectListDto();
-            listDto.Title = kindSettings.Title;
-            listDto.MetaObjectKindUid = kindSettings.Uid.ToString();
-            listDto.Items = items.Select(x => new MetaObjectDto(x)).ToList();
+                result.Success(listDto);
+            }
+            else
+            {
+                var provider = _providerFactory.CreateMetaObjectStorableProvider(kindSettings.Name);
 
-            result.Success(listDto);
+                var items = await provider.GetCollectionAsync(null);
+
+                var listDto = new MetaObjectListDto
+                {
+                    Title = kindSettings.Title,
+                    MetaObjectKindUid = kindSettings.Uid.ToString(),
+                    Items = items.Select(x => new MetaObjectDto(x)).ToList()
+                };
+
+                result.Success(listDto);
+            }
+
+
 
             return result;
         }
@@ -361,44 +398,62 @@ namespace BaSys.Core.Services
         {
             var result = new ResultWrapper<int>();
 
-            var kindSettings = await _kindsProvider.GetSettingsByNameAsync(kindName, transaction);
-
-            if (kindSettings == null)
+            if (kindName == MetaObjectKindDefaults.Menu.Name)
             {
-                result.Error(-1, $"{DictMain.CannotFindMetaObjectKind}: {kindName}");
-                return result;
-            }
-
-            var metaObjectProvider = _providerFactory.CreateMetaObjectStorableProvider(kindSettings.Name);
-            var metaObject = await metaObjectProvider.GetItemByNameAsync(objectName, transaction);
-
-            if (metaObject == null)
-            {
-                result.Error(-1, $"{DictMain.CannotFindMetaObject}: {kindName}.{objectName}");
-                return result;
-            }
-            var metaObjectSettings = metaObject.ToSettings();
-
-            var dataTypesIndex = await _dataTypesService.GetIndexAsync(transaction);
-            var dataObjectProvider = new DataObjectProvider(_connection, kindSettings, metaObjectSettings, dataTypesIndex);
-            var dataObjectManager = new DataObjectManager(_connection, kindSettings, metaObjectSettings, dataTypesIndex);
-
-            if (await dataObjectManager.TableExistsAsync(transaction))
-            {
-                var count = await dataObjectProvider.CountAsync(transaction);
-
-                if (count > 0)
+                var provider = _providerFactory.Create<MetaMenuProvider>();
+                var item = await provider.GetItemByNameAsync(objectName, transaction);
+                if (item == null)
                 {
-                    result.Error(-1, $"{DictMain.CannotDeleteItem}. {DictMain.ThereAreSomeDataItems}: {count}.");
+                    result.Error(-1, $"{DictMain.CannotFindItem} Menu.{objectName}");
                     return result;
                 }
 
-                await dataObjectManager.DropTableAsync(transaction);
+                var deletedCount = await provider.DeleteAsync(item.Uid, transaction);
+                result.Success(deletedCount, DictMain.ItemDeleted);
+            }
+            else
+            {
+                var kindSettings = await _kindsProvider.GetSettingsByNameAsync(kindName, transaction);
+
+                if (kindSettings == null)
+                {
+                    result.Error(-1, $"{DictMain.CannotFindMetaObjectKind}: {kindName}");
+                    return result;
+                }
+
+                var metaObjectProvider = _providerFactory.CreateMetaObjectStorableProvider(kindSettings.Name);
+                var metaObject = await metaObjectProvider.GetItemByNameAsync(objectName, transaction);
+
+                if (metaObject == null)
+                {
+                    result.Error(-1, $"{DictMain.CannotFindMetaObject}: {kindName}.{objectName}");
+                    return result;
+                }
+                var metaObjectSettings = metaObject.ToSettings();
+
+                var dataTypesIndex = await _dataTypesService.GetIndexAsync(transaction);
+                var dataObjectProvider = new DataObjectProvider(_connection, kindSettings, metaObjectSettings, dataTypesIndex);
+                var dataObjectManager = new DataObjectManager(_connection, kindSettings, metaObjectSettings, dataTypesIndex);
+
+                if (await dataObjectManager.TableExistsAsync(transaction))
+                {
+                    var count = await dataObjectProvider.CountAsync(transaction);
+
+                    if (count > 0)
+                    {
+                        result.Error(-1, $"{DictMain.CannotDeleteItem}. {DictMain.ThereAreSomeDataItems}: {count}.");
+                        return result;
+                    }
+
+                    await dataObjectManager.DropTableAsync(transaction);
+                }
+
+                var deletedCount = await metaObjectProvider.DeleteAsync(metaObject.Uid, transaction);
+
+                result.Success(deletedCount, DictMain.ItemDeleted);
             }
 
-            var deletedCount = await metaObjectProvider.DeleteAsync(metaObject.Uid, transaction);
-
-            result.Success(deletedCount, DictMain.ItemDeleted);
+       
 
             return result;
         }

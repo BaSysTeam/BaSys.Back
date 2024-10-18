@@ -28,5 +28,14 @@ namespace BaSys.DTO.Metadata
             Memo = source.Memo;
             IsActive = source.IsActive;
         }
+
+        public MetaObjectDto(MetaObjectMenu source)
+        {
+            Uid = source.Uid.ToString();
+            Name = source.Name;
+            Title = source.Title;
+            Memo = source.Memo;
+            IsActive = source.IsActive;
+        }
     }
 }

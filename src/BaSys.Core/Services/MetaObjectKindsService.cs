@@ -9,6 +9,7 @@ using BaSys.Logging.Abstractions.Abstractions;
 using BaSys.Logging.EventTypes;
 using BaSys.Metadata.Models;
 using BaSys.Metadata.Validators;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BaSys.Core.Services
 {
@@ -22,7 +23,7 @@ namespace BaSys.Core.Services
 
         public MetaObjectKindsService(IMainConnectionFactory connectionFactory,
             ISystemObjectProviderFactory providerFactory,
-            ITableManagerFactory managerFactory, 
+            ITableManagerFactory managerFactory,
             ILoggerService logger)
         {
             _connection = connectionFactory.CreateConnection();
@@ -282,7 +283,7 @@ namespace BaSys.Core.Services
                     var settings = savedItem.ToSettings();
                     var metaObjectManager = _managerFactory.CreateMetaObjectManager(settings.Name);
                     await metaObjectManager.DropTableAsync(transaction);
-                    
+
                     // delete AttachedFileInfo table
                     // if (settings.AllowAttacheFiles)
                     {
@@ -310,6 +311,43 @@ namespace BaSys.Core.Services
             }
 
             return result;
+        }
+
+        public async Task<ResultWrapper<int>> InsertStandardItemsAsync()
+        {
+            var result = new ResultWrapper<int>();
+
+            try
+            {
+                var insertedCount = await ExecuteInsertStandardItemsAsync();
+                result.Success(insertedCount, $"Add {insertedCount} standard items.");
+
+            }
+            catch (Exception ex)
+            {
+                result.Error(-1, $"Cannot inser standard items. {ex.Message}", ex.StackTrace);
+
+            }
+
+            return result;
+        }
+
+        private async Task<int> ExecuteInsertStandardItemsAsync()
+        {
+            var insertedCount = 0;
+            var collection = MetaObjectKindDefaults.AllItems();
+            foreach (var settings in collection)
+            {
+                var savedItem = await _provider.GetItemAsync(settings.Uid, null);
+                if (savedItem != null)
+                {
+                    continue;
+                }
+
+                var insertResult = await InsertSettingsAsync(settings);
+                insertedCount += insertResult.IsOK ? 1 : 0;
+            }
+            return insertedCount;
         }
 
         private bool Check()
