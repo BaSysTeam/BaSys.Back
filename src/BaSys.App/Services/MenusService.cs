@@ -5,7 +5,9 @@ using BaSys.DTO.App;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
 using BaSys.Logging.Abstractions.Abstractions;
+using BaSys.Metadata.Models;
 using BaSys.Metadata.Models.MenuModel;
+using NuGet.Configuration;
 using System.Data;
 
 namespace BaSys.App.Services
@@ -79,40 +81,55 @@ namespace BaSys.App.Services
 
                             if (settingsItem.AutoFill)
                             {
-                                var kind = allKinds.FirstOrDefault(x => x.Uid == settingsItem.MetaObjectKindUidParsed);
-                                if (kind != null)
+                                await AutoFillMenuGroupAsync(settingsItem, allKinds, menuGroup);
+                            }
+                            else
+                            {
+                                foreach(var settingsColumn in settingsItem.Items)
                                 {
-                                    var metaObjectProvider = new MetaObjectStorableProvider(_connection, kind.Name);
-                                    var metaObjects = await metaObjectProvider.GetCollectionAsync(null);
-
-                                    var itemsPerColumn = settingsItem.ItemsPerColumn;
-                                    var columns = metaObjects
-                                        .Where(x=>x.IsActive)
-                                        .Select((metaObject, index) => new { metaObject, index })
-                                        .GroupBy(x => x.index / itemsPerColumn)
-                                        .Select(g => g.Select(x => x.metaObject).ToList())
-                                        .ToList();
-
-                                    foreach(var column in columns)
+                                    var menuColumn = new List<MenuItemDto>();
+                                    foreach (var settingsSubItem in settingsColumn.Items)
                                     {
-                                        var menuColumn = new List<MenuItemDto>();
-                                        var menuSubGroup = new MenuItemDto();
+                                        var menuSubGroup = new MenuItemDto() { 
+                                            Label = settingsSubItem.Title, 
+                                            Visible = settingsSubItem.IsVisible
+                                        };
 
-                                        foreach(var item in column)
+
+                                        foreach (var settingsLinkItem in settingsSubItem.Items)
                                         {
-                                            var menuItem = new MenuItemDto()
+                                            if (!settingsLinkItem.IsVisible)
                                             {
-                                                Key = item.Uid.ToString(),
-                                                Label = item.Title,
-                                                Url = $"/app#/data-objects/{kind.Name}/{item.Name}"
-                                            };
-                                            menuSubGroup.Items.Add(menuItem);
+                                                continue;
+                                            }
+                                            if (settingsLinkItem.Kind == MenuSettingsLinkKinds.Separator)
+                                            {
+                                                var newMenuSeparator = new MenuItemDto() { Separator = true, 
+                                                    Visible = settingsLinkItem.IsVisible };
+
+                                                menuSubGroup.Items.Add(newMenuSeparator);
+
+
+                                            }
+                                            else if (settingsLinkItem.Kind == MenuSettingsLinkKinds.Link)
+                                            {
+                                                var newLinkItem = new MenuItemDto()
+                                                {
+                                                    Label = settingsLinkItem.Title,
+                                                    Icon = settingsLinkItem.IconClass,
+                                                    Url = settingsLinkItem.Url,
+                                                    Key = settingsLinkItem.Uid.ToString()
+                                                };
+                                                menuSubGroup.Items.Add(newLinkItem);
+                                            }
+                                           
+
                                         }
 
-                                       menuColumn.Add(menuSubGroup);
-                                       menuGroup.Items.Add(menuColumn);
+                                        menuColumn.Add(menuSubGroup);
 
                                     }
+                                    menuGroup.Items.Add(menuColumn);
                                 }
                             }
 
@@ -128,6 +145,47 @@ namespace BaSys.App.Services
             result.Success(menuCollection);
 
             return result;
+        }
+
+        private async Task AutoFillMenuGroupAsync(MenuSettingsGroupItem settingsItem, 
+            IEnumerable<MetaObjectKind> allKinds, 
+            MenuGroupDto menuGroup)
+        {
+            var kind = allKinds.FirstOrDefault(x => x.Uid == settingsItem.MetaObjectKindUidParsed);
+            if (kind != null)
+            {
+                var metaObjectProvider = new MetaObjectStorableProvider(_connection, kind.Name);
+                var metaObjects = await metaObjectProvider.GetCollectionAsync(null);
+
+                var itemsPerColumn = settingsItem.ItemsPerColumn;
+                var columns = metaObjects
+                    .Where(x => x.IsActive)
+                    .Select((metaObject, index) => new { metaObject, index })
+                    .GroupBy(x => x.index / itemsPerColumn)
+                    .Select(g => g.Select(x => x.metaObject).ToList())
+                    .ToList();
+
+                foreach (var column in columns)
+                {
+                    var menuColumn = new List<MenuItemDto>();
+                    var menuSubGroup = new MenuItemDto();
+
+                    foreach (var item in column)
+                    {
+                        var menuItem = new MenuItemDto()
+                        {
+                            Key = item.Uid.ToString(),
+                            Label = item.Title,
+                            Url = $"/app#/data-objects/{kind.Name}/{item.Name}"
+                        };
+                        menuSubGroup.Items.Add(menuItem);
+                    }
+
+                    menuColumn.Add(menuSubGroup);
+                    menuGroup.Items.Add(menuColumn);
+
+                }
+            }
         }
 
         private void Dispose(bool disposing)
