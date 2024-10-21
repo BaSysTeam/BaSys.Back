@@ -1,12 +1,7 @@
-﻿using BaSys.Metadata.Abstractions;
+﻿using BaSys.Common.Helpers;
+using BaSys.Metadata.Abstractions;
 using BaSys.Metadata.Models;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BaSys.DAL.Models.App
 {
@@ -24,8 +19,30 @@ namespace BaSys.DAL.Models.App
         {
             foreach (var column in settings.Header.Columns)
             {
-                var emptyValue = GetEmptyValue(column, dataTypeIndex);
-                Header.Add(column.Name, emptyValue);
+
+                var dataType = dataTypeIndex.GetDataTypeSafe(column.DataTypeUid);
+
+                if (!string.IsNullOrEmpty(column.DefaultValue))
+                {
+                    // Get default value;
+                    object defaultValue = null;
+                    if (column.DefaultValue.Equals("now", StringComparison.OrdinalIgnoreCase) && dataType.Uid == DataTypeDefaults.DateTime.Uid)
+                    {
+                        defaultValue = DateTime.Now;
+                    }
+                    else
+                    {
+                        defaultValue = ValueParser.Parse(column.DefaultValue, dataType.DbType);
+                    }
+
+                    Header.Add(column.Name, defaultValue);
+                }
+                else
+                {
+                    var emptyValue = GetEmptyValue(column, dataType.DbType);
+                    Header.Add(column.Name, emptyValue);
+                }
+
             }
         }
 
@@ -51,13 +68,10 @@ namespace BaSys.DAL.Models.App
 
         }
 
-        public object GetEmptyValue(MetaObjectTableColumn column, IDataTypesIndex dataTypeIndex)
+        public object GetEmptyValue(MetaObjectTableColumn column, DbType dbType)
         {
-            var primitiveDataTypes = new PrimitiveDataTypes();
 
-            var dataType = dataTypeIndex.GetDataTypeSafe(column.DataTypeUid);
-
-            switch (dataType.DbType)
+            switch (dbType)
             {
                 case DbType.String: return "";
                 case DbType.AnsiString: return "";
