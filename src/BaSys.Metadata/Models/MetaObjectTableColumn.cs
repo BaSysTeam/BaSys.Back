@@ -1,9 +1,6 @@
 ﻿using MessagePack;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BaSys.Metadata.Models
 {
@@ -19,6 +16,7 @@ namespace BaSys.Metadata.Models
         public bool PrimaryKey { get; set; }
         public bool Required { get; set; }
         public bool Unique { get; set; }
+        public string DefaultValue { get; set; } = String.Empty;
         public MetaObjectTableColumnRenderSettings RenderSettings { get; set; } = new MetaObjectTableColumnRenderSettings();
         public bool IsStandard { get; set; }
         public string Formula { get; set; } = string.Empty;
@@ -67,6 +65,7 @@ namespace BaSys.Metadata.Models
             clone.PrimaryKey = PrimaryKey;
             clone.Unique = Unique;
             clone.IsStandard = IsStandard;
+            clone.DefaultValue = DefaultValue;
 
             clone.Formula = Formula;
 
