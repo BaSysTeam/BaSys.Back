@@ -35,6 +35,7 @@ namespace BaSys.Metadata.Models
         }
         public MetaObjectTable Header { get; set; } = new MetaObjectTable();
         public List<MetaObjectTable> DetailTables { get; set; } = new();
+        public List<MetaObjectCommand> Commands { get; set; } = new();
 
         [SerializationConstructor]
         public MetaObjectStorableSettings()
