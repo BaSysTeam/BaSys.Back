@@ -26,6 +26,7 @@ namespace BaSys.DTO.Metadata
 
         public MetaObjectTable Header { get; set; } = new MetaObjectTable();
         public List<MetaObjectTable> DetailTables { get; set; } = new();
+        public List<MetaObjectCommand> Commands { get; set; } = new();
 
         public MetaObjectStorableSettingsDto()
         {
@@ -48,6 +49,7 @@ namespace BaSys.DTO.Metadata
 
             Header = settings.Header;
             DetailTables = settings.DetailTables;
+            Commands = settings.Commands;
 
         }
 
@@ -65,6 +67,7 @@ namespace BaSys.DTO.Metadata
                 MetaObjectKindUid = MetaObjectKindUid,
                 Header = Header,
                 DetailTables = DetailTables,
+                Commands = Commands
             };
 
             if(Guid.TryParse(Uid, out var uid))

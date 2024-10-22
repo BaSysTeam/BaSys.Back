@@ -104,6 +104,7 @@ namespace BaSys.Metadata.Models
             IsActive = source.IsActive;
             Header = source.Header;
             DetailTables = source.DetailTables;
+            Commands = source.Commands;
         }
 
         public MetaObjectStorableSettings Clone()
@@ -123,6 +124,10 @@ namespace BaSys.Metadata.Models
             foreach (var item in DetailTables)
             {
                 clone.DetailTables.Add(item.Clone());
+            }
+
+            foreach (var item in Commands) { 
+                clone.Commands.Add(item.Clone());
             }
 
             return clone;

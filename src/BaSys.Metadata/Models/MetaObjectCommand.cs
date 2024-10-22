@@ -1,9 +1,5 @@
 ﻿using MessagePack;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BaSys.Metadata.Models
 {
@@ -16,6 +12,7 @@ namespace BaSys.Metadata.Models
         public string Name { get; set; } = string.Empty;
         public string Expression { get; set; } = string.Empty;
         public string Memo { get; set; } = string.Empty;
+        public bool IsActive { get; set; } = true;
 
         public MetaObjectCommand Clone()
         {
@@ -26,6 +23,7 @@ namespace BaSys.Metadata.Models
             clone.Name = Name;
             clone.Expression = Expression;
             clone.Memo = Memo;
+            clone.IsActive = IsActive;
 
             return clone;
         }
