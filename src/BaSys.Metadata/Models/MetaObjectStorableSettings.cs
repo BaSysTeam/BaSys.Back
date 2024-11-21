@@ -35,6 +35,7 @@ namespace BaSys.Metadata.Models
         }
         public MetaObjectTable Header { get; set; } = new MetaObjectTable();
         public List<MetaObjectTable> DetailTables { get; set; } = new();
+        public List<MetaObjectCommand> Commands { get; set; } = new();
 
         [SerializationConstructor]
         public MetaObjectStorableSettings()
@@ -103,6 +104,7 @@ namespace BaSys.Metadata.Models
             IsActive = source.IsActive;
             Header = source.Header;
             DetailTables = source.DetailTables;
+            Commands = source.Commands;
         }
 
         public MetaObjectStorableSettings Clone()
@@ -122,6 +124,10 @@ namespace BaSys.Metadata.Models
             foreach (var item in DetailTables)
             {
                 clone.DetailTables.Add(item.Clone());
+            }
+
+            foreach (var item in Commands) { 
+                clone.Commands.Add(item.Clone());
             }
 
             return clone;
