@@ -2,6 +2,7 @@
 using MessagePack;
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace BaSys.Metadata.Models
 {
@@ -41,7 +42,19 @@ namespace BaSys.Metadata.Models
 
         public override string ToString()
         {
-            return $"{Title}/{Name}";
+            var sb = new StringBuilder();
+            if (!string.IsNullOrEmpty(Title)) {
+                sb.Append(Title);
+            }
+            if (!string.IsNullOrEmpty(Name)) { 
+                if (sb.Length > 0) { 
+                    sb.Append("/"); 
+                }
+                sb.Append(Name);
+            }
+
+
+            return sb.ToString();
         }
     }
 }

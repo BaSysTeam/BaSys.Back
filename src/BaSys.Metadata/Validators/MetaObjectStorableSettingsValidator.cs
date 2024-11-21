@@ -21,6 +21,7 @@ namespace BaSys.Metadata.Validators
             RuleFor(x => x.Memo).MaximumLength(300);
 
             RuleForEach(x => x.Header.Columns).SetValidator(new MetaObjectTableColumnValidator());
+            RuleForEach(x => x.Commands).SetValidator(new MetaObjectCommandValidator());
 
             RuleFor(x => x.Header.Columns)
            .Custom((columns, context) =>
