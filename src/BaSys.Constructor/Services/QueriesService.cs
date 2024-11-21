@@ -1,7 +1,7 @@
-﻿using BaSys.Common.Infrastructure;
+﻿using BaSys.Common.Helpers;
+using BaSys.Common.Infrastructure;
 using BaSys.Constructor.Abstractions;
 using BaSys.Core.Abstractions;
-using BaSys.Core.Helpers;
 using BaSys.Core.Services;
 using BaSys.DTO.Core;
 using BaSys.FluentQueries.Abstractions;
