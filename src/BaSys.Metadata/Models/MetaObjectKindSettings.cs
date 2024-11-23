@@ -15,6 +15,8 @@ namespace BaSys.Metadata.Models
         public bool StoreData { get; set; }
         public bool IsReference { get; set; }
         public bool AllowAttacheFiles { get; set; }
+        public bool CanCreateRecords { get; set; }
+        public bool UseDetailsTables { get; set; }
         public bool IsStandard { get; set; }
         public long Version { get; set; }
         public string Memo { get; set; } = string.Empty;
@@ -22,6 +24,7 @@ namespace BaSys.Metadata.Models
         public string OrderByExpression { get; set;} = string.Empty;    
         public string DisplayExpression { get; set; } = string.Empty;
 
+        public MetaObjectKindRecordsSettings RecordsSettings { get; set; } = new MetaObjectKindRecordsSettings();
         public List<MetaObjectKindStandardColumn> StandardColumns { get; set; }   = new List<MetaObjectKindStandardColumn>();
         public List<Guid> AvailableRoles { get; set; } = new List<Guid>();
 
