@@ -14,6 +14,7 @@ namespace BaSys.Metadata.Models
         public Guid StorageMetaObjectKindUid { get; set; }
         public Guid StoragePeriodColumnUid { get; set; }
         public Guid StorageKindColumnUid { get; set; }
+        public Guid StorageMetaObjectColumnUid { get; set; }
         public Guid StorageObjectColumnUid { get; set; }
         public Guid StorageRowColumnUid { get; set; }
     }
