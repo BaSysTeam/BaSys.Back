@@ -80,6 +80,56 @@ namespace BaSys.Core.Services
             return result;
         }
 
+        public async Task<ResultWrapper<List<MetaObjectStorableSettingsDto>>> GetSettingsListByKindUid(Guid kindUid)
+        {
+            var result = new ResultWrapper<List<MetaObjectStorableSettingsDto>>();
+
+            try
+            {
+                result = await ExecuteGetSettingsListByKindUidAsync(kindUid);
+            }
+            catch (Exception ex) {
+                result.Error(-1, $"Cannot get data: {ex.Message}", ex.StackTrace);
+            }
+
+            return result;
+        }
+
+        private async Task<ResultWrapper<List<MetaObjectStorableSettingsDto>>> ExecuteGetSettingsListByKindUidAsync(Guid kindUid)
+        {
+            var result = new ResultWrapper<List<MetaObjectStorableSettingsDto>>();
+
+            var kindSettings = await _kindsProvider.GetSettingsAsync(kindUid);
+
+            if (kindSettings == null)
+            {
+                result.Error(-1, $"{DictMain.CannotFindMetaObjectKind}: {kindUid}");
+                return result;
+            }
+
+            if (kindSettings.Name == "menu")
+            {
+                throw new NotImplementedException("Not implemented for Menu MetaObjectKind.");
+            }
+            else
+            {
+                var provider = _providerFactory.CreateMetaObjectStorableProvider(kindSettings.Name);
+
+                var items = await provider.GetCollectionAsync(null);
+                var dtoList = new List<MetaObjectStorableSettingsDto>();
+
+                foreach(var item in items)
+                {
+                    var dto = new MetaObjectStorableSettingsDto(item.ToSettings(), kindSettings);
+                    dtoList.Add(dto);
+                }
+
+                result.Success(dtoList);
+            }
+
+            return result;
+        }
+
         public async Task<ResultWrapper<MetaObjectListDto>> GetKindListAsync(string kindName)
         {
             var result = new ResultWrapper<MetaObjectListDto>();
