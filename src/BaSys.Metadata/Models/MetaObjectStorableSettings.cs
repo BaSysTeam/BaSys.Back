@@ -36,6 +36,7 @@ namespace BaSys.Metadata.Models
         public MetaObjectTable Header { get; set; } = new MetaObjectTable();
         public List<MetaObjectTable> DetailTables { get; set; } = new();
         public List<MetaObjectCommand> Commands { get; set; } = new();
+        public List<MetaObjectRecordsSettingsItem> RecordsSettings { get; set; } = new();
 
         [SerializationConstructor]
         public MetaObjectStorableSettings()
@@ -105,6 +106,7 @@ namespace BaSys.Metadata.Models
             Header = source.Header;
             DetailTables = source.DetailTables;
             Commands = source.Commands;
+            RecordsSettings = source.RecordsSettings;
         }
 
         public MetaObjectStorableSettings Clone()
@@ -128,6 +130,11 @@ namespace BaSys.Metadata.Models
 
             foreach (var item in Commands) { 
                 clone.Commands.Add(item.Clone());
+            }
+
+            foreach (var item in RecordsSettings)
+            {
+                clone.RecordsSettings.Add(item.Clone());
             }
 
             return clone;
