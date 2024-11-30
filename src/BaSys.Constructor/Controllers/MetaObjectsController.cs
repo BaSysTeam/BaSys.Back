@@ -20,6 +20,14 @@ namespace BaSys.Constructor.Controllers
             _metaObjectService = metaObjectService; 
         }
 
+        [HttpGet("settings/{kindUid:guid}")]
+        public async Task<IActionResult> GetSettingsListByKindUid(Guid kindUid)
+        {
+            var metaObjectSettings = await _metaObjectService.GetSettingsListByKindUid(kindUid);
+
+            return Ok(metaObjectSettings);
+        }
+
         [HttpGet("{kind}")]
         public async Task<IActionResult> GetKindList(string kind)
         {
