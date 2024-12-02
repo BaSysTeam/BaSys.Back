@@ -300,6 +300,16 @@ namespace BaSys.App.Services
                         await tableProvider.InsertAsync(insertedUid, table, transaction);
                     }
 
+                    if (objectKindSettings.CanCreateRecords)
+                    {
+                        var recordsBuilder = new DataObjectsRecordsBuilder(_connection, 
+                            transaction, 
+                            objectKindSettings, 
+                            metaObjectSettings, 
+                            newObject);
+                        var buildResult = recordsBuilder.Build();
+                    }
+
                     transaction.Commit();
                     result.Success(insertedUid, DictMain.ItemSaved);
                 }
