@@ -1,5 +1,7 @@
-﻿using BaSys.Common.Infrastructure;
+﻿using BaSys.Common.Enums;
+using BaSys.Common.Infrastructure;
 using BaSys.DAL.Models.App;
+using BaSys.Logging.InMemory;
 using BaSys.Metadata.Models;
 using System.Data;
 
@@ -13,17 +15,22 @@ namespace BaSys.App.Services
         private readonly MetaObjectStorableSettings _settings;
         private readonly DataObject _dataObject;
 
+        private readonly InMemoryLogger _logger;
+
         public DataObjectsRecordsBuilder(IDbConnection connection, 
             IDbTransaction transaction, 
             MetaObjectKindSettings kindSettings, 
             MetaObjectStorableSettings settings, 
-            DataObject dataObject)
+            DataObject dataObject, 
+            EventTypeLevels logLevel)
         {
             _connection = connection;
             _transaction = transaction;
             _kindSettings = kindSettings;
             _settings = settings;
             _dataObject = dataObject;
+
+            _logger = new InMemoryLogger(logLevel);
         }
 
         public ResultWrapper<int> Build()

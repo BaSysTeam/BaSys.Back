@@ -12,6 +12,8 @@ namespace BaSys.Logging.InMemory
         private List<InMemoryLogMessage> _messages = new List<InMemoryLogMessage>();
         private EventTypeLevels _minimumLevel = EventTypeLevels.Trace;
 
+        public IEnumerable<InMemoryLogMessage> Messages => _messages;
+
         public InMemoryLogger(EventTypeLevels level)
         {
             _minimumLevel = level;

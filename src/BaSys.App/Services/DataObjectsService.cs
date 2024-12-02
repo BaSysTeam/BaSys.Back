@@ -306,7 +306,8 @@ namespace BaSys.App.Services
                             transaction, 
                             objectKindSettings, 
                             metaObjectSettings, 
-                            newObject);
+                            newObject, 
+                            Common.Enums.EventTypeLevels.Trace);
                         var buildResult = recordsBuilder.Build();
                     }
 
