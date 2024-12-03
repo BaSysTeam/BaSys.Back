@@ -5,6 +5,7 @@ using BaSys.DAL.Models.App;
 using BaSys.Host.DAL.DataProviders;
 using BaSys.Logging.InMemory;
 using BaSys.Metadata.Abstractions;
+using BaSys.Metadata.Helpers;
 using BaSys.Metadata.Models;
 using System.Data;
 
@@ -17,7 +18,7 @@ namespace BaSys.App.Services
         private readonly MetaObjectKindSettings _kindSettings;
         private readonly MetaObjectStorableSettings _settings;
         private readonly DataObject _dataObject;
-        private readonly IDataTypesIndex _dataTypeIndex;
+        private readonly IDataTypesIndex _dataTypesIndex;
         private readonly MetaObjectKindsProvider _kindsProvider;
 
         private readonly InMemoryLogger _logger;
@@ -40,7 +41,7 @@ namespace BaSys.App.Services
             MetaObjectStorableSettings settings,
             DataObject dataObject,
             MetaObjectKindsProvider kindsProvider,
-            IDataTypesIndex dataTypeIndex,
+            IDataTypesIndex dataTypesIndex,
             EventTypeLevels logLevel)
         {
             _connection = connection;
@@ -50,7 +51,7 @@ namespace BaSys.App.Services
             _dataObject = dataObject;
 
             _kindsProvider = kindsProvider;
-            _dataTypeIndex = dataTypeIndex;
+            _dataTypesIndex = dataTypesIndex;
 
             _logger = new InMemoryLogger(logLevel);
         }
@@ -100,50 +101,56 @@ namespace BaSys.App.Services
             {
                 var destinationSettings = destinations[recordsSettingnsItem.DestinationMetaObjectUid];
 
+                var rowColumn = destinationSettings.Header.GetColumn(_kindSettings.RecordsSettings.StorageRowColumnUid);
+                var objectColumn = destinationSettings.Header.GetColumn(_kindSettings.RecordsSettings.StorageObjectColumnUid);
+                var metaObjectColumn = destinationSettings.Header.GetColumn(_kindSettings.RecordsSettings.StorageMetaObjectColumnUid);
+                var metaObjectKindColumn = destinationSettings.Header.GetColumn(_kindSettings.RecordsSettings.StorageKindColumnUid);
+
+                if (rowColumn == null)
+                {
+                    var message = string.Format("Cannot find Row column by Uid {0}", _kindSettings.RecordsSettings.StorageRowColumnUid);
+                    _logger.LogError(message);
+                    result.Error(-1, message);
+                    return result;
+                }
+
+                if (objectColumn == null)
+                {
+                    var message = string.Format("Cannot find Object column by Uid {0}", _kindSettings.RecordsSettings.StorageObjectColumnUid);
+                    _logger.LogError(message);
+                    result.Error(-1, message);
+                    return result;
+                }
+
+                if (metaObjectColumn == null)
+                {
+                    var message = string.Format("Cannot find MetaObject column by Uid {0}", _kindSettings.RecordsSettings.StorageMetaObjectColumnUid);
+                    _logger.LogError(message);
+                    result.Error(-1, message);
+                    return result;
+                }
+
+                if (metaObjectKindColumn == null)
+                {
+                    var message = string.Format("Cannot find MetaObjectKind column by Uid {0}", _kindSettings.RecordsSettings.StorageKindColumnUid);
+                    _logger.LogError(message);
+                    result.Error(-1, message);
+                    return result;
+                }
+
+                var primaryKeyValue = _dataObject.GetValue<object>(sourcePrimaryKey.Name);
+
+                var provider = new DataObjectProvider(_connection, destinationKindSettings, destinationSettings, _dataTypesIndex);
+                await provider.DeleteObjectRecordsAsync(metaObjectColumn.Name,
+                    destinationSettings.Uid,
+                    objectColumn.Name,
+                    primaryKeyValue,
+                    _transaction);
+
                 foreach (var settingsRow in recordsSettingnsItem.Rows)
                 {
-                   
-                    
-                    var rowColumn = destinationSettings.Header.GetColumn(_kindSettings.RecordsSettings.StorageRowColumnUid);
-                    var objectColumn = destinationSettings.Header.GetColumn(_kindSettings.RecordsSettings.StorageObjectColumnUid);
-                    var metaObjectColumn = destinationSettings.Header.GetColumn(_kindSettings.RecordsSettings.StorageMetaObjectColumnUid);
-                    var metaObjectKindColumn = destinationSettings.Header.GetColumn(_kindSettings.RecordsSettings.StorageKindColumnUid);
-                   
-                    if (rowColumn == null)
-                    {
-                        var message = string.Format("Cannot find Row column by Uid {0}", _kindSettings.RecordsSettings.StorageRowColumnUid);
-                        _logger.LogError(message);
-                        result.Error(-1, message);
-                        return result;
-                    }
 
-                    if (objectColumn == null)
-                    {
-                        var message = string.Format("Cannot find Object column by Uid {0}", _kindSettings.RecordsSettings.StorageObjectColumnUid);
-                        _logger.LogError(message);
-                        result.Error(-1, message);
-                        return result;
-                    }
-
-                    if (metaObjectColumn == null)
-                    {
-                        var message = string.Format("Cannot find MetaObject column by Uid {0}", _kindSettings.RecordsSettings.StorageMetaObjectColumnUid);
-                        _logger.LogError(message);
-                        result.Error(-1, message);
-                        return result;
-                    }
-
-                    if (metaObjectKindColumn == null)
-                    {
-                        var message = string.Format("Cannot find MetaObjectKind column by Uid {0}", _kindSettings.RecordsSettings.StorageKindColumnUid);
-                        _logger.LogError(message);
-                        result.Error(-1, message);
-                        return result;
-                    }
-
-                 
-
-                    var sourceTableSettings = _settings.Tables.FirstOrDefault(x=>x.Uid == settingsRow.SourceUid);
+                    var sourceTableSettings = _settings.Tables.FirstOrDefault(x => x.Uid == settingsRow.SourceUid);
 
                     if (sourceTableSettings == null)
                     {
@@ -155,12 +162,11 @@ namespace BaSys.App.Services
 
                     if (sourceTableSettings.Name == "header")
                     {
-                        var record = new DataObject(destinationSettings, _dataTypeIndex);
+                        var record = new DataObject(destinationSettings, _dataTypesIndex);
                         record.SetValue(rowColumn.Name, 1);
                         record.SetValue(metaObjectKindColumn.Name, destinationKindSettings.Uid);
                         record.SetValue(metaObjectColumn.Name, destinationSettings.Uid);
 
-                        var primaryKeyValue = _dataObject.GetValue<object>(sourcePrimaryKey.Name);
                         record.SetValue(objectColumn.Name, primaryKeyValue);
 
                         // Buid records by header.
@@ -168,7 +174,7 @@ namespace BaSys.App.Services
                         foreach (var settingsColumn in settingsRow.Columns)
                         {
                             var parseResult = expressionParser.Parse(settingsColumn.Expression);
-                            switch(parseResult.Kind)
+                            switch (parseResult.Kind)
                             {
                                 case RecordsExpressionKinds.Header:
 
@@ -187,15 +193,16 @@ namespace BaSys.App.Services
                                     _logger.LogError("Cannot calculate formula {0}", settingsColumn.Expression);
                                     break;
                             }
-                          
                         }
+
+                        await provider.InsertAsync(record, _transaction);
 
                     }
                     else
                     {
                         // Create records from DetailsTables.
                     }
-                   
+
                 }
             }
 
