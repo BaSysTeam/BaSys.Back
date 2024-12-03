@@ -307,8 +307,10 @@ namespace BaSys.App.Services
                             objectKindSettings, 
                             metaObjectSettings, 
                             newObject, 
+                            _kindProvider,
+                            dataTypesIndex,
                             Common.Enums.EventTypeLevels.Trace);
-                        var buildResult = recordsBuilder.Build();
+                        var buildResult = await recordsBuilder.BuildAsync();
                     }
 
                     transaction.Commit();
@@ -400,6 +402,19 @@ namespace BaSys.App.Services
                             dataTypesIndex);
 
                         await tableProvider.UpdateAsync(objectUid, table, transaction);
+                    }
+
+                    if (objectKindSettings.CanCreateRecords)
+                    {
+                        var recordsBuilder = new DataObjectsRecordsBuilder(_connection,
+                            transaction,
+                            objectKindSettings,
+                            metaObjectSettings,
+                            savedItem,
+                            _kindProvider,
+                            dataTypesIndex,
+                            Common.Enums.EventTypeLevels.Trace);
+                        var buildResult = await recordsBuilder.BuildAsync();
                     }
 
                     transaction.Commit();
