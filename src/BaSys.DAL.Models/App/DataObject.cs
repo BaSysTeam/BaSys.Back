@@ -7,7 +7,7 @@ namespace BaSys.DAL.Models.App
 {
     public sealed class DataObject
     {
-        public Dictionary<string, object> Header { get; set; } = new Dictionary<string, object>();
+        public Dictionary<string, object?> Header { get; set; } = new Dictionary<string, object?>();
         public List<DataObjectDetailsTable> DetailTables { get; set; } = new List<DataObjectDetailsTable>();
 
         public DataObject()
@@ -103,7 +103,7 @@ namespace BaSys.DAL.Models.App
             }
         }
 
-        public void SetValue(string key, object value)
+        public void SetValue(string key, object? value)
         {
 
             var keyLower = key.ToLower();
@@ -133,6 +133,18 @@ namespace BaSys.DAL.Models.App
             else
             {
                 return default(T);
+            }
+        }
+
+        public object? GetValue(string key, object? defaultValue = null)
+        {
+            if (Header.TryGetValue(key.ToLower(), out var value))
+            {
+                return value;
+            }
+            else
+            {
+                return defaultValue;
             }
         }
     }

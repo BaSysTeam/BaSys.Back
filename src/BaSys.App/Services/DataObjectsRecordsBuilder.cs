@@ -201,6 +201,56 @@ namespace BaSys.App.Services
                     else
                     {
                         // Create records from DetailsTables.
+                        var table = _dataObject.DetailTables.FirstOrDefault(x => x.Uid == sourceTableSettings.Uid);
+                        if (table == null)
+                        {
+                            _logger.LogError("Cannot find table {0}", sourceTableSettings.Name);
+                        }
+                        else
+                        {
+                            var rowNumber = 1;
+                            foreach (var tableRow in table.Rows)
+                            {
+                                var record = new DataObject(destinationSettings, _dataTypesIndex);
+                                record.SetValue(rowColumn.Name, rowNumber);
+                                record.SetValue(metaObjectKindColumn.Name, destinationKindSettings.Uid);
+                                record.SetValue(metaObjectColumn.Name, destinationSettings.Uid);
+
+                                record.SetValue(objectColumn.Name, primaryKeyValue);
+
+                                var expressionParser = new RecordsExpressionParser();
+                                foreach (var settingsColumn in settingsRow.Columns)
+                                {
+                                    var parseResult = expressionParser.Parse(settingsColumn.Expression);
+                                    switch (parseResult.Kind)
+                                    {
+                                        case RecordsExpressionKinds.Header:
+
+                                            var destinationColumn = destinationSettings.Header.GetColumn(settingsColumn.DestinationColumnUid);
+                                            var currentValue = _dataObject.GetValue<object>(parseResult.Name);
+                                            record.SetValue(destinationColumn.Name, currentValue);
+
+                                            break;
+                                        case RecordsExpressionKinds.Row:
+                                            var destinationTableColumn = destinationSettings.Header.GetColumn(settingsColumn.DestinationColumnUid);
+                                            var currentRowValue = tableRow.GetValue(parseResult.Name);
+                                            record.SetValue(destinationTableColumn.Name, currentRowValue);
+                                            
+                                            break;
+                                        case RecordsExpressionKinds.Error:
+                                            _logger.LogError("Error in expression {0}", settingsColumn.Expression);
+                                            break;
+                                        case RecordsExpressionKinds.Formula:
+                                            _logger.LogError("Cannot calculate formula {0}", settingsColumn.Expression);
+                                            break;
+                                    }
+                                }
+                                rowNumber++;
+
+                                await provider.InsertAsync(record, _transaction);
+
+                            }
+                        }
                     }
 
                 }
