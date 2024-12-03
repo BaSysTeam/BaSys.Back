@@ -1,5 +1,6 @@
 ﻿using BaSys.Common.Enums;
 using BaSys.Common.Infrastructure;
+using BaSys.Core.Services.RecordsBuilder;
 using BaSys.DAL.Models.App;
 using BaSys.Host.DAL.DataProviders;
 using BaSys.Logging.InMemory;
@@ -160,18 +161,39 @@ namespace BaSys.App.Services
                         record.SetValue(metaObjectColumn.Name, destinationSettings.Uid);
 
                         var primaryKeyValue = _dataObject.GetValue<object>(sourcePrimaryKey.Name);
-                        record.SetValue(metaObjectColumn.Name, primaryKeyValue);
+                        record.SetValue(objectColumn.Name, primaryKeyValue);
 
                         // Buid records by header.
+                        var expressionParser = new RecordsExpressionParser();
                         foreach (var settingsColumn in settingsRow.Columns)
                         {
+                            var parseResult = expressionParser.Parse(settingsColumn.Expression);
+                            switch(parseResult.Kind)
+                            {
+                                case RecordsExpressionKinds.Header:
 
+                                    var destinationColumn = destinationSettings.Header.GetColumn(settingsColumn.DestinationColumnUid);
+                                    var currentValue = _dataObject.GetValue<object>(parseResult.Name);
+                                    record.SetValue(destinationColumn.Name, currentValue);
+
+                                    break;
+                                case RecordsExpressionKinds.Row:
+                                    _logger.LogError("Cannot calculate row expression {0} for Header source.", settingsColumn.Expression);
+                                    break;
+                                case RecordsExpressionKinds.Error:
+                                    _logger.LogError("Error in expression {0}", settingsColumn.Expression);
+                                    break;
+                                case RecordsExpressionKinds.Formula:
+                                    _logger.LogError("Cannot calculate formula {0}", settingsColumn.Expression);
+                                    break;
+                            }
+                          
                         }
 
                     }
                     else
                     {
-
+                        // Create records from DetailsTables.
                     }
                    
                 }

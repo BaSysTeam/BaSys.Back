@@ -5,29 +5,28 @@
         public RecordsExpressionParseResut Parse(string expression)
         {
             var parseResult = new RecordsExpressionParseResut();
+            parseResult.Expression = expression;
 
             if (string.IsNullOrWhiteSpace(expression))
             {
-                parseResult.IsError = true;
-                return parseResult;
+               return parseResult;
             }
 
             var tmp = expression.Trim();
 
             if (tmp.StartsWith("$h.", StringComparison.OrdinalIgnoreCase))
             {
-                parseResult.IsHeader = true;
 
                 var name = tmp.Substring(3);
 
                 if (IsValidName(name))
                 {
+                    parseResult.Kind = RecordsExpressionKinds.Header;
                     parseResult.Name = name;
                 }
                 else
                 {
-                    parseResult.IsFormula = true;
-                    parseResult.IsHeader = false;
+                    parseResult.Kind = RecordsExpressionKinds.Formula;
                 }
 
             }
@@ -35,19 +34,19 @@
             {
                 var name = tmp.Substring(3);
 
-
                 if (IsValidName(name))
                 {
                     parseResult.Name = name;
+                    parseResult.Kind = RecordsExpressionKinds.Row;
                 }
                 else
                 {
-                    parseResult.IsFormula = true;
+                    parseResult.Kind = RecordsExpressionKinds.Formula;
                 }
             }
             else
             {
-                parseResult.IsFormula = true;
+                parseResult.Kind = RecordsExpressionKinds.Formula;
             }
 
             return parseResult;
