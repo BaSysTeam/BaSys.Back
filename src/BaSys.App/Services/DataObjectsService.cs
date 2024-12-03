@@ -275,13 +275,14 @@ namespace BaSys.App.Services
 
                 // Parse header.
                 var parsedDto = DataObjectParser.Parse(dto.Item, metaObjectSettings, dataTypesIndex);
-                var newObject = parsedDto.ToObject();
+                var newObject = parsedDto.ToObject(metaObjectSettings);
 
                 var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, dataTypesIndex);
 
                 try
                 {
                     var insertedUid = await provider.InsertAsync(newObject, transaction);
+                    newObject.SetPrimaryKey(insertedUid);
                     foreach (var table in newObject.DetailTables)
                     {
                         var tableSettings = metaObjectSettings.DetailTables.FirstOrDefault(x => x.Uid == table.Uid);
@@ -366,7 +367,7 @@ namespace BaSys.App.Services
 
                 // Parse header.
                 var parsedDto = DataObjectParser.Parse(dto.Item, metaObjectSettings, dataTypesIndex);
-                var newItem = parsedDto.ToObject();
+                var newItem = parsedDto.ToObject(metaObjectSettings);
 
                 var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, dataTypesIndex);
 

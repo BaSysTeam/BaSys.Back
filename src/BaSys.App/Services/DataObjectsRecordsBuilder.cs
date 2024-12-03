@@ -95,7 +95,6 @@ namespace BaSys.App.Services
                 destinations.Add(recordsSettingnsItem.DestinationMetaObjectUid, metaObjectSettings);
             }
 
-            var sourcePrimaryKey = _settings.Header.PrimaryKey;
 
             foreach (var recordsSettingnsItem in _settings.RecordsSettings)
             {
@@ -138,7 +137,7 @@ namespace BaSys.App.Services
                     return result;
                 }
 
-                var primaryKeyValue = _dataObject.GetValue<object>(sourcePrimaryKey.Name);
+                var primaryKeyValue = _dataObject.GetPrimaryKey();
 
                 var provider = new DataObjectProvider(_connection, destinationKindSettings, destinationSettings, _dataTypesIndex);
                 await provider.DeleteObjectRecordsAsync(metaObjectColumn.Name,

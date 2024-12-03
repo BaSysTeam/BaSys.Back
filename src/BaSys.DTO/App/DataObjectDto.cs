@@ -1,4 +1,5 @@
 ﻿using BaSys.DAL.Models.App;
+using BaSys.Metadata.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,9 +34,9 @@ namespace BaSys.DTO.App
             }
         }
 
-        public DataObject ToObject()
+        public DataObject ToObject(MetaObjectStorableSettings settings)
         {
-            var dataObject = new DataObject(Header);
+            var dataObject = new DataObject(settings, Header);
             foreach (var sourceTable in DetailsTables)
             {
                 var destinationTable = sourceTable.ToObject();

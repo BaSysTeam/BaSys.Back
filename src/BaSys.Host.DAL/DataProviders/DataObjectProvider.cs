@@ -44,7 +44,7 @@ namespace BaSys.Host.DAL.DataProviders
 
             foreach (var dynamicItem in dynamicCollection)
             {
-                var item = new DataObject((IDictionary<string, object>)dynamicItem);
+                var item = new DataObject(_objectSettings, (IDictionary<string, object>)dynamicItem);
                 collection.Add(item);
             }
 
@@ -64,7 +64,7 @@ namespace BaSys.Host.DAL.DataProviders
 
             if (dynamicItem != null)
             {
-                var item = new DataObject((IDictionary<string, object>)dynamicItem);
+                var item = new DataObject(_objectSettings, (IDictionary<string, object>)dynamicItem);
                 return item;
             }
             else
