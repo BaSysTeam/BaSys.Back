@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\BaSys.Metadata\BaSys.Metadata.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -65,12 +65,6 @@ namespace BaSys.App.Services
                 return result;
             }
 
-            if (!CreateRecords)
-            {
-                return result;
-            }
-
-
             var destinationKindSettings = await _kindsProvider.GetSettingsAsync(_kindSettings.RecordsSettings.StorageMetaObjectKindUid, _transaction);
 
             if (destinationKindSettings == null)
@@ -79,72 +73,38 @@ namespace BaSys.App.Services
                 return result;
             }
 
-            var metaObjectDestinationProvider = new MetaObjectStorableProvider(_connection, destinationKindSettings.Name);
-            var destinations = new Dictionary<Guid, MetaObjectStorableSettings>();
+            var destinations = await GetDestinationSettingsAsync(destinationKindSettings.Name);
+            var primaryKeyValue = _dataObject.GetPrimaryKey();
 
             foreach (var recordsSettingnsItem in _settings.RecordsSettings)
             {
-                var metaObjectSettings = await metaObjectDestinationProvider.GetSettingsItemAsync(recordsSettingnsItem.DestinationMetaObjectUid, _transaction);
-
-                if (metaObjectSettings == null)
+                destinations.TryGetValue(recordsSettingnsItem.DestinationMetaObjectUid, out var destinationSettings);
+                if (destinationSettings == null)
                 {
                     _logger.LogError("Cannot find MetaObject by Uid {0}", recordsSettingnsItem.DestinationMetaObjectUid);
-                    return result;
+                    continue;
                 }
 
-                destinations.Add(recordsSettingnsItem.DestinationMetaObjectUid, metaObjectSettings);
-            }
+                var requiredColumns = GetRequiredColumns(destinationSettings, _kindSettings);
 
-
-            foreach (var recordsSettingnsItem in _settings.RecordsSettings)
-            {
-                var destinationSettings = destinations[recordsSettingnsItem.DestinationMetaObjectUid];
-
-                var rowColumn = destinationSettings.Header.GetColumn(_kindSettings.RecordsSettings.StorageRowColumnUid);
-                var objectColumn = destinationSettings.Header.GetColumn(_kindSettings.RecordsSettings.StorageObjectColumnUid);
-                var metaObjectColumn = destinationSettings.Header.GetColumn(_kindSettings.RecordsSettings.StorageMetaObjectColumnUid);
-                var metaObjectKindColumn = destinationSettings.Header.GetColumn(_kindSettings.RecordsSettings.StorageKindColumnUid);
-
-                if (rowColumn == null)
+                if (!ValidateRequiredColumns(requiredColumns, _kindSettings))
                 {
-                    var message = string.Format("Cannot find Row column by Uid {0}", _kindSettings.RecordsSettings.StorageRowColumnUid);
-                    _logger.LogError(message);
-                    result.Error(-1, message);
+                    result.Error(-1, $"Cannot create records.");
                     return result;
                 }
-
-                if (objectColumn == null)
-                {
-                    var message = string.Format("Cannot find Object column by Uid {0}", _kindSettings.RecordsSettings.StorageObjectColumnUid);
-                    _logger.LogError(message);
-                    result.Error(-1, message);
-                    return result;
-                }
-
-                if (metaObjectColumn == null)
-                {
-                    var message = string.Format("Cannot find MetaObject column by Uid {0}", _kindSettings.RecordsSettings.StorageMetaObjectColumnUid);
-                    _logger.LogError(message);
-                    result.Error(-1, message);
-                    return result;
-                }
-
-                if (metaObjectKindColumn == null)
-                {
-                    var message = string.Format("Cannot find MetaObjectKind column by Uid {0}", _kindSettings.RecordsSettings.StorageKindColumnUid);
-                    _logger.LogError(message);
-                    result.Error(-1, message);
-                    return result;
-                }
-
-                var primaryKeyValue = _dataObject.GetPrimaryKey();
 
                 var provider = new DataObjectProvider(_connection, destinationKindSettings, destinationSettings, _dataTypesIndex);
-                await provider.DeleteObjectRecordsAsync(metaObjectColumn.Name,
+                await provider.DeleteObjectRecordsAsync(requiredColumns.MetaObjectColumn.Name,
                     destinationSettings.Uid,
-                    objectColumn.Name,
+                    requiredColumns.ObjectColumn.Name,
                     primaryKeyValue,
                     _transaction);
+
+                if (!CreateRecords)
+                {
+                    // Only delete records. Not create new records.
+                    continue;
+                }
 
                 foreach (var settingsRow in recordsSettingnsItem.Rows)
                 {
@@ -161,12 +121,12 @@ namespace BaSys.App.Services
 
                     if (sourceTableSettings.Name == "header")
                     {
-                        var record = new DataObject(destinationSettings, _dataTypesIndex);
-                        record.SetValue(rowColumn.Name, 1);
-                        record.SetValue(metaObjectKindColumn.Name, destinationKindSettings.Uid);
-                        record.SetValue(metaObjectColumn.Name, destinationSettings.Uid);
 
-                        record.SetValue(objectColumn.Name, primaryKeyValue);
+                        var record = CreateNewRecord(destinationKindSettings, 
+                            destinationSettings, 
+                            requiredColumns, 
+                            primaryKeyValue, 
+                            1);
 
                         // Buid records by header.
                         var expressionParser = new RecordsExpressionParser();
@@ -210,12 +170,12 @@ namespace BaSys.App.Services
                             var rowNumber = 1;
                             foreach (var tableRow in table.Rows)
                             {
-                                var record = new DataObject(destinationSettings, _dataTypesIndex);
-                                record.SetValue(rowColumn.Name, rowNumber);
-                                record.SetValue(metaObjectKindColumn.Name, destinationKindSettings.Uid);
-                                record.SetValue(metaObjectColumn.Name, destinationSettings.Uid);
-
-                                record.SetValue(objectColumn.Name, primaryKeyValue);
+                               
+                                var record = CreateNewRecord(destinationKindSettings, 
+                                    destinationSettings, 
+                                    requiredColumns, 
+                                    primaryKeyValue, 
+                                    rowNumber);
 
                                 var expressionParser = new RecordsExpressionParser();
                                 foreach (var settingsColumn in settingsRow.Columns)
@@ -272,10 +232,50 @@ namespace BaSys.App.Services
             if (destinationKindSettings == null)
             {
                 _logger.LogError("Cannot find MetaObjectKind by Uid {0}", _kindSettings.RecordsSettings.StorageMetaObjectKindUid);
+                result.Error(-1, "Cannot delete records.");
                 return result;
             }
 
-            var metaObjectDestinationProvider = new MetaObjectStorableProvider(_connection, destinationKindSettings.Name);
+            var destinations = await GetDestinationSettingsAsync(destinationKindSettings.Name);
+
+            var totalDeleted = 0;
+            foreach (var recordsSettingnsItem in _settings.RecordsSettings)
+            {
+                destinations.TryGetValue(recordsSettingnsItem.DestinationMetaObjectUid, out var destinationSettings);
+                if (destinationSettings == null)
+                {
+                    _logger.LogError("Cannot find MetaObject by Uid {0}", recordsSettingnsItem.DestinationMetaObjectUid);
+                    result.Error(-1, "Cannot delete records.");
+                    return result;
+                }
+
+                var requiredColumns = GetRequiredColumns(destinationSettings, _kindSettings);
+
+                if (!ValidateRequiredColumns(requiredColumns, _kindSettings))
+                {
+                    result.Error(-1, $"Cannot delete records.");
+                    return result;
+                }
+
+                var primaryKeyValue = _dataObject.GetPrimaryKey();
+
+                var provider = new DataObjectProvider(_connection, destinationKindSettings, destinationSettings, _dataTypesIndex);
+                var deletedCount = await provider.DeleteObjectRecordsAsync(requiredColumns.MetaObjectColumn.Name,
+                      destinationSettings.Uid,
+                      requiredColumns.ObjectColumn.Name,
+                      primaryKeyValue,
+                      _transaction);
+
+                totalDeleted += deletedCount;
+            }
+
+            result.Success(totalDeleted, $"Deleted {totalDeleted} records");
+            return result;
+        }
+
+        private async Task<Dictionary<Guid, MetaObjectStorableSettings>> GetDestinationSettingsAsync(string destinationKindName)
+        {
+            var metaObjectDestinationProvider = new MetaObjectStorableProvider(_connection, destinationKindName);
             var destinations = new Dictionary<Guid, MetaObjectStorableSettings>();
 
             foreach (var recordsSettingnsItem in _settings.RecordsSettings)
@@ -284,65 +284,70 @@ namespace BaSys.App.Services
 
                 if (metaObjectSettings == null)
                 {
-                    _logger.LogError("Cannot find MetaObject by Uid {0}", recordsSettingnsItem.DestinationMetaObjectUid);
-                    return result;
+                    continue;
                 }
 
                 destinations.Add(recordsSettingnsItem.DestinationMetaObjectUid, metaObjectSettings);
             }
 
-            foreach (var recordsSettingnsItem in _settings.RecordsSettings)
+            return destinations;
+        }
+
+        private RecordSettingsRequiredColumns GetRequiredColumns(MetaObjectStorableSettings destinationSettings,
+            MetaObjectKindSettings creatorKindSettings)
+        {
+            var requiredColumns = new RecordSettingsRequiredColumns();
+
+            requiredColumns.RowColumn = destinationSettings.Header.GetColumn(creatorKindSettings.RecordsSettings.StorageRowColumnUid);
+            requiredColumns.ObjectColumn = destinationSettings.Header.GetColumn(creatorKindSettings.RecordsSettings.StorageObjectColumnUid);
+            requiredColumns.MetaObjectColumn = destinationSettings.Header.GetColumn(creatorKindSettings.RecordsSettings.StorageMetaObjectColumnUid);
+            requiredColumns.MetaObjectKindColumn = destinationSettings.Header.GetColumn(creatorKindSettings.RecordsSettings.StorageKindColumnUid);
+
+            return requiredColumns;
+        }
+
+        private bool ValidateRequiredColumns(RecordSettingsRequiredColumns requiredColumns, MetaObjectKindSettings creatorKindSettings)
+        {
+            var isValid = true;
+            if (requiredColumns.RowColumn == null)
             {
-                var destinationSettings = destinations[recordsSettingnsItem.DestinationMetaObjectUid];
-
-                var rowColumn = destinationSettings.Header.GetColumn(_kindSettings.RecordsSettings.StorageRowColumnUid);
-                var objectColumn = destinationSettings.Header.GetColumn(_kindSettings.RecordsSettings.StorageObjectColumnUid);
-                var metaObjectColumn = destinationSettings.Header.GetColumn(_kindSettings.RecordsSettings.StorageMetaObjectColumnUid);
-                var metaObjectKindColumn = destinationSettings.Header.GetColumn(_kindSettings.RecordsSettings.StorageKindColumnUid);
-
-                if (rowColumn == null)
-                {
-                    var message = string.Format("Cannot find Row column by Uid {0}", _kindSettings.RecordsSettings.StorageRowColumnUid);
-                    _logger.LogError(message);
-                    result.Error(-1, message);
-                    return result;
-                }
-
-                if (objectColumn == null)
-                {
-                    var message = string.Format("Cannot find Object column by Uid {0}", _kindSettings.RecordsSettings.StorageObjectColumnUid);
-                    _logger.LogError(message);
-                    result.Error(-1, message);
-                    return result;
-                }
-
-                if (metaObjectColumn == null)
-                {
-                    var message = string.Format("Cannot find MetaObject column by Uid {0}", _kindSettings.RecordsSettings.StorageMetaObjectColumnUid);
-                    _logger.LogError(message);
-                    result.Error(-1, message);
-                    return result;
-                }
-
-                if (metaObjectKindColumn == null)
-                {
-                    var message = string.Format("Cannot find MetaObjectKind column by Uid {0}", _kindSettings.RecordsSettings.StorageKindColumnUid);
-                    _logger.LogError(message);
-                    result.Error(-1, message);
-                    return result;
-                }
-
-                var primaryKeyValue = _dataObject.GetPrimaryKey();
-
-                var provider = new DataObjectProvider(_connection, destinationKindSettings, destinationSettings, _dataTypesIndex);
-                await provider.DeleteObjectRecordsAsync(metaObjectColumn.Name,
-                    destinationSettings.Uid,
-                    objectColumn.Name,
-                    primaryKeyValue,
-                    _transaction);
+                _logger.LogError("Cannot find Row column by Uid {0}", _kindSettings.RecordsSettings.StorageRowColumnUid);
             }
 
-            return result;
+            if (requiredColumns.ObjectColumn == null)
+            {
+                _logger.LogError("Cannot find Object column by Uid {0}", _kindSettings.RecordsSettings.StorageObjectColumnUid);
+            }
+
+            if (requiredColumns.MetaObjectColumn == null)
+            {
+                _logger.LogError("Cannot find MetaObject column by Uid {0}", _kindSettings.RecordsSettings.StorageMetaObjectColumnUid);
+            }
+
+            if (requiredColumns.MetaObjectKindColumn == null)
+            {
+                _logger.LogError("Cannot find MetaObjectKind column by Uid {0}", _kindSettings.RecordsSettings.StorageKindColumnUid);
+            }
+
+            return isValid;
+        }
+
+        private DataObject CreateNewRecord(MetaObjectKindSettings destinationKindSettings, 
+            MetaObjectStorableSettings destinationSettings, 
+            RecordSettingsRequiredColumns requiredColumns, 
+            object objectKey, 
+            int rowNumber)
+        {
+
+            var record = new DataObject(destinationSettings, _dataTypesIndex);
+            record.SetValue(requiredColumns.RowColumn.Name, rowNumber);
+            record.SetValue(requiredColumns.MetaObjectKindColumn.Name, destinationKindSettings.Uid);
+            record.SetValue(requiredColumns.MetaObjectColumn.Name, destinationSettings.Uid);
+
+            record.SetValue(requiredColumns.ObjectColumn.Name, objectKey);
+
+            return record;
+
         }
 
 
