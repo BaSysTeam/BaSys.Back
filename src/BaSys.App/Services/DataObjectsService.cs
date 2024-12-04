@@ -480,6 +480,23 @@ namespace BaSys.App.Services
                 int deletedCount = 0;
                 try
                 {
+
+                    if (objectKindSettings.CanCreateRecords)
+                    {
+                        var mockObject = new DataObject(metaObjectSettings, dataTypesIndex);
+                        mockObject.SetPrimaryKey(uid);
+
+                        var recordsBuilder = new DataObjectsRecordsBuilder(_connection,
+                            transaction,
+                            objectKindSettings,
+                            metaObjectSettings,
+                            mockObject,
+                            _kindProvider,
+                            dataTypesIndex,
+                            Common.Enums.EventTypeLevels.Trace);
+                        var buildResult = await recordsBuilder.DeleteAsync();
+                    }
+
                     deletedCount = await provider.DeleteAsync(uid, transaction);
                     foreach (var tableSettings in metaObjectSettings.DetailTables)
                     {
