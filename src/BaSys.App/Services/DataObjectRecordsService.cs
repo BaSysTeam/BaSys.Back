@@ -1,19 +1,24 @@
 ﻿using BaSys.App.Abstractions;
 using BaSys.App.Models.DataObjectRecordsDialog;
 using BaSys.Common.Infrastructure;
+using BaSys.Core.Abstractions;
+using BaSys.Core.Services;
+using BaSys.DTO.Core;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
+using BaSys.Metadata.Models;
 using BaSys.Translation;
 using System.Data;
 using System.Security.AccessControl;
 
 namespace BaSys.App.Services
 {
-    public sealed class DataObjectRecordsService: IDataObjectRecordsService, IDisposable
+    public sealed class DataObjectRecordsService : IDataObjectRecordsService, IDisposable
     {
         private readonly IDbConnection _connection;
         private readonly ISystemObjectProviderFactory _providerFactory;
         private readonly MetaObjectKindsProvider _kindProvider;
+        private readonly IDataTypesService _dataTypesService;
         private bool _disposed;
 
         public DataObjectRecordsService(IMainConnectionFactory connectionFactory,
@@ -24,6 +29,9 @@ namespace BaSys.App.Services
             _providerFactory.SetUp(_connection);
 
             _kindProvider = _providerFactory.Create<MetaObjectKindsProvider>();
+
+            _dataTypesService = new DataTypesService(providerFactory);
+            _dataTypesService.SetUp(_connection);
         }
 
         public async Task<ResultWrapper<DataObjectRecordsDialogViewModel>> GetModelAsync(string kind, string name, string uid)
@@ -32,11 +40,11 @@ namespace BaSys.App.Services
 
             try
             {
-               result = await ExecuteGetModelAsync(kind, name, uid);
+                result = await ExecuteGetModelAsync(kind, name, uid);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                result.Error(-1, $"Cannot get model. Message: {ex.Message}.", ex.StackTrace );
+                result.Error(-1, $"Cannot get model. Message: {ex.Message}.", ex.StackTrace);
             }
 
             return result;
@@ -56,6 +64,14 @@ namespace BaSys.App.Services
             }
 
             var objectKindSettings = kind.ToSettings();
+            var excludedColumns = new List<Guid>
+            {
+                objectKindSettings.RecordsSettings.StorageKindColumnUid,
+                objectKindSettings.RecordsSettings.StorageRowColumnUid,
+                objectKindSettings.RecordsSettings.StorageMetaObjectColumnUid,
+                objectKindSettings.RecordsSettings.StorageKindColumnUid,
+                objectKindSettings.RecordsSettings.StorageObjectColumnUid
+            };
 
             var recordsDestinationKind = allKinds.FirstOrDefault(x => x.Uid == objectKindSettings.RecordsSettings.StorageMetaObjectKindUid);
 
@@ -77,11 +93,11 @@ namespace BaSys.App.Services
             var metaObjectSettings = metaObject.ToSettings();
 
             var recordsMetaObjectProvider = new MetaObjectStorableProvider(_connection, recordsDestinationKind.Name);
-            
+
 
             var model = new DataObjectRecordsDialogViewModel();
 
-            foreach(var recordsSettingsItem in metaObjectSettings.RecordsSettings)
+            foreach (var recordsSettingsItem in metaObjectSettings.RecordsSettings)
             {
                 var destinationMetaObject = await recordsMetaObjectProvider.GetItemAsync(recordsSettingsItem.DestinationMetaObjectUid, null);
 
@@ -96,10 +112,116 @@ namespace BaSys.App.Services
                     Title = destinationMetaObject.Title
                 };
 
+                var destinationSettings = destinationMetaObject.ToSettings();
+
+                foreach (var destinationColumn in destinationSettings.Header.Columns)
+                {
+                    if (destinationColumn.PrimaryKey)
+                    {
+                        continue;
+                    }
+
+                    if (excludedColumns.Contains(destinationColumn.Uid))
+                    {
+                        continue;
+                    }
+
+                    var column = new DataTableColumnDto()
+                    {
+                        Uid = destinationColumn.Uid.ToString(),
+                        Name = destinationColumn.Name,
+                        Title = destinationColumn.Title,
+                    };
+                    tab.Columns.Add(column);
+
+                }
+
                 model.Tabs.Add(tab);
             }
 
             result.Success(model);
+
+            return result;
+        }
+
+        public async Task<ResultWrapper<DataTableDto>> GetRecordsAsync(string kind,
+            string name,
+            string objectUid,
+            Guid registerUid)
+        {
+            var result = new ResultWrapper<DataTableDto>();
+
+            try
+            {
+                result = await ExecuteGetRecordsAsync(kind, name, objectUid, registerUid);
+            }
+            catch (Exception ex)
+            {
+                result.Error(-1, $"Cannot get records. Message: {ex.Message}.", ex.StackTrace);
+            }
+
+            return result;
+        }
+
+        private async Task<ResultWrapper<DataTableDto>> ExecuteGetRecordsAsync(string kindName,
+            string objectName,
+            string objectUid,
+            Guid registerUid)
+        {
+            var result = new ResultWrapper<DataTableDto>();
+
+            var allKinds = await _kindProvider.GetCollectionAsync(null);
+            var kind = allKinds.FirstOrDefault(x => x.Name.Equals(kindName, StringComparison.InvariantCultureIgnoreCase));
+
+            if (kind == null)
+            {
+                result.Error(-1, $"{DictMain.CannotFindMetaObjectKind}: {kindName}");
+                return result;
+            }
+
+            var objectKindSettings = kind.ToSettings();
+
+            var registerMetaObjectKind = allKinds.FirstOrDefault(x => x.Uid == objectKindSettings.RecordsSettings.StorageMetaObjectKindUid);
+
+            if (registerMetaObjectKind == null)
+            {
+                result.Error(-1, $"Cannot find records meta object kind by uid: {objectKindSettings.RecordsSettings.StorageMetaObjectKindUid}");
+                return result;
+            }
+
+            var metaObjectRegisterProvider = new MetaObjectStorableProvider(_connection, registerMetaObjectKind.Name);
+            var metaObjectRegister = await metaObjectRegisterProvider.GetItemAsync(registerUid, null);
+
+            if (metaObjectRegister == null)
+            {
+                result.Error(-1, $"{DictMain.CannotFindMetaObject}: {registerMetaObjectKind.Name}.{registerUid}");
+                return result;
+            }
+
+            var registerSettings = metaObjectRegister.ToSettings();
+            var dataTypesIndex = await _dataTypesService.GetIndexAsync(null);
+
+            var allMetaObjects = new List<MetaObjectStorable>();
+
+            foreach (var item in allKinds)
+            {
+                var metaObjectProvider = new MetaObjectStorableProvider(_connection, item.Name);
+                var metaObjects = await metaObjectProvider.GetCollectionAsync(null);
+
+                allMetaObjects.AddRange(metaObjects);
+            }
+
+
+            var provider = new DataObjectListProvider(_connection, registerMetaObjectKind.ToSettings(), registerSettings, allKinds, allMetaObjects, dataTypesIndex);
+
+            var collection = await provider.GetCollectionWithDisplaysAsync(null);
+
+            var dataTable = new DataTableDto();
+            foreach(var dataObject in collection)
+            {
+                dataTable.AddRow(dataObject.Header);
+            }
+            result.Success(dataTable);
 
             return result;
         }
@@ -125,6 +247,6 @@ namespace BaSys.App.Services
             GC.SuppressFinalize(this);
         }
 
-       
+
     }
 }

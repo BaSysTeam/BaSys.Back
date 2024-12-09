@@ -17,10 +17,18 @@ namespace BaSys.App.Controllers
             _recordsService = recordsService;
         }
 
-        [HttpGet("{kind}/{name}/{uid}")]
+        [HttpGet("Model/{kind}/{name}/{uid}")]
         public async Task<IActionResult> GetModel(string kind, string name, string uid)
         {
             var result = await _recordsService.GetModelAsync(kind, name, uid);
+
+            return Ok(result);
+        }
+
+        [HttpGet("Records/{kind}/{name}/{objectUid}/{registerUid:guid}")]
+        public async Task<IActionResult> GetRecords(string kind, string name, string objectUid, Guid registerUid)
+        {
+            var result = await _recordsService.GetRecordsAsync(kind, name, objectUid, registerUid);
 
             return Ok(result);
         }
