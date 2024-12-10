@@ -1,4 +1,5 @@
 ﻿using BaSys.App.Abstractions;
+using BaSys.App.Features.DataObjectRecords.Queries;
 using BaSys.App.Services;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 
@@ -17,7 +18,8 @@ namespace BaSys.App.Infrastructure
             services.AddTransient<IDataObjectsService, DataObjectsService>();
             services.AddTransient<ISelectItemService, SelectItemsService>();
             services.AddTransient<IMenusService, MenusService>();
-            services.AddTransient<IDataObjectRecordsService, DataObjectRecordsService>();
+            services.AddTransient<IGetRecordsQueryHandler, GetRecordsQueryHandler>();
+            services.AddTransient<IGetRecordsDialogModelQueryHandler, GetRecordsDialogModelQueryHandler>();
 
             return services;
         }
