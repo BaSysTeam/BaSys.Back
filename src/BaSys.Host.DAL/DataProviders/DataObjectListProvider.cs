@@ -1,4 +1,5 @@
-﻿using BaSys.DAL.Models.App;
+﻿using BaSys.Common.Helpers;
+using BaSys.DAL.Models.App;
 using BaSys.FluentQueries.Enums;
 using BaSys.FluentQueries.Models;
 using BaSys.FluentQueries.QueryBuilders;
@@ -40,6 +41,46 @@ namespace BaSys.Host.DAL.DataProviders
             _query = builder.Query(_sqlDialect);
 
             var dynamicCollection = await _connection.QueryAsync(_query.Text, null, transaction);
+
+            var collection = new List<DataObject>();
+
+            foreach (var dynamicItem in dynamicCollection)
+            {
+                var item = new DataObject(_objectSettings, (IDictionary<string, object>)dynamicItem);
+                collection.Add(item);
+            }
+
+            return collection;
+        }
+
+        public async Task<List<DataObject>> GetObjectRecordsWithDisplaysAsync(string metaObjectColumnName,
+             Guid metaObjectUid,
+             string objectColumnName,
+             string objectUidStr,
+            IDbTransaction? transaction)
+        {
+            var builder = BuildQueryWithDisplays();
+
+            var objectColumn = _objectSettings.Header.GetColumn(objectColumnName);
+
+            if (objectColumn == null)
+            {
+                throw new NullReferenceException($"Cannot find column {objectColumnName}");
+            }
+
+            var dataTypeIndex = new DataTypesIndex(DataTypeDefaults.GetPrimaryKeyTypes());
+            var objectColumnType = dataTypeIndex.GetDataTypeSafe(objectColumn.DataTypeUid);
+
+            var objectUid = ValueParser.Parse(objectUidStr, objectColumnType.DbType);
+
+            builder.WhereAnd($"{metaObjectColumnName} = @{metaObjectColumnName}")
+             .Parameter($"{metaObjectColumnName}", metaObjectUid, DbType.Guid)
+             .WhereAnd($"{objectColumnName} = @{objectColumnName}")
+             .Parameter($"{objectColumnName}", objectUid);
+
+            _query = builder.Query(_sqlDialect);
+
+            var dynamicCollection = await _connection.QueryAsync(_query.Text, _query.DynamicParameters, transaction);
 
             var collection = new List<DataObject>();
 

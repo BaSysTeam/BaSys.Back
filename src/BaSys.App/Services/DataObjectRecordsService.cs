@@ -67,7 +67,6 @@ namespace BaSys.App.Services
             var excludedColumns = new List<Guid>
             {
                 objectKindSettings.RecordsSettings.StorageKindColumnUid,
-                objectKindSettings.RecordsSettings.StorageRowColumnUid,
                 objectKindSettings.RecordsSettings.StorageMetaObjectColumnUid,
                 objectKindSettings.RecordsSettings.StorageKindColumnUid,
                 objectKindSettings.RecordsSettings.StorageObjectColumnUid
@@ -135,8 +134,19 @@ namespace BaSys.App.Services
                         Name = destinationColumn.Name,
                         Title = destinationColumn.Title,
                         DataType = DataTableColumnDto.ConvertType(basSysDataType.DbType),
+                        NumberDigits = destinationColumn.NumberDigits,
                         IsReference = !basSysDataType.IsPrimitive
                     };
+
+                    if (destinationColumn.Uid == objectKindSettings.RecordsSettings.StoragePeriodColumnUid)
+                    {
+                        column.Width = "160px";
+                    }
+
+                    if (destinationColumn.Uid == objectKindSettings.RecordsSettings.StorageRowColumnUid)
+                    {
+                        column.Width = "70px";
+                    }
 
                     if (column.IsReference)
                     {
@@ -199,7 +209,7 @@ namespace BaSys.App.Services
                 result.Error(-1, $"Cannot find records meta object kind by uid: {objectKindSettings.RecordsSettings.StorageMetaObjectKindUid}");
                 return result;
             }
-
+            
             var metaObjectRegisterProvider = new MetaObjectStorableProvider(_connection, registerMetaObjectKind.Name);
             var metaObjectRegister = await metaObjectRegisterProvider.GetItemAsync(registerUid, null);
 
@@ -209,6 +219,16 @@ namespace BaSys.App.Services
                 return result;
             }
 
+            var metaObjectOperationProvider = new MetaObjectStorableProvider(_connection, objectKindSettings.Name);
+            var metaObjectOperation = await metaObjectOperationProvider.GetItemByNameAsync(objectName, null);
+
+            if (metaObjectRegister == null)
+            {
+                result.Error(-1, $"{DictMain.CannotFindMetaObject}: {objectKindSettings.Name}.{objectName}");
+                return result;
+            }
+
+            var registerKindSettings = registerMetaObjectKind.ToSettings();
             var registerSettings = metaObjectRegister.ToSettings();
             var dataTypesIndex = await _dataTypesService.GetIndexAsync(null);
 
@@ -222,10 +242,21 @@ namespace BaSys.App.Services
                 allMetaObjects.AddRange(metaObjects);
             }
 
+            var metaObjectColumn = registerSettings.Header.GetColumn(objectKindSettings.RecordsSettings.StorageMetaObjectColumnUid);
+            var objectColumn = registerSettings.Header.GetColumn(objectKindSettings.RecordsSettings.StorageObjectColumnUid);
 
-            var provider = new DataObjectListProvider(_connection, registerMetaObjectKind.ToSettings(), registerSettings, allKinds, allMetaObjects, dataTypesIndex);
+            var provider = new DataObjectListProvider(_connection, 
+                registerMetaObjectKind.ToSettings(), 
+                registerSettings, 
+                allKinds, 
+                allMetaObjects, 
+                dataTypesIndex);
 
-            var collection = await provider.GetCollectionWithDisplaysAsync(null);
+            var collection = await provider.GetObjectRecordsWithDisplaysAsync(metaObjectColumn.Name, 
+                metaObjectOperation.Uid, 
+                objectColumn.Name, 
+                objectUid, 
+                null);
 
             var dataTable = new DataTableDto();
             foreach(var dataObject in collection)

@@ -18,6 +18,7 @@ namespace BaSys.DTO.Core
         public string Name { get; set; } = string.Empty;
         public string Title { get; set; } = string.Empty;
         public string DataType { get; set; } = string.Empty;
+        public int NumberDigits { get; set; }
         public bool IsReference { get; set; }
         public string Width { get; set; } = string.Empty;
 

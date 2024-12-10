@@ -14,8 +14,8 @@ namespace BaSys.App.Services
     {
         private readonly IDbConnection _connection;
         private readonly IDbTransaction _transaction;
-        private readonly MetaObjectKindSettings _kindSettings;
-        private readonly MetaObjectStorableSettings _settings;
+        private readonly MetaObjectKindSettings _sourceKindSettings;
+        private readonly MetaObjectStorableSettings _sourceSettings;
         private readonly DataObject _dataObject;
         private readonly IDataTypesIndex _dataTypesIndex;
         private readonly MetaObjectKindsProvider _kindsProvider;
@@ -26,8 +26,8 @@ namespace BaSys.App.Services
         {
             get
             {
-                var createRecordsColumnUid = _kindSettings.RecordsSettings.SourceCreateRecordsColumnUid;
-                var createRecordsColumn = _settings.Header.GetColumn(createRecordsColumnUid);
+                var createRecordsColumnUid = _sourceKindSettings.RecordsSettings.SourceCreateRecordsColumnUid;
+                var createRecordsColumn = _sourceSettings.Header.GetColumn(createRecordsColumnUid);
                 var createRecords = _dataObject.GetValue<bool>(createRecordsColumn?.Name ?? "");
 
                 return createRecords;
@@ -45,8 +45,8 @@ namespace BaSys.App.Services
         {
             _connection = connection;
             _transaction = transaction;
-            _kindSettings = kindSettings;
-            _settings = settings;
+            _sourceKindSettings = kindSettings;
+            _sourceSettings = settings;
             _dataObject = dataObject;
 
             _kindsProvider = kindsProvider;
@@ -59,23 +59,23 @@ namespace BaSys.App.Services
         {
             var result = new ResultWrapper<int>();
 
-            if (!_kindSettings.CanCreateRecords)
+            if (!_sourceKindSettings.CanCreateRecords)
             {
                 return result;
             }
 
-            var destinationKindSettings = await _kindsProvider.GetSettingsAsync(_kindSettings.RecordsSettings.StorageMetaObjectKindUid, _transaction);
+            var destinationKindSettings = await _kindsProvider.GetSettingsAsync(_sourceKindSettings.RecordsSettings.StorageMetaObjectKindUid, _transaction);
 
             if (destinationKindSettings == null)
             {
-                _logger.LogError("Cannot find MetaObjectKind by Uid {0}", _kindSettings.RecordsSettings.StorageMetaObjectKindUid);
+                _logger.LogError("Cannot find MetaObjectKind by Uid {0}", _sourceKindSettings.RecordsSettings.StorageMetaObjectKindUid);
                 return result;
             }
 
             var destinations = await GetDestinationSettingsAsync(destinationKindSettings.Name);
             var primaryKeyValue = _dataObject.GetPrimaryKey();
 
-            foreach (var recordsSettingnsItem in _settings.RecordsSettings)
+            foreach (var recordsSettingnsItem in _sourceSettings.RecordsSettings)
             {
                 destinations.TryGetValue(recordsSettingnsItem.DestinationMetaObjectUid, out var destinationSettings);
                 if (destinationSettings == null)
@@ -84,9 +84,9 @@ namespace BaSys.App.Services
                     continue;
                 }
 
-                var requiredColumns = GetRequiredColumns(destinationSettings, _kindSettings);
+                var requiredColumns = GetRequiredColumns(destinationSettings, _sourceKindSettings);
 
-                if (!ValidateRequiredColumns(requiredColumns, _kindSettings))
+                if (!ValidateRequiredColumns(requiredColumns, _sourceKindSettings))
                 {
                     result.Error(-1, $"Cannot create records.");
                     return result;
@@ -110,7 +110,7 @@ namespace BaSys.App.Services
                 foreach (var settingsRow in recordsSettingnsItem.Rows)
                 {
 
-                    var sourceTableSettings = _settings.Tables.FirstOrDefault(x => x.Uid == settingsRow.SourceUid);
+                    var sourceTableSettings = _sourceSettings.Tables.FirstOrDefault(x => x.Uid == settingsRow.SourceUid);
 
                     if (sourceTableSettings == null)
                     {
@@ -123,11 +123,12 @@ namespace BaSys.App.Services
                     if (sourceTableSettings.Name == "header")
                     {
                         // Create records by Header.
-                        var record = CreateRecordByHeader(destinationKindSettings,
-                            destinationSettings,
-                            settingsRow,
-                            requiredColumns,
-                            _dataObject);
+                        var record = CreateRecordByHeader(destinationSettings,
+                                                          _sourceKindSettings,
+                                                          _sourceSettings,
+                                                          settingsRow,
+                                                          requiredColumns,
+                                                          _dataObject);
 
                         records.Add(record);
 
@@ -146,19 +147,20 @@ namespace BaSys.App.Services
                             foreach (var tableRow in table.Rows)
                             {
 
-                                var record = CreateRecordByTableRow(destinationKindSettings,
-                                    destinationSettings,
-                                    settingsRow,
-                                    requiredColumns,
-                                    _dataObject,
-                                    tableRow,
-                                    rowNumber);
+                                var record = CreateRecordByTableRow(destinationSettings,
+                                                                    _sourceKindSettings,
+                                                                    _sourceSettings,
+                                                                    settingsRow,
+                                                                    requiredColumns,
+                                                                    _dataObject,
+                                                                    tableRow,
+                                                                    rowNumber);
 
                                 records.Add(record);
 
                                 rowNumber++;
 
-                               
+
 
                             }
                         }
@@ -166,10 +168,10 @@ namespace BaSys.App.Services
 
                 }
 
-                foreach(var record in records)
+                foreach (var record in records)
                 {
-                   //TODO: Implement Bulk insert.
-                   await provider.InsertAsync(record, _transaction);
+                    //TODO: Implement Bulk insert.
+                    await provider.InsertAsync(record, _transaction);
                 }
 
             }
@@ -181,16 +183,16 @@ namespace BaSys.App.Services
         {
             var result = new ResultWrapper<int>();
 
-            if (!_kindSettings.CanCreateRecords)
+            if (!_sourceKindSettings.CanCreateRecords)
             {
                 return result;
             }
 
-            var destinationKindSettings = await _kindsProvider.GetSettingsAsync(_kindSettings.RecordsSettings.StorageMetaObjectKindUid, _transaction);
+            var destinationKindSettings = await _kindsProvider.GetSettingsAsync(_sourceKindSettings.RecordsSettings.StorageMetaObjectKindUid, _transaction);
 
             if (destinationKindSettings == null)
             {
-                _logger.LogError("Cannot find MetaObjectKind by Uid {0}", _kindSettings.RecordsSettings.StorageMetaObjectKindUid);
+                _logger.LogError("Cannot find MetaObjectKind by Uid {0}", _sourceKindSettings.RecordsSettings.StorageMetaObjectKindUid);
                 result.Error(-1, "Cannot delete records.");
                 return result;
             }
@@ -198,7 +200,7 @@ namespace BaSys.App.Services
             var destinations = await GetDestinationSettingsAsync(destinationKindSettings.Name);
 
             var totalDeleted = 0;
-            foreach (var recordsSettingnsItem in _settings.RecordsSettings)
+            foreach (var recordsSettingnsItem in _sourceSettings.RecordsSettings)
             {
                 destinations.TryGetValue(recordsSettingnsItem.DestinationMetaObjectUid, out var destinationSettings);
                 if (destinationSettings == null)
@@ -208,9 +210,9 @@ namespace BaSys.App.Services
                     return result;
                 }
 
-                var requiredColumns = GetRequiredColumns(destinationSettings, _kindSettings);
+                var requiredColumns = GetRequiredColumns(destinationSettings, _sourceKindSettings);
 
-                if (!ValidateRequiredColumns(requiredColumns, _kindSettings))
+                if (!ValidateRequiredColumns(requiredColumns, _sourceKindSettings))
                 {
                     result.Error(-1, $"Cannot delete records.");
                     return result;
@@ -237,7 +239,7 @@ namespace BaSys.App.Services
             var metaObjectDestinationProvider = new MetaObjectStorableProvider(_connection, destinationKindName);
             var destinations = new Dictionary<Guid, MetaObjectStorableSettings>();
 
-            foreach (var recordsSettingnsItem in _settings.RecordsSettings)
+            foreach (var recordsSettingnsItem in _sourceSettings.RecordsSettings)
             {
                 var metaObjectSettings = await metaObjectDestinationProvider.GetSettingsItemAsync(recordsSettingnsItem.DestinationMetaObjectUid, _transaction);
 
@@ -270,29 +272,30 @@ namespace BaSys.App.Services
             var isValid = true;
             if (requiredColumns.RowColumn == null)
             {
-                _logger.LogError("Cannot find Row column by Uid {0}", _kindSettings.RecordsSettings.StorageRowColumnUid);
+                _logger.LogError("Cannot find Row column by Uid {0}", _sourceKindSettings.RecordsSettings.StorageRowColumnUid);
             }
 
             if (requiredColumns.ObjectColumn == null)
             {
-                _logger.LogError("Cannot find Object column by Uid {0}", _kindSettings.RecordsSettings.StorageObjectColumnUid);
+                _logger.LogError("Cannot find Object column by Uid {0}", _sourceKindSettings.RecordsSettings.StorageObjectColumnUid);
             }
 
             if (requiredColumns.MetaObjectColumn == null)
             {
-                _logger.LogError("Cannot find MetaObject column by Uid {0}", _kindSettings.RecordsSettings.StorageMetaObjectColumnUid);
+                _logger.LogError("Cannot find MetaObject column by Uid {0}", _sourceKindSettings.RecordsSettings.StorageMetaObjectColumnUid);
             }
 
             if (requiredColumns.MetaObjectKindColumn == null)
             {
-                _logger.LogError("Cannot find MetaObjectKind column by Uid {0}", _kindSettings.RecordsSettings.StorageKindColumnUid);
+                _logger.LogError("Cannot find MetaObjectKind column by Uid {0}", _sourceKindSettings.RecordsSettings.StorageKindColumnUid);
             }
 
             return isValid;
         }
 
-        private DataObject CreateNewRecord(MetaObjectKindSettings destinationKindSettings,
-            MetaObjectStorableSettings destinationSettings,
+        private DataObject CreateNewRecord(MetaObjectStorableSettings destinationSettings,
+            MetaObjectKindSettings sourceKindSettings,
+            MetaObjectStorableSettings sourceSettings,
             RecordSettingsRequiredColumns requiredColumns,
             object? objectKey,
             int rowNumber)
@@ -300,8 +303,8 @@ namespace BaSys.App.Services
 
             var record = new DataObject(destinationSettings, _dataTypesIndex);
             record.SetValue(requiredColumns.RowColumn.Name, rowNumber);
-            record.SetValue(requiredColumns.MetaObjectKindColumn.Name, destinationKindSettings.Uid);
-            record.SetValue(requiredColumns.MetaObjectColumn.Name, destinationSettings.Uid);
+            record.SetValue(requiredColumns.MetaObjectKindColumn.Name, sourceKindSettings.Uid);
+            record.SetValue(requiredColumns.MetaObjectColumn.Name, sourceSettings.Uid);
 
             record.SetValue(requiredColumns.ObjectColumn.Name, objectKey);
 
@@ -309,17 +312,19 @@ namespace BaSys.App.Services
 
         }
 
-        private DataObject CreateRecordByHeader(MetaObjectKindSettings destinationKindSettings,
-            MetaObjectStorableSettings destinationSettings,
+        private DataObject CreateRecordByHeader(MetaObjectStorableSettings destinationSettings,
+            MetaObjectKindSettings sourceKindSettings,
+            MetaObjectStorableSettings sourceSettings,
             MetaObjectRecordsSettingsRow settingsRow,
             RecordSettingsRequiredColumns requiredColumns,
             DataObject dataObject)
         {
-            var record = CreateNewRecord(destinationKindSettings,
-                           destinationSettings,
-                           requiredColumns,
-                           dataObject.GetPrimaryKey(),
-                           1);
+            var record = CreateNewRecord(destinationSettings,
+                                         sourceKindSettings,
+                                         sourceSettings,
+                                         requiredColumns,
+                                         dataObject.GetPrimaryKey(),
+                                         1);
 
             // Buid records by header.
             var expressionParser = new RecordsExpressionParser();
@@ -360,19 +365,21 @@ namespace BaSys.App.Services
             return record;
         }
 
-        private DataObject CreateRecordByTableRow(MetaObjectKindSettings destinationKindSettings,
-            MetaObjectStorableSettings destinationSettings,
+        private DataObject CreateRecordByTableRow(MetaObjectStorableSettings destinationSettings, 
+            MetaObjectKindSettings sourceKindSettings,
+            MetaObjectStorableSettings sourceSettings,
             MetaObjectRecordsSettingsRow settingsRow,
             RecordSettingsRequiredColumns requiredColumns,
             DataObject dataObject,
             DataObjectDetailsTableRow tableRow,
             int rowNumber)
         {
-            var record = CreateNewRecord(destinationKindSettings,
-                                  destinationSettings,
-                                  requiredColumns,
-                                  dataObject.GetPrimaryKey(),
-                                  rowNumber);
+            var record = CreateNewRecord(destinationSettings,
+                                         sourceKindSettings,
+                                         sourceSettings,
+                                         requiredColumns,
+                                         dataObject.GetPrimaryKey(),
+                                         rowNumber);
 
             var expressionParser = new RecordsExpressionParser();
             foreach (var settingsColumn in settingsRow.Columns)
@@ -387,7 +394,7 @@ namespace BaSys.App.Services
                         {
                             _logger.LogError("Cannot find column {0} in {1}.{2}. Expression: {3}.",
                                                            settingsColumn.DestinationColumnUid,
-                                                           destinationKindSettings.Name,
+                                                           sourceKindSettings.Name,
                                                            destinationSettings.Name,
                                                            settingsColumn.Expression);
                         }
@@ -405,7 +412,7 @@ namespace BaSys.App.Services
                         {
                             _logger.LogError("Cannot find column {0} in {1}.{2}. Expression: {3}.",
                                                           settingsColumn.DestinationColumnUid,
-                                                          destinationKindSettings.Name,
+                                                          sourceKindSettings.Name,
                                                           destinationSettings.Name,
                                                           settingsColumn.Expression);
                         }
