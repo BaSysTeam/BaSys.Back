@@ -18,6 +18,7 @@ namespace BaSys.DTO.Core
         public string Name { get; set; } = string.Empty;
         public string Title { get; set; } = string.Empty;
         public string DataType { get; set; } = string.Empty;
+        public bool IsReference { get; set; }
         public string Width { get; set; } = string.Empty;
 
         public DataTableColumnDto()
@@ -34,6 +35,55 @@ namespace BaSys.DTO.Core
         public override string ToString()
         {
             return $"{Name}/{DataType}";
+        }
+
+        public static string ConvertType(DbType dbType)
+        {
+
+            var result = StringTypeName;
+
+            switch (dbType)
+            {
+
+                case DbType.Byte:
+                case DbType.Boolean:
+                    result = BooleanTypeName;
+                    break;
+                case DbType.Date:
+                case DbType.DateTime:
+                case DbType.DateTime2:
+                case DbType.DateTimeOffset:
+                    result = DateTypeName;
+                    break;
+                case DbType.Decimal:
+                case DbType.Double:
+                case DbType.Int16:
+                case DbType.Int32:
+                case DbType.Int64:
+                case DbType.UInt16:
+                case DbType.UInt32:
+                case DbType.UInt64:
+                case DbType.VarNumeric:
+                    result = NumberTypeName;
+                    break;
+                case DbType.Object:
+                case DbType.Currency:
+                case DbType.SByte:
+                case DbType.Single:
+                case DbType.String:
+                case DbType.Time:
+                case DbType.AnsiStringFixedLength:
+                case DbType.StringFixedLength:
+                case DbType.Xml:
+                case DbType.AnsiString:
+                case DbType.Binary:
+                case DbType.Guid:
+                    result = StringTypeName;
+                    break;
+
+            }
+
+            return result;
         }
 
         private string ConvertType(Type type)

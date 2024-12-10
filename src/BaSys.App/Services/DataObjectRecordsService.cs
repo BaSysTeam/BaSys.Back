@@ -96,6 +96,7 @@ namespace BaSys.App.Services
 
 
             var model = new DataObjectRecordsDialogViewModel();
+            var dataTypesIndex = await _dataTypesService.GetIndexAsync(null);
 
             foreach (var recordsSettingsItem in metaObjectSettings.RecordsSettings)
             {
@@ -126,12 +127,22 @@ namespace BaSys.App.Services
                         continue;
                     }
 
+                    var basSysDataType = dataTypesIndex.GetDataTypeSafe(destinationColumn.DataTypeUid);
+
                     var column = new DataTableColumnDto()
                     {
                         Uid = destinationColumn.Uid.ToString(),
                         Name = destinationColumn.Name,
                         Title = destinationColumn.Title,
+                        DataType = DataTableColumnDto.ConvertType(basSysDataType.DbType),
+                        IsReference = !basSysDataType.IsPrimitive
                     };
+
+                    if (column.IsReference)
+                    {
+                        column.Name = $"{column.Name}_display";
+                    }
+
                     tab.Columns.Add(column);
 
                 }
