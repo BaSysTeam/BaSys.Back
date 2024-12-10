@@ -3,6 +3,7 @@ using BaSys.App.Models.DataObjectRecordsDialog;
 using BaSys.Common.Infrastructure;
 using BaSys.Core.Abstractions;
 using BaSys.Core.Services;
+using BaSys.DAL.Models.App;
 using BaSys.DTO.Core;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
@@ -192,48 +193,71 @@ namespace BaSys.App.Services
             var result = new ResultWrapper<DataTableDto>();
 
             var allKinds = await _kindProvider.GetCollectionAsync(null);
-            var kind = allKinds.FirstOrDefault(x => x.Name.Equals(kindName, StringComparison.InvariantCultureIgnoreCase));
 
-            if (kind == null)
-            {
-                result.Error(-1, $"{DictMain.CannotFindMetaObjectKind}: {kindName}");
-                return result;
-            }
+            var sourceKindSettings = GetSourceKindSettings(allKinds, kindName, result);
+            if (sourceKindSettings == null) return result;
+           
+            var destinationKindSettings = GetDestinationKindSettings(allKinds, 
+                sourceKindSettings.RecordsSettings.StorageMetaObjectKindUid, 
+                result);
+            if (destinationKindSettings == null) return result;
 
-            var objectKindSettings = kind.ToSettings();
-
-            var registerMetaObjectKind = allKinds.FirstOrDefault(x => x.Uid == objectKindSettings.RecordsSettings.StorageMetaObjectKindUid);
-
-            if (registerMetaObjectKind == null)
-            {
-                result.Error(-1, $"Cannot find records meta object kind by uid: {objectKindSettings.RecordsSettings.StorageMetaObjectKindUid}");
-                return result;
-            }
-            
-            var metaObjectRegisterProvider = new MetaObjectStorableProvider(_connection, registerMetaObjectKind.Name);
-            var metaObjectRegister = await metaObjectRegisterProvider.GetItemAsync(registerUid, null);
-
-            if (metaObjectRegister == null)
-            {
-                result.Error(-1, $"{DictMain.CannotFindMetaObject}: {registerMetaObjectKind.Name}.{registerUid}");
-                return result;
-            }
-
-            var metaObjectOperationProvider = new MetaObjectStorableProvider(_connection, objectKindSettings.Name);
-            var metaObjectOperation = await metaObjectOperationProvider.GetItemByNameAsync(objectName, null);
-
-            if (metaObjectRegister == null)
-            {
-                result.Error(-1, $"{DictMain.CannotFindMetaObject}: {objectKindSettings.Name}.{objectName}");
-                return result;
-            }
-
-            var registerKindSettings = registerMetaObjectKind.ToSettings();
-            var registerSettings = metaObjectRegister.ToSettings();
+            var destinationSettings = await GetMetaObjectSettings(destinationKindSettings.Name, registerUid, result);
+            if (destinationSettings == null) return result;
+          
+          
+            var sourceSettings = await GetMetaObjectSettingsByName(kindName, objectName, result);
+            if (sourceSettings == null) return result;
+           
             var dataTypesIndex = await _dataTypesService.GetIndexAsync(null);
+            var allMetaObjects = await GetAllMetaObjectsAsync(allKinds);
 
+            var metaObjectColumn = destinationSettings.Header.GetColumn(sourceKindSettings.RecordsSettings.StorageMetaObjectColumnUid);
+            if (metaObjectColumn == null)
+            {
+                result.Error(-1, $"Cannot find meta object column: {sourceKindSettings.RecordsSettings.StorageMetaObjectColumnUid}");
+                return result;
+            }
+
+            var objectColumn = destinationSettings.Header.GetColumn(sourceKindSettings.RecordsSettings.StorageObjectColumnUid);
+            if (objectColumn == null)
+            {
+                result.Error(-1, $"Cannot find object column: {sourceKindSettings.RecordsSettings.StorageObjectColumnUid}");
+                return result;
+            }
+
+            var provider = new DataObjectListProvider(_connection, 
+                destinationKindSettings, 
+                destinationSettings, 
+                allKinds, 
+                allMetaObjects, 
+                dataTypesIndex);
+
+            var collection = await provider.GetObjectRecordsWithDisplaysAsync(metaObjectColumn.Name, 
+                sourceSettings.Uid, 
+                objectColumn.Name, 
+                objectUid, 
+                null);
+
+            var dataTable = CreateDataTable(collection);
+            result.Success(dataTable);
+
+            return result;
+        }
+
+        private DataTableDto CreateDataTable(IEnumerable<DataObject> collection)
+        {
+            var dataTable = new DataTableDto();
+            foreach (var dataObject in collection)
+            {
+                dataTable.AddRow(dataObject.Header);
+            }
+            return dataTable;
+        }
+
+        private async Task<List<MetaObjectStorable>> GetAllMetaObjectsAsync(IEnumerable<MetaObjectKind> allKinds)
+        {
             var allMetaObjects = new List<MetaObjectStorable>();
-
             foreach (var item in allKinds)
             {
                 var metaObjectProvider = new MetaObjectStorableProvider(_connection, item.Name);
@@ -242,30 +266,63 @@ namespace BaSys.App.Services
                 allMetaObjects.AddRange(metaObjects);
             }
 
-            var metaObjectColumn = registerSettings.Header.GetColumn(objectKindSettings.RecordsSettings.StorageMetaObjectColumnUid);
-            var objectColumn = registerSettings.Header.GetColumn(objectKindSettings.RecordsSettings.StorageObjectColumnUid);
+            return allMetaObjects;
+        }
 
-            var provider = new DataObjectListProvider(_connection, 
-                registerMetaObjectKind.ToSettings(), 
-                registerSettings, 
-                allKinds, 
-                allMetaObjects, 
-                dataTypesIndex);
-
-            var collection = await provider.GetObjectRecordsWithDisplaysAsync(metaObjectColumn.Name, 
-                metaObjectOperation.Uid, 
-                objectColumn.Name, 
-                objectUid, 
-                null);
-
-            var dataTable = new DataTableDto();
-            foreach(var dataObject in collection)
+        private MetaObjectKindSettings? GetSourceKindSettings(IEnumerable<MetaObjectKind> allKinds, 
+            string kindName, 
+            ResultWrapper<DataTableDto> result)
+        {
+            var sourceKind = allKinds.FirstOrDefault(x => x.Name.Equals(kindName, StringComparison.InvariantCultureIgnoreCase));
+            if (sourceKind == null)
             {
-                dataTable.AddRow(dataObject.Header);
+                result.Error(-1, $"{DictMain.CannotFindMetaObjectKind}: {kindName}");
+                return null;
             }
-            result.Success(dataTable);
+            return sourceKind.ToSettings();
+        }
 
-            return result;
+        private MetaObjectKindSettings? GetDestinationKindSettings(IEnumerable<MetaObjectKind> allKinds, 
+            Guid destinationKindUid, 
+            ResultWrapper<DataTableDto> result )
+        {
+            var destinationKind = allKinds.FirstOrDefault(x=>x.Uid == destinationKindUid);
+            if (destinationKind == null)
+            {
+                result.Error(-1, $"{DictMain.CannotFindMetaObjectKind}: {destinationKindUid}");
+                return null;
+            }
+            return destinationKind.ToSettings();
+        }
+
+        private async Task<MetaObjectStorableSettings?> GetMetaObjectSettings(string kind,
+                                                                              Guid uid,
+                                                                              ResultWrapper<DataTableDto> result)
+        {
+            var metaObjectProvider = new MetaObjectStorableProvider(_connection, kind);
+            var metaObject = await metaObjectProvider.GetItemAsync(uid, null);
+
+            if (metaObject == null)
+            {
+                result.Error(-1, $"{DictMain.CannotFindMetaObject}: {kind}.{uid}");
+            }
+
+            return metaObject?.ToSettings();
+        }
+
+        private async Task<MetaObjectStorableSettings?> GetMetaObjectSettingsByName(string kind,
+                                                                                    string name,
+                                                                                    ResultWrapper<DataTableDto> result)
+        {
+            var metaObjectProvider = new MetaObjectStorableProvider(_connection, kind);
+            var metaObject = await metaObjectProvider.GetItemByNameAsync(name, null);
+
+            if (metaObject == null)
+            {
+                result.Error(-1, $"{DictMain.CannotFindMetaObject}: {kind}.{name}");
+            }
+
+            return metaObject?.ToSettings();
         }
 
         private void Dispose(bool disposing)
