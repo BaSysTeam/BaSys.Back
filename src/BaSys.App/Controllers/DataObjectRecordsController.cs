@@ -1,4 +1,5 @@
 ﻿using BaSys.App.Abstractions;
+using BaSys.App.Features.DataObjectRecords.Commands;
 using BaSys.App.Features.DataObjectRecords.Queries;
 using BaSys.Common.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
@@ -14,12 +15,18 @@ namespace BaSys.App.Controllers
        
         private readonly IGetRecordsQueryHandler _getRecordsHandler;
         private readonly IGetRecordsDialogModelQueryHandler _getModelHandler;
+        private readonly ICreateRecordsCommandHandler _createRecordsHandler;
+        private readonly IDeleteRecordsCommandHandler _deleteRecordsHandler;
 
         public DataObjectRecordsController(IGetRecordsDialogModelQueryHandler getModelHandler,
-            IGetRecordsQueryHandler getRecordsQueryHandler)
+            IGetRecordsQueryHandler getRecordsQueryHandler, 
+            ICreateRecordsCommandHandler createRecordsHandler, 
+            IDeleteRecordsCommandHandler deleteRecordsHandler)
         {
             _getModelHandler = getModelHandler;
             _getRecordsHandler = getRecordsQueryHandler;
+            _createRecordsHandler = createRecordsHandler;
+            _deleteRecordsHandler = deleteRecordsHandler;
         }
 
         [HttpGet("Model/{kind}/{name}/{uid}")]
@@ -35,6 +42,22 @@ namespace BaSys.App.Controllers
         {
           
             var result = await _getRecordsHandler.ExecuteAsync(new GetRecordsQuery(kind, name, objectUid, registerUid));
+
+            return Ok(result);
+        }
+
+        [HttpPost("{kind}/{name}/{uid}")]
+        public async Task<IActionResult> CreateRecords(string kind, string name, string uid)
+        {
+            var result = await _createRecordsHandler.ExecuteAsync(new CreateRecordsCommand(kind, name, uid));
+
+            return Ok(result);
+        }
+
+        [HttpDelete("{kind}/{name}/{uid}")]
+        public async Task<IActionResult> DeleteRecords(string kind, string name, string uid)
+        {
+            var result = await _deleteRecordsHandler.ExecuteAsync(new DeleteRecordsCommand(kind, name, uid));
 
             return Ok(result);
         }

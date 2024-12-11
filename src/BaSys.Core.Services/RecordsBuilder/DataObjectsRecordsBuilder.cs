@@ -1,6 +1,5 @@
 ﻿using BaSys.Common.Enums;
 using BaSys.Common.Infrastructure;
-using BaSys.Core.Services.RecordsBuilder;
 using BaSys.DAL.Models.App;
 using BaSys.Host.DAL.DataProviders;
 using BaSys.Logging.InMemory;
@@ -8,7 +7,7 @@ using BaSys.Metadata.Abstractions;
 using BaSys.Metadata.Models;
 using System.Data;
 
-namespace BaSys.App.Services
+namespace BaSys.Core.Services.RecordsBuilder
 {
     public sealed class DataObjectsRecordsBuilder
     {
@@ -94,7 +93,7 @@ namespace BaSys.App.Services
 
                 var provider = new DataObjectProvider(_connection, destinationKindSettings, destinationSettings, _dataTypesIndex);
                 await provider.DeleteObjectRecordsAsync(requiredColumns.MetaObjectColumn.Name,
-                    destinationSettings.Uid,
+                    _sourceSettings.Uid,
                     requiredColumns.ObjectColumn.Name,
                     primaryKeyValue,
                     _transaction);
@@ -222,7 +221,7 @@ namespace BaSys.App.Services
 
                 var provider = new DataObjectProvider(_connection, destinationKindSettings, destinationSettings, _dataTypesIndex);
                 var deletedCount = await provider.DeleteObjectRecordsAsync(requiredColumns.MetaObjectColumn.Name,
-                      destinationSettings.Uid,
+                      _sourceSettings.Uid,
                       requiredColumns.ObjectColumn.Name,
                       primaryKeyValue,
                       _transaction);
@@ -365,7 +364,7 @@ namespace BaSys.App.Services
             return record;
         }
 
-        private DataObject CreateRecordByTableRow(MetaObjectStorableSettings destinationSettings, 
+        private DataObject CreateRecordByTableRow(MetaObjectStorableSettings destinationSettings,
             MetaObjectKindSettings sourceKindSettings,
             MetaObjectStorableSettings sourceSettings,
             MetaObjectRecordsSettingsRow settingsRow,

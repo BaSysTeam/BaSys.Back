@@ -11,6 +11,7 @@ public static class CoreExtension
         services.AddTransient<IMetaObjectsService, MetaObjectsService>();
         services.AddTransient<IMetaMenusService, MetaMenusService>();
         services.AddTransient<IDataTypesService, DataTypesService>();
+        services.AddTransient<IMetadataService, MetadataService>();
 
         return services;
     }

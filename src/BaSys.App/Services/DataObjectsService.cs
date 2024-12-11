@@ -2,6 +2,7 @@
 using BaSys.Common.Infrastructure;
 using BaSys.Core.Abstractions;
 using BaSys.Core.Services;
+using BaSys.Core.Services.RecordsBuilder;
 using BaSys.DAL.Models.App;
 using BaSys.DTO.App;
 using BaSys.Host.DAL.Abstractions;
