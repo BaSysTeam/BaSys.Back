@@ -1,10 +1,13 @@
 ﻿using BaSys.App.Abstractions;
+using BaSys.Common.Abstractions;
 using BaSys.Common.Infrastructure;
 using BaSys.Core.Abstractions;
 using BaSys.Core.Services.RecordsBuilder;
+using BaSys.DAL.Models.App;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
-using BaSys.Translation;
+using BaSys.Metadata.Abstractions;
+using BaSys.Metadata.Models;
 using System.Data;
 
 namespace BaSys.App.Features.DataObjectRecords.Commands
@@ -29,57 +32,31 @@ namespace BaSys.App.Features.DataObjectRecords.Commands
             _connection.Open();
             using (IDbTransaction transaction = _connection.BeginTransaction())
             {
-                var kindSettings = await _metadataReader.GetKindSettingsByNameAsync(command.KindName, transaction);
-                if (kindSettings == null)
-                {
-                    transaction.Rollback();
-                    result.Error(-1, $"{DictMain.CannotFindMetaObjectKind}: {command.KindName}");
-                    return result;
-                }
+                var kindSettings = await GetKindSettingsAsync(command.KindName, result, transaction);
+                if (kindSettings == null) return result;
+
+                var metaObjectSettings = await GetMetaObjectSettingsAsync(command.KindName, command.ObjectName, result, transaction);
+                if (metaObjectSettings == null) return result;
+
+                var createRecordsColumn = GetCreateRecordsColumn(kindSettings, metaObjectSettings, command, result, transaction);
+                if (createRecordsColumn == null) return result;
 
                 var allMetaObjects = await _metadataReader.GetAllMetaObjectsAsync(transaction);
-
-                var metaObjectSettings = await _metadataReader.GetMetaObjectSettingsByNameAsync(command.KindName, command.ObjectName, transaction);
-                if (metaObjectSettings == null)
-                {
-                    transaction.Rollback();
-                    result.Error(-1, $"{DictMain.CannotFindMetaObject}: {command.KindName}.{command.ObjectName}");
-                    return result;
-                }
-
-                var createRecordsColumn = metaObjectSettings.Header.GetColumn(kindSettings.RecordsSettings.SourceCreateRecordsColumnUid);
-                if (createRecordsColumn == null)
-                {
-                    transaction.Rollback();
-                    result.Error(-1, $"Cannot find column: {command.KindName}.{command.ObjectName}.{kindSettings.RecordsSettings.SourceCreateRecordsColumnUid}");
-                    return result;
-                }
-
                 var allKinds = await _metadataReader.GetAllKindsAsync(transaction);
                 var dataTypesIndex = await _metadataReader.GetIndexAsync(transaction);
                 var provider = new DataObjectProvider(_connection, kindSettings, metaObjectSettings, dataTypesIndex);
 
-                var dataObject = await provider.GetItemAsync(command.ObjectUid, transaction);
-                if (dataObject == null)
-                {
-                    transaction.Rollback();
-                    result.Error(-1, $"Cannot find DataObject: {command.KindName}.{command.ObjectName}.{command.ObjectUid}");
-                    return result;
-                }
+                var dataObject = await GetDataObjectAsync(kindSettings,
+                                                          metaObjectSettings,
+                                                          command,
+                                                          allKinds,
+                                                          allMetaObjects,
+                                                          dataTypesIndex,
+                                                          provider,
+                                                          result,
+                                                          transaction);
 
-                foreach(var tableSettings in metaObjectSettings.DetailTables)
-                {
-                    var tableProvider = new DataObjectDetailsTableProvider(_connection,
-                            kindSettings,
-                            metaObjectSettings,
-                            tableSettings,
-                            allKinds,
-                            allMetaObjects,
-                            dataTypesIndex);
-
-                    var detailsTable = await tableProvider.GetTableAsync(dataObject.GetPrimaryKey()?.ToString(), transaction);
-                    dataObject.DetailTables.Add(detailsTable);
-                }
+                if (dataObject == null) return result;
 
                 dataObject.SetValue(createRecordsColumn.Name, true);
 
@@ -103,6 +80,62 @@ namespace BaSys.App.Features.DataObjectRecords.Commands
             }
 
             return result;
+        }
+
+        private MetaObjectTableColumn? GetCreateRecordsColumn(MetaObjectKindSettings kindSettings,
+                                                              MetaObjectStorableSettings metaObjectSettings,
+                                                              CreateRecordsCommand command,
+                                                              IResultWrapper result,
+                                                              IDbTransaction? transaction)
+        {
+            var createRecordsColumn = metaObjectSettings.Header.GetColumn(kindSettings.RecordsSettings.SourceCreateRecordsColumnUid);
+            if (createRecordsColumn == null)
+            {
+                if (transaction != null)
+                {
+                    transaction.Rollback();
+                }
+                result.Error(-1, $"Cannot find column: {command.KindName}.{command.ObjectName}.{kindSettings.RecordsSettings.SourceCreateRecordsColumnUid}");
+            }
+
+            return createRecordsColumn;
+        }
+
+        private async Task<DataObject?> GetDataObjectAsync(MetaObjectKindSettings kindSettings,
+                                                           MetaObjectStorableSettings metaObjectSettings,
+                                                           CreateRecordsCommand command,
+                                                           IEnumerable<MetaObjectKind> allKinds,
+                                                           IEnumerable<MetaObjectStorable> allMetaObjects,
+                                                           IDataTypesIndex dataTypesIndex,
+                                                           DataObjectProvider provider,
+                                                           IResultWrapper result,
+                                                           IDbTransaction? transaction)
+        {
+            var dataObject = await provider.GetItemAsync(command.ObjectUid, transaction);
+            if (dataObject == null)
+            {
+                if (transaction != null)
+                {
+                    transaction.Rollback();
+                }
+                result.Error(-1, $"Cannot find DataObject: {command.KindName}.{command.ObjectName}.{command.ObjectUid}");
+            }
+
+            foreach (var tableSettings in metaObjectSettings.DetailTables)
+            {
+                var tableProvider = new DataObjectDetailsTableProvider(_connection,
+                        kindSettings,
+                        metaObjectSettings,
+                        tableSettings,
+                        allKinds,
+                        allMetaObjects,
+                        dataTypesIndex);
+
+                var detailsTable = await tableProvider.GetTableAsync(dataObject.GetPrimaryKey()?.ToString(), transaction);
+                dataObject.DetailTables.Add(detailsTable);
+            }
+
+            return dataObject;
         }
 
     }

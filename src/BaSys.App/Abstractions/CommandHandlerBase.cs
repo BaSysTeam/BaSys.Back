@@ -1,8 +1,11 @@
 ﻿using BaSys.App.Features.DataObjectRecords.Commands;
+using BaSys.Common.Abstractions;
 using BaSys.Common.Infrastructure;
 using BaSys.Core.Abstractions;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
+using BaSys.Metadata.Models;
+using BaSys.Translation;
 using System.Data;
 
 namespace BaSys.App.Abstractions
@@ -52,6 +55,39 @@ namespace BaSys.App.Abstractions
             var result = new ResultWrapper<TResult>();
 
             return result;
+        }
+
+        protected virtual async Task<MetaObjectKindSettings?> GetKindSettingsAsync(string kindName, IResultWrapper result, IDbTransaction? transaction)
+        {
+            var kindSettings = await _metadataReader.GetKindSettingsByNameAsync(kindName, transaction);
+            if (kindSettings == null)
+            {
+                if (transaction != null)
+                {
+                    transaction.Rollback();
+                }
+                result.Error(-1, $"{DictMain.CannotFindMetaObjectKind}: {kindName}");
+            }
+
+            return kindSettings;
+        }
+
+        protected virtual async Task<MetaObjectStorableSettings?> GetMetaObjectSettingsAsync(string kindName,
+                                                                                            string objectName,
+                                                                                            IResultWrapper result,
+                                                                                            IDbTransaction? transaction)
+        {
+            var metaObjectSettings = await _metadataReader.GetMetaObjectSettingsByNameAsync(kindName, objectName, transaction);
+            if (metaObjectSettings == null)
+            {
+                if (transaction != null)
+                {
+                    transaction.Rollback();
+                }
+                result.Error(-1, $"{DictMain.CannotFindMetaObject}: {kindName}.{objectName}");
+            }
+
+            return metaObjectSettings;
         }
 
         private void Dispose(bool disposing)
