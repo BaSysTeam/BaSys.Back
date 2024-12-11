@@ -1,78 +1,109 @@
 ﻿using BaSys.App.Abstractions;
-using BaSys.App.Features.DataObjectRecords.Queries;
 using BaSys.Common.Infrastructure;
 using BaSys.Core.Abstractions;
-using BaSys.Core.Services;
-using BaSys.DTO.Core;
+using BaSys.Core.Services.RecordsBuilder;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
+using BaSys.Translation;
 using System.Data;
 
 namespace BaSys.App.Features.DataObjectRecords.Commands
 {
-    public class CreateRecordsCommandHandler: ICreateRecordsCommandHandler, IDisposable
+    public class CreateRecordsCommandHandler : CommandHandlerBase<CreateRecordsCommand, bool>, ICreateRecordsCommandHandler
     {
-        private readonly IDbConnection _connection;
-        private readonly ISystemObjectProviderFactory _providerFactory;
-        private readonly MetaObjectKindsProvider _kindProvider;
-        private readonly IDataTypesService _dataTypesService;
-        private bool _disposed;
 
         public CreateRecordsCommandHandler(IMainConnectionFactory connectionFactory,
-            ISystemObjectProviderFactory providerFactory)
+                                           ISystemObjectProviderFactory providerFactory,
+                                           IMetadataReader metadataReader) :
+            base(connectionFactory,
+                 providerFactory,
+                 metadataReader)
         {
-            _connection = connectionFactory.CreateConnection();
-            _providerFactory = providerFactory;
-            _providerFactory.SetUp(_connection);
 
-            _kindProvider = _providerFactory.Create<MetaObjectKindsProvider>();
-
-            _dataTypesService = new DataTypesService(providerFactory);
-            _dataTypesService.SetUp(_connection);
         }
 
-        public async Task<ResultWrapper<bool>> ExecuteAsync(CreateRecordsCommand command)
+        protected override async Task<ResultWrapper<bool>> ExecuteCommandAsync(CreateRecordsCommand command)
         {
             var result = new ResultWrapper<bool>();
 
-            try
+            _connection.Open();
+            using (IDbTransaction transaction = _connection.BeginTransaction())
             {
-                result = await ExecuteCommandAsync(command);
-            }
-            catch (Exception ex)
-            {
-                result.Error(-1, $"Cannot execute command: {nameof(command)}. Message: {ex.Message}.", ex.StackTrace);
-            }
-
-            return result;
-        }
-
-        private async Task<ResultWrapper<bool>> ExecuteCommandAsync(CreateRecordsCommand command)
-        {
-            var result = new ResultWrapper<bool>();
-
-            return result;
-        }
-
-            private void Dispose(bool disposing)
-        {
-            if (!_disposed)
-            {
-                if (disposing)
+                var kindSettings = await _metadataReader.GetKindSettingsByNameAsync(command.KindName, transaction);
+                if (kindSettings == null)
                 {
-                    if (_connection != null)
-                        _connection.Dispose();
+                    transaction.Rollback();
+                    result.Error(-1, $"{DictMain.CannotFindMetaObjectKind}: {command.KindName}");
+                    return result;
                 }
 
-                _disposed = true;
+                var allMetaObjects = await _metadataReader.GetAllMetaObjectsAsync(transaction);
+
+                var metaObjectSettings = await _metadataReader.GetMetaObjectSettingsByNameAsync(command.KindName, command.ObjectName, transaction);
+                if (metaObjectSettings == null)
+                {
+                    transaction.Rollback();
+                    result.Error(-1, $"{DictMain.CannotFindMetaObject}: {command.KindName}.{command.ObjectName}");
+                    return result;
+                }
+
+                var createRecordsColumn = metaObjectSettings.Header.GetColumn(kindSettings.RecordsSettings.SourceCreateRecordsColumnUid);
+                if (createRecordsColumn == null)
+                {
+                    transaction.Rollback();
+                    result.Error(-1, $"Cannot find column: {command.KindName}.{command.ObjectName}.{kindSettings.RecordsSettings.SourceCreateRecordsColumnUid}");
+                    return result;
+                }
+
+                var allKinds = await _metadataReader.GetAllKindsAsync(transaction);
+                var dataTypesIndex = await _metadataReader.GetIndexAsync(transaction);
+                var provider = new DataObjectProvider(_connection, kindSettings, metaObjectSettings, dataTypesIndex);
+
+                var dataObject = await provider.GetItemAsync(command.ObjectUid, transaction);
+                if (dataObject == null)
+                {
+                    transaction.Rollback();
+                    result.Error(-1, $"Cannot find DataObject: {command.KindName}.{command.ObjectName}.{command.ObjectUid}");
+                    return result;
+                }
+
+                foreach(var tableSettings in metaObjectSettings.DetailTables)
+                {
+                    var tableProvider = new DataObjectDetailsTableProvider(_connection,
+                            kindSettings,
+                            metaObjectSettings,
+                            tableSettings,
+                            allKinds,
+                            allMetaObjects,
+                            dataTypesIndex);
+
+                    var detailsTable = await tableProvider.GetTableAsync(dataObject.GetPrimaryKey()?.ToString(), transaction);
+                    dataObject.DetailTables.Add(detailsTable);
+                }
+
+                dataObject.SetValue(createRecordsColumn.Name, true);
+
+                // Create records.
+                var recordsBuilder = new DataObjectsRecordsBuilder(_connection,
+                    transaction,
+                    kindSettings,
+                    metaObjectSettings,
+                    dataObject,
+                    _kindProvider,
+                    dataTypesIndex,
+                    Common.Enums.EventTypeLevels.Trace);
+                var buildResult = await recordsBuilder.BuildAsync();
+
+                // Set flag CreateRecords false.
+                await provider.UpdateFieldAsync(dataObject, createRecordsColumn.Name, true, transaction);
+
+                transaction.Commit();
+                result.Success(true);
+
             }
+
+            return result;
         }
 
-        public void Dispose()
-        {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
     }
 }
