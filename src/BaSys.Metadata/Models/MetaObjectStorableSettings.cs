@@ -95,7 +95,7 @@ namespace BaSys.Metadata.Models
 
         public void CopyFrom(MetaObjectStorableSettings source)
         {
-            MetaObjectKindUid = source.Uid;
+            MetaObjectKindUid = source.MetaObjectKindUid;
             EditMethod = source.EditMethod;
             Title = source.Title;
             Name = source.Name;
@@ -113,6 +113,7 @@ namespace BaSys.Metadata.Models
         {
             var clone = new MetaObjectStorableSettings();
             clone.Uid = Uid;
+            clone.MetaObjectKindUid = MetaObjectKindUid;
             clone.EditMethod = EditMethod;
             clone.Title = Title;
             clone.Name = Name;

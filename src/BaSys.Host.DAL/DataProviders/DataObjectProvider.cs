@@ -107,6 +107,23 @@ namespace BaSys.Host.DAL.DataProviders
             return result;
         }
 
+        public async Task<int> UpdateFieldAsync(DataObject item, string columnName, object value, IDbTransaction? transaction)
+        {
+            var uid = item.Header[_primaryKeyFieldName];
+
+            _query = UpdateBuilder.Make()
+                .Table(_config.TableName)
+                .Set(columnName)
+                .Parameter(columnName, value)
+                .WhereAnd($"{_primaryKeyFieldName} = @{_primaryKeyFieldName}")
+                .Parameter($"{_primaryKeyFieldName}", uid)
+                .Query(_sqlDialect);
+
+            var result = await _connection.ExecuteAsync(_query.Text, _query.DynamicParameters, transaction);
+
+            return result;
+        }
+
         public async Task<int> DeleteAsync<T>(T uid, IDbTransaction? transaction)
         {
             _query = DeleteBuilder.Make()
@@ -128,10 +145,10 @@ namespace BaSys.Host.DAL.DataProviders
             return deletedCount;
         }
 
-        public async Task<int> DeleteObjectRecordsAsync(string metaObjectColumnName, 
-            Guid metaObjectUid, 
-            string objectColumnName, 
-            object objectUid, 
+        public async Task<int> DeleteObjectRecordsAsync(string metaObjectColumnName,
+            Guid metaObjectUid,
+            string objectColumnName,
+            object objectUid,
             IDbTransaction? transaction)
         {
             _query = DeleteBuilder.Make()
@@ -151,7 +168,7 @@ namespace BaSys.Host.DAL.DataProviders
         {
             _query = SelectBuilder.Make().From(_config.TableName).Select("count(1) as ItemsCount").Query(_sqlDialect);
 
-            var result = await _connection.QueryFirstOrDefaultAsync<ItemsCountResult>( _query.Text, null, transaction);
+            var result = await _connection.QueryFirstOrDefaultAsync<ItemsCountResult>(_query.Text, null, transaction);
 
             return result.ItemsCount;
         }

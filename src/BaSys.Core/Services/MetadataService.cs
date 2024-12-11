@@ -10,40 +10,37 @@ namespace BaSys.Core.Services
     {
         private ISystemObjectProviderFactory _providerFactory;
         private MetaObjectKindsProvider _kindProvider;
-        private IDbConnection _connection;
-        private readonly List<MetaObjectKind> _allKinds;
+        private readonly List<MetaObjectKind> _kinds;
+        private readonly List<MetaObjectStorable> _metaObjects;
 
-        public MetadataService(ISystemObjectProviderFactory providerFactory)
+        public MetadataService()
         {
-            _providerFactory = providerFactory;
-
-            _allKinds = new List<MetaObjectKind>();
+            _kinds = new List<MetaObjectKind>();
+            _metaObjects = new List<MetaObjectStorable>();
         }
 
-        public void SetUp(IDbConnection connection)
+        public void SetUp(ISystemObjectProviderFactory providerFactory)
         {
-            _connection = connection;
-            _providerFactory.SetUp(_connection);
+            _providerFactory = providerFactory;
             _kindProvider = _providerFactory.Create<MetaObjectKindsProvider>();
-
         }
 
         public async Task<IEnumerable<MetaObjectKind>> GetAllKindsAsync(IDbTransaction? transaction)
         {
             await UpdateAllKindsIfNecessaryAsync(transaction);
-            return _allKinds.ToList();
+            return _kinds.ToList();
         }
 
         public async Task<MetaObjectKind> GetKindAsync(Guid uid, IDbTransaction? transaction)
         {
             await UpdateAllKindsIfNecessaryAsync(transaction);
-            return _allKinds.FirstOrDefault(x => x.Uid == uid);
+            return _kinds.FirstOrDefault(x => x.Uid == uid);
         }
 
         public async Task<MetaObjectKind> GetKindByNameAsync(string name, IDbTransaction transaction)
         {
             await UpdateAllKindsIfNecessaryAsync(transaction);
-            return _allKinds.FirstOrDefault(x => x.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
+            return _kinds.FirstOrDefault(x => x.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
         }
 
         public async Task<MetaObjectKindSettings> GetKindSettingsAsync(Guid uid, IDbTransaction? transaction)
@@ -58,12 +55,60 @@ namespace BaSys.Core.Services
             return item?.ToSettings();
         }
 
+        public async Task<IEnumerable<MetaObjectStorable>> GetAllMetaObjectsAsync(IDbTransaction? transaction)
+        {
+            await UpdateAllMetaObjectsIfNecessaryAsync(transaction);
+            return _metaObjects.ToList();
+        }
+
+        public async Task<MetaObjectStorable> GetMetaObjectByNameAsync(string kindName, string objectName, IDbTransaction transaction)
+        {
+            await UpdateAllMetaObjectsIfNecessaryAsync(transaction);
+
+            var kind = await GetKindByNameAsync(kindName, transaction);
+
+            if (kind == null)
+            {
+                return null;
+            }
+
+            var metaObject = _metaObjects.FirstOrDefault(x => x.MetaObjectKindUid == kind.Uid
+            && x.Name.Equals(objectName, StringComparison.CurrentCultureIgnoreCase));
+
+            return metaObject;
+        }
+
+        public async Task<MetaObjectStorableSettings> GetMetaObjectSettingsByNameAsync(string kindName, string objectName, IDbTransaction transaction)
+        {
+            var metaObject = await GetMetaObjectByNameAsync(kindName, objectName, transaction);
+
+            return metaObject?.ToSettings();
+        }
+
+        private async Task UpdateAllMetaObjectsIfNecessaryAsync(IDbTransaction? transaction)
+        {
+            await UpdateAllKindsIfNecessaryAsync(transaction);
+
+            if (!_metaObjects.Any())
+            {
+                _metaObjects.Clear();
+
+                foreach (var kind in _kinds)
+                {
+                    var metaObjectProvider = _providerFactory.CreateMetaObjectStorableProvider(kind.Name);
+                    var metaObjects = await metaObjectProvider.GetCollectionAsync(transaction);
+
+                    _metaObjects.AddRange(metaObjects);
+                }
+            }
+        }
+
         private async Task UpdateAllKindsIfNecessaryAsync(IDbTransaction? transaction)
         {
-            if (!_allKinds.Any())
+            if (!_kinds.Any())
             {
-                _allKinds.Clear();
-                _allKinds.AddRange(await _kindProvider.GetCollectionAsync(transaction));
+                _kinds.Clear();
+                _kinds.AddRange(await _kindProvider.GetCollectionAsync(transaction));
             }
         }
 
