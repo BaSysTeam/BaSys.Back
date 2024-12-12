@@ -8,6 +8,7 @@ using BaSys.DTO.App;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
 using BaSys.Logging.Abstractions.Abstractions;
+using BaSys.Logging.InMemory;
 using BaSys.Metadata.Helpers;
 using BaSys.Metadata.Models;
 using BaSys.Translation;
@@ -326,9 +327,9 @@ namespace BaSys.App.Services
             return result;
         }
 
-        public async Task<ResultWrapper<int>> UpdateAsync(DataObjectSaveDto dto)
+        public async Task<ResultWrapper<List<InMemoryLogMessage>>> UpdateAsync(DataObjectSaveDto dto)
         {
-            var result = new ResultWrapper<int>();
+            var result = new ResultWrapper<List<InMemoryLogMessage>>();
 
             _connection.Open();
             using (IDbTransaction transaction = _connection.BeginTransaction())
@@ -406,6 +407,7 @@ namespace BaSys.App.Services
                         await tableProvider.UpdateAsync(objectUid, table, transaction);
                     }
 
+                    var logMessages = new List<InMemoryLogMessage>();
                     if (objectKindSettings.CanCreateRecords)
                     {
                         var recordsBuilder = new DataObjectsRecordsBuilder(_connection,
@@ -417,10 +419,12 @@ namespace BaSys.App.Services
                             dataTypesIndex,
                             Common.Enums.EventTypeLevels.Trace);
                         var buildResult = await recordsBuilder.BuildAsync();
+
+                        logMessages.AddRange(recordsBuilder.Messages);
                     }
 
                     transaction.Commit();
-                    result.Success(updateResult, DictMain.ItemSaved);
+                    result.Success(logMessages, DictMain.ItemSaved);
                 }
                 catch (Exception ex)
                 {

@@ -9,7 +9,7 @@ namespace BaSys.Logging.InMemory
 {
     public sealed class InMemoryLogMessage
     {
-        public DateTime Period { get; set; }
+        public DateTime Period { get; set; } = DateTime.UtcNow;
         public EventTypeLevels Level { get; set; }
         public string Text { get; set; } = string.Empty;
 

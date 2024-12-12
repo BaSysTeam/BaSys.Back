@@ -21,6 +21,8 @@ namespace BaSys.Core.Services.RecordsBuilder
 
         private readonly InMemoryLogger _logger;
 
+        public IEnumerable<InMemoryLogMessage> Messages => _logger.Messages;
+
         public bool CreateRecords
         {
             get
@@ -57,12 +59,14 @@ namespace BaSys.Core.Services.RecordsBuilder
         public async Task<ResultWrapper<int>> BuildAsync()
         {
             var result = new ResultWrapper<int>();
+            var totalRecordsCount = 0;
 
             if (!_sourceKindSettings.CanCreateRecords)
             {
                 return result;
             }
 
+            _logger.LogInfo($"Start records creating.");
             var destinationKindSettings = await _kindsProvider.GetSettingsAsync(_sourceKindSettings.RecordsSettings.StorageMetaObjectKindUid, _transaction);
 
             if (destinationKindSettings == null)
@@ -167,13 +171,17 @@ namespace BaSys.Core.Services.RecordsBuilder
 
                 }
 
+                totalRecordsCount += records.Count;
                 foreach (var record in records)
                 {
                     //TODO: Implement Bulk insert.
                     await provider.InsertAsync(record, _transaction);
                 }
+                _logger.LogInfo($"{destinationKindSettings.Name}.{destinationSettings.Name} {records.Count} records created.");
 
             }
+
+            result.Success(totalRecordsCount);
 
             return result;
         }

@@ -72,7 +72,7 @@ namespace BaSys.Logging.InMemory
 
         private bool IsEnabled(EventTypeLevels level)
         {
-            return _minimumLevel >= level;
+            return level >= _minimumLevel;
         }
     }
 }

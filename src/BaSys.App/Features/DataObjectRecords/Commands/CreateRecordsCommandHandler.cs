@@ -6,13 +6,14 @@ using BaSys.Core.Services.RecordsBuilder;
 using BaSys.DAL.Models.App;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
+using BaSys.Logging.InMemory;
 using BaSys.Metadata.Abstractions;
 using BaSys.Metadata.Models;
 using System.Data;
 
 namespace BaSys.App.Features.DataObjectRecords.Commands
 {
-    public class CreateRecordsCommandHandler : CommandHandlerBase<CreateRecordsCommand, bool>, ICreateRecordsCommandHandler
+    public class CreateRecordsCommandHandler : CommandHandlerBase<CreateRecordsCommand, List<InMemoryLogMessage>>, ICreateRecordsCommandHandler
     {
 
         public CreateRecordsCommandHandler(IMainConnectionFactory connectionFactory,
@@ -25,9 +26,9 @@ namespace BaSys.App.Features.DataObjectRecords.Commands
 
         }
 
-        protected override async Task<ResultWrapper<bool>> ExecuteCommandAsync(CreateRecordsCommand command)
+        protected override async Task<ResultWrapper<List<InMemoryLogMessage>>> ExecuteCommandAsync(CreateRecordsCommand command)
         {
-            var result = new ResultWrapper<bool>();
+            var result = new ResultWrapper<List<InMemoryLogMessage>>();
 
             _connection.Open();
             using (IDbTransaction transaction = _connection.BeginTransaction())
@@ -75,7 +76,7 @@ namespace BaSys.App.Features.DataObjectRecords.Commands
                 await provider.UpdateFieldAsync(dataObject, createRecordsColumn.Name, true, transaction);
 
                 transaction.Commit();
-                result.Success(true);
+                result.Success(recordsBuilder.Messages.ToList());
 
             }
 
