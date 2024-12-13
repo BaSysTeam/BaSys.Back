@@ -32,7 +32,7 @@ namespace BaSys.Metadata.Models
 
         public override string ToString()
         {
-            return Title;
+            return $"{Title}/{Name}";
         }
     }
 }

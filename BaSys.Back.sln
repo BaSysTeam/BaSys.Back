@@ -66,7 +66,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaSys.FileStorage", "src\Ba
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaSys.Core", "src\BaSys.Core\BaSys.Core.csproj", "{70E42E73-4A6D-4FAC-B7B3-1C060CA37661}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaSys.Metadata.UnitTests", "test\BaSys.Metadata.UnitTests\BaSys.Metadata.UnitTests.csproj", "{6C9DD76D-0F8C-4608-815C-70608E8C0850}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaSys.Metadata.UnitTests", "test\BaSys.Metadata.UnitTests\BaSys.Metadata.UnitTests.csproj", "{6C9DD76D-0F8C-4608-815C-70608E8C0850}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaSys.Core.Services", "src\BaSys.Core.Services\BaSys.Core.Services.csproj", "{156B30A3-C116-4145-946D-BF3529C7A740}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaSys.Core.Services.UnitTests", "test\BaSys.Core.Services.UnitTests\BaSys.Core.Services.UnitTests.csproj", "{BF3BBABA-FE6F-40F3-B946-7092475EC9D2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -178,6 +182,14 @@ Global
 		{6C9DD76D-0F8C-4608-815C-70608E8C0850}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6C9DD76D-0F8C-4608-815C-70608E8C0850}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6C9DD76D-0F8C-4608-815C-70608E8C0850}.Release|Any CPU.Build.0 = Release|Any CPU
+		{156B30A3-C116-4145-946D-BF3529C7A740}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{156B30A3-C116-4145-946D-BF3529C7A740}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{156B30A3-C116-4145-946D-BF3529C7A740}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{156B30A3-C116-4145-946D-BF3529C7A740}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BF3BBABA-FE6F-40F3-B946-7092475EC9D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF3BBABA-FE6F-40F3-B946-7092475EC9D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BF3BBABA-FE6F-40F3-B946-7092475EC9D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF3BBABA-FE6F-40F3-B946-7092475EC9D2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -209,6 +221,8 @@ Global
 		{E639C4A2-2347-416D-95C0-AD85F554B657} = {0271BDA0-88FC-4672-A96C-3986061802E6}
 		{70E42E73-4A6D-4FAC-B7B3-1C060CA37661} = {0271BDA0-88FC-4672-A96C-3986061802E6}
 		{6C9DD76D-0F8C-4608-815C-70608E8C0850} = {8D015793-546A-4605-B235-CB595FD6061C}
+		{156B30A3-C116-4145-946D-BF3529C7A740} = {0271BDA0-88FC-4672-A96C-3986061802E6}
+		{BF3BBABA-FE6F-40F3-B946-7092475EC9D2} = {8D015793-546A-4605-B235-CB595FD6061C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {363BB08F-378B-4D54-914F-51ACDC6A7B23}

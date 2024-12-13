@@ -237,6 +237,7 @@ namespace BaSys.Core.Services
 
             var metaObjectStorableProvider = _providerFactory.CreateMetaObjectStorableProvider(kindSettings.Name);
             var newSettings = settingsDto.ToModel();
+            newSettings.MetaObjectKindUid = kindSettings.Uid;
 
 
             var dataTypesIndex = await _dataTypesService.GetIndexAsync(transaction);
@@ -313,6 +314,7 @@ namespace BaSys.Core.Services
                 }
 
                 var newSettings = settingsDto.ToModel();
+                newSettings.MetaObjectKindUid = kindSettings.Uid;
 
                 var validator = new MetaObjectStorableSettingsValidator(savedSettings);
                 var validationResult = validator.Validate(newSettings);

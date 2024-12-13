@@ -1,5 +1,6 @@
 ﻿using BaSys.Common.Helpers;
 using BaSys.Metadata.Abstractions;
+using BaSys.Metadata.Helpers;
 using BaSys.Metadata.Models;
 using System.Data;
 
@@ -7,16 +8,16 @@ namespace BaSys.DAL.Models.App
 {
     public sealed class DataObject
     {
-        public Dictionary<string, object> Header { get; set; } = new Dictionary<string, object>();
+
+        private readonly MetaObjectStorableSettings _settings;
+
+        public Dictionary<string, object?> Header { get; set; } = new Dictionary<string, object?>();
         public List<DataObjectDetailsTable> DetailTables { get; set; } = new List<DataObjectDetailsTable>();
 
-        public DataObject()
-        {
-
-        }
 
         public DataObject(MetaObjectStorableSettings settings, IDataTypesIndex dataTypeIndex)
         {
+            _settings = settings;
             foreach (var column in settings.Header.Columns)
             {
 
@@ -46,8 +47,9 @@ namespace BaSys.DAL.Models.App
             }
         }
 
-        public DataObject(IDictionary<string, object> header)
+        public DataObject(MetaObjectStorableSettings settings, IDictionary<string, object> header)
         {
+            _settings = settings;
             foreach (var kvp in header)
             {
                 Header.Add(kvp.Key, kvp.Value);
@@ -103,7 +105,21 @@ namespace BaSys.DAL.Models.App
             }
         }
 
-        public void SetValue(string key, object value)
+        public void SetPrimaryKey(string value)
+        {
+            var dataTypeIndex = new DataTypesIndex(DataTypeDefaults.GetPrimaryKeyTypes());
+            var dbType = dataTypeIndex.GetDbType(_settings.Header.PrimaryKey.DataTypeUid);
+            var parsedValue = ValueParser.Parse(value, dbType);
+
+            SetValue(_settings.Header.PrimaryKey.Name, parsedValue);
+        }
+
+        public object? GetPrimaryKey()
+        {
+            return GetValue(_settings.Header.PrimaryKey.Name);
+        }
+
+        public void SetValue(string key, object? value)
         {
 
             var keyLower = key.ToLower();
@@ -135,5 +151,19 @@ namespace BaSys.DAL.Models.App
                 return default(T);
             }
         }
+
+        public object? GetValue(string key, object? defaultValue = null)
+        {
+            if (Header.TryGetValue(key.ToLower(), out var value))
+            {
+                return value;
+            }
+            else
+            {
+                return defaultValue;
+            }
+        }
+
+
     }
 }

@@ -28,6 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\BaSys.Core.Services\BaSys.Core.Services.csproj" />
     <ProjectReference Include="..\BaSys.Core\BaSys.Core.csproj" />
     <ProjectReference Include="..\BaSys.DAL.Models\BaSys.DAL.Models.csproj" />
     <ProjectReference Include="..\BaSys.DTO\BaSys.DTO.csproj" />

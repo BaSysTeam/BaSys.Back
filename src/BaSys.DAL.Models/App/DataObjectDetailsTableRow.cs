@@ -86,5 +86,50 @@ namespace BaSys.DAL.Models.App
                 Fields.Add(kvp.Key, kvp.Value);
             }
         }
+
+        public void SetValue(string key, object value)
+        {
+
+            var keyLower = key.ToLower();
+            if (Fields.ContainsKey(keyLower))
+            {
+                Fields[keyLower] = value;
+            }
+            else
+            {
+                Fields.Add(keyLower, value);
+            }
+        }
+
+        public T? GetValue<T>(string key)
+        {
+            if (Fields.TryGetValue(key.ToLower(), out var value))
+            {
+                if (value is T tmp)
+                {
+                    return tmp;
+                }
+                else
+                {
+                    return default(T);
+                }
+            }
+            else
+            {
+                return default(T);
+            }
+        }
+
+        public object? GetValue(string key, object? defaultValue = null)
+        {
+            if (Fields.TryGetValue(key.ToLower(), out var value))
+            {
+                return value;
+            }
+            else
+            {
+                return defaultValue;
+            }
+        }
     }
 }

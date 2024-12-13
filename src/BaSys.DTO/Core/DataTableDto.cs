@@ -4,13 +4,10 @@ namespace BaSys.DTO.Core
 {
     public sealed class DataTableDto
     {
-        private const string StringTypeName = "string";
-        private const string DateTypeName = "date";
-        private const string NumberTypeName = "number";
-        private const string BooleanTypeName = "boolean";
+       
 
         public List<DataTableColumnDto> Columns { get; set; } = new List<DataTableColumnDto>();
-        public List<Dictionary<string, object>> Rows { get; set; } = new List<Dictionary<string, object>>();
+        public List<Dictionary<string, object?>> Rows { get; set; } = new List<Dictionary<string, object?>>();
 
         public DataTableDto()
         {
@@ -34,16 +31,17 @@ namespace BaSys.DTO.Core
             Rows.Clear();
         }
 
+        public void AddRow(Dictionary<string, object?> row)
+        {
+            Rows.Add(row);
+        }
+
         private void ConvertColumns(DataTable dataTable)
         {
 
             foreach (DataColumn column in dataTable.Columns)
             {
-                var newColumn = new DataTableColumnDto()
-                {
-                    Name = column.ColumnName,
-                    DataType = ConvertType(column.DataType),
-                };
+                var newColumn = new DataTableColumnDto(column);
                 Columns.Add(newColumn);
             }
 
@@ -53,7 +51,7 @@ namespace BaSys.DTO.Core
         {
             foreach (DataRow dataTableRow in dataTable.Rows)
             {
-                var newRow = new Dictionary<string, object>();
+                var newRow = new Dictionary<string, object?>();
 
                 foreach (DataColumn column in dataTable.Columns)
                 {
@@ -64,46 +62,6 @@ namespace BaSys.DTO.Core
             }
         }
 
-        private string ConvertType(Type type)
-        {
-
-            var result = StringTypeName;
-
-            if (type == typeof(string)
-                || type == typeof(Guid))
-            {
-                result = StringTypeName;
-            }
-            else if (type == typeof(DateTime))
-            {
-
-                result = DateTypeName;
-            }
-            else if (type == typeof(bool))
-            {
-                result = BooleanTypeName;
-            }
-            else if (IsNumericType(type))
-            {
-                result = NumberTypeName;
-            }
-
-            return result;
-        }
-
-        private bool IsNumericType(Type type)
-        {
-            return type == typeof(byte) ||
-                   type == typeof(sbyte) ||
-                   type == typeof(short) ||
-                   type == typeof(ushort) ||
-                   type == typeof(int) ||
-                   type == typeof(uint) ||
-                   type == typeof(long) ||
-                   type == typeof(ulong) ||
-                   type == typeof(float) ||
-                   type == typeof(double) ||
-                   type == typeof(decimal);
-        }
+       
     }
 }

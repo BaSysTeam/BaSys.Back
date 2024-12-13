@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BaSys.Common.Abstractions;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using static System.Net.WebRequestMethods;
@@ -13,7 +14,7 @@ namespace BaSys.Common.Infrastructure
     /// This makes it easier to handle success and error states within the application while providing additional context through messages.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public sealed class ResultWrapper<T>
+    public sealed class ResultWrapper<T>: IResultWrapper
     {
         private const string SuccessMessage = "OK";
         private const string UnknownErrorMessage = "Unknown error";

@@ -55,5 +55,10 @@ namespace BaSys.Metadata.Models
             Version++;
         }
 
+        public override string ToString()
+        {
+            return $"{Title}/{Name}";
+        }
+
     }
 }
