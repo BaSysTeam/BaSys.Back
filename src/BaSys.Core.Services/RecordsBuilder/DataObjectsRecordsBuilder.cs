@@ -77,7 +77,7 @@ namespace BaSys.Core.Services.RecordsBuilder
 
             var destinations = await GetDestinationSettingsAsync(destinationKindSettings.Name);
             var primaryKeyValue = _dataObject.GetPrimaryKey();
-            var evaluator = new JintExpressionEvaluator(_logger);
+            var evaluator = new RecordsBuilderExpressionEvaluator(_logger);
 
             foreach (var recordsSettingnsItem in _sourceSettings.RecordsSettings)
             {
@@ -131,7 +131,7 @@ namespace BaSys.Core.Services.RecordsBuilder
                         if (!string.IsNullOrWhiteSpace(settingsRow.Condition))
                         {
                             // Evaluate condition
-                            var conditionResult = EvaluateCondition(evaluator, settingsRow.Condition, _dataObject.Header, null);
+                            var conditionResult = evaluator.EvaluateCondition(settingsRow.Condition, _dataObject.Header, null);
                             if (!conditionResult)
                             {
                                 _logger.LogDebug("Skip record Header->{0}", destinationSettings.Name);
@@ -146,7 +146,8 @@ namespace BaSys.Core.Services.RecordsBuilder
                                                           _sourceSettings,
                                                           settingsRow,
                                                           requiredColumns,
-                                                          _dataObject);
+                                                          _dataObject,
+                                                          evaluator);
 
                         records.Add(record);
 
@@ -167,7 +168,7 @@ namespace BaSys.Core.Services.RecordsBuilder
                                 if (!string.IsNullOrWhiteSpace(settingsRow.Condition))
                                 {
                                     // Evaluate condition
-                                    var conditionResult = EvaluateCondition(evaluator, settingsRow.Condition, _dataObject.Header, tableRow);
+                                    var conditionResult = evaluator.EvaluateCondition(settingsRow.Condition, _dataObject.Header, tableRow);
                                     if (!conditionResult)
                                     {
                                         _logger.LogDebug("Skip record Table.{0}[1]->{2}", table.Name, rowNumber, destinationSettings.Name);
@@ -184,7 +185,8 @@ namespace BaSys.Core.Services.RecordsBuilder
                                                                     requiredColumns,
                                                                     _dataObject,
                                                                     tableRow,
-                                                                    rowNumber);
+                                                                    rowNumber, 
+                                                                    evaluator);
 
                                 records.Add(record);
 
@@ -351,7 +353,8 @@ namespace BaSys.Core.Services.RecordsBuilder
             MetaObjectStorableSettings sourceSettings,
             MetaObjectRecordsSettingsRow settingsRow,
             RecordSettingsRequiredColumns requiredColumns,
-            DataObject dataObject)
+            DataObject dataObject,
+            RecordsBuilderExpressionEvaluator evaluator)
         {
             var record = CreateNewRecord(destinationSettings,
                                          sourceKindSettings,
@@ -364,25 +367,22 @@ namespace BaSys.Core.Services.RecordsBuilder
             var expressionParser = new RecordsExpressionParser();
             foreach (var settingsColumn in settingsRow.Columns)
             {
+                var destinationColumn = destinationSettings.Header.GetColumn(settingsColumn.DestinationColumnUid);
+                if (destinationColumn == null)
+                {
+                    _logger.LogError("Cannot find column {0} in MetaObject {1}. Expression: {1}.",
+                        settingsColumn.DestinationColumnUid,
+                        destinationSettings.Name,
+                        settingsColumn.Expression);
+                    continue;
+                }
+
                 var parseResult = expressionParser.Parse(settingsColumn.Expression);
                 switch (parseResult.Kind)
                 {
                     case RecordsExpressionKinds.Header:
-
-                        var destinationColumn = destinationSettings.Header.GetColumn(settingsColumn.DestinationColumnUid);
-                        if (destinationColumn == null)
-                        {
-                            _logger.LogError("Cannot find column {0} in MetaObject {1}. Expression: {1}.",
-                                settingsColumn.DestinationColumnUid,
-                                destinationSettings.Name,
-                                settingsColumn.Expression);
-                        }
-                        else
-                        {
-                            var currentValue = dataObject.GetValue<object>(parseResult.Name);
-                            record.SetValue(destinationColumn.Name, currentValue);
-                        }
-
+                        var currentValue = dataObject.GetValue<object>(parseResult.Name);
+                        record.SetValue(destinationColumn.Name, currentValue);
                         break;
                     case RecordsExpressionKinds.Row:
                         _logger.LogError("Cannot calculate row expression {0} for Header source.", settingsColumn.Expression);
@@ -391,7 +391,9 @@ namespace BaSys.Core.Services.RecordsBuilder
                         _logger.LogError("Error in expression {0}", settingsColumn.Expression);
                         break;
                     case RecordsExpressionKinds.Formula:
-                        _logger.LogError("Cannot calculate formula {0}", settingsColumn.Expression);
+                        var dataType = _dataTypesIndex.GetDataTypeSafe(destinationColumn.DataTypeUid);
+                        var evalResult = evaluator.EvaluateExpression(settingsColumn.Expression, dataType.DbType, dataObject.Header, null);
+                        record.SetValue(destinationColumn.Name, evalResult);
                         break;
                 }
             }
@@ -406,7 +408,8 @@ namespace BaSys.Core.Services.RecordsBuilder
             RecordSettingsRequiredColumns requiredColumns,
             DataObject dataObject,
             DataObjectDetailsTableRow tableRow,
-            int rowNumber)
+            int rowNumber, 
+            RecordsBuilderExpressionEvaluator evaluator)
         {
             var record = CreateNewRecord(destinationSettings,
                                          sourceKindSettings,
@@ -418,87 +421,43 @@ namespace BaSys.Core.Services.RecordsBuilder
             var expressionParser = new RecordsExpressionParser();
             foreach (var settingsColumn in settingsRow.Columns)
             {
+                var destinationColumn = destinationSettings.Header.GetColumn(settingsColumn.DestinationColumnUid);
+                if (destinationColumn == null)
+                {
+                    _logger.LogError("Cannot find column {0} in {1}.{2}. Expression: {3}.",
+                                                   settingsColumn.DestinationColumnUid,
+                                                   sourceKindSettings.Name,
+                                                   destinationSettings.Name,
+                                                   settingsColumn.Expression);
+                    continue;
+                }
                 var parseResult = expressionParser.Parse(settingsColumn.Expression);
                 switch (parseResult.Kind)
                 {
                     case RecordsExpressionKinds.Header:
 
-                        var destinationColumn = destinationSettings.Header.GetColumn(settingsColumn.DestinationColumnUid);
-                        if (destinationColumn == null)
-                        {
-                            _logger.LogError("Cannot find column {0} in {1}.{2}. Expression: {3}.",
-                                                           settingsColumn.DestinationColumnUid,
-                                                           sourceKindSettings.Name,
-                                                           destinationSettings.Name,
-                                                           settingsColumn.Expression);
-                        }
-                        else
-                        {
-                            var currentValue = _dataObject.GetValue<object>(parseResult.Name);
-                            record.SetValue(destinationColumn.Name, currentValue);
-                        }
+                        var currentValue = _dataObject.GetValue<object>(parseResult.Name);
+                        record.SetValue(destinationColumn.Name, currentValue);
 
                         break;
                     case RecordsExpressionKinds.Row:
 
-                        var destinationColumnForRow = destinationSettings.Header.GetColumn(settingsColumn.DestinationColumnUid);
-                        if (destinationColumnForRow == null)
-                        {
-                            _logger.LogError("Cannot find column {0} in {1}.{2}. Expression: {3}.",
-                                                          settingsColumn.DestinationColumnUid,
-                                                          sourceKindSettings.Name,
-                                                          destinationSettings.Name,
-                                                          settingsColumn.Expression);
-                        }
-                        else
-                        {
-                            var currentRowValue = tableRow.GetValue(parseResult.Name);
-                            record.SetValue(destinationColumnForRow.Name, currentRowValue);
-                        }
+                        var currentRowValue = tableRow.GetValue(parseResult.Name);
+                        record.SetValue(destinationColumn.Name, currentRowValue);
 
                         break;
                     case RecordsExpressionKinds.Error:
                         _logger.LogError("Error in expression {0}", settingsColumn.Expression);
                         break;
                     case RecordsExpressionKinds.Formula:
-                        _logger.LogError("Cannot calculate formula {0}", settingsColumn.Expression);
+                        var dataType = _dataTypesIndex.GetDataTypeSafe(destinationColumn.DataTypeUid);
+                        var evalResult = evaluator.EvaluateExpression(settingsColumn.Expression, dataType.DbType, dataObject.Header, tableRow);
+                        record.SetValue(destinationColumn.Name, evalResult);
                         break;
                 }
             }
 
             return record;
-        }
-
-        private Dictionary<string, object?> BuildContext(Dictionary<string, object?> header, DataObjectDetailsTableRow row)
-        {
-            var context = new Dictionary<string, object?>();
-            context.Add("header", header);
-            if (row != null)
-            {
-                context.Add("row", row.Fields);
-            }
-
-            return context;
-            
-        }
-
-        private bool EvaluateCondition(JintExpressionEvaluator evaluator, 
-            string expression, 
-            Dictionary<string, object?> header, 
-            DataObjectDetailsTableRow row)
-        {
-            var result = false;
-            var context = BuildContext(header, row);
-
-            var expressionPrepared = expression.Replace("$h.", "context.header.", StringComparison.InvariantCultureIgnoreCase)
-                .Replace("$r.", "context.row.", StringComparison.OrdinalIgnoreCase);
-
-            evaluator.SetValue("context", context);
-            result = evaluator.Evaluate<bool>(expressionPrepared);
-
-            _logger.LogDebug("Condition {0} evaluated. Result {1}.", expression, result);
-
-            return result;
         }
 
     }
