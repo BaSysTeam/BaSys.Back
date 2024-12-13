@@ -66,7 +66,7 @@ namespace BaSys.Core.Services.RecordsBuilder
                 return result;
             }
 
-            _logger.LogInfo($"Start records creating.");
+            _logger.LogDebug($"Start records creating.");
             var destinationKindSettings = await _kindsProvider.GetSettingsAsync(_sourceKindSettings.RecordsSettings.StorageMetaObjectKindUid, _transaction);
 
             if (destinationKindSettings == null)
@@ -77,6 +77,7 @@ namespace BaSys.Core.Services.RecordsBuilder
 
             var destinations = await GetDestinationSettingsAsync(destinationKindSettings.Name);
             var primaryKeyValue = _dataObject.GetPrimaryKey();
+            var evaluator = new JintExpressionEvaluator(_logger);
 
             foreach (var recordsSettingnsItem in _sourceSettings.RecordsSettings)
             {
@@ -86,6 +87,7 @@ namespace BaSys.Core.Services.RecordsBuilder
                     _logger.LogError("Cannot find MetaObject by Uid {0}", recordsSettingnsItem.DestinationMetaObjectUid);
                     continue;
                 }
+                _logger.LogDebug("Start processing {0}", destinationSettings.ToString());
 
                 var requiredColumns = GetRequiredColumns(destinationSettings, _sourceKindSettings);
 
@@ -109,6 +111,7 @@ namespace BaSys.Core.Services.RecordsBuilder
                 }
 
                 var records = new List<DataObject>();
+                var skippedCount = 0;
 
                 foreach (var settingsRow in recordsSettingnsItem.Rows)
                 {
@@ -125,6 +128,18 @@ namespace BaSys.Core.Services.RecordsBuilder
 
                     if (sourceTableSettings.Name == "header")
                     {
+                        if (!string.IsNullOrWhiteSpace(settingsRow.Condition))
+                        {
+                            // Evaluate condition
+                            var conditionResult = EvaluateCondition(evaluator, settingsRow.Condition, _dataObject.Header, null);
+                            if (!conditionResult)
+                            {
+                                _logger.LogDebug("Skip record Header->{0}", destinationSettings.Name);
+                                skippedCount += 1;
+                                continue;
+                            }
+                        }
+
                         // Create records by Header.
                         var record = CreateRecordByHeader(destinationSettings,
                                                           _sourceKindSettings,
@@ -149,6 +164,18 @@ namespace BaSys.Core.Services.RecordsBuilder
                             var rowNumber = 1;
                             foreach (var tableRow in table.Rows)
                             {
+                                if (!string.IsNullOrWhiteSpace(settingsRow.Condition))
+                                {
+                                    // Evaluate condition
+                                    var conditionResult = EvaluateCondition(evaluator, settingsRow.Condition, _dataObject.Header, tableRow);
+                                    if (!conditionResult)
+                                    {
+                                        _logger.LogDebug("Skip record Table.{0}[1]->{2}", table.Name, rowNumber, destinationSettings.Name);
+                                        skippedCount += 1;
+                                        continue;
+                                    }
+
+                                }
 
                                 var record = CreateRecordByTableRow(destinationSettings,
                                                                     _sourceKindSettings,
@@ -177,7 +204,7 @@ namespace BaSys.Core.Services.RecordsBuilder
                     //TODO: Implement Bulk insert.
                     await provider.InsertAsync(record, _transaction);
                 }
-                _logger.LogInfo($"{destinationKindSettings.Name}.{destinationSettings.Name} {records.Count} records created.");
+                _logger.LogDebug($"{destinationSettings} {records.Count} records created. {skippedCount} records skipped.");
 
             }
 
@@ -442,6 +469,37 @@ namespace BaSys.Core.Services.RecordsBuilder
             return record;
         }
 
+        private Dictionary<string, object?> BuildContext(Dictionary<string, object?> header, DataObjectDetailsTableRow row)
+        {
+            var context = new Dictionary<string, object?>();
+            context.Add("header", header);
+            if (row != null)
+            {
+                context.Add("row", row.Fields);
+            }
+
+            return context;
+            
+        }
+
+        private bool EvaluateCondition(JintExpressionEvaluator evaluator, 
+            string expression, 
+            Dictionary<string, object?> header, 
+            DataObjectDetailsTableRow row)
+        {
+            var result = false;
+            var context = BuildContext(header, row);
+
+            var expressionPrepared = expression.Replace("$h.", "context.header.", StringComparison.InvariantCultureIgnoreCase)
+                .Replace("$r.", "context.row.", StringComparison.OrdinalIgnoreCase);
+
+            evaluator.SetValue("context", context);
+            result = evaluator.Evaluate<bool>(expressionPrepared);
+
+            _logger.LogDebug("Condition {0} evaluated. Result {1}.", expression, result);
+
+            return result;
+        }
 
     }
 }
