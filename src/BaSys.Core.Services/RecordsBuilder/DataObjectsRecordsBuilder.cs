@@ -348,6 +348,17 @@ namespace BaSys.Core.Services.RecordsBuilder
 
         }
 
+        private void ChangeRecordSign(DataObject record)
+        {
+            foreach(var kvp in record.Header)
+            {
+                if (kvp.Value is decimal decimalValue)
+                {
+                    record.Header[kvp.Key] = - decimalValue;
+                }
+            }
+        }
+
         private DataObject CreateRecordByHeader(MetaObjectStorableSettings destinationSettings,
             MetaObjectKindSettings sourceKindSettings,
             MetaObjectStorableSettings sourceSettings,
@@ -396,6 +407,11 @@ namespace BaSys.Core.Services.RecordsBuilder
                         record.SetValue(destinationColumn.Name, evalResult);
                         break;
                 }
+            }
+
+            if (settingsRow.Direction == RegisterRecordDirections.Minus)
+            {
+                ChangeRecordSign(record);
             }
 
             return record;
@@ -455,6 +471,11 @@ namespace BaSys.Core.Services.RecordsBuilder
                         record.SetValue(destinationColumn.Name, evalResult);
                         break;
                 }
+            }
+
+            if (settingsRow.Direction == RegisterRecordDirections.Minus)
+            {
+                ChangeRecordSign(record);
             }
 
             return record;
