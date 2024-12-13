@@ -2,11 +2,13 @@
 using BaSys.Common.Infrastructure;
 using BaSys.Core.Abstractions;
 using BaSys.Core.Services;
+using BaSys.Core.Services.RecordsBuilder;
 using BaSys.DAL.Models.App;
 using BaSys.DTO.App;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
 using BaSys.Logging.Abstractions.Abstractions;
+using BaSys.Logging.InMemory;
 using BaSys.Metadata.Helpers;
 using BaSys.Metadata.Models;
 using BaSys.Translation;
@@ -275,13 +277,14 @@ namespace BaSys.App.Services
 
                 // Parse header.
                 var parsedDto = DataObjectParser.Parse(dto.Item, metaObjectSettings, dataTypesIndex);
-                var newObject = parsedDto.ToObject();
+                var newObject = parsedDto.ToObject(metaObjectSettings);
 
                 var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, dataTypesIndex);
 
                 try
                 {
                     var insertedUid = await provider.InsertAsync(newObject, transaction);
+                    newObject.SetPrimaryKey(insertedUid);
                     foreach (var table in newObject.DetailTables)
                     {
                         var tableSettings = metaObjectSettings.DetailTables.FirstOrDefault(x => x.Uid == table.Uid);
@@ -300,6 +303,19 @@ namespace BaSys.App.Services
                         await tableProvider.InsertAsync(insertedUid, table, transaction);
                     }
 
+                    if (objectKindSettings.CanCreateRecords)
+                    {
+                        var recordsBuilder = new DataObjectsRecordsBuilder(_connection, 
+                            transaction, 
+                            objectKindSettings, 
+                            metaObjectSettings, 
+                            newObject, 
+                            _kindProvider,
+                            dataTypesIndex,
+                            Common.Enums.EventTypeLevels.Trace);
+                        var buildResult = await recordsBuilder.BuildAsync();
+                    }
+
                     transaction.Commit();
                     result.Success(insertedUid, DictMain.ItemSaved);
                 }
@@ -311,9 +327,9 @@ namespace BaSys.App.Services
             return result;
         }
 
-        public async Task<ResultWrapper<int>> UpdateAsync(DataObjectSaveDto dto)
+        public async Task<ResultWrapper<List<InMemoryLogMessage>>> UpdateAsync(DataObjectSaveDto dto)
         {
-            var result = new ResultWrapper<int>();
+            var result = new ResultWrapper<List<InMemoryLogMessage>>();
 
             _connection.Open();
             using (IDbTransaction transaction = _connection.BeginTransaction())
@@ -353,7 +369,7 @@ namespace BaSys.App.Services
 
                 // Parse header.
                 var parsedDto = DataObjectParser.Parse(dto.Item, metaObjectSettings, dataTypesIndex);
-                var newItem = parsedDto.ToObject();
+                var newItem = parsedDto.ToObject(metaObjectSettings);
 
                 var provider = new DataObjectProvider(_connection, objectKindSettings, metaObjectSettings, dataTypesIndex);
 
@@ -391,8 +407,24 @@ namespace BaSys.App.Services
                         await tableProvider.UpdateAsync(objectUid, table, transaction);
                     }
 
+                    var logMessages = new List<InMemoryLogMessage>();
+                    if (objectKindSettings.CanCreateRecords)
+                    {
+                        var recordsBuilder = new DataObjectsRecordsBuilder(_connection,
+                            transaction,
+                            objectKindSettings,
+                            metaObjectSettings,
+                            savedItem,
+                            _kindProvider,
+                            dataTypesIndex,
+                            Common.Enums.EventTypeLevels.Trace);
+                        var buildResult = await recordsBuilder.BuildAsync();
+
+                        logMessages.AddRange(recordsBuilder.Messages);
+                    }
+
                     transaction.Commit();
-                    result.Success(updateResult, DictMain.ItemSaved);
+                    result.Success(logMessages, DictMain.ItemSaved);
                 }
                 catch (Exception ex)
                 {
@@ -453,6 +485,23 @@ namespace BaSys.App.Services
                 int deletedCount = 0;
                 try
                 {
+
+                    if (objectKindSettings.CanCreateRecords)
+                    {
+                        var mockObject = new DataObject(metaObjectSettings, dataTypesIndex);
+                        mockObject.SetPrimaryKey(uid);
+
+                        var recordsBuilder = new DataObjectsRecordsBuilder(_connection,
+                            transaction,
+                            objectKindSettings,
+                            metaObjectSettings,
+                            mockObject,
+                            _kindProvider,
+                            dataTypesIndex,
+                            Common.Enums.EventTypeLevels.Trace);
+                        var buildResult = await recordsBuilder.DeleteAsync();
+                    }
+
                     deletedCount = await provider.DeleteAsync(uid, transaction);
                     foreach (var tableSettings in metaObjectSettings.DetailTables)
                     {

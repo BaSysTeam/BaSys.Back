@@ -64,7 +64,7 @@ namespace BaSys.Host.DAL.DataProviders
 
             _query = builder.Query(_sqlDialect);
 
-            var dynamicCollection = await _connection.QueryAsync(_query.Text, null, transaction);
+            var dynamicCollection = await _connection.QueryAsync(_query.Text, _query.DynamicParameters, transaction);
 
             var detailTable = InitEmptyTable();
 
