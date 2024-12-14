@@ -16,4 +16,19 @@
     <ProjectReference Include="..\BaSys.Metadata\BaSys.Metadata.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="jsFunction.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>jsFunction.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="jsFunction.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>jsFunction.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
 </Project>

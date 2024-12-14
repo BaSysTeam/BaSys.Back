@@ -33,6 +33,12 @@ namespace BaSys.Core.Services.RecordsBuilder
                 }
 
             });
+            _engine.Execute(jsFunction.isEmpty);
+            _engine.Execute(jsFunction.isNotEmpty);
+            _engine.Execute(jsFunction.iif);
+            _engine.Execute(jsFunction.ifs);
+            _engine.Execute(jsFunction.dateTimeNow);
+            _engine.Execute(jsFunction.dateDifference);
 
             if (_logger != null)
             {
@@ -45,7 +51,15 @@ namespace BaSys.Core.Services.RecordsBuilder
 
         public void SetValue(string name, object value)
         {
-            _engine.SetValue(name, value);
+            if (value is DateTime dateTimeValue)
+            {
+                _engine.SetValue(name, ConvertToJsDate(dateTimeValue));
+            }
+            else
+            {
+                _engine.SetValue(name, value);
+            }
+            
         }
 
         public object? Evaluate(string expression)
@@ -82,6 +96,13 @@ namespace BaSys.Core.Services.RecordsBuilder
                 return default(T);
             }
 
+        }
+
+        private JsValue ConvertToJsDate(DateTime dateTime)
+        {
+            var unixTimeMilliseconds = new DateTimeOffset(dateTime).ToUnixTimeMilliseconds();
+            // Create JS Date via JINT.
+            return _engine.Evaluate($"new Date({unixTimeMilliseconds})");
         }
 
         private object? Cast(JsValue evalResult)
