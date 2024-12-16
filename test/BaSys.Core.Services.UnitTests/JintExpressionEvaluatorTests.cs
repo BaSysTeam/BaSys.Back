@@ -83,13 +83,30 @@ namespace BaSys.Core.Services.UnitTests
         }
 
         [Test]
+        public void Evaluate_EndDate_ReturnDate()
+        {
+            var date = new DateTime(2024, 12, 16, 10, 23, 45);
+            var endDay = new DateTime(2024, 12, 16, 23, 59, 59, 999);
+
+            _evaluator.SetValue("date", date);
+
+            var result = _evaluator.Evaluate<DateTime>(@"date.endDay()");
+
+            Assert.That(result, Is.EqualTo(endDay));
+
+        }
+
+        [Test]
         public void TestDateWrapper()
         {
             _context.Add("date", DateTime.Now);
 
             _evaluator.SetValue("date", DateTime.Now);
-            var result = _evaluator.Evaluate(@"date.toString();");
+            var result = _evaluator.Evaluate(@"date.endDay().toISOString();");
             Console.WriteLine(result);
+
+            var endDate = _evaluator.Evaluate<DateTime>(@"date.endDay();");
+            Console.WriteLine(endDate);
 
             Assert.Pass();
         }

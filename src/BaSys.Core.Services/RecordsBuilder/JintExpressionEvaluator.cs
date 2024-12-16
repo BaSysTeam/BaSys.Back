@@ -39,6 +39,7 @@ namespace BaSys.Core.Services.RecordsBuilder
             _engine.Execute(jsFunction.ifs);
             _engine.Execute(jsFunction.dateTimeNow);
             _engine.Execute(jsFunction.dateDifference);
+            _engine.Execute(jsFunction.dateExtensions);
 
             if (_logger != null)
             {

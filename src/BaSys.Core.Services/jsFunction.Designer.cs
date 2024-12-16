@@ -80,6 +80,27 @@ namespace BaSys.Core.Services {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Date.prototype.beginDay = function beginDay() {
+        ///    return new Date(Date.UTC(this.getFullYear(), this.getMonth(), this.getDate()));
+        ///};
+        ///Date.prototype.endDay = function endDay() {
+        ///    return new Date(Date.UTC(this.getFullYear(), this.getMonth(), this.getDate(), 23, 59, 59, 999));
+        ///};
+        ///Date.prototype.addDays = function addDays(days) {
+        ///    const result = new Date(this);
+        ///    result.setDate(result.getDate() + days);
+        ///    return result;
+        ///};
+        ///Date.prototype.beginMonth = function beginMonth() {
+        ///    return ne [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string dateExtensions {
+            get {
+                return ResourceManager.GetString("dateExtensions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to function dateTimeNow() {
         ///    return new Date();
         ///}.
