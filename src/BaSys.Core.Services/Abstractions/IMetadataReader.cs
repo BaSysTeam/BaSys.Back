@@ -3,7 +3,7 @@ using BaSys.Metadata.Abstractions;
 using BaSys.Metadata.Models;
 using System.Data;
 
-namespace BaSys.Core.Abstractions
+namespace BaSys.Core.Features.Abstractions
 {
     public interface IMetadataReader
     {
@@ -22,4 +22,4 @@ namespace BaSys.Core.Abstractions
         Task<IDataTypesIndex> GetIndexAsync(IDbTransaction? transaction);
 
     }
-} 
+}

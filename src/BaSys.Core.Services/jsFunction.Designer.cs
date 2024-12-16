@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace BaSys.Core.Services {
+namespace BaSys.Core.Features {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace BaSys.Core.Services {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("BaSys.Core.Services.jsFunction", typeof(jsFunction).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("BaSys.Core.Features.jsFunction", typeof(jsFunction).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;

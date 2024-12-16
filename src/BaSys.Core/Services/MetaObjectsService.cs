@@ -246,6 +246,12 @@ namespace BaSys.Core.Services
             var insertedCount = await metaObjectStorableProvider.InsertSettingsAsync(newSettings, transaction);
 
             await dataObjectManager.CreateTableAsync(transaction);
+            foreach(var tableSettings in newSettings.DetailTables)
+            {
+                var detailTableManager = new DataObjectDetailTableManager(_connection, kindSettings, newSettings, tableSettings, dataTypesIndex);
+
+                await detailTableManager.CreateTableAsync(transaction);
+            }
 
             result.Success(insertedCount);
 

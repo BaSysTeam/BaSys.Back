@@ -1,28 +1,32 @@
-﻿using BaSys.App.Features.DataObjectRecords.Commands;
-using BaSys.Common.Abstractions;
+﻿using BaSys.Common.Abstractions;
 using BaSys.Common.Infrastructure;
-using BaSys.Core.Abstractions;
+using BaSys.Core.Features.Abstractions;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
+using BaSys.Logging.Abstractions.Abstractions;
 using BaSys.Metadata.Models;
 using BaSys.Translation;
 using System.Data;
 
 namespace BaSys.App.Abstractions
 {
-    public abstract class CommandHandlerBase<TCommand, TResult>
+    public abstract class DataObjectCommandHandlerBase<TCommand, TResult>: CommandHandlerBase<TCommand, TResult>, IDisposable
     {
         protected readonly IDbConnection _connection;
         protected readonly ISystemObjectProviderFactory _providerFactory;
         protected readonly MetaObjectKindsProvider _kindProvider;
         protected readonly IMetadataReader _metadataReader;
+        protected readonly ILoggerService _logger;
 
         protected bool _disposed;
 
-        protected CommandHandlerBase(IMainConnectionFactory connectionFactory,
+        protected DataObjectCommandHandlerBase(IMainConnectionFactory connectionFactory,
             ISystemObjectProviderFactory providerFactory,
-            IMetadataReader metadataService)
+            IMetadataReader metadataService, 
+            ILoggerService logger)
         {
+            _logger = logger;
+
             _connection = connectionFactory.CreateConnection();
             _providerFactory = providerFactory;
             _providerFactory.SetUp(_connection);
@@ -34,25 +38,24 @@ namespace BaSys.App.Abstractions
             _metadataReader = metadataService;
         }
 
-        public async Task<ResultWrapper<TResult>> ExecuteAsync(TCommand command)
+        public override async Task<ResultWrapper<TResult>> ExecuteAsync(TCommand command)
         {
             var result = new ResultWrapper<TResult>();
-
-            try
+            _connection.Open();
+            using (IDbTransaction transaction = _connection.BeginTransaction())
             {
-                result = await ExecuteCommandAsync(command);
-            }
-            catch (Exception ex)
-            {
-                result.Error(-1, $"Cannot execute command: {nameof(command)}. Message: {ex.Message}.", ex.StackTrace);
+                try
+                {
+                    result = await ExecuteCommandAsync(command, transaction);
+                    transaction.Commit();
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    result.Error(-1, $"Cannot execute command: {nameof(command)}. Message: {ex.Message}.", ex.StackTrace);
+                }
             }
 
-            return result;
-        }
-
-        protected virtual async Task<ResultWrapper<TResult>> ExecuteCommandAsync(TCommand command)
-        {
-            var result = new ResultWrapper<TResult>();
 
             return result;
         }
