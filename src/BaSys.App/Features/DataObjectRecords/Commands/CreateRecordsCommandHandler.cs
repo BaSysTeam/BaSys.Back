@@ -69,7 +69,7 @@ namespace BaSys.App.Features.DataObjectRecords.Commands
                     dataObject,
                     _kindProvider,
                     dataTypesIndex,
-                    Common.Enums.EventTypeLevels.Trace);
+                    command.LogLevel);
                 var buildResult = await recordsBuilder.BuildAsync();
 
                 // Set flag CreateRecords false.
