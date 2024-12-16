@@ -56,6 +56,12 @@ namespace BaSys.Core.Services.RecordsBuilder
             {
                 _engine.SetValue(name, ConvertToJsDate(dateTimeValue));
             }
+            else if (value is IDictionary<string, object?> dictionary)
+            {
+                var convertResult = ConvertDatesInDictionary(dictionary);
+                _engine.SetValue(name, convertResult);
+
+            }
             else
             {
                 _engine.SetValue(name, value);
@@ -104,6 +110,27 @@ namespace BaSys.Core.Services.RecordsBuilder
             var unixTimeMilliseconds = new DateTimeOffset(dateTime).ToUnixTimeMilliseconds();
             // Create JS Date via JINT.
             return _engine.Evaluate($"new Date({unixTimeMilliseconds})");
+        }
+
+        private IDictionary<string, object?> ConvertDatesInDictionary(IDictionary<string, object?> dictionary)
+        {
+            var convertResult = new Dictionary<string, object?>();
+            foreach(var kvp in dictionary)
+            {
+                if (kvp.Value is DateTime dataTimeValue)
+                {
+                    convertResult.Add(kvp.Key, ConvertToJsDate(dataTimeValue));
+                }
+                else if (kvp.Value is IDictionary<string, object?> dictValue)
+                {
+                    convertResult.Add(kvp.Key, ConvertDatesInDictionary(dictValue));
+                }
+                else
+                {
+                    convertResult.Add(kvp.Key, kvp.Value);
+                }
+            }
+            return convertResult;
         }
 
         private object? Cast(JsValue evalResult)
