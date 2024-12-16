@@ -1,7 +1,7 @@
 ﻿using BaSys.App.Abstractions;
 using BaSys.Common.Abstractions;
 using BaSys.Common.Infrastructure;
-using BaSys.Core.Abstractions;
+using BaSys.Core.Features.Abstractions;
 using BaSys.Core.Features.RecordsBuilder;
 using BaSys.DAL.Models.App;
 using BaSys.Host.DAL.Abstractions;
@@ -11,7 +11,7 @@ using System.Data;
 
 namespace BaSys.App.Features.DataObjectRecords.Commands
 {
-    public sealed class DeleteRecordsCommandHandler : CommandHandlerBase<DeleteRecordsCommand, bool>, IDeleteRecordsCommandHandler
+    public sealed class DeleteRecordsCommandHandler : DataObjectCommandHandlerBase<DeleteRecordsCommand, bool>, IDeleteRecordsCommandHandler
     {
       
 

@@ -1,7 +1,7 @@
 ﻿using BaSys.App.Abstractions;
 using BaSys.Common.Abstractions;
 using BaSys.Common.Infrastructure;
-using BaSys.Core.Abstractions;
+using BaSys.Core.Features.Abstractions;
 using BaSys.Core.Features.RecordsBuilder;
 using BaSys.DAL.Models.App;
 using BaSys.Host.DAL.Abstractions;
@@ -13,7 +13,7 @@ using System.Data;
 
 namespace BaSys.App.Features.DataObjectRecords.Commands
 {
-    public class CreateRecordsCommandHandler : CommandHandlerBase<CreateRecordsCommand, List<InMemoryLogMessage>>, ICreateRecordsCommandHandler
+    public class CreateRecordsCommandHandler : DataObjectCommandHandlerBase<CreateRecordsCommand, List<InMemoryLogMessage>>, ICreateRecordsCommandHandler
     {
 
         public CreateRecordsCommandHandler(IMainConnectionFactory connectionFactory,

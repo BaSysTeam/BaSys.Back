@@ -1,7 +1,7 @@
 ﻿using BaSys.App.Features.DataObjectRecords.Commands;
 using BaSys.Common.Abstractions;
 using BaSys.Common.Infrastructure;
-using BaSys.Core.Abstractions;
+using BaSys.Core.Features.Abstractions;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
 using BaSys.Metadata.Models;
@@ -10,7 +10,7 @@ using System.Data;
 
 namespace BaSys.App.Abstractions
 {
-    public abstract class CommandHandlerBase<TCommand, TResult>
+    public abstract class DataObjectCommandHandlerBase<TCommand, TResult>
     {
         protected readonly IDbConnection _connection;
         protected readonly ISystemObjectProviderFactory _providerFactory;
@@ -19,7 +19,7 @@ namespace BaSys.App.Abstractions
 
         protected bool _disposed;
 
-        protected CommandHandlerBase(IMainConnectionFactory connectionFactory,
+        protected DataObjectCommandHandlerBase(IMainConnectionFactory connectionFactory,
             ISystemObjectProviderFactory providerFactory,
             IMetadataReader metadataService)
         {

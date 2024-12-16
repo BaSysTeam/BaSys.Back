@@ -1,4 +1,4 @@
-﻿using BaSys.Core.Abstractions;
+﻿using BaSys.Core.Features.Abstractions;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
 using BaSys.Metadata.Abstractions;
@@ -6,7 +6,7 @@ using BaSys.Metadata.Helpers;
 using BaSys.Metadata.Models;
 using System.Data;
 
-namespace BaSys.Core.Services
+namespace BaSys.Core.Features.MetaObjects.Services
 {
     public sealed class MetadataReader : IMetadataReader
     {
@@ -96,7 +96,7 @@ namespace BaSys.Core.Services
 
             foreach (var metaObjectKind in _kinds.Where(x => x.IsReference))
             {
-                var metaObjects = _metaObjects.Where(x=>x.MetaObjectKindUid == metaObjectKind.Uid).ToList();
+                var metaObjects = _metaObjects.Where(x => x.MetaObjectKindUid == metaObjectKind.Uid).ToList();
                 var dataTypes = metaObjects.Select(x => ToDataType(x, metaObjectKind, primitiveDataTypes));
                 allDataTypes.AddRange(dataTypes);
             }
