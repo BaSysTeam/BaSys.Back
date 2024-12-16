@@ -50,12 +50,7 @@ namespace BaSys.App.Abstractions
             return result;
         }
 
-        protected virtual async Task<ResultWrapper<TResult>> ExecuteCommandAsync(TCommand command)
-        {
-            var result = new ResultWrapper<TResult>();
-
-            return result;
-        }
+        protected abstract Task<ResultWrapper<TResult>> ExecuteCommandAsync(TCommand command);
 
         protected virtual async Task<MetaObjectKindSettings?> GetKindSettingsAsync(string kindName, IResultWrapper result, IDbTransaction? transaction)
         {
