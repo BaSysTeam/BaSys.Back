@@ -68,9 +68,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaSys.Core", "src\BaSys.Cor
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaSys.Metadata.UnitTests", "test\BaSys.Metadata.UnitTests\BaSys.Metadata.UnitTests.csproj", "{6C9DD76D-0F8C-4608-815C-70608E8C0850}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaSys.Core.Services", "src\BaSys.Core.Services\BaSys.Core.Services.csproj", "{156B30A3-C116-4145-946D-BF3529C7A740}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaSys.Core.Features", "src\BaSys.Core.Services\BaSys.Core.Features.csproj", "{156B30A3-C116-4145-946D-BF3529C7A740}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaSys.Core.Services.UnitTests", "test\BaSys.Core.Services.UnitTests\BaSys.Core.Services.UnitTests.csproj", "{BF3BBABA-FE6F-40F3-B946-7092475EC9D2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaSys.Core.Services.UnitTests", "test\BaSys.Core.Services.UnitTests\BaSys.Core.Services.UnitTests.csproj", "{BF3BBABA-FE6F-40F3-B946-7092475EC9D2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

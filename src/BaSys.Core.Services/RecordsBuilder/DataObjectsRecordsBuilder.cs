@@ -7,7 +7,7 @@ using BaSys.Metadata.Abstractions;
 using BaSys.Metadata.Models;
 using System.Data;
 
-namespace BaSys.Core.Services.RecordsBuilder
+namespace BaSys.Core.Features.RecordsBuilder
 {
     public sealed class DataObjectsRecordsBuilder
     {
