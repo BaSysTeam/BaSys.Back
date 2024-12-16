@@ -6,6 +6,7 @@ using BaSys.Core.Features.RecordsBuilder;
 using BaSys.DAL.Models.App;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
+using BaSys.Logging.Abstractions.Abstractions;
 using BaSys.Metadata.Models;
 using System.Data;
 
@@ -13,59 +14,56 @@ namespace BaSys.App.Features.DataObjectRecords.Commands
 {
     public sealed class DeleteRecordsCommandHandler : DataObjectCommandHandlerBase<DeleteRecordsCommand, bool>, IDeleteRecordsCommandHandler
     {
-      
+
 
         public DeleteRecordsCommandHandler(IMainConnectionFactory connectionFactory,
                                            ISystemObjectProviderFactory providerFactory,
-                                           IMetadataReader metadataReader) : 
-            base(connectionFactory, 
+                                           IMetadataReader metadataReader, 
+                                           ILoggerService logger) :
+            base(connectionFactory,
                 providerFactory,
-                metadataReader)
+                metadataReader, 
+                logger)
         {
-           
+
         }
 
-        protected override async Task<ResultWrapper<bool>> ExecuteCommandAsync(DeleteRecordsCommand command)
+        protected override async Task<ResultWrapper<bool>> ExecuteCommandAsync(DeleteRecordsCommand command, IDbTransaction transaction)
         {
             var result = new ResultWrapper<bool>();
 
-            _connection.Open();
-            using (IDbTransaction transaction = _connection.BeginTransaction())
-            {
-                var kindSettings = await GetKindSettingsAsync(command.KindName, result, transaction);
-                if (kindSettings == null) return result;
 
-                var metaObjectSettings = await GetMetaObjectSettingsAsync(command.KindName, command.ObjectName, result, transaction);
-                if (metaObjectSettings == null) return result;
+            var kindSettings = await GetKindSettingsAsync(command.KindName, result, transaction);
+            if (kindSettings == null) return result;
 
-                var createRecordsColumn = GetCreateRecordsColumn(kindSettings, metaObjectSettings, command, result, transaction);
-                if (createRecordsColumn == null) return result;
+            var metaObjectSettings = await GetMetaObjectSettingsAsync(command.KindName, command.ObjectName, result, transaction);
+            if (metaObjectSettings == null) return result;
 
-                var dataTypesIndex = await _metadataReader.GetIndexAsync(transaction);
-                var allMetaObjects = await _metadataReader.GetAllMetaObjectsAsync(transaction);
-                var provider = new DataObjectProvider(_connection, kindSettings, metaObjectSettings, dataTypesIndex);
+            var createRecordsColumn = GetCreateRecordsColumn(kindSettings, metaObjectSettings, command, result, transaction);
+            if (createRecordsColumn == null) return result;
 
-                var mockObject = new DataObject(metaObjectSettings, dataTypesIndex);
-                mockObject.SetPrimaryKey(command.ObjectUid);
+            var dataTypesIndex = await _metadataReader.GetIndexAsync(transaction);
+            var allMetaObjects = await _metadataReader.GetAllMetaObjectsAsync(transaction);
+            var provider = new DataObjectProvider(_connection, kindSettings, metaObjectSettings, dataTypesIndex);
 
-                // Delete records.
-                var recordsBuilder = new DataObjectsRecordsBuilder(_connection,
-                    transaction,
-                    kindSettings,
-                    metaObjectSettings,
-                    mockObject,
-                    _kindProvider,
-                    dataTypesIndex,
-                    Common.Enums.EventTypeLevels.Trace);
-                var buildResult = await recordsBuilder.DeleteAsync();
+            var mockObject = new DataObject(metaObjectSettings, dataTypesIndex);
+            mockObject.SetPrimaryKey(command.ObjectUid);
 
-                // Set flag CreateRecords false.
-                await provider.UpdateFieldAsync(mockObject, createRecordsColumn.Name, false, transaction);
+            // Delete records.
+            var recordsBuilder = new DataObjectsRecordsBuilder(_connection,
+                transaction,
+                kindSettings,
+                metaObjectSettings,
+                mockObject,
+                _kindProvider,
+                dataTypesIndex,
+                Common.Enums.EventTypeLevels.Trace);
+            var buildResult = await recordsBuilder.DeleteAsync();
 
-                transaction.Commit();
-                result.Success(true);
+            // Set flag CreateRecords false.
+            await provider.UpdateFieldAsync(mockObject, createRecordsColumn.Name, false, transaction);
 
-            }
+            result.Success(true);
 
             return result;
         }
