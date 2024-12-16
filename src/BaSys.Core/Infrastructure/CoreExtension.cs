@@ -1,4 +1,7 @@
 ﻿using BaSys.Core.Abstractions;
+using BaSys.Core.Features.Abstractions;
+using BaSys.Core.Features.MetaObjects.Commands;
+using BaSys.Core.Features.MetaObjects.Services;
 using BaSys.Core.Services;
 
 namespace BaSys.Core.Infrastructure;
@@ -12,6 +15,8 @@ public static class CoreExtension
         services.AddTransient<IMetaMenusService, MetaMenusService>();
         services.AddTransient<IDataTypesService, DataTypesService>();
         services.AddTransient<IMetadataReader, MetadataReader>();
+        services.AddTransient<IMetaObjectCreateCommandHandler, MetaObjectCreateCommandHandler>();
+        services.AddTransient<IMetaObjectUpdateCommandHandler, MetaObjectUpdateCommandHandler>();
 
         return services;
     }

@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BaSys.Core.Services.RecordsBuilder
+namespace BaSys.Core.Features.RecordsBuilder
 {
     public sealed class RecordsBuilderExpressionEvaluator
     {

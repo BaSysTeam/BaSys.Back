@@ -1,4 +1,4 @@
-﻿using BaSys.Core.Services.RecordsBuilder;
+﻿using BaSys.Core.Features.RecordsBuilder;
 using BaSys.DAL.Models.App;
 using BaSys.Logging.InMemory;
 using System;

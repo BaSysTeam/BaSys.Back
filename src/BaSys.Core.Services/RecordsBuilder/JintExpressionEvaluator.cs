@@ -11,7 +11,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BaSys.Core.Services.RecordsBuilder
+namespace BaSys.Core.Features.RecordsBuilder
 {
     public sealed class JintExpressionEvaluator
     {

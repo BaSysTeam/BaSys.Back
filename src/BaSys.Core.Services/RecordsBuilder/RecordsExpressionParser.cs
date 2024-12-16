@@ -1,4 +1,4 @@
-﻿namespace BaSys.Core.Services.RecordsBuilder
+﻿namespace BaSys.Core.Features.RecordsBuilder
 {
     public sealed class RecordsExpressionParser
     {

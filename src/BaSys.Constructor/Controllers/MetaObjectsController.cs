@@ -1,6 +1,7 @@
 ﻿using BaSys.Common.Infrastructure;
 using BaSys.Constructor.Abstractions;
 using BaSys.Core.Abstractions;
+using BaSys.Core.Features.Abstractions;
 using BaSys.DTO.Metadata;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -14,10 +15,16 @@ namespace BaSys.Constructor.Controllers
     public class MetaObjectsController : ControllerBase
     {
         private readonly IMetaObjectsService _metaObjectService;
+        private readonly IMetaObjectCreateCommandHandler _createHandler;
+        private readonly IMetaObjectUpdateCommandHandler _updateHandler;
 
-        public MetaObjectsController(IMetaObjectsService metaObjectService)
+        public MetaObjectsController(IMetaObjectsService metaObjectService, 
+            IMetaObjectCreateCommandHandler createHandler, 
+            IMetaObjectUpdateCommandHandler updateHandler)
         {
-            _metaObjectService = metaObjectService; 
+            _metaObjectService = metaObjectService;
+            _createHandler = createHandler;
+            _updateHandler = updateHandler;
         }
 
         [HttpGet("settings/{kindUid:guid}")]
@@ -47,7 +54,7 @@ namespace BaSys.Constructor.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateMetaObject(MetaObjectStorableSettingsDto settingsDto)
         {
-            var result = await _metaObjectService.CreateAsync(settingsDto);
+            var result = await _createHandler.ExecuteAsync(settingsDto);
 
             return Ok(result);
         }
@@ -55,7 +62,7 @@ namespace BaSys.Constructor.Controllers
         [HttpPut]
         public async Task<IActionResult> UpdateMetaObject(MetaObjectStorableSettingsDto settingsDto)
         {
-            var result = await _metaObjectService.UpdateSettingsItemAsync(settingsDto);
+            var result = await _updateHandler.ExecuteAsync(settingsDto);
             return Ok(result);
         }
 
