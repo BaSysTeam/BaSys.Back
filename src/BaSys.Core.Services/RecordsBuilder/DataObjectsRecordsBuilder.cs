@@ -66,7 +66,7 @@ namespace BaSys.Core.Services.RecordsBuilder
                 return result;
             }
 
-            _logger.LogInfo($"Start records creating.");
+            _logger.LogDebug($"Start records creating.");
             var destinationKindSettings = await _kindsProvider.GetSettingsAsync(_sourceKindSettings.RecordsSettings.StorageMetaObjectKindUid, _transaction);
 
             if (destinationKindSettings == null)
@@ -77,6 +77,7 @@ namespace BaSys.Core.Services.RecordsBuilder
 
             var destinations = await GetDestinationSettingsAsync(destinationKindSettings.Name);
             var primaryKeyValue = _dataObject.GetPrimaryKey();
+            var evaluator = new RecordsBuilderExpressionEvaluator(_logger);
 
             foreach (var recordsSettingnsItem in _sourceSettings.RecordsSettings)
             {
@@ -86,6 +87,7 @@ namespace BaSys.Core.Services.RecordsBuilder
                     _logger.LogError("Cannot find MetaObject by Uid {0}", recordsSettingnsItem.DestinationMetaObjectUid);
                     continue;
                 }
+                _logger.LogDebug("Start processing {0}", destinationSettings.ToString());
 
                 var requiredColumns = GetRequiredColumns(destinationSettings, _sourceKindSettings);
 
@@ -109,6 +111,7 @@ namespace BaSys.Core.Services.RecordsBuilder
                 }
 
                 var records = new List<DataObject>();
+                var skippedCount = 0;
 
                 foreach (var settingsRow in recordsSettingnsItem.Rows)
                 {
@@ -125,13 +128,26 @@ namespace BaSys.Core.Services.RecordsBuilder
 
                     if (sourceTableSettings.Name == "header")
                     {
+                        if (!string.IsNullOrWhiteSpace(settingsRow.Condition))
+                        {
+                            // Evaluate condition
+                            var conditionResult = evaluator.EvaluateCondition(settingsRow.Condition, _dataObject.Header, null);
+                            if (!conditionResult)
+                            {
+                                _logger.LogDebug("Skip record Header->{0}", destinationSettings.Name);
+                                skippedCount += 1;
+                                continue;
+                            }
+                        }
+
                         // Create records by Header.
                         var record = CreateRecordByHeader(destinationSettings,
                                                           _sourceKindSettings,
                                                           _sourceSettings,
                                                           settingsRow,
                                                           requiredColumns,
-                                                          _dataObject);
+                                                          _dataObject,
+                                                          evaluator);
 
                         records.Add(record);
 
@@ -149,6 +165,18 @@ namespace BaSys.Core.Services.RecordsBuilder
                             var rowNumber = 1;
                             foreach (var tableRow in table.Rows)
                             {
+                                if (!string.IsNullOrWhiteSpace(settingsRow.Condition))
+                                {
+                                    // Evaluate condition
+                                    var conditionResult = evaluator.EvaluateCondition(settingsRow.Condition, _dataObject.Header, tableRow);
+                                    if (!conditionResult)
+                                    {
+                                        _logger.LogDebug("Skip record Table.{0}[1]->{2}", table.Name, rowNumber, destinationSettings.Name);
+                                        skippedCount += 1;
+                                        continue;
+                                    }
+
+                                }
 
                                 var record = CreateRecordByTableRow(destinationSettings,
                                                                     _sourceKindSettings,
@@ -157,7 +185,8 @@ namespace BaSys.Core.Services.RecordsBuilder
                                                                     requiredColumns,
                                                                     _dataObject,
                                                                     tableRow,
-                                                                    rowNumber);
+                                                                    rowNumber, 
+                                                                    evaluator);
 
                                 records.Add(record);
 
@@ -177,7 +206,7 @@ namespace BaSys.Core.Services.RecordsBuilder
                     //TODO: Implement Bulk insert.
                     await provider.InsertAsync(record, _transaction);
                 }
-                _logger.LogInfo($"{destinationKindSettings.Name}.{destinationSettings.Name} {records.Count} records created.");
+                _logger.LogDebug($"{destinationSettings} {records.Count} records created. {skippedCount} records skipped.");
 
             }
 
@@ -319,12 +348,24 @@ namespace BaSys.Core.Services.RecordsBuilder
 
         }
 
+        private void ChangeRecordSign(DataObject record)
+        {
+            foreach(var kvp in record.Header)
+            {
+                if (kvp.Value is decimal decimalValue)
+                {
+                    record.Header[kvp.Key] = - decimalValue;
+                }
+            }
+        }
+
         private DataObject CreateRecordByHeader(MetaObjectStorableSettings destinationSettings,
             MetaObjectKindSettings sourceKindSettings,
             MetaObjectStorableSettings sourceSettings,
             MetaObjectRecordsSettingsRow settingsRow,
             RecordSettingsRequiredColumns requiredColumns,
-            DataObject dataObject)
+            DataObject dataObject,
+            RecordsBuilderExpressionEvaluator evaluator)
         {
             var record = CreateNewRecord(destinationSettings,
                                          sourceKindSettings,
@@ -337,25 +378,22 @@ namespace BaSys.Core.Services.RecordsBuilder
             var expressionParser = new RecordsExpressionParser();
             foreach (var settingsColumn in settingsRow.Columns)
             {
+                var destinationColumn = destinationSettings.Header.GetColumn(settingsColumn.DestinationColumnUid);
+                if (destinationColumn == null)
+                {
+                    _logger.LogError("Cannot find column {0} in MetaObject {1}. Expression: {1}.",
+                        settingsColumn.DestinationColumnUid,
+                        destinationSettings.Name,
+                        settingsColumn.Expression);
+                    continue;
+                }
+
                 var parseResult = expressionParser.Parse(settingsColumn.Expression);
                 switch (parseResult.Kind)
                 {
                     case RecordsExpressionKinds.Header:
-
-                        var destinationColumn = destinationSettings.Header.GetColumn(settingsColumn.DestinationColumnUid);
-                        if (destinationColumn == null)
-                        {
-                            _logger.LogError("Cannot find column {0} in MetaObject {1}. Expression: {1}.",
-                                settingsColumn.DestinationColumnUid,
-                                destinationSettings.Name,
-                                settingsColumn.Expression);
-                        }
-                        else
-                        {
-                            var currentValue = dataObject.GetValue<object>(parseResult.Name);
-                            record.SetValue(destinationColumn.Name, currentValue);
-                        }
-
+                        var currentValue = dataObject.GetValue<object>(parseResult.Name);
+                        record.SetValue(destinationColumn.Name, currentValue);
                         break;
                     case RecordsExpressionKinds.Row:
                         _logger.LogError("Cannot calculate row expression {0} for Header source.", settingsColumn.Expression);
@@ -364,9 +402,16 @@ namespace BaSys.Core.Services.RecordsBuilder
                         _logger.LogError("Error in expression {0}", settingsColumn.Expression);
                         break;
                     case RecordsExpressionKinds.Formula:
-                        _logger.LogError("Cannot calculate formula {0}", settingsColumn.Expression);
+                        var dataType = _dataTypesIndex.GetDataTypeSafe(destinationColumn.DataTypeUid);
+                        var evalResult = evaluator.EvaluateExpression(settingsColumn.Expression, dataType.DbType, dataObject.Header, null);
+                        record.SetValue(destinationColumn.Name, evalResult);
                         break;
                 }
+            }
+
+            if (settingsRow.Direction == RegisterRecordDirections.Minus)
+            {
+                ChangeRecordSign(record);
             }
 
             return record;
@@ -379,7 +424,8 @@ namespace BaSys.Core.Services.RecordsBuilder
             RecordSettingsRequiredColumns requiredColumns,
             DataObject dataObject,
             DataObjectDetailsTableRow tableRow,
-            int rowNumber)
+            int rowNumber, 
+            RecordsBuilderExpressionEvaluator evaluator)
         {
             var record = CreateNewRecord(destinationSettings,
                                          sourceKindSettings,
@@ -391,57 +437,49 @@ namespace BaSys.Core.Services.RecordsBuilder
             var expressionParser = new RecordsExpressionParser();
             foreach (var settingsColumn in settingsRow.Columns)
             {
+                var destinationColumn = destinationSettings.Header.GetColumn(settingsColumn.DestinationColumnUid);
+                if (destinationColumn == null)
+                {
+                    _logger.LogError("Cannot find column {0} in {1}.{2}. Expression: {3}.",
+                                                   settingsColumn.DestinationColumnUid,
+                                                   sourceKindSettings.Name,
+                                                   destinationSettings.Name,
+                                                   settingsColumn.Expression);
+                    continue;
+                }
                 var parseResult = expressionParser.Parse(settingsColumn.Expression);
                 switch (parseResult.Kind)
                 {
                     case RecordsExpressionKinds.Header:
 
-                        var destinationColumn = destinationSettings.Header.GetColumn(settingsColumn.DestinationColumnUid);
-                        if (destinationColumn == null)
-                        {
-                            _logger.LogError("Cannot find column {0} in {1}.{2}. Expression: {3}.",
-                                                           settingsColumn.DestinationColumnUid,
-                                                           sourceKindSettings.Name,
-                                                           destinationSettings.Name,
-                                                           settingsColumn.Expression);
-                        }
-                        else
-                        {
-                            var currentValue = _dataObject.GetValue<object>(parseResult.Name);
-                            record.SetValue(destinationColumn.Name, currentValue);
-                        }
+                        var currentValue = _dataObject.GetValue<object>(parseResult.Name);
+                        record.SetValue(destinationColumn.Name, currentValue);
 
                         break;
                     case RecordsExpressionKinds.Row:
 
-                        var destinationColumnForRow = destinationSettings.Header.GetColumn(settingsColumn.DestinationColumnUid);
-                        if (destinationColumnForRow == null)
-                        {
-                            _logger.LogError("Cannot find column {0} in {1}.{2}. Expression: {3}.",
-                                                          settingsColumn.DestinationColumnUid,
-                                                          sourceKindSettings.Name,
-                                                          destinationSettings.Name,
-                                                          settingsColumn.Expression);
-                        }
-                        else
-                        {
-                            var currentRowValue = tableRow.GetValue(parseResult.Name);
-                            record.SetValue(destinationColumnForRow.Name, currentRowValue);
-                        }
+                        var currentRowValue = tableRow.GetValue(parseResult.Name);
+                        record.SetValue(destinationColumn.Name, currentRowValue);
 
                         break;
                     case RecordsExpressionKinds.Error:
                         _logger.LogError("Error in expression {0}", settingsColumn.Expression);
                         break;
                     case RecordsExpressionKinds.Formula:
-                        _logger.LogError("Cannot calculate formula {0}", settingsColumn.Expression);
+                        var dataType = _dataTypesIndex.GetDataTypeSafe(destinationColumn.DataTypeUid);
+                        var evalResult = evaluator.EvaluateExpression(settingsColumn.Expression, dataType.DbType, dataObject.Header, tableRow);
+                        record.SetValue(destinationColumn.Name, evalResult);
                         break;
                 }
             }
 
+            if (settingsRow.Direction == RegisterRecordDirections.Minus)
+            {
+                ChangeRecordSign(record);
+            }
+
             return record;
         }
-
 
     }
 }

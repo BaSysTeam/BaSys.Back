@@ -312,7 +312,7 @@ namespace BaSys.App.Services
                             newObject, 
                             _kindProvider,
                             dataTypesIndex,
-                            Common.Enums.EventTypeLevels.Trace);
+                            dto.LogLevel);
                         var buildResult = await recordsBuilder.BuildAsync();
                     }
 
@@ -417,7 +417,7 @@ namespace BaSys.App.Services
                             savedItem,
                             _kindProvider,
                             dataTypesIndex,
-                            Common.Enums.EventTypeLevels.Trace);
+                            dto.LogLevel);
                         var buildResult = await recordsBuilder.BuildAsync();
 
                         logMessages.AddRange(recordsBuilder.Messages);

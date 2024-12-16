@@ -1,6 +1,7 @@
 ﻿using BaSys.App.Abstractions;
 using BaSys.App.Features.DataObjectRecords.Commands;
 using BaSys.App.Features.DataObjectRecords.Queries;
+using BaSys.Common.Enums;
 using BaSys.Common.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -47,9 +48,9 @@ namespace BaSys.App.Controllers
         }
 
         [HttpPost("{kind}/{name}/{uid}")]
-        public async Task<IActionResult> CreateRecords(string kind, string name, string uid)
+        public async Task<IActionResult> CreateRecords(string kind, string name, string uid, [FromQuery] EventTypeLevels logLevel)
         {
-            var result = await _createRecordsHandler.ExecuteAsync(new CreateRecordsCommand(kind, name, uid));
+            var result = await _createRecordsHandler.ExecuteAsync(new CreateRecordsCommand(kind, name, uid, logLevel));
 
             return Ok(result);
         }

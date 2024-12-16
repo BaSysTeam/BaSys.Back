@@ -1,4 +1,6 @@
-﻿namespace BaSys.DTO.App
+﻿using BaSys.Common.Enums;
+
+namespace BaSys.DTO.App
 {
     /// <summary>
     /// DTO for Insert and Update operations.
@@ -9,6 +11,7 @@
         public Guid MetaObjectKindUid { get; set; }
         public Guid MetaObjectUid { get; set; }
         public DataObjectDto Item { get; set; } = new DataObjectDto();
+        public EventTypeLevels LogLevel { get; set; } = EventTypeLevels.Error;
 
         public DataObjectSaveDto()
         {

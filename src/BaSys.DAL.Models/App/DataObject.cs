@@ -121,16 +121,14 @@ namespace BaSys.DAL.Models.App
 
         public void SetValue(string key, object? value)
         {
-
             var keyLower = key.ToLower();
-            if (Header.ContainsKey(keyLower))
+
+            if (value is DateTime dateTimeValue)
             {
-                Header[keyLower] = value;
+                value = DateTime.SpecifyKind(dateTimeValue, DateTimeKind.Unspecified);
             }
-            else
-            {
-                Header.Add(keyLower, value);
-            }
+            SetHeaderValue(keyLower, value);
+           
         }
 
         public T? GetValue<T>(string key)
@@ -164,6 +162,17 @@ namespace BaSys.DAL.Models.App
             }
         }
 
+        private void SetHeaderValue(string keyLower, object? value)
+        {
+            if (Header.ContainsKey(keyLower))
+            {
+                Header[keyLower] = value;
+            }
+            else
+            {
+                Header.Add(keyLower, value);
+            }
+        }
 
     }
 }

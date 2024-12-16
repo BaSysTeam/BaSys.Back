@@ -7,9 +7,28 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Jint" Version="4.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\BaSys.Host.DAL\BaSys.Host.DAL.csproj" />
     <ProjectReference Include="..\BaSys.Logging\BaSys.Logging.csproj" />
     <ProjectReference Include="..\BaSys.Metadata\BaSys.Metadata.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="jsFunction.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>jsFunction.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="jsFunction.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>jsFunction.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>
