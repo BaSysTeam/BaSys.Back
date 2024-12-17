@@ -165,7 +165,11 @@ namespace BaSys.Host
                         // options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                         // options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                     })
-                .AddCookie(options => { options.LoginPath = new PathString("/Identity/Account/Login"); })
+                .AddCookie(options => { 
+                    options.LoginPath = new PathString("/Identity/Account/Login");
+                    options.ExpireTimeSpan = TimeSpan.FromHours(24);
+                    options.SlidingExpiration = true;
+                })
                 .AddJwtBearer(
                     opt =>
                     {
