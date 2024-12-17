@@ -288,4 +288,31 @@
   <data name="WrongPasswordFormat" xml:space="preserve">
     <value>Wrong password format</value>
   </data>
+  <data name="MetaObjectKind" xml:space="preserve">
+    <value>Meta object kind</value>
+  </data>
+  <data name="MetaObject" xml:space="preserve">
+    <value>Meta object</value>
+  </data>
+  <data name="String" xml:space="preserve">
+    <value>String</value>
+  </data>
+  <data name="Int" xml:space="preserve">
+    <value>Int</value>
+  </data>
+  <data name="Long" xml:space="preserve">
+    <value>Long</value>
+  </data>
+  <data name="Boolean" xml:space="preserve">
+    <value>Boolean</value>
+  </data>
+  <data name="Decimal" xml:space="preserve">
+    <value>Decimal</value>
+  </data>
+  <data name="DateTime" xml:space="preserve">
+    <value>Date&amp;Time</value>
+  </data>
+  <data name="Guid" xml:space="preserve">
+    <value>Guid</value>
+  </data>
 </root>

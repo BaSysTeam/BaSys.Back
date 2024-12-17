@@ -106,6 +106,15 @@ namespace BaSys.Translation {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Boolean.
+        /// </summary>
+        public static string Boolean {
+            get {
+                return ResourceManager.GetString("Boolean", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cannot change password.
         /// </summary>
         public static string CannotChangePassword {
@@ -322,6 +331,24 @@ namespace BaSys.Translation {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Date&amp;Time.
+        /// </summary>
+        public static string DateTime {
+            get {
+                return ResourceManager.GetString("DateTime", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Decimal.
+        /// </summary>
+        public static string Decimal {
+            get {
+                return ResourceManager.GetString("Decimal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Delete files.
         /// </summary>
         public static string DeleteFilesRight {
@@ -412,6 +439,24 @@ namespace BaSys.Translation {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Guid.
+        /// </summary>
+        public static string Guid {
+            get {
+                return ResourceManager.GetString("Guid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Int.
+        /// </summary>
+        public static string Int {
+            get {
+                return ResourceManager.GetString("Int", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Item deleted.
         /// </summary>
         public static string ItemDeleted {
@@ -466,6 +511,33 @@ namespace BaSys.Translation {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Long.
+        /// </summary>
+        public static string Long {
+            get {
+                return ResourceManager.GetString("Long", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Meta object.
+        /// </summary>
+        public static string MetaObject {
+            get {
+                return ResourceManager.GetString("MetaObject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Meta object kind.
+        /// </summary>
+        public static string MetaObjectKind {
+            get {
+                return ResourceManager.GetString("MetaObjectKind", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The user is the only active administrator.
         /// </summary>
         public static string OnlyActiveAdministrator {
@@ -480,6 +552,15 @@ namespace BaSys.Translation {
         public static string ReadRight {
             get {
                 return ResourceManager.GetString("ReadRight", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to String.
+        /// </summary>
+        public static string String {
+            get {
+                return ResourceManager.GetString("String", resourceCulture);
             }
         }
         

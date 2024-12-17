@@ -288,4 +288,31 @@
   <data name="WrongPasswordFormat" xml:space="preserve">
     <value>Неверный формат пароля</value>
   </data>
+  <data name="MetaObjectKind" xml:space="preserve">
+    <value>Вид метаданных</value>
+  </data>
+  <data name="MetaObject" xml:space="preserve">
+    <value>Объект метаданных</value>
+  </data>
+  <data name="String" xml:space="preserve">
+    <value>Строка</value>
+  </data>
+  <data name="Int" xml:space="preserve">
+    <value>Целое число (int)</value>
+  </data>
+  <data name="Long" xml:space="preserve">
+    <value>Целое число (long)</value>
+  </data>
+  <data name="Boolean" xml:space="preserve">
+    <value>Булево</value>
+  </data>
+  <data name="Decimal" xml:space="preserve">
+    <value>Десятичное число</value>
+  </data>
+  <data name="DateTime" xml:space="preserve">
+    <value>Дата&amp;Время</value>
+  </data>
+  <data name="Guid" xml:space="preserve">
+    <value>Guid</value>
+  </data>
 </root>
