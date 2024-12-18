@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace BaSys.Core.Features.Abstractions
 {
-    public abstract class DataObjectQueryHandlerBase<T, TResult> : CommandHandlerBase<T, TResult>, IDisposable
+    public abstract class DataObjectQueryHandlerBase<TQuery, TResult> : QueryHandlerBase<TQuery, TResult>, IDisposable
     {
         protected readonly IDbConnection _connection;
         protected readonly ISystemObjectProviderFactory _providerFactory;
@@ -38,13 +38,13 @@ namespace BaSys.Core.Features.Abstractions
             _metadataReader.SetUp(_providerFactory);
         }
 
-        public override async Task<ResultWrapper<TResult>> ExecuteAsync(T query)
+        public override async Task<ResultWrapper<TResult>> ExecuteAsync(TQuery query)
         {
             var result = new ResultWrapper<TResult>();
            
                 try
                 {
-                    result = await ExecuteCommandAsync(query, null);
+                    result = await ExecuteQueryAsync(query);
                 }
                 catch (Exception ex)
                 {

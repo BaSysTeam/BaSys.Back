@@ -6,7 +6,6 @@ using BaSys.Host.DAL.Abstractions;
 using BaSys.Logging.Abstractions.Abstractions;
 using BaSys.Metadata.Models;
 using BaSys.Translation;
-using System.Data;
 
 namespace BaSys.Core.Features.DataObjects.Queries
 {
@@ -21,18 +20,18 @@ namespace BaSys.Core.Features.DataObjects.Queries
         {
         }
 
-        protected override async Task<ResultWrapper<DataObjectRouteDto>> ExecuteCommandAsync(DataObjectRegistratorRouteQuery query, IDbTransaction transaction)
+        protected override async Task<ResultWrapper<DataObjectRouteDto>> ExecuteQueryAsync(DataObjectRegistratorRouteQuery query)
         {
             var result = new ResultWrapper<DataObjectRouteDto>();
 
-            var recordsKindSettings = await _metadataReader.GetKindSettingsByNameAsync(query.Kind, transaction);
+            var recordsKindSettings = await _metadataReader.GetKindSettingsByNameAsync(query.Kind, null);
             if (recordsKindSettings == null)
             {
                 result.Error(-1, $"{DictMain.CannotFindMetaObjectKind} {query.Kind}");
                 return result;
             }
 
-            var allKinds = await _metadataReader.GetAllKindsAsync(transaction);
+            var allKinds = await _metadataReader.GetAllKindsAsync(null);
 
             // Find meta object kind which crates records.
             MetaObjectKindSettings? registratorKindSettings = null;
@@ -55,7 +54,7 @@ namespace BaSys.Core.Features.DataObjects.Queries
             }
 
             // Find current records list meta object.
-            var recordsMetaObject = await _metadataReader.GetMetaObjectByNameAsync(query.Kind, query.Name, transaction);
+            var recordsMetaObject = await _metadataReader.GetMetaObjectByNameAsync(query.Kind, query.Name, null);
             if (recordsMetaObject == null)
             {
                 result.Error(-1, $"Cannot find meta object {query.Kind}.{query.Name}");
@@ -94,13 +93,13 @@ namespace BaSys.Core.Features.DataObjects.Queries
 
             if (Guid.TryParse(registratorKindUidStr, out var registratorKindUid))
             {
-                var registratorKind = await _metadataReader.GetKindAsync(registratorKindUid, transaction);
+                var registratorKind = await _metadataReader.GetKindAsync(registratorKindUid, null);
                 routeDto.Kind = registratorKind?.Name;
             }
 
             if (Guid.TryParse(registratorMetaObjectUidStr, out var registratorMetaObjectUid))
             {
-                var registrator = await _metadataReader.GetMetaObjectAsync(registratorMetaObjectUid, transaction);
+                var registrator = await _metadataReader.GetMetaObjectAsync(registratorMetaObjectUid, null);
                 routeDto.Name = registrator?.Name;
             }
 

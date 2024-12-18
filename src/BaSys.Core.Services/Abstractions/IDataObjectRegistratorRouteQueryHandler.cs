@@ -3,7 +3,7 @@ using BaSys.DTO.App;
 
 namespace BaSys.Core.Features.Abstractions
 {
-    public interface IDataObjectRegistratorRouteQueryHandler: ICommandHandlerBase<DataObjectRegistratorRouteQuery, DataObjectRouteDto>
+    public interface IDataObjectRegistratorRouteQueryHandler: IQueryHandlerBase<DataObjectRegistratorRouteQuery, DataObjectRouteDto>
     {
     }
 }
