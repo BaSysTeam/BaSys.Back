@@ -9,7 +9,7 @@ using System.Data;
 
 namespace BaSys.Core.Features.MetaObjects.Commands
 {
-    public sealed class MetaObjectCreateCommandHandler : MetaObjectCommandHanlderBase<MetaObjectStorableSettingsDto, int>, IMetaObjectCreateCommandHandler
+    public sealed class MetaObjectCreateCommandHandler : MetaObjectCommandHandlerBase<MetaObjectStorableSettingsDto, int>, IMetaObjectCreateCommandHandler
     {
         public MetaObjectCreateCommandHandler(IMainConnectionFactory connectionFactory,
             ISystemObjectProviderFactory providerFactory,

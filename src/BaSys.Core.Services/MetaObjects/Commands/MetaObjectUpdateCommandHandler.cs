@@ -13,7 +13,7 @@ using System.Data;
 
 namespace BaSys.Core.Features.MetaObjects.Commands
 {
-    public sealed class MetaObjectUpdateCommandHandler : MetaObjectCommandHanlderBase<MetaObjectStorableSettingsDto, int>, IMetaObjectUpdateCommandHandler
+    public sealed class MetaObjectUpdateCommandHandler : MetaObjectCommandHandlerBase<MetaObjectStorableSettingsDto, int>, IMetaObjectUpdateCommandHandler
     {
    
 
