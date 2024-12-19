@@ -44,9 +44,16 @@ namespace BaSys.Host.DAL.DataProviders
 
             var collection = new List<DataObject>();
 
+            var metaObjectColumn = _objectSettings.Header.Columns.FirstOrDefault(x => x.DataTypeUid == DataTypeDefaults.MetaObject.Uid);
+            var metaObjectCache = new Dictionary<Guid, MetaObjectStorable>();
+
             foreach (var dynamicItem in dynamicCollection)
             {
                 var item = new DataObject(_objectSettings, (IDictionary<string, object>)dynamicItem);
+                if (metaObjectColumn != null)
+                {
+                    SetMetaObjectDisplay(item, metaObjectCache, metaObjectColumn);
+                }
                 collection.Add(item);
             }
 
@@ -134,7 +141,42 @@ namespace BaSys.Host.DAL.DataProviders
                 var dataType = _dataTypesIndex.GetDataTypeSafe(column.DataTypeUid);
                 builder.Field(_config.TableName, column.Name, column.Name);
 
-                if (!dataType.IsPrimitive)
+                if(dataType.Uid == DataTypeDefaults.MetaObjectKind.Uid)
+                {
+                    // Join MetaObjectKinds to get displays.
+                    var metaObjectKindConfig = new MetaObjectKindConfiguration();
+                    var metaObjectKindTableName = metaObjectKindConfig.TableName;
+                    var metaObjectKindPkName = metaObjectKindConfig.Columns.FirstOrDefault(x => x.PrimaryKey)?.Name;
+
+                    builder.Field(metaObjectKindTableName, "title", $"{column.Name}_display");
+
+                    if (!joins.ContainsKey(metaObjectKindTableName))
+                    {
+                        var condition = new ConditionModel()
+                        {
+                            LeftTable = _config.TableName,
+                            LeftField = column.Name,
+                            ComparisionOperator = ComparisionOperators.Equal,
+                            RightTable = metaObjectKindTableName,
+                            RightField = metaObjectKindPkName
+                        };
+
+                        var conditions = new List<ConditionModel>
+                        {
+                            condition
+                        };
+
+                        builder.Join(JoinKinds.Left, metaObjectKindTableName, conditions);
+
+                        joins.Add(metaObjectKindTableName, true);
+                    }
+
+                }
+                else if (dataType.Uid == DataTypeDefaults.MetaObject.Uid)
+                {
+                    builder.Select($"'' as {column.Name}_display");
+                }
+                else if (!dataType.IsPrimitive)
                 {
                     // Reference type. Get display field for reference type.
                     var currentKind = _allKinds.FirstOrDefault(x => x.Uid == dataType.ObjectKindUid);
@@ -202,6 +244,27 @@ namespace BaSys.Host.DAL.DataProviders
             }
 
             return builder;
+        }
+
+        private void SetMetaObjectDisplay(DataObject item, 
+            Dictionary<Guid, MetaObjectStorable> metaObjectCache, 
+            MetaObjectTableColumn metaObjectColumn)
+        {
+            var metaObjectUid = item.GetValue(metaObjectColumn.Name);
+            if (metaObjectUid is Guid guidValue)
+            {
+                MetaObjectStorable? metaObject = null;
+                if (!metaObjectCache.TryGetValue(guidValue, out metaObject))
+                {
+                    metaObject = _allMetaObjects.FirstOrDefault(x => x.Uid == guidValue);
+                    if (metaObject != null)
+                    {
+                        metaObjectCache.Add(guidValue, metaObject);
+                    }
+                }
+
+                item.SetValue($"{metaObjectColumn.Name}_display", metaObject?.Title);
+            }
         }
     }
 }

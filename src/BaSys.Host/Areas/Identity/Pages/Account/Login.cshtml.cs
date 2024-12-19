@@ -110,13 +110,15 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
 
             ReturnUrl = returnUrl;
 
+            Input = new InputModel
+            {
+                RememberMe = true,
+            };
             if (!string.IsNullOrEmpty(dbName))
             {
-                Input = new InputModel
-                {
-                    DbName = dbName
-                };
+                Input.DbName = dbName;
             }
+           
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)

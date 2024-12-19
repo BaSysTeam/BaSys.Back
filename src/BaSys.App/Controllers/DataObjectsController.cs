@@ -1,5 +1,7 @@
 ﻿using BaSys.App.Abstractions;
 using BaSys.Common.Infrastructure;
+using BaSys.Core.Features.Abstractions;
+using BaSys.Core.Features.DataObjects.Queries;
 using BaSys.DTO.App;
 using BaSys.Host.DAL.Abstractions;
 using Microsoft.AspNetCore.Authorization;
@@ -15,10 +17,12 @@ namespace BaSys.App.Controllers
     {
 
         private readonly IDataObjectsService _service;
+        private readonly IDataObjectRegistratorRouteQueryHandler _queryRouteHandler;
 
-        public DataObjectsController(IDataObjectsService service)
+        public DataObjectsController(IDataObjectsService service, IDataObjectRegistratorRouteQueryHandler queryRouteHandler)
         {
             _service = service;
+            _queryRouteHandler = queryRouteHandler;
         }
 
         [HttpGet("{kind}/{name}")]
@@ -34,6 +38,13 @@ namespace BaSys.App.Controllers
         {
             var result = await _service.GetItemAsync(kind, name, uid);
 
+            return Ok(result);
+        }
+
+        [HttpPost("registrator-route")]
+        public async Task<IActionResult> QueryRegistratorRoute([FromBody] DataObjectRegistratorRouteQuery dto)
+        {
+            var result = await _queryRouteHandler.ExecuteAsync(dto);
             return Ok(result);
         }
 
