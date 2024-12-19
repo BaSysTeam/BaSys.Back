@@ -1,5 +1,6 @@
 ﻿using BaSys.Core.Abstractions;
 using BaSys.Core.Features.Abstractions;
+using BaSys.Core.Features.DataObjects.Queries;
 using BaSys.Core.Features.MetaObjects.Commands;
 using BaSys.Core.Features.MetaObjects.Services;
 using BaSys.Core.Services;
@@ -17,6 +18,7 @@ public static class CoreExtension
         services.AddTransient<IMetadataReader, MetadataReader>();
         services.AddTransient<IMetaObjectCreateCommandHandler, MetaObjectCreateCommandHandler>();
         services.AddTransient<IMetaObjectUpdateCommandHandler, MetaObjectUpdateCommandHandler>();
+        services.AddTransient<IDataObjectRegistratorRouteQueryHandler, DataObjectRegistratorRouteQueryHandler>();
 
         return services;
     }

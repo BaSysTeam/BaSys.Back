@@ -80,9 +80,25 @@ namespace BaSys.Core.Features.MetaObjects.Services
             return metaObject;
         }
 
+        public async Task<MetaObjectStorable> GetMetaObjectAsync(Guid uid, IDbTransaction transaction)
+        {
+            await UpdateAllMetaObjectsIfNecessaryAsync(transaction);
+
+            var metaObject = _metaObjects.FirstOrDefault(x => x.Uid == uid);
+
+            return metaObject;
+        }
+
         public async Task<MetaObjectStorableSettings> GetMetaObjectSettingsByNameAsync(string kindName, string objectName, IDbTransaction transaction)
         {
             var metaObject = await GetMetaObjectByNameAsync(kindName, objectName, transaction);
+
+            return metaObject?.ToSettings();
+        }
+
+        public async Task<MetaObjectStorableSettings> GetMetaObjectSettingsAsync(Guid uid, IDbTransaction transaction)
+        {
+            var metaObject = await GetMetaObjectAsync(uid, transaction);
 
             return metaObject?.ToSettings();
         }

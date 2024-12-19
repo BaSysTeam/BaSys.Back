@@ -18,6 +18,9 @@ namespace BaSys.Core.Features.Abstractions
         Task<MetaObjectStorable> GetMetaObjectByNameAsync(string kindName, string objectName, IDbTransaction? transaction);
         Task<MetaObjectStorableSettings> GetMetaObjectSettingsByNameAsync(string kindName, string objectName, IDbTransaction? transaction);
 
+        Task<MetaObjectStorable> GetMetaObjectAsync(Guid uid, IDbTransaction? transaction);
+        Task<MetaObjectStorableSettings> GetMetaObjectSettingsAsync(Guid uid, IDbTransaction? transaction);
+
         Task<List<DataType>> GetAllDataTypesAsync(IDbTransaction? transaction);
         Task<IDataTypesIndex> GetIndexAsync(IDbTransaction? transaction);
 

@@ -74,8 +74,18 @@ namespace BaSys.App.Services
 
             var allMetaObjects = new List<MetaObjectStorable>();
 
+            var isRecordsList = false;
             foreach (var item in allKinds)
             {
+                var currentKindSettings = item.ToSettings();
+                if (currentKindSettings.CanCreateRecords)
+                {
+                    if (currentKindSettings.RecordsSettings.StorageMetaObjectKindUid == kind.Uid)
+                    {
+                        isRecordsList = true;
+                    }
+                }
+
                 metaObjectProvider = new MetaObjectStorableProvider(_connection, item.Name);
                 var metaObjects = await metaObjectProvider.GetCollectionAsync(null);
 
@@ -89,6 +99,7 @@ namespace BaSys.App.Services
             {
                 var collection = await provider.GetCollectionWithDisplaysAsync(null);
                 var listDto = new DataObjectListDto(objectKindSettings, metaObjectSettings, collection, dataTypesIndex.ToList());
+                listDto.IsRecordsList = isRecordsList;
 
                 result.Success(listDto);
             }

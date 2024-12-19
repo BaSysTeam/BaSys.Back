@@ -16,6 +16,7 @@ namespace BaSys.DTO.App
 
         public List<DataObjectDto> Items { get; set; } = new List<DataObjectDto>();
         public List<DataTypeDto> DataTypes { get; set; } = new List<DataTypeDto>();
+        public bool IsRecordsList { get; set; }
 
 
         public DataObjectListDto()
