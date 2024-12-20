@@ -94,7 +94,7 @@ namespace BaSys.FluentQueries.UnitTests {
         
         /// <summary>
         ///   Looks up a localized string similar to CREATE TABLE sys_metadata_kinds (
-        ///uid UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
+        ///uid UNIQUEIDENTIFIER PRIMARY KEY,
         ///title NVARCHAR(100) NOT NULL,
         ///prefix NVARCHAR(4) NOT NULL UNIQUE
         ///);.
@@ -107,7 +107,7 @@ namespace BaSys.FluentQueries.UnitTests {
         
         /// <summary>
         ///   Looks up a localized string similar to CREATE TABLE sys_metadata_kinds (
-        ///uid UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        ///uid UUID PRIMARY KEY,
         ///title varchar(100) NOT NULL,
         ///prefix varchar(4) NOT NULL UNIQUE
         ///);.
