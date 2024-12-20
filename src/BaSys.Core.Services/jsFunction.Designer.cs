@@ -102,7 +102,17 @@ namespace BaSys.Core.Features {
         
         /// <summary>
         ///   Looks up a localized string similar to function dateTimeNow() {
-        ///    return new Date();
+        ///  var now = new Date();
+        ///  var nowUTC = new Date(Date.UTC(
+        ///    now.getFullYear(), 
+        ///    now.getMonth(), 
+        ///    now.getDate(), 
+        ///    now.getHours(), 
+        ///    now.getMinutes(), 
+        ///    now.getSeconds(), 
+        ///    now.getMilliseconds()
+        ///));
+        ///    return nowUTC;
         ///}.
         /// </summary>
         internal static string dateTimeNow {

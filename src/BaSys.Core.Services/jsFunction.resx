@@ -154,7 +154,17 @@
   </data>
   <data name="dateTimeNow" xml:space="preserve">
     <value>function dateTimeNow() {
-    return new Date();
+  var now = new Date();
+  var nowUTC = new Date(Date.UTC(
+    now.getFullYear(), 
+    now.getMonth(), 
+    now.getDate(), 
+    now.getHours(), 
+    now.getMinutes(), 
+    now.getSeconds(), 
+    now.getMilliseconds()
+));
+    return nowUTC;
 }</value>
   </data>
   <data name="dateDifference" xml:space="preserve">

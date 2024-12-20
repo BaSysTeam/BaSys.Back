@@ -60,6 +60,8 @@ namespace BaSys.Core.Services.UnitTests
             var result = _evaluator.Evaluate<DateTime>("dateTimeNow()");
             var now = DateTime.Now;
 
+            Console.WriteLine(result);
+
             Assert.That(result.Year, Is.EqualTo(now.Year));
             Assert.That(result.Month, Is.EqualTo(now.Month));
             Assert.That(result.Day, Is.EqualTo(now.Day));
