@@ -402,7 +402,7 @@ namespace BaSys.Core.Features.RecordsBuilder
                         _logger.LogError("Error in expression {0}", settingsColumn.Expression);
                         break;
                     case RecordsExpressionKinds.Formula:
-                        var dataType = _dataTypesIndex.GetDataTypeSafe(destinationColumn.DataTypeUid);
+                        var dataType = _dataTypesIndex.GetDataTypeSafe(destinationColumn.DataSettings.DataTypeUid);
                         var evalResult = evaluator.EvaluateExpression(settingsColumn.Expression, dataType.DbType, dataObject.Header, null);
                         record.SetValue(destinationColumn.Name, evalResult);
                         break;
@@ -466,7 +466,7 @@ namespace BaSys.Core.Features.RecordsBuilder
                         _logger.LogError("Error in expression {0}", settingsColumn.Expression);
                         break;
                     case RecordsExpressionKinds.Formula:
-                        var dataType = _dataTypesIndex.GetDataTypeSafe(destinationColumn.DataTypeUid);
+                        var dataType = _dataTypesIndex.GetDataTypeSafe(destinationColumn.DataSettings.DataTypeUid);
                         var evalResult = evaluator.EvaluateExpression(settingsColumn.Expression, dataType.DbType, dataObject.Header, tableRow);
                         record.SetValue(destinationColumn.Name, evalResult);
                         break;

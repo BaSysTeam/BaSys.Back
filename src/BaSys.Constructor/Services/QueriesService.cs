@@ -155,7 +155,7 @@ namespace BaSys.Constructor.Services
                             throw new ArgumentNullException($"Cannot retrieve DbType for parameter {parameterDto.Name}");
                         }
 
-                        var dbType = dataTypesIndex.GetDbType(fld.DataTypeUid);
+                        var dbType = dataTypesIndex.GetDbType(fld.DataSettings.DataTypeUid);
                         var parameterValue = ValueParser.Parse(jsonValue.ToString(), dbType);
                         queryModel.AddParameter(parameterDto.Name, parameterValue, dbType);
                     }

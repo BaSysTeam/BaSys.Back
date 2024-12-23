@@ -10,33 +10,39 @@ namespace BaSys.Metadata.Models
         public Guid Uid { get; set; } = Guid.NewGuid();
         public string Title { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
-        public Guid DataTypeUid { get; set; }
-        public int StringLength { get; set; }
-        public int NumberDigits { get; set; }
-        public bool PrimaryKey { get; set; }
-        public bool Required { get; set; }
-        public bool Unique { get; set; }
-        public string DefaultValue { get; set; } = String.Empty;
-        public MetaObjectTableColumnRenderSettings RenderSettings { get; set; } = new MetaObjectTableColumnRenderSettings();
-        public bool IsStandard { get; set; }
-        public string Formula { get; set; } = string.Empty;
+        //public Guid DataTypeUid { get; set; }
+        //public int StringLength { get; set; }
+        //public int NumberDigits { get; set; }
+        //public bool PrimaryKey { get; set; }
+        //public bool Required { get; set; }
+        //public bool Unique { get; set; }
+        //public string DefaultValue { get; set; } = String.Empty;
 
+        public string Formula { get; set; } = string.Empty;
+        public bool IsStandard { get; set; }
+
+        public MetaObjectTableColumnDataSettings DataSettings { get; set; } = new MetaObjectTableColumnDataSettings();
+        public MetaObjectTableColumnRenderSettings RenderSettings { get; set; } = new MetaObjectTableColumnRenderSettings();
         public List<DependencyInfo> Dependencies { get; set; } = new List<DependencyInfo>();
+
+        [SerializationConstructor]
+        public MetaObjectTableColumn()
+        {
+            
+        }
+
+        public MetaObjectTableColumn(Guid dataTypeUid, bool primaryKey = true)
+        {
+            DataSettings.DataTypeUid = dataTypeUid;
+            DataSettings.PrimaryKey = primaryKey;
+        }
 
         public bool Equals(MetaObjectTableColumn other)
         {
             if (other == null) return false;
 
             return Uid == other.Uid &&
-                   Title == other.Title &&
-                   Name == other.Name &&
-                   DataTypeUid == other.DataTypeUid &&
-                   StringLength == other.StringLength &&
-                   NumberDigits == other.NumberDigits &&
-                   PrimaryKey == other.PrimaryKey &&
-                   Required == other.Required &&
-                   Unique == other.Unique &&
-                   IsStandard == other.IsStandard;
+                   DataSettings.Equals(other.DataSettings);
         }
 
         public override bool Equals(object obj)
@@ -46,11 +52,7 @@ namespace BaSys.Metadata.Models
 
         public override int GetHashCode()
         {
-
-            int hash1 = HashCode.Combine(Uid, Title, Name, DataTypeUid, StringLength, NumberDigits, PrimaryKey);
-            int hash2 = HashCode.Combine(Required, Unique, IsStandard);
-
-            return HashCode.Combine(hash1, hash2);
+            return HashCode.Combine(Uid, DataSettings.GetHashCode());
         }
 
         public MetaObjectTableColumn Clone()
@@ -59,17 +61,12 @@ namespace BaSys.Metadata.Models
             clone.Uid = Uid;
             clone.Title = Title;
             clone.Name = Name;
-            clone.DataTypeUid = DataTypeUid;
-            clone.StringLength = StringLength;
-            clone.NumberDigits = NumberDigits;
-            clone.PrimaryKey = PrimaryKey;
-            clone.Unique = Unique;
             clone.IsStandard = IsStandard;
-            clone.DefaultValue = DefaultValue;
 
             clone.Formula = Formula;
 
             clone.RenderSettings = RenderSettings.Clone();
+            clone.DataSettings = DataSettings.Clone();
 
             foreach (var sourceDependency in Dependencies)
             {
@@ -88,6 +85,6 @@ namespace BaSys.Metadata.Models
         {
             return $"{Title}/{Name}";
         }
-
+      
     }
 }

@@ -99,16 +99,16 @@ namespace BaSys.Host.DAL.TableChangeAnalyse
             {
                 if (command is MetaObjectTableAddColumnCommand addColumnCommand)
                 {
-                    var dataType = dataTypesIndex.GetDataTypeSafe(addColumnCommand.Column.DataTypeUid);
+                    var dataType = dataTypesIndex.GetDataTypeSafe(addColumnCommand.Column.DataSettings.DataTypeUid);
 
                     var tableColumn = new TableColumn()
                     {
                         Name = addColumnCommand.Column.Name,
                         DbType = dataType.DbType,
-                        Required = addColumnCommand.Column.Required,
-                        Unique = addColumnCommand.Column.Unique,
-                        StringLength = addColumnCommand.Column.StringLength,
-                        NumberDigits = addColumnCommand.Column.NumberDigits,
+                        Required = addColumnCommand.Column.DataSettings.Required,
+                        Unique = addColumnCommand.Column.DataSettings.Unique,
+                        StringLength = addColumnCommand.Column.DataSettings.StringLength,
+                        NumberDigits = addColumnCommand.Column.DataSettings.NumberDigits,
                     };
 
                     model.NewColumns.Add(tableColumn);

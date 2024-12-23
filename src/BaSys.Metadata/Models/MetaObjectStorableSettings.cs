@@ -1,8 +1,8 @@
-﻿using System;
+﻿using BaSys.Common.Enums;
+using MessagePack;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using BaSys.Common.Enums;
-using MessagePack;
 
 namespace BaSys.Metadata.Models
 {
@@ -49,7 +49,7 @@ namespace BaSys.Metadata.Models
             MetaObjectKindUid = kindSettings.Uid;
             Header = MetaObjectTable.HeaderTable();
 
-            var primaryKeySettings = kindSettings.StandardColumns.FirstOrDefault(x => x.IsPrimaryKey);
+            var primaryKeySettings = kindSettings.StandardColumns.FirstOrDefault(x => x.DataSettings.PrimaryKey);
 
             if (primaryKeySettings == null)
                 throw new ArgumentNullException(nameof(primaryKeySettings), "Primary key is not specified in metaobject kind.");
@@ -60,33 +60,35 @@ namespace BaSys.Metadata.Models
                 Uid = primaryKeySettings.Uid,
                 Title = primaryKeySettings.Title,
                 Name = primaryKeySettings.Name,
-                DataTypeUid = primaryKeySettings.DataTypeUid,
-                NumberDigits = primaryKeySettings.NumberDigits,
-                StringLength = primaryKeySettings.StringLength,
-                PrimaryKey = true,
-                Required = true,
-                Unique = true,
                 IsStandard = true,
             };
+
+            primaryKeyColumn.DataSettings.DataTypeUid = primaryKeySettings.DataSettings.DataTypeUid;
+            primaryKeyColumn.DataSettings.NumberDigits = primaryKeySettings.DataSettings.NumberDigits;
+            primaryKeyColumn.DataSettings.StringLength = primaryKeySettings.DataSettings.StringLength;
+            primaryKeyColumn.DataSettings.PrimaryKey = true;
+            primaryKeyColumn.DataSettings.Required = true;
+            primaryKeyColumn.DataSettings.Unique = true;
 
             Header.Columns.Add(primaryKeyColumn);
 
             // Add other standard columns.
-            foreach (var stColumn in kindSettings.StandardColumns.Where(x => !x.IsPrimaryKey))
+            foreach (var stColumn in kindSettings.StandardColumns.Where(x => !x.DataSettings.PrimaryKey))
             {
                 var newColumn = new MetaObjectTableColumn()
                 {
                     Uid = stColumn.Uid,
                     Title = stColumn.Title,
                     Name = stColumn.Name,
-                    DataTypeUid = stColumn.DataTypeUid,
-                    StringLength = stColumn.StringLength,
-                    NumberDigits = stColumn.NumberDigits,
-                    PrimaryKey = false,
-                    Unique = stColumn.IsUnique,
-                    Required = stColumn.IsRequired,
                     IsStandard = true
                 };
+
+                newColumn.DataSettings.DataTypeUid = stColumn.DataSettings.DataTypeUid;
+                newColumn.DataSettings.StringLength = stColumn.DataSettings.StringLength;
+                newColumn.DataSettings.NumberDigits = stColumn.DataSettings.NumberDigits;
+                newColumn.DataSettings.PrimaryKey = false;
+                newColumn.DataSettings.Unique = stColumn.DataSettings.Unique;
+                newColumn.DataSettings.Required = stColumn.DataSettings.Required;
 
                 Header.Columns.Add(newColumn);
             }

@@ -49,7 +49,7 @@ public class FileService : IFileService
         if (!metaObjectKind.IsOK)
             return;
 
-        var primaryKey = metaObjectKind.Data.StandardColumns.FirstOrDefault(x => x.IsPrimaryKey);
+        var primaryKey = metaObjectKind.Data.StandardColumns.FirstOrDefault(x => x.DataSettings.PrimaryKey);
         if (primaryKey == null)
             return;
 
@@ -62,7 +62,7 @@ public class FileService : IFileService
         try
         {
             // int
-            if (primaryKey.DataTypeUid == DataTypeDefaults.Int.Uid)
+            if (primaryKey.DataSettings.DataTypeUid == DataTypeDefaults.Int.Uid)
                 fileUid = await SaveInt(connection, transaction, uploadDto, metaObjectKind.Data.Name,
                     (FileStorageKinds) config.StorageKind);
 
@@ -71,12 +71,12 @@ public class FileService : IFileService
             //     fileUid = await SaveLong(connection, transaction, uploadDto, metaObjectKind.Data.Name, (FileStorageKinds) config.StorageKind);
 
             // Guid
-            if (primaryKey.DataTypeUid == DataTypeDefaults.UniqueIdentifier.Uid)
+            if (primaryKey.DataSettings.DataTypeUid == DataTypeDefaults.UniqueIdentifier.Uid)
                 fileUid = await SaveGuid(connection, transaction, uploadDto, metaObjectKind.Data.Name,
                     (FileStorageKinds) config.StorageKind);
 
             // string
-            if (primaryKey.DataTypeUid == DataTypeDefaults.String.Uid)
+            if (primaryKey.DataSettings.DataTypeUid == DataTypeDefaults.String.Uid)
                 fileUid = await SaveString(connection, transaction, uploadDto, metaObjectKind.Data.Name,
                     (FileStorageKinds) config.StorageKind);
         }
@@ -114,26 +114,26 @@ public class FileService : IFileService
         if (!metaObjectKind.IsOK)
             return false;
 
-        var primaryKey = metaObjectKind.Data.StandardColumns.FirstOrDefault(x => x.IsPrimaryKey);
+        var primaryKey = metaObjectKind.Data.StandardColumns.FirstOrDefault(x => x.DataSettings.PrimaryKey);
         if (primaryKey == null)
             return false;
 
         // save from AttachedFileInfo
         try
         {
-            if (primaryKey.DataTypeUid == DataTypeDefaults.Int.Uid)
+            if (primaryKey.DataSettings.DataTypeUid == DataTypeDefaults.Int.Uid)
             {
                 var provider = new AttachedFileInfoIntProvider(connection, metaObjectKind.Data.Name);
                 await provider.DeleteAsync(fileUid, transaction);
             }
             // if (primaryKey.DataTypeUid == DataTypeDefaults.Long.Uid)
             //     await DeleteLong(connection, transaction, fileInfo.Uid, metaObjectKind.Data.Name);
-            else if (primaryKey.DataTypeUid == DataTypeDefaults.String.Uid)
+            else if (primaryKey.DataSettings.DataTypeUid == DataTypeDefaults.String.Uid)
             {
                 var provider = new AttachedFileInfoStringProvider(connection, metaObjectKind.Data.Name);
                 await provider.DeleteAsync(fileUid, transaction);
             }
-            else if (primaryKey.DataTypeUid == DataTypeDefaults.UniqueIdentifier.Uid)
+            else if (primaryKey.DataSettings.DataTypeUid == DataTypeDefaults.UniqueIdentifier.Uid)
             {
                 var provider = new AttachedFileInfoGuidProvider(connection, metaObjectKind.Data.Name);
                 await provider.DeleteAsync(fileUid, transaction);
@@ -176,12 +176,12 @@ public class FileService : IFileService
         if (!metaObjectKind.IsOK)
             return null;
 
-        var primaryKey = metaObjectKind.Data.StandardColumns.FirstOrDefault(x => x.IsPrimaryKey);
+        var primaryKey = metaObjectKind.Data.StandardColumns.FirstOrDefault(x => x.DataSettings.PrimaryKey);
         if (primaryKey == null)
             return null;
 
         FileInfo? file = null;
-        if (primaryKey.DataTypeUid == DataTypeDefaults.Int.Uid)
+        if (primaryKey.DataSettings.DataTypeUid == DataTypeDefaults.Int.Uid)
         {
             var provider = new AttachedFileInfoIntProvider(connection, metaObjectKind.Data.Name);
             var f = await provider.GetItemAsync(fileUid, null);
@@ -202,7 +202,7 @@ public class FileService : IFileService
         //     var provider = new AttachedFileInfoLongProvider(connection, metaObjectKind.Data.Name);
         //     var f = await provider.GetItemAsync(fileUid, null);
         // }
-        else if (primaryKey.DataTypeUid == DataTypeDefaults.String.Uid)
+        else if (primaryKey.DataSettings.DataTypeUid == DataTypeDefaults.String.Uid)
         {
             var provider = new AttachedFileInfoStringProvider(connection, metaObjectKind.Data.Name);
             var f = await provider.GetItemAsync(fileUid, null);
@@ -218,7 +218,7 @@ public class FileService : IFileService
                 MetaObjectKindUid = f.MetaObjectKindUid
             };
         }
-        else if (primaryKey.DataTypeUid == DataTypeDefaults.UniqueIdentifier.Uid)
+        else if (primaryKey.DataSettings.DataTypeUid == DataTypeDefaults.UniqueIdentifier.Uid)
         {
             var provider = new AttachedFileInfoGuidProvider(connection, metaObjectKind.Data.Name);
             var f = await provider.GetItemAsync(fileUid, null);
@@ -267,12 +267,12 @@ public class FileService : IFileService
         if (!metaObjectKind.IsOK)
             return null;
 
-        var primaryKey = metaObjectKind.Data.StandardColumns.FirstOrDefault(x => x.IsPrimaryKey);
+        var primaryKey = metaObjectKind.Data.StandardColumns.FirstOrDefault(x => x.DataSettings.PrimaryKey);
         if (primaryKey == null)
             return null;
 
         List<FileInfo>? fileList = null;
-        if (primaryKey.DataTypeUid == DataTypeDefaults.Int.Uid)
+        if (primaryKey.DataSettings.DataTypeUid == DataTypeDefaults.Int.Uid)
         {
             var provider = new AttachedFileInfoIntProvider(connection, metaObjectKind.Data.Name);
             fileList = await provider.GetAttachedFilesListAsync(metaObjectKindUid, metaObjectUid, objectUid);
@@ -282,12 +282,12 @@ public class FileService : IFileService
         //     var provider = new AttachedFileInfoLongProvider(connection, metaObjectKind.Data.Name);
         //     fileList = await provider.GetAttachedFilesListAsync(metaObjectKindUid, metaObjectUid, objectUid);
         // }
-        else if (primaryKey.DataTypeUid == DataTypeDefaults.String.Uid)
+        else if (primaryKey.DataSettings.DataTypeUid == DataTypeDefaults.String.Uid)
         {
             var provider = new AttachedFileInfoStringProvider(connection, metaObjectKind.Data.Name);
             fileList = await provider.GetAttachedFilesListAsync(metaObjectKindUid, metaObjectUid, objectUid);
         }
-        else if (primaryKey.DataTypeUid == DataTypeDefaults.UniqueIdentifier.Uid)
+        else if (primaryKey.DataSettings.DataTypeUid == DataTypeDefaults.UniqueIdentifier.Uid)
         {
             var provider = new AttachedFileInfoGuidProvider(connection, metaObjectKind.Data.Name);
             fileList = await provider.GetAttachedFilesListAsync(metaObjectKindUid, metaObjectUid, objectUid);

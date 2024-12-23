@@ -15,7 +15,7 @@ namespace BaSys.Metadata.Validators
             RuleFor(x => x.Uid).NotEmpty();
             RuleFor(x => x.Name).NotEmpty();
             RuleFor(x => x.Title).NotEmpty();
-            RuleFor(x => x.DataTypeUid).NotEmpty();
+            RuleFor(x => x.DataSettings.DataTypeUid).NotEmpty();
         }
     }
 }

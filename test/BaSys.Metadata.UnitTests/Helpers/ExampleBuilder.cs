@@ -12,16 +12,13 @@ namespace BaSys.Metadata.UnitTests.Helpers
         public static MetaObjectStorableSettings BuildProductOperation()
         {
             var settings = new MetaObjectStorableSettings();
-            settings.Header.Columns.Add(new MetaObjectTableColumn()
+            settings.Header.Columns.Add(new MetaObjectTableColumn(DataTypeDefaults.Int.Uid, true)
             {
-                Name = "id",
-                DataTypeUid = DataTypeDefaults.Int.Uid,
-                PrimaryKey = true,
+                Name = "id"
             });
-            settings.Header.Columns.Add(new MetaObjectTableColumn()
+            settings.Header.Columns.Add(new MetaObjectTableColumn(DataTypeDefaults.Decimal.Uid)
             {
                 Name = "total",
-                DataTypeUid = DataTypeDefaults.Decimal.Uid,
                 Formula = "$t.products.sum(\"amount\")"
 
             });
@@ -36,24 +33,20 @@ namespace BaSys.Metadata.UnitTests.Helpers
         public static MetaObjectStorableSettings BuildDiscountInHeaderExample()
         {
             var settings = new MetaObjectStorableSettings();
-            settings.Header.Columns.Add(new MetaObjectTableColumn()
+            settings.Header.Columns.Add(new MetaObjectTableColumn(DataTypeDefaults.Decimal.Uid)
             {
                 Name = "discount",
-                DataTypeUid = DataTypeDefaults.Decimal.Uid,
-
             });
 
             var tableProducts = BuildProductTable();
-            var colulmnDiscountAmount = new MetaObjectTableColumn()
+            var colulmnDiscountAmount = new MetaObjectTableColumn(DataTypeDefaults.Decimal.Uid)
             {
                 Name = "discount_amount",
-                DataTypeUid = DataTypeDefaults.Decimal.Uid,
                 Formula = "$r.amount * $h.discount"
             };
-            var columnAmountTotal = new MetaObjectTableColumn()
+            var columnAmountTotal = new MetaObjectTableColumn(DataTypeDefaults.Decimal.Uid)
             {
                 Name = "amount_total",
-                DataTypeUid = DataTypeDefaults.Decimal.Uid,
                 Formula = "$r.amount - $r.discount_amount"
             };
 
@@ -76,23 +69,20 @@ namespace BaSys.Metadata.UnitTests.Helpers
             {
                 Name = "product"
             };
-            var columnQuantity = new MetaObjectTableColumn()
+            var columnQuantity = new MetaObjectTableColumn(DataTypeDefaults.Decimal.Uid)
             {
                 Title = "Quantity",
                 Name = "quantity",
-                DataTypeUid = DataTypeDefaults.Decimal.Uid,
             };
-            var columnPrice = new MetaObjectTableColumn()
+            var columnPrice = new MetaObjectTableColumn(DataTypeDefaults.Decimal.Uid)
             {
                 Title = "Price",
                 Name = "price",
-                DataTypeUid = DataTypeDefaults.Decimal.Uid,
             };
-            var columnAmount = new MetaObjectTableColumn()
+            var columnAmount = new MetaObjectTableColumn(DataTypeDefaults.Decimal.Uid)
             {
                 Title = "Amount",
                 Name = "amount",
-                DataTypeUid = DataTypeDefaults.Decimal.Uid,
                 Formula = "$r.price * $r.quantity"
             };
             tableProducts.Columns.Add(columnProduct);
