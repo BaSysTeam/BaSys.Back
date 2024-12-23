@@ -186,12 +186,12 @@ namespace BaSys.Core.Services
                     // create AttachedFileInfo table
                     // if (settings.AllowAttacheFiles)
                     {
-                        var primaryKeyCol = settings.StandardColumns.FirstOrDefault(x => x.IsPrimaryKey);
+                        var primaryKeyCol = settings.StandardColumns.FirstOrDefault(x => x.DataSettings.PrimaryKey);
                         if (primaryKeyCol != null)
                         {
                             var factory = new AttachedFileInfoManagerFactory();
                             var tableManager =
-                                factory.GetTableManager(_connection, settings.Name, primaryKeyCol.DataTypeUid);
+                                factory.GetTableManager(_connection, settings.Name, primaryKeyCol.DataSettings.DataTypeUid);
                             if (tableManager != null)
                                 await tableManager.CreateTableAsync(transaction);
                         }
@@ -287,7 +287,7 @@ namespace BaSys.Core.Services
                     // delete AttachedFileInfo table
                     // if (settings.AllowAttacheFiles)
                     {
-                        var primaryKeyCol = settings.StandardColumns.FirstOrDefault(x => x.IsPrimaryKey);
+                        var primaryKeyCol = settings.StandardColumns.FirstOrDefault(x => x.DataSettings.PrimaryKey);
                         if (primaryKeyCol != null)
                         {
                             var factory = new AttachedFileInfoManagerFactory();

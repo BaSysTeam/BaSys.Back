@@ -179,11 +179,11 @@ namespace BaSys.Core.Features.MetaObjects.Services
             if (headerTable == null)
                 return dbType;
 
-            var primaryKeyColumn = headerTable.Columns.FirstOrDefault(x => x.PrimaryKey);
+            var primaryKeyColumn = headerTable.Columns.FirstOrDefault(x => x.DataSettings.PrimaryKey);
             if (primaryKeyColumn == null)
                 return dbType;
 
-            var dataType = primitiveDataTypes.GetDataType(primaryKeyColumn.DataTypeUid);
+            var dataType = primitiveDataTypes.GetDataType(primaryKeyColumn.DataSettings.DataTypeUid);
             if (dataType == null)
                 return dbType;
 

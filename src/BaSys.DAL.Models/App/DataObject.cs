@@ -21,19 +21,19 @@ namespace BaSys.DAL.Models.App
             foreach (var column in settings.Header.Columns)
             {
 
-                var dataType = dataTypeIndex.GetDataTypeSafe(column.DataTypeUid);
+                var dataType = dataTypeIndex.GetDataTypeSafe(column.DataSettings.DataTypeUid);
 
-                if (!string.IsNullOrEmpty(column.DefaultValue))
+                if (!string.IsNullOrEmpty(column.DataSettings.DefaultValue))
                 {
                     // Get default value;
                     object defaultValue = null;
-                    if (column.DefaultValue.Equals("now", StringComparison.OrdinalIgnoreCase) && dataType.Uid == DataTypeDefaults.DateTime.Uid)
+                    if (column.DataSettings.DefaultValue.Equals("now", StringComparison.OrdinalIgnoreCase) && dataType.Uid == DataTypeDefaults.DateTime.Uid)
                     {
                         defaultValue = DateTime.Now;
                     }
                     else
                     {
-                        defaultValue = ValueParser.Parse(column.DefaultValue, dataType.DbType);
+                        defaultValue = ValueParser.Parse(column.DataSettings.DefaultValue, dataType.DbType);
                     }
 
                     Header.Add(column.Name, defaultValue);
@@ -108,7 +108,7 @@ namespace BaSys.DAL.Models.App
         public void SetPrimaryKey(string value)
         {
             var dataTypeIndex = new DataTypesIndex(DataTypeDefaults.GetPrimaryKeyTypes());
-            var dbType = dataTypeIndex.GetDbType(_settings.Header.PrimaryKey.DataTypeUid);
+            var dbType = dataTypeIndex.GetDbType(_settings.Header.PrimaryKey.DataSettings.DataTypeUid);
             var parsedValue = ValueParser.Parse(value, dbType);
 
             SetValue(_settings.Header.PrimaryKey.Name, parsedValue);

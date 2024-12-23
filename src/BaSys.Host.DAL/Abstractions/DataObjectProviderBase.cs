@@ -39,7 +39,7 @@ namespace BaSys.Host.DAL.Abstractions
             var primaryKey = objectSettings.Header.PrimaryKey;
             _primaryKeyFieldName = primaryKey.Name;
 
-            var pkDataType = _dataTypesIndex.GetDataTypeSafe(primaryKey.DataTypeUid);
+            var pkDataType = _dataTypesIndex.GetDataTypeSafe(primaryKey.DataSettings.DataTypeUid);
             _primaryKeyDbType = pkDataType.DbType;
         }
 

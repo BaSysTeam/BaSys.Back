@@ -1,5 +1,6 @@
 ﻿using BaSys.DAL.Models.App;
 using BaSys.FluentQueries.Models;
+using System.Data;
 
 namespace BaSys.Host.DAL.ModelConfigurations;
 
@@ -10,7 +11,7 @@ public class UserSettingsConfiguration : DataModelConfiguration<UserSettings>
         Table("sys_user_settings");
 
         Column("uid").IsPrimaryKey();
-        Column("UserId").IsRequired();
-        Column("Language").IsRequired();
+        Column("userid").IsRequired();
+        Column("language").ToType(DbType.Int32).IsRequired();
     }
 }

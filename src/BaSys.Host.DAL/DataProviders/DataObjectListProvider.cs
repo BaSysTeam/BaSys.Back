@@ -44,7 +44,7 @@ namespace BaSys.Host.DAL.DataProviders
 
             var collection = new List<DataObject>();
 
-            var metaObjectColumn = _objectSettings.Header.Columns.FirstOrDefault(x => x.DataTypeUid == DataTypeDefaults.MetaObject.Uid);
+            var metaObjectColumn = _objectSettings.Header.Columns.FirstOrDefault(x => x.DataSettings.DataTypeUid == DataTypeDefaults.MetaObject.Uid);
             var metaObjectCache = new Dictionary<Guid, MetaObjectStorable>();
 
             foreach (var dynamicItem in dynamicCollection)
@@ -76,7 +76,7 @@ namespace BaSys.Host.DAL.DataProviders
             }
 
             var dataTypeIndex = new DataTypesIndex(DataTypeDefaults.GetPrimaryKeyTypes());
-            var objectColumnType = dataTypeIndex.GetDataTypeSafe(objectColumn.DataTypeUid);
+            var objectColumnType = dataTypeIndex.GetDataTypeSafe(objectColumn.DataSettings.DataTypeUid);
 
             var objectUid = ValueParser.Parse(objectUidStr, objectColumnType.DbType);
 
@@ -138,7 +138,7 @@ namespace BaSys.Host.DAL.DataProviders
             foreach (var column in _objectSettings.Header.Columns)
             {
 
-                var dataType = _dataTypesIndex.GetDataTypeSafe(column.DataTypeUid);
+                var dataType = _dataTypesIndex.GetDataTypeSafe(column.DataSettings.DataTypeUid);
                 builder.Field(_config.TableName, column.Name, column.Name);
 
                 if(dataType.Uid == DataTypeDefaults.MetaObjectKind.Uid)

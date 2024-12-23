@@ -60,7 +60,7 @@ namespace BaSys.App.Services
                         continue;
                     }
 
-                    var fieldDataType = dataTypesIndex.GetDataType(fieldSettings.DataTypeUid);
+                    var fieldDataType = dataTypesIndex.GetDataType(fieldSettings.DataSettings.DataTypeUid);
 
                     if (fieldDataType == null)
                     {
@@ -142,7 +142,7 @@ namespace BaSys.App.Services
                     continue;
                 }
 
-                var fieldDataType = dataTypesIndex.GetDataType(fieldSettings.DataTypeUid);
+                var fieldDataType = dataTypesIndex.GetDataType(fieldSettings.DataSettings.DataTypeUid);
 
                 if (fieldDataType == null)
                 {
