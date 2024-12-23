@@ -62,7 +62,7 @@ namespace BaSys.FluentQueries.UnitTests {
         
         /// <summary>
         ///   Looks up a localized string similar to CREATE TABLE sys_metadata_groups (
-        ///uid UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
+        ///uid UNIQUEIDENTIFIER PRIMARY KEY,
         ///parentuid UNIQUEIDENTIFIER NULL,
         ///title NVARCHAR(100) NOT NULL,
         ///iconclass NVARCHAR(20) NULL,
@@ -78,7 +78,7 @@ namespace BaSys.FluentQueries.UnitTests {
         
         /// <summary>
         ///   Looks up a localized string similar to CREATE TABLE sys_metadata_groups (
-        ///uid UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        ///uid UUID PRIMARY KEY,
         ///parentuid uuid NULL,
         ///title varchar(100) NOT NULL,
         ///iconclass varchar(20) NULL,
@@ -93,8 +93,48 @@ namespace BaSys.FluentQueries.UnitTests {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to CREATE TABLE sys_meta_object_kinds (
+        ///uid UNIQUEIDENTIFIER PRIMARY KEY,
+        ///title NVARCHAR(100) NOT NULL,
+        ///name NVARCHAR(40) NOT NULL UNIQUE,
+        ///prefix NVARCHAR(4) NOT NULL UNIQUE,
+        ///storedata BIT NOT NULL,
+        ///isreference BIT NOT NULL,
+        ///isstandard BIT NOT NULL,
+        ///version BIGINT NOT NULL,
+        ///memo NVARCHAR(300) NULL,
+        ///settingsstorage VARBINARY(MAX) NOT NULL
+        ///);.
+        /// </summary>
+        internal static string CreateTableMetaObjectKindMsSql {
+            get {
+                return ResourceManager.GetString("CreateTableMetaObjectKindMsSql", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CREATE TABLE sys_meta_object_kinds (
+        ///uid UUID PRIMARY KEY,
+        ///title varchar(100) NOT NULL,
+        ///name varchar(40) NOT NULL UNIQUE,
+        ///prefix varchar(4) NOT NULL UNIQUE,
+        ///storedata boolean NOT NULL,
+        ///isreference boolean NOT NULL,
+        ///isstandard boolean NOT NULL,
+        ///version bigint NOT NULL,
+        ///memo varchar(300) NULL,
+        ///settingsstorage bytea NOT NULL
+        ///);.
+        /// </summary>
+        internal static string CreateTableMetaObjectKindPgSql {
+            get {
+                return ResourceManager.GetString("CreateTableMetaObjectKindPgSql", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to CREATE TABLE sys_metadata_kinds (
-        ///uid UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
+        ///uid UNIQUEIDENTIFIER PRIMARY KEY,
         ///title NVARCHAR(100) NOT NULL,
         ///prefix NVARCHAR(4) NOT NULL UNIQUE
         ///);.
@@ -107,7 +147,7 @@ namespace BaSys.FluentQueries.UnitTests {
         
         /// <summary>
         ///   Looks up a localized string similar to CREATE TABLE sys_metadata_kinds (
-        ///uid UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        ///uid UUID PRIMARY KEY,
         ///title varchar(100) NOT NULL,
         ///prefix varchar(4) NOT NULL UNIQUE
         ///);.
@@ -212,7 +252,7 @@ namespace BaSys.FluentQueries.UnitTests {
         
         /// <summary>
         ///   Looks up a localized string similar to SELECT TOP 1 *
-        ///FROM my_table;.
+        ///FROM [my_table];.
         /// </summary>
         internal static string SelectTopMsSql {
             get {
@@ -222,7 +262,7 @@ namespace BaSys.FluentQueries.UnitTests {
         
         /// <summary>
         ///   Looks up a localized string similar to SELECT TOP 1 *
-        ///FROM my_table
+        ///FROM [my_table]
         ///ORDER BY name desc;.
         /// </summary>
         internal static string SelectTopOrderByMsSql {
@@ -233,7 +273,7 @@ namespace BaSys.FluentQueries.UnitTests {
         
         /// <summary>
         ///   Looks up a localized string similar to SELECT *
-        ///FROM my_table
+        ///FROM &quot;my_table&quot;
         ///ORDER BY name desc
         ///LIMIT 1;.
         /// </summary>
@@ -245,7 +285,7 @@ namespace BaSys.FluentQueries.UnitTests {
         
         /// <summary>
         ///   Looks up a localized string similar to SELECT *
-        ///FROM my_table
+        ///FROM &quot;my_table&quot;
         ///LIMIT 1;.
         /// </summary>
         internal static string SelectTopPgSql {

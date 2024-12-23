@@ -17,7 +17,7 @@ namespace BaSys.FluentQueries.UnitTests
             Assert.That(result, Is.EqualTo(builder), "Table method should return the TableExistsBuilder instance itself.");
         }
 
-        [TestCase(SqlDialectKinds.MsSql, "IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = N'testtable')SELECT 1 AS Exists ELSE SELECT 0 AS Exists")]
+        [TestCase(SqlDialectKinds.MsSql, "IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = N'testtable')SELECT 1 AS [Exists] ELSE SELECT 0 AS [Exists]")]
         [TestCase(SqlDialectKinds.PgSql, "SELECT CASE WHEN EXISTS (SELECT FROM information_schema.tables WHERE table_type = 'BASE TABLE' AND table_name = 'testtable') THEN 1 ELSE 0 END AS Exists;")]
         public void Query_WithValidTableNameAndDialect_GeneratesCorrectQuery(SqlDialectKinds dialectKind, string expectedQueryText)
         {

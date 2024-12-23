@@ -19,7 +19,7 @@ namespace BaSys.FluentQueries.UnitTests
 
             Console.WriteLine(config.ToString());
 
-            Assert.AreEqual("MetadataGroup", config.TableName);
+            Assert.That(config.TableName, Is.EqualTo("MetaObjectKind"));
         }
 
         [Test]
@@ -29,7 +29,7 @@ namespace BaSys.FluentQueries.UnitTests
 
             Console.WriteLine(config.ToString());
 
-            Assert.AreEqual("sys_metadata_group", config.TableName);
+            Assert.That(config.TableName, Is.EqualTo("sys_meta_object_kinds"));
         }
 
         [Test]

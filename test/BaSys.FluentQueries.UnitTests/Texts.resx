@@ -119,7 +119,7 @@
   </resheader>
   <data name="CreateTableMetadataGroupMsSql" xml:space="preserve">
     <value>CREATE TABLE sys_metadata_groups (
-uid UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
+uid UNIQUEIDENTIFIER PRIMARY KEY,
 parentuid UNIQUEIDENTIFIER NULL,
 title NVARCHAR(100) NOT NULL,
 iconclass NVARCHAR(20) NULL,
@@ -129,7 +129,7 @@ isstandard BIT NOT NULL
   </data>
   <data name="CreateTableMetadataGroupPgSql" xml:space="preserve">
     <value>CREATE TABLE sys_metadata_groups (
-uid UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+uid UUID PRIMARY KEY,
 parentuid uuid NULL,
 title varchar(100) NOT NULL,
 iconclass varchar(20) NULL,
@@ -137,16 +137,44 @@ memo varchar(300) NULL,
 isstandard boolean NOT NULL
 );</value>
   </data>
+  <data name="CreateTableMetaObjectKindMsSql" xml:space="preserve">
+    <value>CREATE TABLE sys_meta_object_kinds (
+uid UNIQUEIDENTIFIER PRIMARY KEY,
+title NVARCHAR(100) NOT NULL,
+name NVARCHAR(40) NOT NULL UNIQUE,
+prefix NVARCHAR(4) NOT NULL UNIQUE,
+storedata BIT NOT NULL,
+isreference BIT NOT NULL,
+isstandard BIT NOT NULL,
+version BIGINT NOT NULL,
+memo NVARCHAR(300) NULL,
+settingsstorage VARBINARY(MAX) NOT NULL
+);</value>
+  </data>
+  <data name="CreateTableMetaObjectKindPgSql" xml:space="preserve">
+    <value>CREATE TABLE sys_meta_object_kinds (
+uid UUID PRIMARY KEY,
+title varchar(100) NOT NULL,
+name varchar(40) NOT NULL UNIQUE,
+prefix varchar(4) NOT NULL UNIQUE,
+storedata boolean NOT NULL,
+isreference boolean NOT NULL,
+isstandard boolean NOT NULL,
+version bigint NOT NULL,
+memo varchar(300) NULL,
+settingsstorage bytea NOT NULL
+);</value>
+  </data>
   <data name="CreateTableWithUniqueColumnMsSql" xml:space="preserve">
     <value>CREATE TABLE sys_metadata_kinds (
-uid UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
+uid UNIQUEIDENTIFIER PRIMARY KEY,
 title NVARCHAR(100) NOT NULL,
 prefix NVARCHAR(4) NOT NULL UNIQUE
 );</value>
   </data>
   <data name="CreateTableWithUniqueColumnPgSql" xml:space="preserve">
     <value>CREATE TABLE sys_metadata_kinds (
-uid UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+uid UUID PRIMARY KEY,
 title varchar(100) NOT NULL,
 prefix varchar(4) NOT NULL UNIQUE
 );</value>
@@ -197,22 +225,22 @@ RETURNING id;</value>
   </data>
   <data name="SelectTopMsSql" xml:space="preserve">
     <value>SELECT TOP 1 *
-FROM my_table;</value>
+FROM [my_table];</value>
   </data>
   <data name="SelectTopOrderByMsSql" xml:space="preserve">
     <value>SELECT TOP 1 *
-FROM my_table
+FROM [my_table]
 ORDER BY name desc;</value>
   </data>
   <data name="SelectTopOrderByPgSql" xml:space="preserve">
     <value>SELECT *
-FROM my_table
+FROM "my_table"
 ORDER BY name desc
 LIMIT 1;</value>
   </data>
   <data name="SelectTopPgSql" xml:space="preserve">
     <value>SELECT *
-FROM my_table
+FROM "my_table"
 LIMIT 1;</value>
   </data>
 </root>
