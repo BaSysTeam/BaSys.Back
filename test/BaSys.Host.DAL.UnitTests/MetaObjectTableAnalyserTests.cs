@@ -11,6 +11,7 @@ namespace BaSys.Host.DAL.UnitTests
         private MetaObjectTable _headerAfter;
         private MetaObjectTableColumn _titleColumn;
         private MetaObjectTableColumn _memoColumn;
+        private MetaObjectTableColumn _rateColumn;
 
         [SetUp]
         public void SetUp()
@@ -61,6 +62,16 @@ namespace BaSys.Host.DAL.UnitTests
                   StringLength = 300
               });
 
+            _rateColumn = new MetaObjectTableColumn(
+              Guid.NewGuid(),
+              "Rate",
+              "rate",
+             new MetaObjectTableColumnDataSettings
+             {
+                 DataTypeUid = DataTypeDefaults.Decimal.Uid,
+                 NumberDigits = 2
+             });
+
 
             _headerBefore.Columns.Add(idColumn);
             _headerBefore.Columns.Add(_titleColumn);
@@ -79,14 +90,14 @@ namespace BaSys.Host.DAL.UnitTests
             analyser.Analyze();
 
             Assert.That(analyser.Commands.Count, Is.EqualTo(1));
-            Assert.That(analyser.Commands[0] is MetaObjectTableAddColumnCommand, Is.True);
+            Assert.That(analyser.Commands[0] is AddColumnCommand, Is.True);
             Assert.That(analyser.NeedAlterTable, Is.True);
-            Assert.That(((MetaObjectTableAddColumnCommand)analyser.Commands[0]).Column.Name, Is.EqualTo("memo"));
+            Assert.That(((AddColumnCommand)analyser.Commands[0]).Column.Name, Is.EqualTo("memo"));
 
         }
 
         [Test]
-        public void Analyse_RenameColumn_AlterModel()
+        public void Analyse_RenameColumn_Commands()
         {
             var memoColumnAfter = _memoColumn.Clone();
             memoColumnAfter.Name = "info";
@@ -98,9 +109,28 @@ namespace BaSys.Host.DAL.UnitTests
             analyser.Analyze();
 
             Assert.That(analyser.Commands.Count, Is.EqualTo(1));
-            Assert.That(analyser.Commands[0] is MetaObjectTableRenameColumnCommand, Is.True);
+            Assert.That(analyser.Commands[0] is RenameColumnCommand, Is.True);
             Assert.That(analyser.NeedAlterTable, Is.True);
-            Assert.That(((MetaObjectTableRenameColumnCommand)analyser.Commands[0]).ColumnNameNew, Is.EqualTo("info"));
+            Assert.That(((RenameColumnCommand)analyser.Commands[0]).ColumnNameNew, Is.EqualTo("info"));
+
+        }
+
+        [Test]
+        public void Analyse_ChangeDataTypeOfColumn_Commands()
+        {
+            var columnAfter = _rateColumn.Clone();
+            columnAfter.DataSettings.DataTypeUid = DataTypeDefaults.String.Uid;
+
+            _headerBefore.Columns.Add(_rateColumn);
+            _headerAfter.Columns.Add(columnAfter);
+
+            var analyser = new MetaObjectTableChangeAnalyser(_headerBefore, _headerAfter);
+            analyser.Analyze();
+
+            Assert.That(analyser.Commands.Count, Is.EqualTo(1));
+            Assert.That(analyser.Commands[0] is ChangeColumnCommand, Is.True);
+            Assert.That(analyser.NeedAlterTable, Is.True);
+            Assert.That(((ChangeColumnCommand)analyser.Commands[0]).Column.Name, Is.EqualTo("rate"));
 
         }
     }

@@ -2,14 +2,8 @@
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.Helpers;
 using BaSys.Metadata.Abstractions;
-using BaSys.Metadata.Helpers;
 using BaSys.Metadata.Models;
-using BaSys.Metadata.Validators;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
 
 namespace BaSys.Host.DAL.TableChangeAnalyse
 {
@@ -58,7 +52,7 @@ namespace BaSys.Host.DAL.TableChangeAnalyse
             {
                 if (_tableAfter.Columns.All(x => x.Uid != column.Uid))
                 {
-                    var dropColumnCommand = new MetaObjectTableDropColumnCommand()
+                    var dropColumnCommand = new DropColumnCommand()
                     {
                         TableName = _tableAfter.Name,
                         TableUid = _tableAfter.Uid,
@@ -79,7 +73,7 @@ namespace BaSys.Host.DAL.TableChangeAnalyse
                 if (columnBefore == null)
                 {
                     // Add new column.
-                    var addColumnCommand = new MetaObjectTableAddColumnCommand()
+                    var addColumnCommand = new AddColumnCommand()
                     {
                         TableUid = _tableAfter.Uid,
                         TableName = _tableAfter.Name,
@@ -89,19 +83,38 @@ namespace BaSys.Host.DAL.TableChangeAnalyse
                     _commands.Add(addColumnCommand);
                     NeedAlterTable = true;
                 }
-                else if (!column.Name.Equals(columnBefore.Name, StringComparison.CurrentCultureIgnoreCase))
+                else 
                 {
-                    // Rename column.
-                    var renameColumnCommand = new MetaObjectTableRenameColumnCommand()
+                    if (!column.Name.Equals(columnBefore.Name, StringComparison.CurrentCultureIgnoreCase))
                     {
-                        TableUid = _tableAfter.Uid,
-                        TableName = _tableAfter.Name,
-                        ColumnName = columnBefore.Name,
-                        ColumnNameNew = column.Name
-                    };
+                        // Rename column.
+                        var renameColumnCommand = new RenameColumnCommand()
+                        {
+                            TableUid = _tableAfter.Uid,
+                            TableName = _tableAfter.Name,
+                            ColumnName = columnBefore.Name,
+                            ColumnNameNew = column.Name
+                        };
 
-                    _commands.Add(renameColumnCommand);
-                    NeedAlterTable = true;
+                        _commands.Add(renameColumnCommand);
+                        NeedAlterTable = true;
+                    }
+
+                    if (!column.DataSettings.SettingsEquals(columnBefore.DataSettings))
+                    {
+                        // Data type changed.
+                        var changeColumnCommand = new ChangeColumnCommand()
+                        {
+                            TableUid = _tableAfter.Uid,
+                            TableName = _tableAfter.Name,
+                            Column = column,
+                        };
+
+                        _commands.Add(changeColumnCommand);
+                        NeedAlterTable = true;
+
+                    }
+                   
                 }
 
             }
@@ -116,27 +129,16 @@ namespace BaSys.Host.DAL.TableChangeAnalyse
 
             foreach (var command in _commands)
             {
-                if (command is MetaObjectTableAddColumnCommand addColumnCommand)
+                if (command is AddColumnCommand addColumnCommand)
                 {
-                    var dataType = dataTypesIndex.GetDataTypeSafe(addColumnCommand.Column.DataSettings.DataTypeUid);
-
-                    var tableColumn = new TableColumn()
-                    {
-                        Name = addColumnCommand.Column.Name,
-                        DbType = dataType.DbType,
-                        Required = addColumnCommand.Column.DataSettings.Required,
-                        Unique = addColumnCommand.Column.DataSettings.Unique,
-                        StringLength = addColumnCommand.Column.DataSettings.StringLength,
-                        NumberDigits = addColumnCommand.Column.DataSettings.NumberDigits,
-                    };
-
+                    var tableColumn = CreateTableColumn(dataTypesIndex, addColumnCommand);
                     model.NewColumns.Add(tableColumn);
                 }
-                else if (command is MetaObjectTableDropColumnCommand dropColumnCommand)
+                else if (command is DropColumnCommand dropColumnCommand)
                 {
                     model.RemovedColumns.Add(dropColumnCommand.ColumnName);
                 }
-                else if (command is MetaObjectTableRenameColumnCommand renameColumnCommand)
+                else if (command is RenameColumnCommand renameColumnCommand)
                 {
                     model.RenamedColumns.Add(new RenameColumnModel()
                     {
@@ -144,9 +146,33 @@ namespace BaSys.Host.DAL.TableChangeAnalyse
                         NewName = renameColumnCommand.ColumnNameNew
                     });
                 }
+                else if (command is ChangeColumnCommand changeColumnCommand)
+                {
+
+                    var tableColumn = CreateTableColumn(dataTypesIndex, changeColumnCommand);
+                    model.ChangedColumns.Add(tableColumn);
+                }
             }
 
             return model;
         }
+
+        private TableColumn CreateTableColumn(IDataTypesIndex dataTypesIndex, IMetaObjectChangeColumnCommand command)
+        {
+            var dataType = dataTypesIndex.GetDataTypeSafe(command.Column.DataSettings.DataTypeUid);
+            var tableColumn = new TableColumn()
+            {
+                Name = command.Column.Name,
+                DbType = dataType.DbType,
+                Required = command.Column.DataSettings.Required,
+                Unique = command.Column.DataSettings.Unique,
+                StringLength = command.Column.DataSettings.StringLength,
+                NumberDigits = command.Column.DataSettings.NumberDigits,
+            };
+
+            return tableColumn;
+        }
+
+       
     }
 }

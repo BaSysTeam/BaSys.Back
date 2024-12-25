@@ -45,6 +45,16 @@ namespace BaSys.FluentQueries.ScriptGenerators
                     n++;
                 }
 
+                foreach (var column in _model.ChangedColumns)
+                {
+                    if (n > 1)
+                        _sb.AppendLine(",");
+
+                    AlterColumnQuery(column, n);
+
+                    n++;
+                }
+
                 foreach (var columnName in _model.RemovedColumns)
                 {
                     if (n > 1)
@@ -93,6 +103,47 @@ namespace BaSys.FluentQueries.ScriptGenerators
             return query;
         }
 
+        private void AlterColumnQuery(TableColumn column, int counter)
+        {
+            var dataTypeStr = GetDataType(column.DbType, column.StringLength);
+
+            _sb.Append("ALTER COLUMN ");
+            AppendName(column.Name);
+            _sb.Append(' ');
+            if (_sqlDialect == SqlDialectKinds.PgSql)
+            {
+                _sb.Append("TYPE ");
+            }
+            _sb.Append(dataTypeStr);
+
+            if (_sqlDialect == SqlDialectKinds.MsSql)
+            {
+                if (column.Required)
+                {
+                    _sb.Append(" NOT NULL");
+                }
+                else
+                {
+                    _sb.Append(" NULL");
+                }
+
+                if (column.Unique)
+                {
+                    _sb.Append(" UNIQUE");
+                }
+            }
+
+            if (_sqlDialect == SqlDialectKinds.PgSql)
+            {
+                _sb.Append(' ');
+                _sb.Append("USING ");
+                AppendName(column.Name);
+                _sb.Append("::");
+                _sb.Append(dataTypeStr);
+                
+            }
+        }
+
         private void AddColumnQuery(TableColumn column, int counter)
         {
             switch (_sqlDialect)
@@ -139,7 +190,9 @@ namespace BaSys.FluentQueries.ScriptGenerators
             }
             else if (_sqlDialect == SqlDialectKinds.MsSql)
             {
-                result = _model.NewColumns.Any() || _model.RemovedColumns.Any();
+                result = _model.NewColumns.Any() 
+                    || _model.RemovedColumns.Any() 
+                    || _model.ChangedColumns.Any();
             }
 
             return result;

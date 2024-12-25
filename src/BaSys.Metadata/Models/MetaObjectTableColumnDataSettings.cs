@@ -1,9 +1,5 @@
 ﻿using MessagePack;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BaSys.Metadata.Models
 {
@@ -38,6 +34,19 @@ namespace BaSys.Metadata.Models
                    DataTypeUid.Equals(settings.DataTypeUid) &&
                    StringLength == settings.StringLength &&
                    NumberDigits == settings.NumberDigits;
+        }
+
+        public bool SettingsEquals(MetaObjectTableColumnDataSettings settings)
+        {
+            if (settings == null)
+                return false;
+
+            return DataTypeUid.Equals(settings.DataTypeUid) &&
+                   StringLength == settings.StringLength &&
+                   NumberDigits == settings.NumberDigits && 
+                   PrimaryKey == settings.PrimaryKey && 
+                   Required == settings.Required && 
+                   Unique == settings.Unique;
         }
 
         public override int GetHashCode()

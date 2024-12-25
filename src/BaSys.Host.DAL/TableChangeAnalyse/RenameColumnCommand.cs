@@ -2,7 +2,7 @@
 
 namespace BaSys.Host.DAL.TableChangeAnalyse
 {
-    public sealed class MetaObjectTableRenameColumnCommand : IMetaObjectChangeCommand
+    public sealed class RenameColumnCommand : IMetaObjectChangeCommand
     {
         public Guid TableUid { get; set; }
         public string TableName { get; set; } = string.Empty;

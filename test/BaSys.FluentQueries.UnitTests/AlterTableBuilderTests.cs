@@ -16,6 +16,7 @@ namespace BaSys.FluentQueries.UnitTests
     {
         private TableColumn _codeColumn;
         private TableColumn _titleColumn;
+        private TableColumn _rateColumn;
 
         [SetUp]
         public void SetUp()
@@ -34,6 +35,13 @@ namespace BaSys.FluentQueries.UnitTests
                 DbType = DbType.String,
                 StringLength = 100,
                 Required = true,
+            };
+
+            _rateColumn = new TableColumn()
+            {
+                Name = "rate",
+                DbType = DbType.String,
+                StringLength = 100
             };
         }
 
@@ -123,6 +131,25 @@ namespace BaSys.FluentQueries.UnitTests
                 OldName = "title",
                 NewName = "description"
             });
+
+            var builder = AlterTableBuilder.Make(model);
+
+            var query = builder.Query(dialectKind);
+
+            PrintQuery(dialectKind, query);
+
+            var checkText = Texts.ResourceManager.GetString(checkKey);
+            Assert.That(query.Text, Is.EqualTo(checkText));
+        }
+
+        [TestCase(SqlDialectKinds.MsSql, "AlterTableChangeDataTypeOfColumnMsSQl")]
+        [TestCase(SqlDialectKinds.PgSql, "AlterTableChangeDataTypeOfColumnPgSQl")]
+        public void AlterTable_ChangeDataTypeOfColumn_Query(SqlDialectKinds dialectKind, string checkKey)
+        {
+            var model = new AlterTableModel();
+            model.TableName = "cat_currency";
+            model.ChangedColumns.Add(_rateColumn);
+           
 
             var builder = AlterTableBuilder.Make(model);
 

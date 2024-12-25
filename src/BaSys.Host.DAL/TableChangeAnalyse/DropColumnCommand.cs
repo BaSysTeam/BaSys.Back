@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BaSys.Host.DAL.Helpers
 {
-    public sealed class MetaObjectTableDropColumnCommand: IMetaObjectChangeCommand
+    public sealed class DropColumnCommand: IMetaObjectChangeCommand
     {
         public Guid TableUid { get; set; }
         public string TableName { get; set; } = string.Empty;

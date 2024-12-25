@@ -104,6 +104,26 @@ namespace BaSys.FluentQueries.UnitTests {
         
         /// <summary>
         ///   Looks up a localized string similar to ALTER TABLE [cat_currency]
+        ///ALTER COLUMN [rate] NVARCHAR(100) NULL;.
+        /// </summary>
+        internal static string AlterTableChangeDataTypeOfColumnMsSQl {
+            get {
+                return ResourceManager.GetString("AlterTableChangeDataTypeOfColumnMsSQl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ALTER TABLE &quot;cat_currency&quot;
+        ///ALTER COLUMN &quot;rate&quot; varchar(100) NULL USING &quot;rate&quot;::varchar(100);.
+        /// </summary>
+        internal static string AlterTableChangeDataTypeOfColumnPgSQl {
+            get {
+                return ResourceManager.GetString("AlterTableChangeDataTypeOfColumnPgSQl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ALTER TABLE [cat_currency]
         ///DROP COLUMN [code];.
         /// </summary>
         internal static string AlterTableDropOneColumnMsSQl {

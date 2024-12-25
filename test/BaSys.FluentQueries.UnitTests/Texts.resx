@@ -135,6 +135,14 @@ ADD [code] NVARCHAR(3) NOT NULL,
 ADD COLUMN "code" varchar(3) NOT NULL,
 ADD COLUMN "title" varchar(100) NOT NULL;</value>
   </data>
+  <data name="AlterTableChangeDataTypeOfColumnMsSQl" xml:space="preserve">
+    <value>ALTER TABLE [cat_currency]
+ALTER COLUMN [rate] NVARCHAR(100) NULL;</value>
+  </data>
+  <data name="AlterTableChangeDataTypeOfColumnPgSQl" xml:space="preserve">
+    <value>ALTER TABLE "cat_currency"
+ALTER COLUMN "rate" varchar(100) NULL USING "rate"::varchar(100);</value>
+  </data>
   <data name="AlterTableDropOneColumnMsSQl" xml:space="preserve">
     <value>ALTER TABLE [cat_currency]
 DROP COLUMN [code];</value>
