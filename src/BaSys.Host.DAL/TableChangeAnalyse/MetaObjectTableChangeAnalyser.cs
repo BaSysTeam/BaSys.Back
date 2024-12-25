@@ -4,6 +4,7 @@ using BaSys.Host.DAL.Helpers;
 using BaSys.Metadata.Abstractions;
 using BaSys.Metadata.Helpers;
 using BaSys.Metadata.Models;
+using BaSys.Metadata.Validators;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -73,8 +74,11 @@ namespace BaSys.Host.DAL.TableChangeAnalyse
             // Find new columns.
             foreach (var column in _tableAfter.Columns)
             {
-                if (_tableBefore.Columns.All(x => x.Uid != column.Uid))
+                var columnBefore = _tableBefore.GetColumn(column.Uid);
+
+                if (columnBefore == null)
                 {
+                    // Add new column.
                     var addColumnCommand = new MetaObjectTableAddColumnCommand()
                     {
                         TableUid = _tableAfter.Uid,
@@ -85,6 +89,21 @@ namespace BaSys.Host.DAL.TableChangeAnalyse
                     _commands.Add(addColumnCommand);
                     NeedAlterTable = true;
                 }
+                else if (!column.Name.Equals(columnBefore.Name, StringComparison.CurrentCultureIgnoreCase))
+                {
+                    // Rename column.
+                    var renameColumnCommand = new MetaObjectTableRenameColumnCommand()
+                    {
+                        TableUid = _tableAfter.Uid,
+                        TableName = _tableAfter.Name,
+                        ColumnName = columnBefore.Name,
+                        ColumnNameNew = column.Name
+                    };
+
+                    _commands.Add(renameColumnCommand);
+                    NeedAlterTable = true;
+                }
+
             }
 
         }
@@ -116,6 +135,14 @@ namespace BaSys.Host.DAL.TableChangeAnalyse
                 else if (command is MetaObjectTableDropColumnCommand dropColumnCommand)
                 {
                     model.RemovedColumns.Add(dropColumnCommand.ColumnName);
+                }
+                else if (command is MetaObjectTableRenameColumnCommand renameColumnCommand)
+                {
+                    model.RenamedColumns.Add(new RenameColumnModel()
+                    {
+                        OldName = renameColumnCommand.ColumnName,
+                        NewName = renameColumnCommand.ColumnNameNew
+                    });
                 }
             }
 

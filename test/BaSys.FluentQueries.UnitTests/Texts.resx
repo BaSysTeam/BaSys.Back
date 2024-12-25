@@ -117,6 +117,49 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AlterTableAddOneColumnMsSQl" xml:space="preserve">
+    <value>ALTER TABLE [cat_currency]
+ADD [code] NVARCHAR(3) NOT NULL;</value>
+  </data>
+  <data name="AlterTableAddOneColumnPgSQl" xml:space="preserve">
+    <value>ALTER TABLE "cat_currency"
+ADD COLUMN "code" varchar(3) NOT NULL;</value>
+  </data>
+  <data name="AlterTableAddTwoColumnsMsSQl" xml:space="preserve">
+    <value>ALTER TABLE [cat_currency]
+ADD [code] NVARCHAR(3) NOT NULL,
+[title] NVARCHAR(100) NOT NULL;</value>
+  </data>
+  <data name="AlterTableAddTwoColumnsPgSQl" xml:space="preserve">
+    <value>ALTER TABLE "cat_currency"
+ADD COLUMN "code" varchar(3) NOT NULL,
+ADD COLUMN "title" varchar(100) NOT NULL;</value>
+  </data>
+  <data name="AlterTableDropOneColumnMsSQl" xml:space="preserve">
+    <value>ALTER TABLE [cat_currency]
+DROP COLUMN [code];</value>
+  </data>
+  <data name="AlterTableDropOneColumnPgSQl" xml:space="preserve">
+    <value>ALTER TABLE "cat_currency"
+DROP COLUMN "code";</value>
+  </data>
+  <data name="AlterTableDropTwoColumnsMsSQl" xml:space="preserve">
+    <value>ALTER TABLE [cat_currency]
+DROP COLUMN [code],
+DROP COLUMN [title];</value>
+  </data>
+  <data name="AlterTableDropTwoColumnsPgSQl" xml:space="preserve">
+    <value>ALTER TABLE "cat_currency"
+DROP COLUMN "code",
+DROP COLUMN "title";</value>
+  </data>
+  <data name="AlterTableRenameColumnMsSQl" xml:space="preserve">
+    <value>EXEC sp_rename 'cat_currency.title', 'description', 'COLUMN';</value>
+  </data>
+  <data name="AlterTableRenameColumnPgSQl" xml:space="preserve">
+    <value>ALTER TABLE "cat_currency"
+RENAME COLUMN "title" TO "description";</value>
+  </data>
   <data name="CreateTableMetadataGroupMsSql" xml:space="preserve">
     <value>CREATE TABLE sys_metadata_groups (
 uid UNIQUEIDENTIFIER PRIMARY KEY,

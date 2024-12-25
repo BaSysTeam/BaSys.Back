@@ -51,7 +51,8 @@ namespace BaSys.FluentQueries.UnitTests
 
             PrintQuery(dialectKind, query);
 
-            Assert.Pass();
+            var checkText = Texts.ResourceManager.GetString(checkKey);
+            Assert.That(query.Text, Is.EqualTo(checkText));
 
         }
 
@@ -69,7 +70,8 @@ namespace BaSys.FluentQueries.UnitTests
 
             PrintQuery(dialectKind, query);
 
-            Assert.Pass();
+            var checkText = Texts.ResourceManager.GetString(checkKey);
+            Assert.That(query.Text, Is.EqualTo(checkText));
 
         }
 
@@ -77,7 +79,6 @@ namespace BaSys.FluentQueries.UnitTests
         [TestCase(SqlDialectKinds.PgSql, "AlterTableDropOneColumnPgSQl")]
         public void AlterTable_DropOneColumn_Query(SqlDialectKinds dialectKind, string checkKey)
         {
-
 
             var builder = AlterTableBuilder.Make()
                 .Table("cat_currency")
@@ -87,7 +88,8 @@ namespace BaSys.FluentQueries.UnitTests
 
             PrintQuery(dialectKind, query);
 
-            Assert.Pass();
+            var checkText = Texts.ResourceManager.GetString(checkKey);
+            Assert.That(query.Text, Is.EqualTo(checkText));
 
         }
 
@@ -105,8 +107,31 @@ namespace BaSys.FluentQueries.UnitTests
 
             PrintQuery(dialectKind, query);
 
-            Assert.Pass();
+            var checkText = Texts.ResourceManager.GetString(checkKey);
+            Assert.That(query.Text, Is.EqualTo(checkText));
 
+        }
+
+        [TestCase(SqlDialectKinds.MsSql, "AlterTableRenameColumnMsSQl")]
+        [TestCase(SqlDialectKinds.PgSql, "AlterTableRenameColumnPgSQl")]
+        public void AlterTable_RenameColumn_Query(SqlDialectKinds dialectKind, string checkKey)
+        {
+            var model = new AlterTableModel();
+            model.TableName = "cat_currency";
+            model.RenamedColumns.Add(new RenameColumnModel
+            {
+                OldName = "title",
+                NewName = "description"
+            });
+
+            var builder = AlterTableBuilder.Make(model);
+
+            var query = builder.Query(dialectKind);
+
+            PrintQuery(dialectKind, query);
+
+            var checkText = Texts.ResourceManager.GetString(checkKey);
+            Assert.That(query.Text, Is.EqualTo(checkText));
         }
 
         private void PrintQuery(SqlDialectKinds dialectKind, IQuery query)

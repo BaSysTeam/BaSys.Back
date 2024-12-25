@@ -61,6 +61,109 @@ namespace BaSys.FluentQueries.UnitTests {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to ALTER TABLE [cat_currency]
+        ///ADD [code] NVARCHAR(3) NOT NULL;.
+        /// </summary>
+        internal static string AlterTableAddOneColumnMsSQl {
+            get {
+                return ResourceManager.GetString("AlterTableAddOneColumnMsSQl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ALTER TABLE &quot;cat_currency&quot;
+        ///ADD COLUMN &quot;code&quot; varchar(3) NOT NULL;.
+        /// </summary>
+        internal static string AlterTableAddOneColumnPgSQl {
+            get {
+                return ResourceManager.GetString("AlterTableAddOneColumnPgSQl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ALTER TABLE [cat_currency]
+        ///ADD [code] NVARCHAR(3) NOT NULL,
+        ///[title] NVARCHAR(100) NOT NULL;.
+        /// </summary>
+        internal static string AlterTableAddTwoColumnsMsSQl {
+            get {
+                return ResourceManager.GetString("AlterTableAddTwoColumnsMsSQl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ALTER TABLE &quot;cat_currency&quot;
+        ///ADD COLUMN &quot;code&quot; varchar(3) NOT NULL,
+        ///ADD COLUMN &quot;title&quot; varchar(100) NOT NULL;.
+        /// </summary>
+        internal static string AlterTableAddTwoColumnsPgSQl {
+            get {
+                return ResourceManager.GetString("AlterTableAddTwoColumnsPgSQl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ALTER TABLE [cat_currency]
+        ///DROP COLUMN [code];.
+        /// </summary>
+        internal static string AlterTableDropOneColumnMsSQl {
+            get {
+                return ResourceManager.GetString("AlterTableDropOneColumnMsSQl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ALTER TABLE &quot;cat_currency&quot;
+        ///DROP COLUMN &quot;code&quot;;.
+        /// </summary>
+        internal static string AlterTableDropOneColumnPgSQl {
+            get {
+                return ResourceManager.GetString("AlterTableDropOneColumnPgSQl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ALTER TABLE [cat_currency]
+        ///DROP COLUMN [code],
+        ///DROP COLUMN [title];.
+        /// </summary>
+        internal static string AlterTableDropTwoColumnsMsSQl {
+            get {
+                return ResourceManager.GetString("AlterTableDropTwoColumnsMsSQl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ALTER TABLE &quot;cat_currency&quot;
+        ///DROP COLUMN &quot;code&quot;,
+        ///DROP COLUMN &quot;title&quot;;.
+        /// </summary>
+        internal static string AlterTableDropTwoColumnsPgSQl {
+            get {
+                return ResourceManager.GetString("AlterTableDropTwoColumnsPgSQl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to EXEC sp_rename &apos;cat_currency.title&apos;, &apos;description&apos;, &apos;COLUMN&apos;;.
+        /// </summary>
+        internal static string AlterTableRenameColumnMsSQl {
+            get {
+                return ResourceManager.GetString("AlterTableRenameColumnMsSQl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ALTER TABLE &quot;cat_currency&quot;
+        ///RENAME COLUMN &quot;title&quot; TO &quot;description&quot;;.
+        /// </summary>
+        internal static string AlterTableRenameColumnPgSQl {
+            get {
+                return ResourceManager.GetString("AlterTableRenameColumnPgSQl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to CREATE TABLE sys_metadata_groups (
         ///uid UNIQUEIDENTIFIER PRIMARY KEY,
         ///parentuid UNIQUEIDENTIFIER NULL,

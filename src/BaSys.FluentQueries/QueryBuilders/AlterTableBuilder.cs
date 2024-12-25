@@ -44,6 +44,10 @@ namespace BaSys.FluentQueries.QueryBuilders
         {
             return new AlterTableBuilder();
         }
+        public static AlterTableBuilder Make(AlterTableModel model)
+        {
+            return new AlterTableBuilder(model);
+        }
 
         public IQuery Query(SqlDialectKinds dbKind)
         {

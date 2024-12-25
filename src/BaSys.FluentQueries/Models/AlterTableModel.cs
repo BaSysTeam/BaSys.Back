@@ -11,6 +11,7 @@ namespace BaSys.FluentQueries.Models
         public string TableName { get; set; } = string.Empty;
         public List<TableColumn> NewColumns { get; set; } = new List<TableColumn>();
         public List<string> RemovedColumns { get; set; } = new List<string>();
+        public List<RenameColumnModel> RenamedColumns { get; set; } = new List<RenameColumnModel>();
 
         public void ToLower()
         {

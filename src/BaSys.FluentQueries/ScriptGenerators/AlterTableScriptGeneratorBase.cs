@@ -4,6 +4,7 @@ using BaSys.FluentQueries.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Text;
 
 namespace BaSys.FluentQueries.ScriptGenerators
@@ -25,33 +26,67 @@ namespace BaSys.FluentQueries.ScriptGenerators
             var query = new Query();
 
             _sb.Clear();
-            _sb.Append($"ALTER TABLE ");
-            AppendName(_model.TableName);
-            _sb.AppendLine();
-
             var n = 1;
-            foreach (var column in _model.NewColumns)
+
+            if (IsAlterTableExpressionNecessary())
             {
-                if (n > 1)
-                    _sb.AppendLine(",");
+                _sb.Append($"ALTER TABLE ");
+                AppendName(_model.TableName);
+                _sb.AppendLine();
 
-                AddColumnQuery(column, n);
+               
+                foreach (var column in _model.NewColumns)
+                {
+                    if (n > 1)
+                        _sb.AppendLine(",");
 
-                n++;
+                    AddColumnQuery(column, n);
+
+                    n++;
+                }
+
+                foreach (var columnName in _model.RemovedColumns)
+                {
+                    if (n > 1)
+                        _sb.AppendLine(",");
+
+                    _sb.Append("DROP COLUMN ");
+                    AppendName(columnName);
+
+                    n++;
+                }
+
+                if (_sqlDialect == SqlDialectKinds.PgSql)
+                {
+                    // Rename column in PG SQL.
+                    foreach (var renameModel in _model.RenamedColumns)
+                    {
+                        if (n > 1)
+                            _sb.AppendLine(",");
+
+                        _sb.Append("RENAME COLUMN ");
+                        AppendName(renameModel.OldName);
+                        _sb.Append(" TO ");
+                        AppendName(renameModel.NewName);
+
+                        n++;
+                    }
+                }
+
+                _sb.Append(';');
             }
 
-            foreach(var columnName in _model.RemovedColumns)
+            if (_sqlDialect == SqlDialectKinds.MsSql)
             {
-                if (n > 1)
-                    _sb.AppendLine(",");
-
-                _sb.Append("DROP COLUMN ");
-                AppendName(columnName);
-
-                n++;
+                // Rename column in MS SQL.
+                foreach (var renameModel in _model.RenamedColumns)
+                {
+                    if (n > 1)
+                        _sb.AppendLine("");
+                    var renameExpression = $"EXEC sp_rename '{_model.TableName}.{renameModel.OldName}', '{renameModel.NewName}', 'COLUMN';";
+                    _sb.Append(renameExpression);
+                }
             }
-
-            _sb.Append(';');
 
             query.Text = _sb.ToString(); 
 
@@ -92,6 +127,22 @@ namespace BaSys.FluentQueries.ScriptGenerators
                 _sb.Append(" UNIQUE");
             }
 
+        }
+
+        private bool IsAlterTableExpressionNecessary()
+        {
+            var result = false;
+
+            if (_sqlDialect == SqlDialectKinds.PgSql)
+            {
+                result = true;
+            }
+            else if (_sqlDialect == SqlDialectKinds.MsSql)
+            {
+                result = _model.NewColumns.Any() || _model.RemovedColumns.Any();
+            }
+
+            return result;
         }
     }
 }
