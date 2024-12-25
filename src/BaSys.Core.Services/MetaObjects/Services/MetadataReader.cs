@@ -159,6 +159,8 @@ namespace BaSys.Core.Features.MetaObjects.Services
         {
             var dataType = new DataType(metaObject.Uid)
             {
+                Kind = metaObjectKind.Name,
+                Name = metaObject.Name,
                 Title = $"{metaObjectKind.Title}.{metaObject.Title}",
                 IsPrimitive = false,
                 DbType = GetDbType(metaObject, primitiveDataTypes),
