@@ -44,12 +44,12 @@ namespace BaSys.Host.DAL.ModelConfigurations
                 var tableColumn = new TableColumn()
                 {
                     Name = columnSettings.Name,
-                    PrimaryKey = columnSettings.PrimaryKey,
-                    DbType = _dataTypesIndex.GetDbType(columnSettings.DataTypeUid),
-                    StringLength = columnSettings.StringLength,
-                    NumberDigits = columnSettings.NumberDigits,
-                    Required = columnSettings.Required,
-                    Unique = columnSettings.Unique,
+                    PrimaryKey = columnSettings.DataSettings.PrimaryKey,
+                    DbType = _dataTypesIndex.GetDbType(columnSettings.DataSettings.DataTypeUid),
+                    StringLength = columnSettings.DataSettings.StringLength,
+                    NumberDigits = columnSettings.DataSettings.NumberDigits,
+                    Required = columnSettings.DataSettings.Required,
+                    Unique = columnSettings.DataSettings.Unique,
                 };
 
                 AddColumn(tableColumn);

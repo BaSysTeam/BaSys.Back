@@ -159,7 +159,7 @@ namespace BaSys.Host.DAL.Helpers
 
             foreach (var column in tableSettings.Columns)
             {
-                var dataType = dataTypesIndex.GetDataTypeSafe(column.DataTypeUid);
+                var dataType = dataTypesIndex.GetDataTypeSafe(column.DataSettings.DataTypeUid);
                 dataTable.Columns.Add(column.Name, ConvertDbTypeToType(dataType.DbType));
 
             }

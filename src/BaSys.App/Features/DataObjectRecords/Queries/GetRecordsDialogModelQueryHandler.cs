@@ -114,7 +114,7 @@ namespace BaSys.App.Features.DataObjectRecords.Queries
 
                 foreach (var destinationColumn in destinationSettings.Header.Columns)
                 {
-                    if (destinationColumn.PrimaryKey)
+                    if (destinationColumn.DataSettings.PrimaryKey)
                     {
                         continue;
                     }
@@ -124,7 +124,7 @@ namespace BaSys.App.Features.DataObjectRecords.Queries
                         continue;
                     }
 
-                    var basSysDataType = dataTypesIndex.GetDataTypeSafe(destinationColumn.DataTypeUid);
+                    var basSysDataType = dataTypesIndex.GetDataTypeSafe(destinationColumn.DataSettings.DataTypeUid);
 
                     var column = new DataTableColumnDto()
                     {
@@ -132,7 +132,7 @@ namespace BaSys.App.Features.DataObjectRecords.Queries
                         Name = destinationColumn.Name,
                         Title = destinationColumn.Title,
                         DataType = DataTableColumnDto.ConvertType(basSysDataType.DbType),
-                        NumberDigits = destinationColumn.NumberDigits,
+                        NumberDigits = destinationColumn.DataSettings.NumberDigits,
                         IsReference = !basSysDataType.IsPrimitive
                     };
 

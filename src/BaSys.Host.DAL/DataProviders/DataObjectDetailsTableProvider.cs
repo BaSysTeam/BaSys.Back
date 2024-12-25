@@ -101,7 +101,7 @@ namespace BaSys.Host.DAL.DataProviders
 
             foreach (var column in _tableSettings.Columns)
             {
-                var dataType = _dataTypesIndex.GetDataTypeSafe(column.DataTypeUid);
+                var dataType = _dataTypesIndex.GetDataTypeSafe(column.DataSettings.DataTypeUid);
                 builder.Field(_config.TableName, column.Name, column.Name);
 
                 if (!dataType.IsPrimitive)

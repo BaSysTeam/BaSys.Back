@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Text;
-using System.Xml.Serialization;
 
 namespace BaSys.Metadata.Models
 {
@@ -12,6 +9,8 @@ namespace BaSys.Metadata.Models
     public sealed class DataType
     {
         public Guid Uid { get; }
+        public string Kind { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
         public string Title { get; set; } = string.Empty;
         public bool IsPrimitive { get; set; }
         public DbType DbType { get; set; }

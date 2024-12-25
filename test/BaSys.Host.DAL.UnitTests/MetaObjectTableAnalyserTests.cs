@@ -1,11 +1,6 @@
 ﻿using BaSys.Host.DAL.Helpers;
 using BaSys.Host.DAL.TableChangeAnalyse;
 using BaSys.Metadata.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BaSys.Host.DAL.UnitTests
 {
@@ -30,24 +25,21 @@ namespace BaSys.Host.DAL.UnitTests
                 Name = "header"
             };
 
-            var idColumn = new MetaObjectTableColumn()
+            var idColumn = new MetaObjectTableColumn(DataTypeDefaults.Int.Uid, true)
             {
                 Uid = Guid.NewGuid(),
                 Title = "Id",
                 Name = "id",
-                DataTypeUid = DataTypeDefaults.Int.Uid,
-                PrimaryKey = true,
             };
 
-            var titleColumn = new MetaObjectTableColumn()
+            var titleColumn = new MetaObjectTableColumn(DataTypeDefaults.String.Uid)
             {
                 Uid = Guid.NewGuid(),
                 Title = "Title",
                 Name = "title",
-                DataTypeUid = DataTypeDefaults.String.Uid,
-                Required = true,
-                StringLength = 100
             };
+            titleColumn.DataSettings.Required = true;
+            titleColumn.DataSettings.StringLength = 100;
 
             tableBefore.Columns.Add(idColumn);
             tableAfter.Columns.Add(idColumn);

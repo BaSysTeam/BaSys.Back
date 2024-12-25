@@ -21,7 +21,7 @@ namespace BaSys.Metadata.Models
         public List<MetaObjectTableColumn> ColumnsWithFormulas => Columns.Where(x=>!string.IsNullOrWhiteSpace(x.Formula)).ToList();
 
         [IgnoreMember]
-        public MetaObjectTableColumn PrimaryKey => Columns.FirstOrDefault(x => x.PrimaryKey);
+        public MetaObjectTableColumn PrimaryKey => Columns.FirstOrDefault(x => x.DataSettings.PrimaryKey);
 
         public MetaObjectTable Clone()
         {

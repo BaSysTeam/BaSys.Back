@@ -47,7 +47,7 @@ namespace BaSys.Host.DAL.DataProviders
             var primaryKey = objectSettings.Header.PrimaryKey;
             _primaryKeyFieldName = primaryKey.Name;
 
-            var pkDataType = dataTypeIndex.GetDataTypeSafe(primaryKey.DataTypeUid);
+            var pkDataType = dataTypeIndex.GetDataTypeSafe(primaryKey.DataSettings.DataTypeUid);
             _primaryKeyDbType = pkDataType.DbType;
         }
 

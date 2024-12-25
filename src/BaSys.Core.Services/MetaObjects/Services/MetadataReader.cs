@@ -159,6 +159,8 @@ namespace BaSys.Core.Features.MetaObjects.Services
         {
             var dataType = new DataType(metaObject.Uid)
             {
+                Kind = metaObjectKind.Name,
+                Name = metaObject.Name,
                 Title = $"{metaObjectKind.Title}.{metaObject.Title}",
                 IsPrimitive = false,
                 DbType = GetDbType(metaObject, primitiveDataTypes),
@@ -179,11 +181,11 @@ namespace BaSys.Core.Features.MetaObjects.Services
             if (headerTable == null)
                 return dbType;
 
-            var primaryKeyColumn = headerTable.Columns.FirstOrDefault(x => x.PrimaryKey);
+            var primaryKeyColumn = headerTable.Columns.FirstOrDefault(x => x.DataSettings.PrimaryKey);
             if (primaryKeyColumn == null)
                 return dbType;
 
-            var dataType = primitiveDataTypes.GetDataType(primaryKeyColumn.DataTypeUid);
+            var dataType = primitiveDataTypes.GetDataType(primaryKeyColumn.DataSettings.DataTypeUid);
             if (dataType == null)
                 return dbType;
 

@@ -47,9 +47,9 @@ namespace BaSys.Host.DAL.ModelConfigurations
             {
                 Name = pkSettings.Name,
                 PrimaryKey = true,
-                DbType = _dataTypesIndex.GetDbType(pkSettings.DataTypeUid),
-                StringLength = pkSettings.StringLength,
-                NumberDigits = pkSettings.NumberDigits,
+                DbType = _dataTypesIndex.GetDbType(pkSettings.DataSettings.DataTypeUid),
+                StringLength = pkSettings.DataSettings.StringLength,
+                NumberDigits = pkSettings.DataSettings.NumberDigits,
             };
             AddColumn(tableColumn);
         }
@@ -57,17 +57,17 @@ namespace BaSys.Host.DAL.ModelConfigurations
         private void AddColumns()
         {
             // Add other columns.
-            foreach (var columnSettings in _objectSettings.Header.Columns.Where(x => !x.PrimaryKey))
+            foreach (var columnSettings in _objectSettings.Header.Columns.Where(x => !x.DataSettings.PrimaryKey))
             {
                 var tableColumn = new TableColumn()
                 {
                     Name = columnSettings.Name,
                     PrimaryKey = false,
-                    DbType = _dataTypesIndex.GetDbType(columnSettings.DataTypeUid),
-                    StringLength = columnSettings.StringLength,
-                    NumberDigits = columnSettings.NumberDigits,
-                    Required = columnSettings.Required,
-                    Unique = columnSettings.Unique,
+                    DbType = _dataTypesIndex.GetDbType(columnSettings.DataSettings.DataTypeUid),
+                    StringLength = columnSettings.DataSettings.StringLength,
+                    NumberDigits = columnSettings.DataSettings.NumberDigits,
+                    Required = columnSettings.DataSettings.Required,
+                    Unique = columnSettings.DataSettings.Unique,
                 };
 
                 AddColumn(tableColumn);
