@@ -61,8 +61,7 @@ namespace BaSys.FluentQueries.UnitTests {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ALTER TABLE [cat_currency]
-        ///ADD [code] NVARCHAR(3) NOT NULL;.
+        ///   Looks up a localized string similar to ALTER TABLE [cat_currency] ADD [code] NVARCHAR(3) NOT NULL;.
         /// </summary>
         internal static string AlterTableAddOneColumnMsSQl {
             get {
@@ -71,8 +70,7 @@ namespace BaSys.FluentQueries.UnitTests {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ALTER TABLE &quot;cat_currency&quot;
-        ///ADD COLUMN &quot;code&quot; varchar(3) NOT NULL;.
+        ///   Looks up a localized string similar to ALTER TABLE &quot;cat_currency&quot; ADD COLUMN &quot;code&quot; varchar(3) NOT NULL;.
         /// </summary>
         internal static string AlterTableAddOneColumnPgSQl {
             get {
@@ -81,9 +79,8 @@ namespace BaSys.FluentQueries.UnitTests {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ALTER TABLE [cat_currency]
-        ///ADD [code] NVARCHAR(3) NOT NULL,
-        ///[title] NVARCHAR(100) NOT NULL;.
+        ///   Looks up a localized string similar to ALTER TABLE [cat_currency] ADD [code] NVARCHAR(3) NOT NULL;
+        ///ALTER TABLE [cat_currency] ADD [title] NVARCHAR(100) NOT NULL;.
         /// </summary>
         internal static string AlterTableAddTwoColumnsMsSQl {
             get {
@@ -92,9 +89,8 @@ namespace BaSys.FluentQueries.UnitTests {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ALTER TABLE &quot;cat_currency&quot;
-        ///ADD COLUMN &quot;code&quot; varchar(3) NOT NULL,
-        ///ADD COLUMN &quot;title&quot; varchar(100) NOT NULL;.
+        ///   Looks up a localized string similar to ALTER TABLE &quot;cat_currency&quot; ADD COLUMN &quot;code&quot; varchar(3) NOT NULL;
+        ///ALTER TABLE &quot;cat_currency&quot; ADD COLUMN &quot;title&quot; varchar(100) NOT NULL;.
         /// </summary>
         internal static string AlterTableAddTwoColumnsPgSQl {
             get {
@@ -103,8 +99,7 @@ namespace BaSys.FluentQueries.UnitTests {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ALTER TABLE [cat_currency]
-        ///ALTER COLUMN [rate] NVARCHAR(100) NULL;.
+        ///   Looks up a localized string similar to ALTER TABLE [cat_currency] ALTER COLUMN [rate] NVARCHAR(100) NULL;.
         /// </summary>
         internal static string AlterTableChangeDataTypeOfColumnMsSQl {
             get {
@@ -113,8 +108,7 @@ namespace BaSys.FluentQueries.UnitTests {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ALTER TABLE &quot;cat_currency&quot;
-        ///ALTER COLUMN &quot;rate&quot; varchar(100) NULL USING &quot;rate&quot;::varchar(100);.
+        ///   Looks up a localized string similar to ALTER TABLE &quot;cat_currency&quot; ALTER COLUMN &quot;rate&quot; TYPE varchar(100) USING &quot;rate&quot;::varchar(100);.
         /// </summary>
         internal static string AlterTableChangeDataTypeOfColumnPgSQl {
             get {
@@ -123,8 +117,27 @@ namespace BaSys.FluentQueries.UnitTests {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ALTER TABLE [cat_currency]
-        ///DROP COLUMN [code];.
+        ///   Looks up a localized string similar to ALTER TABLE [cat_currency] ALTER COLUMN [rate] NVARCHAR(100) NULL;
+        ///ALTER TABLE [cat_currency] ALTER COLUMN [multiplier] DECIMAL NULL;.
+        /// </summary>
+        internal static string AlterTableChangeDataTypeOfTwoColumnsMsSQl {
+            get {
+                return ResourceManager.GetString("AlterTableChangeDataTypeOfTwoColumnsMsSQl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ALTER TABLE &quot;cat_currency&quot; ALTER COLUMN &quot;rate&quot; TYPE varchar(100) USING &quot;rate&quot;::varchar(100);
+        ///ALTER TABLE &quot;cat_currency&quot; ALTER COLUMN &quot;multiplier&quot; TYPE numeric USING &quot;multiplier&quot;::numeric;.
+        /// </summary>
+        internal static string AlterTableChangeDataTypeOfTWoColumnsPgSQl {
+            get {
+                return ResourceManager.GetString("AlterTableChangeDataTypeOfTWoColumnsPgSQl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ALTER TABLE [cat_currency] DROP COLUMN [code];.
         /// </summary>
         internal static string AlterTableDropOneColumnMsSQl {
             get {
@@ -133,8 +146,7 @@ namespace BaSys.FluentQueries.UnitTests {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ALTER TABLE &quot;cat_currency&quot;
-        ///DROP COLUMN &quot;code&quot;;.
+        ///   Looks up a localized string similar to ALTER TABLE &quot;cat_currency&quot; DROP COLUMN &quot;code&quot;;.
         /// </summary>
         internal static string AlterTableDropOneColumnPgSQl {
             get {
@@ -143,9 +155,8 @@ namespace BaSys.FluentQueries.UnitTests {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ALTER TABLE [cat_currency]
-        ///DROP COLUMN [code],
-        ///DROP COLUMN [title];.
+        ///   Looks up a localized string similar to ALTER TABLE [cat_currency] DROP COLUMN [code];
+        ///ALTER TABLE [cat_currency] DROP COLUMN [title];.
         /// </summary>
         internal static string AlterTableDropTwoColumnsMsSQl {
             get {
@@ -154,9 +165,8 @@ namespace BaSys.FluentQueries.UnitTests {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ALTER TABLE &quot;cat_currency&quot;
-        ///DROP COLUMN &quot;code&quot;,
-        ///DROP COLUMN &quot;title&quot;;.
+        ///   Looks up a localized string similar to ALTER TABLE &quot;cat_currency&quot; DROP COLUMN &quot;code&quot;;
+        ///ALTER TABLE &quot;cat_currency&quot; DROP COLUMN &quot;title&quot;;.
         /// </summary>
         internal static string AlterTableDropTwoColumnsPgSQl {
             get {
@@ -174,8 +184,7 @@ namespace BaSys.FluentQueries.UnitTests {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ALTER TABLE &quot;cat_currency&quot;
-        ///RENAME COLUMN &quot;title&quot; TO &quot;description&quot;;.
+        ///   Looks up a localized string similar to ALTER TABLE &quot;cat_currency&quot; RENAME COLUMN &quot;title&quot; TO &quot;description&quot;;.
         /// </summary>
         internal static string AlterTableRenameColumnPgSQl {
             get {

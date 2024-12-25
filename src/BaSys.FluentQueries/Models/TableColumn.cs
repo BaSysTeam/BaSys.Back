@@ -69,6 +69,19 @@ namespace BaSys.FluentQueries.Models
             return this;
         }
 
+        public TableColumn Clone()
+        {
+            var clone = new TableColumn();
+            clone.Name = Name;
+            clone.DbType = DbType;
+            clone.NumberDigits = NumberDigits;
+            clone.StringLength = StringLength;
+            clone.PrimaryKey = PrimaryKey;
+            clone.Unique = Unique;
+            clone.Required = Required;
+            return clone;
+        }
+
         public override string ToString()
         {
             var sb = new StringBuilder();   

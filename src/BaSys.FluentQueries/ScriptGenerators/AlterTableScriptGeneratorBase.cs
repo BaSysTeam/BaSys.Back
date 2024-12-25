@@ -9,11 +9,11 @@ using System.Text;
 
 namespace BaSys.FluentQueries.ScriptGenerators
 {
-    public abstract class AlterTableScriptGeneratorBase: ScriptGeneratorBase, IQueryBuilder
+    public abstract class AlterTableScriptGeneratorBase : ScriptGeneratorBase, IQueryBuilder
     {
         protected readonly AlterTableModel _model;
 
-        protected AlterTableScriptGeneratorBase(SqlDialectKinds sqlDialect, AlterTableModel model):base(sqlDialect)
+        protected AlterTableScriptGeneratorBase(SqlDialectKinds sqlDialect, AlterTableModel model) : base(sqlDialect)
         {
             _model = model;
         }
@@ -28,83 +28,44 @@ namespace BaSys.FluentQueries.ScriptGenerators
             _sb.Clear();
             var n = 1;
 
-            if (IsAlterTableExpressionNecessary())
+            foreach (var column in _model.NewColumns)
             {
-                _sb.Append($"ALTER TABLE ");
-                AppendName(_model.TableName);
-                _sb.AppendLine();
-
-               
-                foreach (var column in _model.NewColumns)
-                {
-                    if (n > 1)
-                        _sb.AppendLine(",");
-
-                    AddColumnQuery(column, n);
-
-                    n++;
-                }
-
-                foreach (var column in _model.ChangedColumns)
-                {
-                    if (n > 1)
-                        _sb.AppendLine(",");
-
-                    AlterColumnQuery(column, n);
-
-                    n++;
-                }
-
-                foreach (var columnName in _model.RemovedColumns)
-                {
-                    if (n > 1)
-                        _sb.AppendLine(",");
-
-                    _sb.Append("DROP COLUMN ");
-                    AppendName(columnName);
-
-                    n++;
-                }
-
-                if (_sqlDialect == SqlDialectKinds.PgSql)
-                {
-                    // Rename column in PG SQL.
-                    foreach (var renameModel in _model.RenamedColumns)
-                    {
-                        if (n > 1)
-                            _sb.AppendLine(",");
-
-                        _sb.Append("RENAME COLUMN ");
-                        AppendName(renameModel.OldName);
-                        _sb.Append(" TO ");
-                        AppendName(renameModel.NewName);
-
-                        n++;
-                    }
-                }
-
-                _sb.Append(';');
+                AddColumnQuery(column, n);
+                n++;
             }
 
-            if (_sqlDialect == SqlDialectKinds.MsSql)
+            foreach (var column in _model.ChangedColumns)
             {
-                // Rename column in MS SQL.
-                foreach (var renameModel in _model.RenamedColumns)
-                {
-                    if (n > 1)
-                        _sb.AppendLine("");
-                    var renameExpression = $"EXEC sp_rename '{_model.TableName}.{renameModel.OldName}', '{renameModel.NewName}', 'COLUMN';";
-                    _sb.Append(renameExpression);
-                }
+                AlterColumnQuery(column, n);
+                n++;
             }
 
-            query.Text = _sb.ToString(); 
+            foreach (var columnName in _model.RemovedColumns)
+            {
+                DropColumnQuery(columnName, n);
+                n++;
+            }
+
+            foreach (var renameModel in _model.RenamedColumns)
+            {
+                RenameColumnQuery(renameModel, n);
+                n++;
+            }
+
+            query.Text = _sb.ToString();
 
             return query;
         }
 
         private void AlterColumnQuery(TableColumn column, int counter)
         {
+            if (counter > 1)
+                AppendLine("");
+
+            Append("ALTER TABLE ");
+            AppendName(_model.TableName);
+            Append(' ');
+
             var dataTypeStr = GetDataType(column.DbType, column.StringLength);
 
             _sb.Append("ALTER COLUMN ");
@@ -140,18 +101,25 @@ namespace BaSys.FluentQueries.ScriptGenerators
                 AppendName(column.Name);
                 _sb.Append("::");
                 _sb.Append(dataTypeStr);
-                
+
             }
+
+            Append(';');
         }
 
         private void AddColumnQuery(TableColumn column, int counter)
         {
+            if (counter > 1)
+                AppendLine("");
+
+            Append("ALTER TABLE ");
+            AppendName(_model.TableName);
+            Append(' ');
+
             switch (_sqlDialect)
             {
                 case SqlDialectKinds.MsSql:
-                    if (counter == 1)
-                      _sb.Append("ADD ");
-
+                    _sb.Append("ADD ");
                     break;
                 case SqlDialectKinds.PgSql:
                     _sb.Append("ADD COLUMN ");
@@ -177,25 +145,50 @@ namespace BaSys.FluentQueries.ScriptGenerators
             {
                 _sb.Append(" UNIQUE");
             }
-
+            _sb.Append(';');
         }
 
-        private bool IsAlterTableExpressionNecessary()
+        private void DropColumnQuery(string columnName, int counter)
         {
-            var result = false;
+            if (counter > 1)
+                AppendLine("");
 
-            if (_sqlDialect == SqlDialectKinds.PgSql)
-            {
-                result = true;
-            }
-            else if (_sqlDialect == SqlDialectKinds.MsSql)
-            {
-                result = _model.NewColumns.Any() 
-                    || _model.RemovedColumns.Any() 
-                    || _model.ChangedColumns.Any();
-            }
+            Append("ALTER TABLE ");
+            AppendName(_model.TableName);
+            Append(' ');
 
-            return result;
+            Append("DROP COLUMN ");
+            AppendName(columnName);
+
+            Append(';');
         }
+
+        private void RenameColumnQuery(RenameColumnModel renameModel, int counter)
+        {
+            if (counter > 1)
+                AppendLine("");
+
+            if (_sqlDialect == SqlDialectKinds.MsSql)
+            {
+                // Rename column in MS SQL.
+                var renameExpression = $"EXEC sp_rename '{_model.TableName}.{renameModel.OldName}', '{renameModel.NewName}', 'COLUMN';";
+                _sb.Append(renameExpression);
+            }
+            else if (_sqlDialect == SqlDialectKinds.PgSql)
+            {
+                Append("ALTER TABLE ");
+                AppendName(_model.TableName);
+                Append(' ');
+
+                _sb.Append("RENAME COLUMN ");
+                AppendName(renameModel.OldName);
+                _sb.Append(" TO ");
+                AppendName(renameModel.NewName);
+
+                Append(';');
+            }
+        }
+
+      
     }
 }

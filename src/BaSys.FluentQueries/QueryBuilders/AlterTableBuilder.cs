@@ -4,6 +4,7 @@ using BaSys.FluentQueries.Models;
 using BaSys.FluentQueries.ScriptGenerators;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace BaSys.FluentQueries.QueryBuilders
@@ -40,10 +41,25 @@ namespace BaSys.FluentQueries.QueryBuilders
             return this;
         }
 
+        public AlterTableBuilder ChangeColumn(TableColumn column)
+        {
+            _model.ChangedColumns.Add(column);
+            return this;
+        }
+
+        public AlterTableBuilder Rename(string oldName, string newName)
+        {
+            _model.RenamedColumns.Add(new RenameColumnModel(oldName, newName));
+            return this;
+        }
+
         public static AlterTableBuilder Make()
         {
             return new AlterTableBuilder();
         }
+
+     
+
         public static AlterTableBuilder Make(AlterTableModel model)
         {
             return new AlterTableBuilder(model);

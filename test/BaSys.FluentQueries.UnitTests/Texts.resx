@@ -118,55 +118,52 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AlterTableAddOneColumnMsSQl" xml:space="preserve">
-    <value>ALTER TABLE [cat_currency]
-ADD [code] NVARCHAR(3) NOT NULL;</value>
+    <value>ALTER TABLE [cat_currency] ADD [code] NVARCHAR(3) NOT NULL;</value>
   </data>
   <data name="AlterTableAddOneColumnPgSQl" xml:space="preserve">
-    <value>ALTER TABLE "cat_currency"
-ADD COLUMN "code" varchar(3) NOT NULL;</value>
+    <value>ALTER TABLE "cat_currency" ADD COLUMN "code" varchar(3) NOT NULL;</value>
   </data>
   <data name="AlterTableAddTwoColumnsMsSQl" xml:space="preserve">
-    <value>ALTER TABLE [cat_currency]
-ADD [code] NVARCHAR(3) NOT NULL,
-[title] NVARCHAR(100) NOT NULL;</value>
+    <value>ALTER TABLE [cat_currency] ADD [code] NVARCHAR(3) NOT NULL;
+ALTER TABLE [cat_currency] ADD [title] NVARCHAR(100) NOT NULL;</value>
   </data>
   <data name="AlterTableAddTwoColumnsPgSQl" xml:space="preserve">
-    <value>ALTER TABLE "cat_currency"
-ADD COLUMN "code" varchar(3) NOT NULL,
-ADD COLUMN "title" varchar(100) NOT NULL;</value>
+    <value>ALTER TABLE "cat_currency" ADD COLUMN "code" varchar(3) NOT NULL;
+ALTER TABLE "cat_currency" ADD COLUMN "title" varchar(100) NOT NULL;</value>
   </data>
   <data name="AlterTableChangeDataTypeOfColumnMsSQl" xml:space="preserve">
-    <value>ALTER TABLE [cat_currency]
-ALTER COLUMN [rate] NVARCHAR(100) NULL;</value>
+    <value>ALTER TABLE [cat_currency] ALTER COLUMN [rate] NVARCHAR(100) NULL;</value>
   </data>
   <data name="AlterTableChangeDataTypeOfColumnPgSQl" xml:space="preserve">
-    <value>ALTER TABLE "cat_currency"
-ALTER COLUMN "rate" varchar(100) NULL USING "rate"::varchar(100);</value>
+    <value>ALTER TABLE "cat_currency" ALTER COLUMN "rate" TYPE varchar(100) USING "rate"::varchar(100);</value>
+  </data>
+  <data name="AlterTableChangeDataTypeOfTwoColumnsMsSQl" xml:space="preserve">
+    <value>ALTER TABLE [cat_currency] ALTER COLUMN [rate] NVARCHAR(100) NULL;
+ALTER TABLE [cat_currency] ALTER COLUMN [multiplier] DECIMAL NULL;</value>
+  </data>
+  <data name="AlterTableChangeDataTypeOfTWoColumnsPgSQl" xml:space="preserve">
+    <value>ALTER TABLE "cat_currency" ALTER COLUMN "rate" TYPE varchar(100) USING "rate"::varchar(100);
+ALTER TABLE "cat_currency" ALTER COLUMN "multiplier" TYPE numeric USING "multiplier"::numeric;</value>
   </data>
   <data name="AlterTableDropOneColumnMsSQl" xml:space="preserve">
-    <value>ALTER TABLE [cat_currency]
-DROP COLUMN [code];</value>
+    <value>ALTER TABLE [cat_currency] DROP COLUMN [code];</value>
   </data>
   <data name="AlterTableDropOneColumnPgSQl" xml:space="preserve">
-    <value>ALTER TABLE "cat_currency"
-DROP COLUMN "code";</value>
+    <value>ALTER TABLE "cat_currency" DROP COLUMN "code";</value>
   </data>
   <data name="AlterTableDropTwoColumnsMsSQl" xml:space="preserve">
-    <value>ALTER TABLE [cat_currency]
-DROP COLUMN [code],
-DROP COLUMN [title];</value>
+    <value>ALTER TABLE [cat_currency] DROP COLUMN [code];
+ALTER TABLE [cat_currency] DROP COLUMN [title];</value>
   </data>
   <data name="AlterTableDropTwoColumnsPgSQl" xml:space="preserve">
-    <value>ALTER TABLE "cat_currency"
-DROP COLUMN "code",
-DROP COLUMN "title";</value>
+    <value>ALTER TABLE "cat_currency" DROP COLUMN "code";
+ALTER TABLE "cat_currency" DROP COLUMN "title";</value>
   </data>
   <data name="AlterTableRenameColumnMsSQl" xml:space="preserve">
     <value>EXEC sp_rename 'cat_currency.title', 'description', 'COLUMN';</value>
   </data>
   <data name="AlterTableRenameColumnPgSQl" xml:space="preserve">
-    <value>ALTER TABLE "cat_currency"
-RENAME COLUMN "title" TO "description";</value>
+    <value>ALTER TABLE "cat_currency" RENAME COLUMN "title" TO "description";</value>
   </data>
   <data name="CreateTableMetadataGroupMsSql" xml:space="preserve">
     <value>CREATE TABLE sys_metadata_groups (

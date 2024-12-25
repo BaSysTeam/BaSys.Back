@@ -17,6 +17,7 @@ namespace BaSys.FluentQueries.UnitTests
         private TableColumn _codeColumn;
         private TableColumn _titleColumn;
         private TableColumn _rateColumn;
+        private TableColumn _multiplierColumn;
 
         [SetUp]
         public void SetUp()
@@ -42,6 +43,13 @@ namespace BaSys.FluentQueries.UnitTests
                 Name = "rate",
                 DbType = DbType.String,
                 StringLength = 100
+            };
+
+            _multiplierColumn = new TableColumn()
+            {
+                Name = "multiplier",
+                DbType = DbType.Decimal,
+                NumberDigits = 3,
             };
         }
 
@@ -150,6 +158,25 @@ namespace BaSys.FluentQueries.UnitTests
             model.TableName = "cat_currency";
             model.ChangedColumns.Add(_rateColumn);
            
+
+            var builder = AlterTableBuilder.Make(model);
+
+            var query = builder.Query(dialectKind);
+
+            PrintQuery(dialectKind, query);
+
+            var checkText = Texts.ResourceManager.GetString(checkKey);
+            Assert.That(query.Text, Is.EqualTo(checkText));
+        }
+
+        [TestCase(SqlDialectKinds.MsSql, "AlterTableChangeDataTypeOfTwoColumnsMsSQl")]
+        [TestCase(SqlDialectKinds.PgSql, "AlterTableChangeDataTypeOfTWoColumnsPgSQl")]
+        public void AlterTable_ChangeDataTypeOfTwoColumns_Query(SqlDialectKinds dialectKind, string checkKey)
+        {
+            var model = new AlterTableModel();
+            model.TableName = "cat_currency";
+            model.ChangedColumns.Add(_rateColumn);
+            model.ChangedColumns.Add(_multiplierColumn);
 
             var builder = AlterTableBuilder.Make(model);
 
