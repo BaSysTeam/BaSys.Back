@@ -1,17 +1,11 @@
 ﻿using BaSys.Common.Enums;
-using BaSys.FluentQueries.IntegrationTests.Infrastructure;
-using BaSys.Host.DAL.TableManagers;
-using BaSys.Host.DAL;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BaSys.FluentQueries.QueryBuilders;
-using Dapper;
+using BaSys.FluentQueries.Abstractions;
 using BaSys.FluentQueries.Enums;
-using BaSys.SuperAdmin.DAL.Models;
+using BaSys.FluentQueries.IntegrationTests.Infrastructure;
+using BaSys.FluentQueries.QueryBuilders;
+using BaSys.Host.DAL;
+using Dapper;
+using System.Data;
 
 namespace BaSys.FluentQueries.IntegrationTests
 {
@@ -87,6 +81,32 @@ namespace BaSys.FluentQueries.IntegrationTests
 
         [TestCase("pg_test_base")]
         [TestCase("ms_test_base")]
+        public async Task CreateTable_IntPrimaryKeyWhithUniqueColumn_Table(string connectionStringName)
+        {
+
+            var builder = CreateTableBuilder.Make()
+              .Table("int_key_example")
+              .PrimaryKey("Id", DbType.Int32)
+              .StringColumn("name", 30, true, true);
+
+            var factory = new BaSysConnectionFactory();
+
+            var dbInfoRecord = _connectionStringService.GetDbInfoRecord(connectionStringName);
+
+            using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
+            {
+                var dialect = (SqlDialectKinds)(int)dbInfoRecord.DbKind;
+                var query = builder.Query(dialect);
+
+                PrintQuery(dialect, query);
+                await connection.ExecuteAsync(query.Text);
+            }
+
+            Assert.Pass();
+        }
+
+        [TestCase("pg_test_base")]
+        [TestCase("ms_test_base")]
         public async Task CreateTable_LongPrimaryKey_Table(string connectionStringName)
         {
 
@@ -131,6 +151,13 @@ namespace BaSys.FluentQueries.IntegrationTests
             }
 
             Assert.Pass();
+        }
+
+        private void PrintQuery(SqlDialectKinds dialectKind, IQuery query)
+        {
+            Console.WriteLine(dialectKind);
+            Console.WriteLine(query);
+            Console.WriteLine("==============");
         }
     }
 }

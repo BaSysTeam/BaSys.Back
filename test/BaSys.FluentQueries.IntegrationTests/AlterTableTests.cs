@@ -302,6 +302,61 @@ namespace BaSys.FluentQueries.IntegrationTests
 
         [TestCase("pg_test_base")]
         [TestCase("ms_test_base")]
+        public async Task AlterTable_ChangeUniqueOfColumn_ExecuteQuery(string connectionStringName)
+        {
+
+            var rateColumnBefore = _rateColumn.Clone();
+            rateColumnBefore.DbType = DbType.Decimal;
+
+            _createBuilder.Column(rateColumnBefore);
+
+            // Set unique.
+            var rateColumn = _rateColumn.Clone();
+            rateColumn.Unique = true;
+            var rateChangeModel = new ChangeColumnModel(rateColumn, false, false, true);
+
+            var addUniqueBuilder = AlterTableBuilder.Make()
+                .Table(_tableName)
+                .ChangeColumn(rateChangeModel);
+
+            // Drop unique
+            var rateColumnNotUnique = _rateColumn.Clone();
+            rateColumnNotUnique.Unique = false;
+            var rateNotUniqueChangeModel = new ChangeColumnModel(rateColumnNotUnique, false, false, true);
+
+            var dropUniqueBuilder = AlterTableBuilder.Make()
+                .Table(_tableName)
+                .ChangeColumn(rateNotUniqueChangeModel);
+
+
+            var factory = new BaSysConnectionFactory();
+
+            var dbInfoRecord = _connectionStringService.GetDbInfoRecord(connectionStringName);
+
+            using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
+            {
+                var dialect = (SqlDialectKinds)(int)dbInfoRecord.DbKind;
+                var createQuery = _createBuilder.Query(dialect);
+
+                // Add uniquer constraint.
+                var alterQuery = addUniqueBuilder.Query(dialect);
+
+                // Drop uniquer constraint.
+               var dropUniqueQuery = dropUniqueBuilder.Query(dialect);
+
+                PrintQuery(dialect, alterQuery);
+                PrintQuery(dialect, dropUniqueQuery);
+
+                await connection.ExecuteAsync(createQuery.Text);
+                await connection.ExecuteAsync(alterQuery.Text);
+                await connection.ExecuteAsync(dropUniqueQuery.Text);
+            }
+
+            Assert.Pass();
+        }
+
+        [TestCase("pg_test_base")]
+        [TestCase("ms_test_base")]
         public async Task AlterTable_ChangeDataTypeOfTwoColumns_ExecuteQuery(string connectionStringName)
         {
 

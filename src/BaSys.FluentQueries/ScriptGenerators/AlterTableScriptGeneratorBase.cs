@@ -149,7 +149,14 @@ namespace BaSys.FluentQueries.ScriptGenerators
 
             if (changeModel.UniqueChanged)
             {
-
+                if (column.Unique)
+                {
+                    result = AddUniqueConstraintQuery(_model.TableName, column, result);
+                }
+                else
+                {
+                    result = DropUniqueConstraintQuery(column, result);
+                }
             }
 
 
@@ -244,6 +251,26 @@ namespace BaSys.FluentQueries.ScriptGenerators
             return counter + 1;
         }
 
+       
+
+        private int DropUniqueConstraintQuery(TableColumn column, int counter)
+        {
+            if (counter > 1)
+                AppendLine("");
+
+            Append("ALTER TABLE ");
+            AppendName(_model.TableName);
+            Append(' ');
+
+            var constraintName = UniqueConstraintName(_model.TableName, column.Name);
+            Append("DROP CONSTRAINT ");
+            Append(constraintName);
+            Append(';');
+
+            return counter + 1;
+        }
+
+       
 
     }
 }

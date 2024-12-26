@@ -11,6 +11,22 @@ namespace BaSys.FluentQueries.Models
         public bool UniqueChanged { get; set; }
         public TableColumn Column { get; set; } = new TableColumn();
 
+        public ChangeColumnModel()
+        {
+            
+        }
+
+        public ChangeColumnModel(TableColumn column,
+                                 bool dataTypeChanged,
+                                 bool requiredChanged,
+                                 bool uniqueChanged)
+        {
+            Column = column;
+            DataTypeChanged = dataTypeChanged;
+            RequiredChanged = requiredChanged;
+            UniqueChanged = uniqueChanged;
+        }
+
         public override string ToString()
         {
             return $"{Column}";
