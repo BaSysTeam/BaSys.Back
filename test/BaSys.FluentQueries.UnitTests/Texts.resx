@@ -131,6 +131,13 @@ ALTER TABLE [cat_currency] ADD [title] NVARCHAR(100) NOT NULL;</value>
     <value>ALTER TABLE "cat_currency" ADD COLUMN "code" varchar(3) NOT NULL;
 ALTER TABLE "cat_currency" ADD COLUMN "title" varchar(100) NOT NULL;</value>
   </data>
+  <data name="AlterTableChangeDataTypeAndRequiredTrueOfColumnPgSQl" xml:space="preserve">
+    <value>ALTER TABLE "cat_currency" ALTER COLUMN "rate" TYPE varchar(100) USING "rate"::varchar(100);
+ALTER TABLE "cat_currency" ALTER COLUMN "rate" SET NOT NULL;</value>
+  </data>
+  <data name="AlterTableChangeDataTypeAndRequiredTrueOfColumnMsSQl" xml:space="preserve">
+    <value>ALTER TABLE [cat_currency] ALTER COLUMN [rate] NVARCHAR(100) NOT NULL;</value>
+  </data>
   <data name="AlterTableChangeDataTypeOfColumnMsSQl" xml:space="preserve">
     <value>ALTER TABLE [cat_currency] ALTER COLUMN [rate] NVARCHAR(100) NULL;</value>
   </data>
@@ -290,5 +297,12 @@ LIMIT 1;</value>
     <value>SELECT *
 FROM "my_table"
 LIMIT 1;</value>
+  </data>
+  <data name="AlterTableChangeDataTypeAndRequiredFalseOfColumnMsSQl" xml:space="preserve">
+    <value>ALTER TABLE [cat_currency] ALTER COLUMN [rate] NVARCHAR(100) NULL;</value>
+  </data>
+  <data name="AlterTableChangeDataTypeAndRequiredFalseOfColumnPgSQl" xml:space="preserve">
+    <value>ALTER TABLE "cat_currency" ALTER COLUMN "rate" TYPE varchar(100) USING "rate"::varchar(100);
+ALTER TABLE "cat_currency" ALTER COLUMN "rate" DROP NOT NULL;</value>
   </data>
 </root>

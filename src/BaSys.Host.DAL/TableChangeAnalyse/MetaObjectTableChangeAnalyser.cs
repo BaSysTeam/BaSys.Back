@@ -108,8 +108,11 @@ namespace BaSys.Host.DAL.TableChangeAnalyse
                             TableUid = _tableAfter.Uid,
                             TableName = _tableAfter.Name,
                             Column = column,
+                            RequiredChanged = column.DataSettings.Required != columnBefore.DataSettings.Required,
+                            UniqueChanged = column.DataSettings.Unique != columnBefore.DataSettings.Unique,
+                            DataTypeChanged = !column.DataSettings.DataTypeEquals(columnBefore.DataSettings)
                         };
-
+                       
                         _commands.Add(changeColumnCommand);
                         NeedAlterTable = true;
 
@@ -150,7 +153,13 @@ namespace BaSys.Host.DAL.TableChangeAnalyse
                 {
 
                     var tableColumn = CreateTableColumn(dataTypesIndex, changeColumnCommand);
-                    model.ChangedColumns.Add(tableColumn);
+                    var changeModel = new ChangeColumnModel();
+                    changeModel.Column = tableColumn;
+                    changeModel.RequiredChanged = changeColumnCommand.RequiredChanged;
+                    changeModel.UniqueChanged = changeColumnCommand.UniqueChanged;
+                    changeModel.DataTypeChanged = changeColumnCommand.DataTypeChanged;
+
+                    model.ChangedColumns.Add(changeModel);
                 }
             }
 

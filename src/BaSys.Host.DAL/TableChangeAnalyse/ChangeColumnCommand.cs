@@ -7,6 +7,9 @@ namespace BaSys.Host.DAL.TableChangeAnalyse
     {
         public Guid TableUid { get; set; }
         public string TableName { get; set; } = string.Empty;
+        public bool DataTypeChanged { get; set; }
+        public bool RequiredChanged { get; set; }
+        public bool UniqueChanged { get; set; }
         public MetaObjectTableColumn Column { get; set; } = new MetaObjectTableColumn();
 
         public override string ToString()

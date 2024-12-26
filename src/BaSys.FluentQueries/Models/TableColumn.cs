@@ -182,5 +182,7 @@ namespace BaSys.FluentQueries.Models
             type = Nullable.GetUnderlyingType(type);
             return (type != null) && type.IsEnum;
         }
+
+       
     }
 }

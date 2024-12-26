@@ -41,9 +41,9 @@ namespace BaSys.FluentQueries.QueryBuilders
             return this;
         }
 
-        public AlterTableBuilder ChangeColumn(TableColumn column)
+        public AlterTableBuilder ChangeColumn(ChangeColumnModel changeModel)
         {
-            _model.ChangedColumns.Add(column);
+            _model.ChangedColumns.Add(changeModel);
             return this;
         }
 

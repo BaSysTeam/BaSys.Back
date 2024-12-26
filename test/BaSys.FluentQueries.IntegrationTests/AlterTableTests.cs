@@ -232,9 +232,54 @@ namespace BaSys.FluentQueries.IntegrationTests
 
             _createBuilder.Column(rateColumnBefore);
 
+            var rateChangeModel = new ChangeColumnModel();
+            rateChangeModel.Column = _rateColumn;
+            rateChangeModel.DataTypeChanged = true;
+
             var alterBuilder = AlterTableBuilder.Make()
                 .Table(_tableName)
-                .ChangeColumn(_rateColumn);
+                .ChangeColumn(rateChangeModel);
+
+            var factory = new BaSysConnectionFactory();
+
+            var dbInfoRecord = _connectionStringService.GetDbInfoRecord(connectionStringName);
+
+            using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
+            {
+                var dialect = (SqlDialectKinds)(int)dbInfoRecord.DbKind;
+                var createQuery = _createBuilder.Query(dialect);
+                var alterQuery = alterBuilder.Query(dialect);
+
+                PrintQuery(dialect, alterQuery);
+
+                await connection.ExecuteAsync(createQuery.Text);
+                await connection.ExecuteAsync(alterQuery.Text);
+            }
+
+            Assert.Pass();
+        }
+
+        [TestCase("pg_test_base", true)]
+        [TestCase("pg_test_base", false)]
+        [TestCase("ms_test_base", true)]
+        [TestCase("ms_test_base", false)]
+        public async Task AlterTable_ChangeDataTypeAndRequiredOfColumn_ExecuteQuery(string connectionStringName, bool required)
+        {
+
+            var rateColumnBefore = _rateColumn.Clone();
+            rateColumnBefore.DbType = DbType.Decimal;
+
+            _createBuilder.Column(rateColumnBefore);
+
+            var rateChangeModel = new ChangeColumnModel();
+            rateChangeModel.Column = _rateColumn;
+            rateChangeModel.Column.Required = required;
+            rateChangeModel.DataTypeChanged = true;
+            rateChangeModel.RequiredChanged = true;
+
+            var alterBuilder = AlterTableBuilder.Make()
+                .Table(_tableName)
+                .ChangeColumn(rateChangeModel);
 
             var factory = new BaSysConnectionFactory();
 
@@ -268,10 +313,18 @@ namespace BaSys.FluentQueries.IntegrationTests
 
             _createBuilder.Column(rateColumnBefore).Column(multiplierColumnBefore);
 
+            var rateChangeModel = new ChangeColumnModel();
+            rateChangeModel.Column = _rateColumn;
+            rateChangeModel.DataTypeChanged = true;
+
+            var multiplierChangeModel = new ChangeColumnModel();
+            multiplierChangeModel.Column = _multiplierColumn;
+            multiplierChangeModel.DataTypeChanged = true;
+
             var alterBuilder = AlterTableBuilder.Make()
                 .Table(_tableName)
-                .ChangeColumn(_rateColumn)
-                .ChangeColumn(_multiplierColumn);
+                .ChangeColumn(rateChangeModel)
+                .ChangeColumn(multiplierChangeModel);
 
             var factory = new BaSysConnectionFactory();
 

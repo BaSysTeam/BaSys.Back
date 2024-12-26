@@ -130,7 +130,82 @@ namespace BaSys.Host.DAL.UnitTests
             Assert.That(analyser.Commands.Count, Is.EqualTo(1));
             Assert.That(analyser.Commands[0] is ChangeColumnCommand, Is.True);
             Assert.That(analyser.NeedAlterTable, Is.True);
-            Assert.That(((ChangeColumnCommand)analyser.Commands[0]).Column.Name, Is.EqualTo("rate"));
+
+            var command = (ChangeColumnCommand)analyser.Commands[0];
+            Assert.That(command.Column.Name, Is.EqualTo("rate"));
+            Assert.That(command.DataTypeChanged, Is.True);
+
+        }
+
+        [Test]
+        public void Analyse_ChangeDataTypeOfColumnAndRequired_Commands()
+        {
+            var columnAfter = _rateColumn.Clone();
+            columnAfter.DataSettings.DataTypeUid = DataTypeDefaults.String.Uid;
+            columnAfter.DataSettings.Required = true;
+
+            _headerBefore.Columns.Add(_rateColumn);
+            _headerAfter.Columns.Add(columnAfter);
+
+            var analyser = new MetaObjectTableChangeAnalyser(_headerBefore, _headerAfter);
+            analyser.Analyze();
+
+            Assert.That(analyser.Commands.Count, Is.EqualTo(1));
+            Assert.That(analyser.Commands[0] is ChangeColumnCommand, Is.True);
+            Assert.That(analyser.NeedAlterTable, Is.True);
+
+            var command = (ChangeColumnCommand)analyser.Commands[0];
+            Assert.That(command.Column.Name, Is.EqualTo("rate"));
+            Assert.That(command.DataTypeChanged, Is.True);
+            Assert.That(command.RequiredChanged, Is.True);
+            Assert.That(command.UniqueChanged, Is.False);
+
+
+        }
+
+        [Test]
+        public void Analyse_ChangeRequired_Commands()
+        {
+            var columnAfter = _rateColumn.Clone();
+            columnAfter.DataSettings.Required = true;
+
+            _headerBefore.Columns.Add(_rateColumn);
+            _headerAfter.Columns.Add(columnAfter);
+
+            var analyser = new MetaObjectTableChangeAnalyser(_headerBefore, _headerAfter);
+            analyser.Analyze();
+
+            Assert.That(analyser.Commands.Count, Is.EqualTo(1));
+            Assert.That(analyser.Commands[0] is ChangeColumnCommand, Is.True);
+            Assert.That(analyser.NeedAlterTable, Is.True);
+
+            var command = (ChangeColumnCommand)analyser.Commands[0];
+            Assert.That(command.DataTypeChanged, Is.False);
+            Assert.That(command.RequiredChanged, Is.True);
+            Assert.That(command.UniqueChanged, Is.False);
+
+        }
+
+        [Test]
+        public void Analyse_ChangeUnique_Commands()
+        {
+            var columnAfter = _rateColumn.Clone();
+            columnAfter.DataSettings.Unique = true;
+
+            _headerBefore.Columns.Add(_rateColumn);
+            _headerAfter.Columns.Add(columnAfter);
+
+            var analyser = new MetaObjectTableChangeAnalyser(_headerBefore, _headerAfter);
+            analyser.Analyze();
+
+            Assert.That(analyser.Commands.Count, Is.EqualTo(1));
+            Assert.That(analyser.Commands[0] is ChangeColumnCommand, Is.True);
+            Assert.That(analyser.NeedAlterTable, Is.True);
+
+            var command = (ChangeColumnCommand)analyser.Commands[0];
+            Assert.That(command.DataTypeChanged, Is.False);
+            Assert.That(command.RequiredChanged, Is.False);
+            Assert.That(command.UniqueChanged, Is.True);
 
         }
     }

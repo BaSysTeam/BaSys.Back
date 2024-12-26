@@ -49,6 +49,16 @@ namespace BaSys.Metadata.Models
                    Unique == settings.Unique;
         }
 
+        public bool DataTypeEquals(MetaObjectTableColumnDataSettings settings)
+        {
+            if (settings == null)
+                return false;
+
+            return DataTypeUid.Equals(settings.DataTypeUid) &&
+                  StringLength == settings.StringLength &&
+                  NumberDigits == settings.NumberDigits;
+        }
+
         public override int GetHashCode()
         {
             return HashCode.Combine(DataTypeUid, StringLength, NumberDigits);

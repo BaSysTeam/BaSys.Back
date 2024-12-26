@@ -156,8 +156,39 @@ namespace BaSys.FluentQueries.UnitTests
         {
             var model = new AlterTableModel();
             model.TableName = "cat_currency";
-            model.ChangedColumns.Add(_rateColumn);
+
+            var changeColumnModel = new ChangeColumnModel();
+            changeColumnModel.Column = _rateColumn;
+            changeColumnModel.DataTypeChanged = true;
+            model.ChangedColumns.Add(changeColumnModel);
            
+
+            var builder = AlterTableBuilder.Make(model);
+
+            var query = builder.Query(dialectKind);
+
+            PrintQuery(dialectKind, query);
+
+            var checkText = Texts.ResourceManager.GetString(checkKey);
+            Assert.That(query.Text, Is.EqualTo(checkText));
+        }
+
+        [TestCase(SqlDialectKinds.MsSql, "AlterTableChangeDataTypeAndRequiredTrueOfColumnMsSQl", true)]
+        [TestCase(SqlDialectKinds.MsSql, "AlterTableChangeDataTypeAndRequiredFalseOfColumnMsSQl", false)]
+        [TestCase(SqlDialectKinds.PgSql, "AlterTableChangeDataTypeAndRequiredTrueOfColumnPgSQl", true)]
+        [TestCase(SqlDialectKinds.PgSql, "AlterTableChangeDataTypeAndRequiredFalseOfColumnPgSQl", false)]
+        public void AlterTable_ChangeDataTypeAndRequiredOfColumn_Query(SqlDialectKinds dialectKind, string checkKey, bool required)
+        {
+            var model = new AlterTableModel();
+            model.TableName = "cat_currency";
+
+            var changeColumnModel = new ChangeColumnModel();
+            changeColumnModel.Column = _rateColumn;
+            changeColumnModel.Column.Required = required;
+            changeColumnModel.DataTypeChanged = true;
+            changeColumnModel.RequiredChanged = true;
+            model.ChangedColumns.Add(changeColumnModel);
+
 
             var builder = AlterTableBuilder.Make(model);
 
@@ -175,8 +206,16 @@ namespace BaSys.FluentQueries.UnitTests
         {
             var model = new AlterTableModel();
             model.TableName = "cat_currency";
-            model.ChangedColumns.Add(_rateColumn);
-            model.ChangedColumns.Add(_multiplierColumn);
+
+            var rateChangeModel = new ChangeColumnModel();
+            rateChangeModel.Column = _rateColumn;
+            rateChangeModel.DataTypeChanged = true;
+            model.ChangedColumns.Add(rateChangeModel);
+
+            var multiplierChangeModel = new ChangeColumnModel();
+            multiplierChangeModel.Column = _multiplierColumn;
+            multiplierChangeModel.DataTypeChanged = true;
+            model.ChangedColumns.Add(multiplierChangeModel);
 
             var builder = AlterTableBuilder.Make(model);
 

@@ -101,6 +101,44 @@ namespace BaSys.FluentQueries.UnitTests {
         /// <summary>
         ///   Looks up a localized string similar to ALTER TABLE [cat_currency] ALTER COLUMN [rate] NVARCHAR(100) NULL;.
         /// </summary>
+        internal static string AlterTableChangeDataTypeAndRequiredFalseOfColumnMsSQl {
+            get {
+                return ResourceManager.GetString("AlterTableChangeDataTypeAndRequiredFalseOfColumnMsSQl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ALTER TABLE &quot;cat_currency&quot; ALTER COLUMN &quot;rate&quot; TYPE varchar(100) USING &quot;rate&quot;::varchar(100);
+        ///ALTER TABLE &quot;cat_currency&quot; ALTER COLUMN &quot;rate&quot; DROP NOT NULL;.
+        /// </summary>
+        internal static string AlterTableChangeDataTypeAndRequiredFalseOfColumnPgSQl {
+            get {
+                return ResourceManager.GetString("AlterTableChangeDataTypeAndRequiredFalseOfColumnPgSQl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ALTER TABLE [cat_currency] ALTER COLUMN [rate] NVARCHAR(100) NOT NULL;.
+        /// </summary>
+        internal static string AlterTableChangeDataTypeAndRequiredTrueOfColumnMsSQl {
+            get {
+                return ResourceManager.GetString("AlterTableChangeDataTypeAndRequiredTrueOfColumnMsSQl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ALTER TABLE &quot;cat_currency&quot; ALTER COLUMN &quot;rate&quot; TYPE varchar(100) USING &quot;rate&quot;::varchar(100);
+        ///ALTER TABLE &quot;cat_currency&quot; ALTER COLUMN &quot;rate&quot; SET NOT NULL;.
+        /// </summary>
+        internal static string AlterTableChangeDataTypeAndRequiredTrueOfColumnPgSQl {
+            get {
+                return ResourceManager.GetString("AlterTableChangeDataTypeAndRequiredTrueOfColumnPgSQl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ALTER TABLE [cat_currency] ALTER COLUMN [rate] NVARCHAR(100) NULL;.
+        /// </summary>
         internal static string AlterTableChangeDataTypeOfColumnMsSQl {
             get {
                 return ResourceManager.GetString("AlterTableChangeDataTypeOfColumnMsSQl", resourceCulture);
