@@ -79,8 +79,8 @@ namespace BaSys.FluentQueries.IntegrationTests
 
         }
 
-        [TestCase("pg_test_base")]
-        [TestCase("ms_test_base")]
+        [TestCase(TestBases.PgTestBase)]
+        [TestCase(TestBases.MsTestBase)]
         public async Task AlterTable_AddColumn_ExecuteQuery(string connectionStringName)
         {
 
@@ -88,27 +88,12 @@ namespace BaSys.FluentQueries.IntegrationTests
                 .Table(_tableName)
                 .AddColumn(_rateColumn);
 
-            var factory = new BaSysConnectionFactory();
-
-            var dbInfoRecord = _connectionStringService.GetDbInfoRecord(connectionStringName);
-
-            using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
-            {
-                var dialect = (SqlDialectKinds)(int)dbInfoRecord.DbKind;
-                var createQuery = _createBuilder.Query(dialect);
-                var alterQuery = alterBuilder.Query(dialect);
-
-                PrintQuery(dialect, alterQuery);
-
-                await connection.ExecuteAsync(createQuery.Text);
-                await connection.ExecuteAsync(alterQuery.Text);
-            }
-
+            await ExecuteCreateAndAlterQuery(connectionStringName, dialect => alterBuilder.Query(dialect));
             Assert.Pass();
         }
 
-        [TestCase("pg_test_base")]
-        [TestCase("ms_test_base")]
+        [TestCase(TestBases.PgTestBase)]
+        [TestCase(TestBases.MsTestBase)]
         public async Task AlterTable_AddTwoColumns_ExecuteQuery(string connectionStringName)
         {
 
@@ -116,28 +101,14 @@ namespace BaSys.FluentQueries.IntegrationTests
                 .Table(_tableName)
                 .AddColumn(_rateColumn)
                 .AddColumn(_multiplierColumn);
-
-            var factory = new BaSysConnectionFactory();
-
-            var dbInfoRecord = _connectionStringService.GetDbInfoRecord(connectionStringName);
-
-            using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
-            {
-                var dialect = (SqlDialectKinds)(int)dbInfoRecord.DbKind;
-                var createQuery = _createBuilder.Query(dialect);
-                var alterQuery = alterBuilder.Query(dialect);
-
-                PrintQuery(dialect, alterQuery);
-
-                await connection.ExecuteAsync(createQuery.Text);
-                await connection.ExecuteAsync(alterQuery.Text);
-            }
+           
+            await ExecuteCreateAndAlterQuery(connectionStringName, dialect => alterBuilder.Query(dialect));
 
             Assert.Pass();
         }
 
-        [TestCase("pg_test_base")]
-        [TestCase("ms_test_base")]
+        [TestCase(TestBases.PgTestBase)]
+        [TestCase(TestBases.MsTestBase)]
         public async Task AlterTable_ChangeColumnName_ExecuteQuery(string connectionStringName)
         {
 
@@ -145,27 +116,13 @@ namespace BaSys.FluentQueries.IntegrationTests
                 .Table(_tableName)
                 .Rename("memo", "info");
 
-            var factory = new BaSysConnectionFactory();
-
-            var dbInfoRecord = _connectionStringService.GetDbInfoRecord(connectionStringName);
-
-            using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
-            {
-                var dialect = (SqlDialectKinds)(int)dbInfoRecord.DbKind;
-                var createQuery = _createBuilder.Query(dialect);
-                var alterQuery = alterBuilder.Query(dialect);
-
-                PrintQuery(dialect, alterQuery);
-
-                await connection.ExecuteAsync(createQuery.Text);
-                await connection.ExecuteAsync(alterQuery.Text);
-            }
+            await ExecuteCreateAndAlterQuery(connectionStringName, dialect => alterBuilder.Query(dialect));
 
             Assert.Pass();
         }
 
-        [TestCase("pg_test_base")]
-        [TestCase("ms_test_base")]
+        [TestCase(TestBases.PgTestBase)]
+        [TestCase(TestBases.MsTestBase)]
         public async Task AlterTable_DropTwoColumns_ExecuteQuery(string connectionStringName)
         {
 
@@ -173,28 +130,14 @@ namespace BaSys.FluentQueries.IntegrationTests
                 .Table(_tableName)
                 .DropColumn("title")
                 .DropColumn("memo");
-
-            var factory = new BaSysConnectionFactory();
-
-            var dbInfoRecord = _connectionStringService.GetDbInfoRecord(connectionStringName);
-
-            using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
-            {
-                var dialect = (SqlDialectKinds)(int)dbInfoRecord.DbKind;
-                var createQuery = _createBuilder.Query(dialect);
-                var alterQuery = alterBuilder.Query(dialect);
-
-                PrintQuery(dialect, alterQuery);
-
-                await connection.ExecuteAsync(createQuery.Text);
-                await connection.ExecuteAsync(alterQuery.Text);
-            }
+    
+            await ExecuteCreateAndAlterQuery(connectionStringName, dialect => alterBuilder.Query(dialect));
 
             Assert.Pass();
         }
 
-        [TestCase("pg_test_base")]
-        [TestCase("ms_test_base")]
+        [TestCase(TestBases.PgTestBase)]
+        [TestCase(TestBases.MsTestBase)]
         public async Task AlterTable_ChangeTwoColumnsName_ExecuteQuery(string connectionStringName)
         {
 
@@ -203,27 +146,13 @@ namespace BaSys.FluentQueries.IntegrationTests
                 .Rename("code","code_numeric")
                 .Rename("memo", "info");
 
-            var factory = new BaSysConnectionFactory();
-
-            var dbInfoRecord = _connectionStringService.GetDbInfoRecord(connectionStringName);
-
-            using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
-            {
-                var dialect = (SqlDialectKinds)(int)dbInfoRecord.DbKind;
-                var createQuery = _createBuilder.Query(dialect);
-                var alterQuery = alterBuilder.Query(dialect);
-
-                PrintQuery(dialect, alterQuery);
-
-                await connection.ExecuteAsync(createQuery.Text);
-                await connection.ExecuteAsync(alterQuery.Text);
-            }
+            await ExecuteCreateAndAlterQuery(connectionStringName, dialect => alterBuilder.Query(dialect));
 
             Assert.Pass();
         }
 
-        [TestCase("pg_test_base")]
-        [TestCase("ms_test_base")]
+        [TestCase(TestBases.PgTestBase)]
+        [TestCase(TestBases.MsTestBase)]
         public async Task AlterTable_ChangeDataTypeOfColumn_ExecuteQuery(string connectionStringName)
         {
 
@@ -239,30 +168,16 @@ namespace BaSys.FluentQueries.IntegrationTests
             var alterBuilder = AlterTableBuilder.Make()
                 .Table(_tableName)
                 .ChangeColumn(rateChangeModel);
-
-            var factory = new BaSysConnectionFactory();
-
-            var dbInfoRecord = _connectionStringService.GetDbInfoRecord(connectionStringName);
-
-            using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
-            {
-                var dialect = (SqlDialectKinds)(int)dbInfoRecord.DbKind;
-                var createQuery = _createBuilder.Query(dialect);
-                var alterQuery = alterBuilder.Query(dialect);
-
-                PrintQuery(dialect, alterQuery);
-
-                await connection.ExecuteAsync(createQuery.Text);
-                await connection.ExecuteAsync(alterQuery.Text);
-            }
+          
+            await ExecuteCreateAndAlterQuery(connectionStringName, dialect => alterBuilder.Query(dialect));
 
             Assert.Pass();
         }
 
-        [TestCase("pg_test_base", true)]
-        [TestCase("pg_test_base", false)]
-        [TestCase("ms_test_base", true)]
-        [TestCase("ms_test_base", false)]
+        [TestCase(TestBases.PgTestBase, true)]
+        [TestCase(TestBases.PgTestBase, false)]
+        [TestCase(TestBases.MsTestBase, true)]
+        [TestCase(TestBases.MsTestBase, false)]
         public async Task AlterTable_ChangeDataTypeAndRequiredOfColumn_ExecuteQuery(string connectionStringName, bool required)
         {
 
@@ -280,28 +195,14 @@ namespace BaSys.FluentQueries.IntegrationTests
             var alterBuilder = AlterTableBuilder.Make()
                 .Table(_tableName)
                 .ChangeColumn(rateChangeModel);
-
-            var factory = new BaSysConnectionFactory();
-
-            var dbInfoRecord = _connectionStringService.GetDbInfoRecord(connectionStringName);
-
-            using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
-            {
-                var dialect = (SqlDialectKinds)(int)dbInfoRecord.DbKind;
-                var createQuery = _createBuilder.Query(dialect);
-                var alterQuery = alterBuilder.Query(dialect);
-
-                PrintQuery(dialect, alterQuery);
-
-                await connection.ExecuteAsync(createQuery.Text);
-                await connection.ExecuteAsync(alterQuery.Text);
-            }
+       
+            await ExecuteCreateAndAlterQuery(connectionStringName, dialect => alterBuilder.Query(dialect));
 
             Assert.Pass();
         }
 
-        [TestCase("pg_test_base")]
-        [TestCase("ms_test_base")]
+        [TestCase(TestBases.PgTestBase)]
+        [TestCase(TestBases.MsTestBase)]
         public async Task AlterTable_ChangeUniqueOfColumn_ExecuteQuery(string connectionStringName)
         {
 
@@ -355,8 +256,8 @@ namespace BaSys.FluentQueries.IntegrationTests
             Assert.Pass();
         }
 
-        [TestCase("pg_test_base")]
-        [TestCase("ms_test_base")]
+        [TestCase(TestBases.PgTestBase)]
+        [TestCase(TestBases.MsTestBase)]
         public async Task AlterTable_ChangeDataTypeOfTwoColumns_ExecuteQuery(string connectionStringName)
         {
 
@@ -381,24 +282,29 @@ namespace BaSys.FluentQueries.IntegrationTests
                 .ChangeColumn(rateChangeModel)
                 .ChangeColumn(multiplierChangeModel);
 
-            var factory = new BaSysConnectionFactory();
+          
+            await ExecuteCreateAndAlterQuery(connectionStringName, dialect => alterBuilder.Query(dialect));
 
+            Assert.Pass();
+        }
+
+        private async Task ExecuteCreateAndAlterQuery(string connectionStringName, Func<SqlDialectKinds, IQuery> getAlterQuery)
+        {
             var dbInfoRecord = _connectionStringService.GetDbInfoRecord(connectionStringName);
-
+            var factory = new BaSysConnectionFactory();
             using (IDbConnection connection = factory.CreateConnection(dbInfoRecord.ConnectionString, dbInfoRecord.DbKind))
             {
                 var dialect = (SqlDialectKinds)(int)dbInfoRecord.DbKind;
                 var createQuery = _createBuilder.Query(dialect);
-                var alterQuery = alterBuilder.Query(dialect);
+                var alterQuery = getAlterQuery(dialect);
 
                 PrintQuery(dialect, alterQuery);
 
                 await connection.ExecuteAsync(createQuery.Text);
                 await connection.ExecuteAsync(alterQuery.Text);
             }
-
-            Assert.Pass();
         }
+
 
         private void PrintQuery(SqlDialectKinds dialectKind, IQuery query)
         {

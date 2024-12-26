@@ -175,6 +175,42 @@ namespace BaSys.FluentQueries.UnitTests {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to ALTER TABLE [cat_currency] DROP CONSTRAINT uq_cat_currency_rate;.
+        /// </summary>
+        internal static string AlterTableChangeUniqueFalseOfColumnMsSQl {
+            get {
+                return ResourceManager.GetString("AlterTableChangeUniqueFalseOfColumnMsSQl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ALTER TABLE &quot;cat_currency&quot; DROP CONSTRAINT uq_cat_currency_rate;.
+        /// </summary>
+        internal static string AlterTableChangeUniqueFalseOfColumnPgSQl {
+            get {
+                return ResourceManager.GetString("AlterTableChangeUniqueFalseOfColumnPgSQl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ALTER TABLE [cat_currency] ADD CONSTRAINT uq_cat_currency_rate UNIQUE ([rate]);.
+        /// </summary>
+        internal static string AlterTableChangeUniqueTrueOfColumnMsSQl {
+            get {
+                return ResourceManager.GetString("AlterTableChangeUniqueTrueOfColumnMsSQl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ALTER TABLE &quot;cat_currency&quot; ADD CONSTRAINT uq_cat_currency_rate UNIQUE (&quot;rate&quot;);.
+        /// </summary>
+        internal static string AlterTableChangeUniqueTrueOfColumnPgSQl {
+            get {
+                return ResourceManager.GetString("AlterTableChangeUniqueTrueOfColumnPgSQl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to ALTER TABLE [cat_currency] DROP COLUMN [code];.
         /// </summary>
         internal static string AlterTableDropOneColumnMsSQl {

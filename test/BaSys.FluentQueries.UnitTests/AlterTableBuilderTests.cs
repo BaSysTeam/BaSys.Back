@@ -2,12 +2,7 @@
 using BaSys.FluentQueries.Enums;
 using BaSys.FluentQueries.Models;
 using BaSys.FluentQueries.QueryBuilders;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BaSys.FluentQueries.UnitTests
 {
@@ -200,6 +195,31 @@ namespace BaSys.FluentQueries.UnitTests
             Assert.That(query.Text, Is.EqualTo(checkText));
         }
 
+        [TestCase(SqlDialectKinds.MsSql, "AlterTableChangeUniqueTrueOfColumnMsSQl", true)]
+        [TestCase(SqlDialectKinds.MsSql, "AlterTableChangeUniqueFalseOfColumnMsSQl", false)]
+        [TestCase(SqlDialectKinds.PgSql, "AlterTableChangeUniqueTrueOfColumnPgSQl", true)]
+        [TestCase(SqlDialectKinds.PgSql, "AlterTableChangeUniqueFalseOfColumnPgSQl", false)]
+        public void AlterTable_ChangeUniqueOfColumn_Query(SqlDialectKinds dialectKind, string checkKey, bool unique)
+        {
+            var model = new AlterTableModel();
+            model.TableName = "cat_currency";
+
+            var changeColumnModel = new ChangeColumnModel();
+            changeColumnModel.Column = _rateColumn;
+            changeColumnModel.Column.Unique = unique;
+            changeColumnModel.UniqueChanged = true;
+            model.ChangedColumns.Add(changeColumnModel);
+
+            var builder = AlterTableBuilder.Make(model);
+
+            var query = builder.Query(dialectKind);
+
+            PrintQuery(dialectKind, query);
+
+            var checkText = Texts.ResourceManager.GetString(checkKey);
+            Assert.That(query.Text, Is.EqualTo(checkText));
+        }
+
         [TestCase(SqlDialectKinds.MsSql, "AlterTableChangeDataTypeOfTwoColumnsMsSQl")]
         [TestCase(SqlDialectKinds.PgSql, "AlterTableChangeDataTypeOfTWoColumnsPgSQl")]
         public void AlterTable_ChangeDataTypeOfTwoColumns_Query(SqlDialectKinds dialectKind, string checkKey)
@@ -226,6 +246,7 @@ namespace BaSys.FluentQueries.UnitTests
             var checkText = Texts.ResourceManager.GetString(checkKey);
             Assert.That(query.Text, Is.EqualTo(checkText));
         }
+
 
         private void PrintQuery(SqlDialectKinds dialectKind, IQuery query)
         {

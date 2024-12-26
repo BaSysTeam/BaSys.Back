@@ -31,6 +31,10 @@ namespace BaSys.FluentQueries.ScriptGenerators
             foreach (var column in _model.NewColumns)
             {
                 n = AddColumnQuery(column, n);
+                if (column.Unique)
+                {
+                    n = AddUniqueConstraintQuery(_model.TableName, column, n);
+                }
             }
 
             foreach (var changeModel in _model.ChangedColumns)
@@ -197,10 +201,6 @@ namespace BaSys.FluentQueries.ScriptGenerators
                 _sb.Append(" NULL");
             }
 
-            if (column.Unique)
-            {
-                _sb.Append(" UNIQUE");
-            }
             _sb.Append(';');
 
             return counter + 1;
@@ -250,8 +250,6 @@ namespace BaSys.FluentQueries.ScriptGenerators
 
             return counter + 1;
         }
-
-       
 
         private int DropUniqueConstraintQuery(TableColumn column, int counter)
         {
