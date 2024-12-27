@@ -331,6 +331,15 @@ namespace BaSys.Translation {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Catalog.
+        /// </summary>
+        public static string Catalog {
+            get {
+                return ResourceManager.GetString("Catalog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Date&amp;Time.
         /// </summary>
         public static string DateTime {
@@ -520,6 +529,15 @@ namespace BaSys.Translation {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Menu.
+        /// </summary>
+        public static string Menu {
+            get {
+                return ResourceManager.GetString("Menu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Meta object.
         /// </summary>
         public static string MetaObject {
@@ -570,6 +588,15 @@ namespace BaSys.Translation {
         public static string ThereAreSomeDataItems {
             get {
                 return ResourceManager.GetString("ThereAreSomeDataItems", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Title.
+        /// </summary>
+        public static string Title {
+            get {
+                return ResourceManager.GetString("Title", resourceCulture);
             }
         }
         

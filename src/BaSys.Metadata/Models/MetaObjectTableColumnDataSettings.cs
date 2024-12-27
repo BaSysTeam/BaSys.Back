@@ -28,6 +28,26 @@ namespace BaSys.Metadata.Models
             return clone;
         }
 
+        public MetaObjectTableColumnDataSettings()
+        {
+            
+        }
+
+        public MetaObjectTableColumnDataSettings(Guid dataTypeUid,
+                                                 int stringLength = 0,
+                                                 int numberDigits = 0,
+                                                 bool required = false,
+                                                 bool unique = false,
+                                                 bool primaryKey = false)
+        {
+            DataTypeUid = dataTypeUid;
+            StringLength = stringLength;
+            NumberDigits = numberDigits;
+            Required = required;
+            Unique = unique;
+            PrimaryKey = primaryKey;
+        }
+
         public override bool Equals(object obj)
         {
             return obj is MetaObjectTableColumnDataSettings settings &&

@@ -315,4 +315,10 @@
   <data name="Guid" xml:space="preserve">
     <value>Guid</value>
   </data>
+  <data name="Menu" xml:space="preserve">
+    <value>Меню</value>
+  </data>
+  <data name="Catalog" xml:space="preserve">
+    <value>Справочник</value>
+  </data>
 </root>

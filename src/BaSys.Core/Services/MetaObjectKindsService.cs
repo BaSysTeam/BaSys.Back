@@ -1,5 +1,4 @@
-﻿using System.Data;
-using BaSys.Common.Enums;
+﻿using BaSys.Common.Enums;
 using BaSys.Common.Infrastructure;
 using BaSys.Core.Abstractions;
 using BaSys.Host.DAL.Abstractions;
@@ -9,7 +8,7 @@ using BaSys.Logging.Abstractions.Abstractions;
 using BaSys.Logging.EventTypes;
 using BaSys.Metadata.Models;
 using BaSys.Metadata.Validators;
-using Microsoft.AspNetCore.Mvc;
+using System.Data;
 
 namespace BaSys.Core.Services
 {
@@ -155,6 +154,40 @@ namespace BaSys.Core.Services
                 return result;
             }
 
+            _connection.Open();
+            using (var transaction = _connection.BeginTransaction())
+            {
+
+                try
+                {
+
+                    result = await ExecuteInsertSettingsAsync(settings, transaction);
+
+                    if (result.IsOK)
+                    {
+                        transaction.Commit();
+                        _logger.Write($"Insert metadata kind {settings}", EventTypeLevels.Info, EventTypeFactory.MetadataCreate);
+                    }
+                    else
+                    {
+                        _logger.Write($"Insert metadata kind {settings}. Message: {result.Message}", EventTypeLevels.Error, EventTypeFactory.MetadataCreate);
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    result.Error(-1, $"Cannot create item.", $"Message: {ex.Message}, Query: {_provider.LastQuery}");
+                    transaction.Rollback();
+                }
+            }
+
+            return result;
+        }
+
+        private async Task<ResultWrapper<MetaObjectKindSettings>> ExecuteInsertSettingsAsync(MetaObjectKindSettings settings, IDbTransaction transaction)
+        {
+            var result = new ResultWrapper<MetaObjectKindSettings>();
+
             var validator = new MetaObjectKindSettingsValidator();
             var validationResult = validator.Validate(settings);
             if (!validationResult.IsValid)
@@ -163,52 +196,35 @@ namespace BaSys.Core.Services
                 return result;
             }
 
-            _connection.Open();
-            using (var transaction = _connection.BeginTransaction())
+            var savedItem = await _provider.GetItemAsync(settings.Uid, transaction);
+
+            if (savedItem != null)
             {
-                var savedItem = await _provider.GetItemAsync(settings.Uid, transaction);
+                result.Error(-1, $"Item already exists.", $"Uid: {settings.Uid}");
+                return result;
+            }
 
-                if (savedItem != null)
+            var insertedCount = await _provider.InsertSettingsAsync(settings, transaction);
+            var newSettings = await _provider.GetSettingsByNameAsync(settings.Name, transaction);
+
+            var metaObjectManager = _managerFactory.CreateMetaObjectManager(settings.Name);
+            await metaObjectManager.CreateTableAsync(transaction);
+
+            // create AttachedFileInfo table
+            if (settings.AllowAttacheFiles)
+            {
+                var primaryKeyCol = settings.StandardColumns.FirstOrDefault(x => x.DataSettings.PrimaryKey);
+                if (primaryKeyCol != null)
                 {
-                    result.Error(-1, $"Item already exists.", $"Uid: {settings.Uid}");
-                    transaction.Rollback();
-                    return result;
-                }
-
-                try
-                {
-                    var insertedCount = await _provider.InsertSettingsAsync(settings, transaction);
-                    var newSettings = await _provider.GetSettingsByNameAsync(settings.Name, transaction);
-
-                    var metaObjectManager = _managerFactory.CreateMetaObjectManager(settings.Name);
-                    await metaObjectManager.CreateTableAsync(transaction);
-
-                    // create AttachedFileInfo table
-                    // if (settings.AllowAttacheFiles)
-                    {
-                        var primaryKeyCol = settings.StandardColumns.FirstOrDefault(x => x.DataSettings.PrimaryKey);
-                        if (primaryKeyCol != null)
-                        {
-                            var factory = new AttachedFileInfoManagerFactory();
-                            var tableManager =
-                                factory.GetTableManager(_connection, settings.Name, primaryKeyCol.DataSettings.DataTypeUid);
-                            if (tableManager != null)
-                                await tableManager.CreateTableAsync(transaction);
-                        }
-                    }
-
-                    transaction.Commit();
-
-                    _logger.Write($"Insert metadata kind {newSettings}", EventTypeLevels.Info, EventTypeFactory.MetadataCreate);
-
-                    result.Success(newSettings);
-                }
-                catch (Exception ex)
-                {
-                    result.Error(-1, $"Cannot create item.", $"Message: {ex.Message}, Query: {_provider.LastQuery}");
-                    transaction.Rollback();
+                    var factory = new AttachedFileInfoManagerFactory();
+                    var tableManager =
+                        factory.GetTableManager(_connection, settings.Name, primaryKeyCol.DataSettings.DataTypeUid);
+                    if (tableManager != null)
+                        await tableManager.CreateTableAsync(transaction);
                 }
             }
+
+            result.Success(newSettings);
 
             return result;
         }
@@ -285,7 +301,7 @@ namespace BaSys.Core.Services
                     await metaObjectManager.DropTableAsync(transaction);
 
                     // delete AttachedFileInfo table
-                    // if (settings.AllowAttacheFiles)
+                    if (settings.AllowAttacheFiles)
                     {
                         var primaryKeyCol = settings.StandardColumns.FirstOrDefault(x => x.DataSettings.PrimaryKey);
                         if (primaryKeyCol != null)
@@ -317,34 +333,40 @@ namespace BaSys.Core.Services
         {
             var result = new ResultWrapper<int>();
 
-            try
+            _connection.Open();
+            using (var transaction = _connection.BeginTransaction())
             {
-                var insertedCount = await ExecuteInsertStandardItemsAsync();
-                result.Success(insertedCount, $"Add {insertedCount} standard items.");
+                try
+                {
+                    transaction.Commit();
+                    var insertedCount = await ExecuteInsertStandardItemsAsync(transaction);
+                    result.Success(insertedCount, $"Add {insertedCount} standard items.");
 
-            }
-            catch (Exception ex)
-            {
-                result.Error(-1, $"Cannot inser standard items. {ex.Message}", ex.StackTrace);
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    result.Error(-1, $"Cannot inser standard items. {ex.Message}", ex.StackTrace);
 
+                }
             }
 
             return result;
         }
 
-        private async Task<int> ExecuteInsertStandardItemsAsync()
+        private async Task<int> ExecuteInsertStandardItemsAsync(IDbTransaction transaction)
         {
             var insertedCount = 0;
             var collection = MetaObjectKindDefaults.AllItems();
             foreach (var settings in collection)
             {
-                var savedItem = await _provider.GetItemAsync(settings.Uid, null);
+                var savedItem = await _provider.GetItemAsync(settings.Uid, transaction);
                 if (savedItem != null)
                 {
                     continue;
                 }
 
-                var insertResult = await InsertSettingsAsync(settings);
+                var insertResult = await ExecuteInsertSettingsAsync(settings, transaction);
                 insertedCount += insertResult.IsOK ? 1 : 0;
             }
             return insertedCount;
