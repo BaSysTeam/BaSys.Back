@@ -17,6 +17,21 @@ namespace BaSys.Metadata.Models
             
         }
 
+        public MetaObjectKindStandardColumn(string uid, string name, string title)
+        {
+            Uid = Guid.Parse(uid);
+            Name = name;
+            Title = title;
+        }
+
+        public MetaObjectKindStandardColumn(string uid, string name, string title, MetaObjectTableColumnDataSettings dataSettings)
+        {
+            Uid = Guid.Parse(uid);
+            Name = name;
+            Title = title;
+            DataSettings = dataSettings;
+        }
+
         public MetaObjectKindStandardColumn(Guid uid, string name, string title, Guid dataTypeUid)
         {
             Uid = uid;

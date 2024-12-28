@@ -324,4 +324,46 @@
   <data name="Title" xml:space="preserve">
     <value>Title</value>
   </data>
+  <data name="Enum" xml:space="preserve">
+    <value>Enum</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="Code" xml:space="preserve">
+    <value>Code</value>
+  </data>
+  <data name="Register" xml:space="preserve">
+    <value>Register</value>
+  </data>
+  <data name="RecordsRegister" xml:space="preserve">
+    <value>Records register</value>
+  </data>
+  <data name="Period" xml:space="preserve">
+    <value>Period</value>
+  </data>
+  <data name="ObjectKind" xml:space="preserve">
+    <value>Object kind</value>
+  </data>
+  <data name="Object" xml:space="preserve">
+    <value>Object</value>
+  </data>
+  <data name="RowNumber" xml:space="preserve">
+    <value>Row number</value>
+  </data>
+  <data name="Operaion" xml:space="preserve">
+    <value>Operation</value>
+  </data>
+  <data name="From" xml:space="preserve">
+    <value>From</value>
+  </data>
+  <data name="Number" xml:space="preserve">
+    <value>Number</value>
+  </data>
+  <data name="Date" xml:space="preserve">
+    <value>Date</value>
+  </data>
+  <data name="CreateRecords" xml:space="preserve">
+    <value>Create records</value>
+  </data>
 </root>
