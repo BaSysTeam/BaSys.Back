@@ -3,9 +3,11 @@
 #nullable disable
 
 using System.ComponentModel.DataAnnotations;
+using System.Data;
 using System.Globalization;
 using BaSys.Common.Enums;
 using BaSys.Host.Abstractions;
+using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.Identity.Models;
 using BaSys.Logging.Abstractions.Abstractions;
 using BaSys.Logging.EventTypes;
@@ -24,8 +26,10 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
         private readonly IDbInfoRecordsProvider _dbInfoRecordsProvider;
         private readonly ILoggerService _basysLogger;
         private readonly IUserSettingsService _userSettingsService;
+        private readonly IMainConnectionFactory _connectionFactory;
 
         public LoginModel(SignInManager<WorkDbUser> signInManager,
+            IMainConnectionFactory connectionFactory,
             IDbInfoRecordsProvider dbInfoRecordsProvider,
             ILoggerService basysLogger,
             IUserSettingsService userSettingsService)
@@ -34,6 +38,7 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
             _dbInfoRecordsProvider = dbInfoRecordsProvider;
             _basysLogger = basysLogger;
             _userSettingsService = userSettingsService;
+            _connectionFactory = connectionFactory;
         }
 
         /// <summary>
@@ -171,18 +176,23 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
         {
             var userLanguage = Languages.English;
             var userId = _signInManager.UserManager.GetUserId(_signInManager.Context.User);
-            var result = await _userSettingsService.GetUserSettings(userId);
-            if (result.IsOK)
-                userLanguage = result.Data.Language;
+            using(IDbConnection connection = _connectionFactory.CreateConnection())
+            {
+                _userSettingsService.SetUp(connection);
+                var result = await _userSettingsService.GetUserSettings(userId);
+                if (result.IsOK)
+                    userLanguage = result.Data.Language;
 
-            var cultureName = userLanguage == Languages.English ? "en-US" : "ru-RU";
-            var culture = CultureInfo.GetCultureInfo(cultureName);
+                var cultureName = userLanguage == Languages.English ? "en-US" : "ru-RU";
+                var culture = CultureInfo.GetCultureInfo(cultureName);
 
-            var defaultCookieName = CookieRequestCultureProvider.DefaultCookieName;
-            var requestCulture = new RequestCulture(culture);
-            var cookieValue = CookieRequestCultureProvider.MakeCookieValue(requestCulture);
+                var defaultCookieName = CookieRequestCultureProvider.DefaultCookieName;
+                var requestCulture = new RequestCulture(culture);
+                var cookieValue = CookieRequestCultureProvider.MakeCookieValue(requestCulture);
 
-            HttpContext.Response.Cookies.Append(defaultCookieName, cookieValue);
+                HttpContext.Response.Cookies.Append(defaultCookieName, cookieValue);
+            }
+           
         }
     }
 }

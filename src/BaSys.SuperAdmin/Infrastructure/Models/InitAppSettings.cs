@@ -23,6 +23,7 @@ public class MainDbConfig
     public string ConnectionString { get; set; } = null!;
     public string AdminLogin { get; set; } = null!;
     public string AdminPassword { get; set; } = null!;
+    public string Culture { get; set; } = "en";
 }
 
 public class InitAppSettings

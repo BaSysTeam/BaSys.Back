@@ -1,18 +1,13 @@
-﻿using BaSys.Admin.Abstractions;
-using BaSys.Common.Enums;
-using BaSys.Core.Abstractions;
-using BaSys.Core.Services;
+﻿using BaSys.Core.Abstractions;
 using BaSys.DAL.Models.Admin;
-using BaSys.DAL.Models.Logging;
 using BaSys.Host.Abstractions;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
 using BaSys.Host.DAL.TableManagers;
-using BaSys.Metadata.Models;
 using BaSys.SuperAdmin.Infrastructure.Models;
-using System.Configuration;
 using System.Data;
 using System.Diagnostics;
+using System.Globalization;
 
 namespace BaSys.Host.Services
 {
@@ -22,28 +17,36 @@ namespace BaSys.Host.Services
     public sealed class DbInitService : IDbInitService
     {
         private readonly InitAppSettings? _initAppSettings;
+
         private readonly IMetaObjectKindsService _kindsService;
+        private readonly IUserSettingsService _userService;
         private IDbConnection? _connection;
 
-        public DbInitService(IConfiguration configuration, IMetaObjectKindsService kindsService)
+        public DbInitService(IConfiguration configuration, IMetaObjectKindsService kindsService, IUserSettingsService userService)
         {
             _initAppSettings = configuration.GetSection("InitAppSettings").Get<InitAppSettings>();
             if (_initAppSettings == null)
                 throw new ApplicationException("InitAppSettings is not set in the config!");
 
             _kindsService = kindsService;
+            _userService = userService;
         }
 
         public void SetUp(IDbConnection connection)
         {
             _connection = connection;
             _kindsService.SetUp(_connection);
+            _userService.SetUp(_connection);
         }
 
         public async Task ExecuteAsync()
         {
             if (_connection == null)
                 throw new ArgumentException($"Db connection is not setted up.");
+
+            // Set language.
+            var culture = _initAppSettings?.MainDb?.Culture ?? "en";
+            SetCulture(culture);
 
             var tableManagers = new List<TableManagerBase>
             {
@@ -64,9 +67,16 @@ namespace BaSys.Host.Services
 
             await CheckTablesAsync();
 
+            // Set user language in settings.
+            var userName = _initAppSettings?.MainDb?.AdminLogin;
+            if (!string.IsNullOrEmpty(userName))
+            {
+                await _userService.SetLanguageAsync(userName, culture);
+            }
+
             // Fill metaobject kinds by default.
-            await _kindsService.InsertStandardItemsAsync();           
-          
+            await _kindsService.InsertStandardItemsAsync();
+
         }
 
         private async Task<int> CreateTableAsync(ITableManager tableManager)
@@ -138,6 +148,12 @@ namespace BaSys.Host.Services
             // };
             //
             // await provider.InsertAsync(loggerConfig, null);
+        }
+
+        private void SetCulture(string culture)
+        {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture(culture);
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.CreateSpecificCulture(culture);
         }
     }
 }
