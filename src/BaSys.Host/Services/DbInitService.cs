@@ -1,5 +1,7 @@
 ﻿using BaSys.Admin.Abstractions;
 using BaSys.Common.Enums;
+using BaSys.Core.Abstractions;
+using BaSys.Core.Services;
 using BaSys.DAL.Models.Admin;
 using BaSys.DAL.Models.Logging;
 using BaSys.Host.Abstractions;
@@ -20,18 +22,22 @@ namespace BaSys.Host.Services
     public sealed class DbInitService : IDbInitService
     {
         private readonly InitAppSettings? _initAppSettings;
+        private readonly IMetaObjectKindsService _kindsService;
         private IDbConnection? _connection;
 
-        public DbInitService(IConfiguration configuration)
+        public DbInitService(IConfiguration configuration, IMetaObjectKindsService kindsService)
         {
             _initAppSettings = configuration.GetSection("InitAppSettings").Get<InitAppSettings>();
             if (_initAppSettings == null)
                 throw new ApplicationException("InitAppSettings is not set in the config!");
+
+            _kindsService = kindsService;
         }
 
         public void SetUp(IDbConnection connection)
         {
             _connection = connection;
+            _kindsService.SetUp(_connection);
         }
 
         public async Task ExecuteAsync()
@@ -57,6 +63,10 @@ namespace BaSys.Host.Services
                 await CreateTableAsync(tableManager);
 
             await CheckTablesAsync();
+
+            // Fill metaobject kinds by default.
+            await _kindsService.InsertStandardItemsAsync();           
+          
         }
 
         private async Task<int> CreateTableAsync(ITableManager tableManager)

@@ -12,27 +12,33 @@ using System.Data;
 
 namespace BaSys.Core.Services
 {
-    public sealed class MetaObjectKindsService : IMetaObjectKindsService, IDisposable
+    public sealed class MetaObjectKindsService : IMetaObjectKindsService
     {
-        private readonly IDbConnection _connection;
-        private readonly MetaObjectKindsProvider _provider;
         private readonly ITableManagerFactory _managerFactory;
+        private readonly ISystemObjectProviderFactory _providerFactory;
         private readonly ILoggerService _logger;
-        private bool _disposed;
 
-        public MetaObjectKindsService(IMainConnectionFactory connectionFactory,
-            ISystemObjectProviderFactory providerFactory,
+        private IDbConnection _connection;
+        private MetaObjectKindsProvider _provider;
+
+        public MetaObjectKindsService(ISystemObjectProviderFactory providerFactory,
             ITableManagerFactory managerFactory,
             ILoggerService logger)
         {
-            _connection = connectionFactory.CreateConnection();
-            providerFactory.SetUp(_connection);
-            _provider = providerFactory.Create<MetaObjectKindsProvider>();
-
+            _providerFactory = providerFactory;
             _managerFactory = managerFactory;
-            _managerFactory.SetUp(_connection);
 
             _logger = logger;
+        }
+
+        public void SetUp(IDbConnection connection)
+        {
+            _connection = connection;
+            _providerFactory.SetUp(_connection);
+            _managerFactory.SetUp(_connection);
+
+            _provider = _providerFactory.Create<MetaObjectKindsProvider>();
+
 
         }
 
@@ -379,29 +385,6 @@ namespace BaSys.Core.Services
 
             return true;
 
-        }
-
-        private void Dispose(bool disposing)
-        {
-            if (!_disposed)
-            {
-                if (disposing)
-                {
-                    if (_connection != null)
-                        _connection.Dispose();
-                }
-
-                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
-                // TODO: set large fields to null
-                _disposed = true;
-            }
-        }
-
-        public void Dispose()
-        {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
+        }      
     }
 }

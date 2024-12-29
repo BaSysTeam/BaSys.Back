@@ -1,13 +1,10 @@
 ﻿using BaSys.Common.Infrastructure;
-using BaSys.Constructor.Abstractions;
-using BaSys.Constructor.Infrastructure;
 using BaSys.Core.Abstractions;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Metadata.Models;
-using BaSys.SuperAdmin.DAL.Abstractions;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Data;
 
 namespace BaSys.Constructor.Controllers
 {
@@ -19,18 +16,25 @@ namespace BaSys.Constructor.Controllers
     [Route("api/constructor/v1/[controller]")]
     [ApiController]
     [Authorize(Roles = ApplicationRole.Administrator)]
-    public class MetaObjectKindsController : ControllerBase
+    public class MetaObjectKindsController : ControllerBase, IDisposable
     {
 
         private readonly IMetaObjectKindsService _metaObjectKindsService;
+        private readonly IDbConnection _connection;
+        private bool _disposed = false;
 
         /// <summary>
         /// Initializes a new instance of the MetaObjectKindsController class.
         /// </summary>
+        /// <param name="connectionFactory">Factory to create connection to work DB.</param>
         /// <param name="metaObjectKindsService">Service for handling metaobject kinds operations.</param>
-        public MetaObjectKindsController(IMetaObjectKindsService metaObjectKindsService) 
+        public MetaObjectKindsController(IMainConnectionFactory connectionFactory, IMetaObjectKindsService metaObjectKindsService) 
         {
+            
+            _connection = connectionFactory.CreateConnection();
             _metaObjectKindsService = metaObjectKindsService;
+
+            _metaObjectKindsService.SetUp(_connection);
         }
 
         /// <summary>
@@ -133,6 +137,27 @@ namespace BaSys.Constructor.Controllers
             var result = await _metaObjectKindsService.DeleteAsync(uid);
 
             return Ok(result);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    if (_connection != null)
+                        _connection.Dispose();
+                }
+
+                _disposed = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
 
     }

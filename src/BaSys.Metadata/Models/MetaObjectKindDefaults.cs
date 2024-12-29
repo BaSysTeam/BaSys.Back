@@ -217,7 +217,7 @@ namespace BaSys.Metadata.Models
         {
             var settings = new MetaObjectKindSettings()
             {
-                Uid = Guid.Parse(RecordsRegisterUid),
+                Uid = Guid.Parse("{14A60875-E241-4E99-B32D-D45B2726D18B}"),
                 Name = "operation",
                 Prefix = "opr",
                 Title = DictMain.Operaion,
