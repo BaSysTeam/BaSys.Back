@@ -2,12 +2,7 @@
 using BaSys.FluentQueries.Enums;
 using BaSys.FluentQueries.Models;
 using BaSys.FluentQueries.QueryBuilders;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BaSys.FluentQueries.UnitTests
 {
@@ -16,6 +11,8 @@ namespace BaSys.FluentQueries.UnitTests
     {
         private TableColumn _codeColumn;
         private TableColumn _titleColumn;
+        private TableColumn _rateColumn;
+        private TableColumn _multiplierColumn;
 
         [SetUp]
         public void SetUp()
@@ -35,6 +32,20 @@ namespace BaSys.FluentQueries.UnitTests
                 StringLength = 100,
                 Required = true,
             };
+
+            _rateColumn = new TableColumn()
+            {
+                Name = "rate",
+                DbType = DbType.String,
+                StringLength = 100
+            };
+
+            _multiplierColumn = new TableColumn()
+            {
+                Name = "multiplier",
+                DbType = DbType.Decimal,
+                NumberDigits = 3,
+            };
         }
 
         [TestCase(SqlDialectKinds.MsSql, "AlterTableAddOneColumnMsSQl")]
@@ -51,7 +62,8 @@ namespace BaSys.FluentQueries.UnitTests
 
             PrintQuery(dialectKind, query);
 
-            Assert.Pass();
+            var checkText = Texts.ResourceManager.GetString(checkKey);
+            Assert.That(query.Text, Is.EqualTo(checkText));
 
         }
 
@@ -69,7 +81,8 @@ namespace BaSys.FluentQueries.UnitTests
 
             PrintQuery(dialectKind, query);
 
-            Assert.Pass();
+            var checkText = Texts.ResourceManager.GetString(checkKey);
+            Assert.That(query.Text, Is.EqualTo(checkText));
 
         }
 
@@ -77,7 +90,6 @@ namespace BaSys.FluentQueries.UnitTests
         [TestCase(SqlDialectKinds.PgSql, "AlterTableDropOneColumnPgSQl")]
         public void AlterTable_DropOneColumn_Query(SqlDialectKinds dialectKind, string checkKey)
         {
-
 
             var builder = AlterTableBuilder.Make()
                 .Table("cat_currency")
@@ -87,7 +99,8 @@ namespace BaSys.FluentQueries.UnitTests
 
             PrintQuery(dialectKind, query);
 
-            Assert.Pass();
+            var checkText = Texts.ResourceManager.GetString(checkKey);
+            Assert.That(query.Text, Is.EqualTo(checkText));
 
         }
 
@@ -105,9 +118,135 @@ namespace BaSys.FluentQueries.UnitTests
 
             PrintQuery(dialectKind, query);
 
-            Assert.Pass();
+            var checkText = Texts.ResourceManager.GetString(checkKey);
+            Assert.That(query.Text, Is.EqualTo(checkText));
 
         }
+
+        [TestCase(SqlDialectKinds.MsSql, "AlterTableRenameColumnMsSQl")]
+        [TestCase(SqlDialectKinds.PgSql, "AlterTableRenameColumnPgSQl")]
+        public void AlterTable_RenameColumn_Query(SqlDialectKinds dialectKind, string checkKey)
+        {
+            var model = new AlterTableModel();
+            model.TableName = "cat_currency";
+            model.RenamedColumns.Add(new RenameColumnModel
+            {
+                OldName = "title",
+                NewName = "description"
+            });
+
+            var builder = AlterTableBuilder.Make(model);
+
+            var query = builder.Query(dialectKind);
+
+            PrintQuery(dialectKind, query);
+
+            var checkText = Texts.ResourceManager.GetString(checkKey);
+            Assert.That(query.Text, Is.EqualTo(checkText));
+        }
+
+        [TestCase(SqlDialectKinds.MsSql, "AlterTableChangeDataTypeOfColumnMsSQl")]
+        [TestCase(SqlDialectKinds.PgSql, "AlterTableChangeDataTypeOfColumnPgSQl")]
+        public void AlterTable_ChangeDataTypeOfColumn_Query(SqlDialectKinds dialectKind, string checkKey)
+        {
+            var model = new AlterTableModel();
+            model.TableName = "cat_currency";
+
+            var changeColumnModel = new ChangeColumnModel();
+            changeColumnModel.Column = _rateColumn;
+            changeColumnModel.DataTypeChanged = true;
+            model.ChangedColumns.Add(changeColumnModel);
+           
+
+            var builder = AlterTableBuilder.Make(model);
+
+            var query = builder.Query(dialectKind);
+
+            PrintQuery(dialectKind, query);
+
+            var checkText = Texts.ResourceManager.GetString(checkKey);
+            Assert.That(query.Text, Is.EqualTo(checkText));
+        }
+
+        [TestCase(SqlDialectKinds.MsSql, "AlterTableChangeDataTypeAndRequiredTrueOfColumnMsSQl", true)]
+        [TestCase(SqlDialectKinds.MsSql, "AlterTableChangeDataTypeAndRequiredFalseOfColumnMsSQl", false)]
+        [TestCase(SqlDialectKinds.PgSql, "AlterTableChangeDataTypeAndRequiredTrueOfColumnPgSQl", true)]
+        [TestCase(SqlDialectKinds.PgSql, "AlterTableChangeDataTypeAndRequiredFalseOfColumnPgSQl", false)]
+        public void AlterTable_ChangeDataTypeAndRequiredOfColumn_Query(SqlDialectKinds dialectKind, string checkKey, bool required)
+        {
+            var model = new AlterTableModel();
+            model.TableName = "cat_currency";
+
+            var changeColumnModel = new ChangeColumnModel();
+            changeColumnModel.Column = _rateColumn;
+            changeColumnModel.Column.Required = required;
+            changeColumnModel.DataTypeChanged = true;
+            changeColumnModel.RequiredChanged = true;
+            model.ChangedColumns.Add(changeColumnModel);
+
+
+            var builder = AlterTableBuilder.Make(model);
+
+            var query = builder.Query(dialectKind);
+
+            PrintQuery(dialectKind, query);
+
+            var checkText = Texts.ResourceManager.GetString(checkKey);
+            Assert.That(query.Text, Is.EqualTo(checkText));
+        }
+
+        [TestCase(SqlDialectKinds.MsSql, "AlterTableChangeUniqueTrueOfColumnMsSQl", true)]
+        [TestCase(SqlDialectKinds.MsSql, "AlterTableChangeUniqueFalseOfColumnMsSQl", false)]
+        [TestCase(SqlDialectKinds.PgSql, "AlterTableChangeUniqueTrueOfColumnPgSQl", true)]
+        [TestCase(SqlDialectKinds.PgSql, "AlterTableChangeUniqueFalseOfColumnPgSQl", false)]
+        public void AlterTable_ChangeUniqueOfColumn_Query(SqlDialectKinds dialectKind, string checkKey, bool unique)
+        {
+            var model = new AlterTableModel();
+            model.TableName = "cat_currency";
+
+            var changeColumnModel = new ChangeColumnModel();
+            changeColumnModel.Column = _rateColumn;
+            changeColumnModel.Column.Unique = unique;
+            changeColumnModel.UniqueChanged = true;
+            model.ChangedColumns.Add(changeColumnModel);
+
+            var builder = AlterTableBuilder.Make(model);
+
+            var query = builder.Query(dialectKind);
+
+            PrintQuery(dialectKind, query);
+
+            var checkText = Texts.ResourceManager.GetString(checkKey);
+            Assert.That(query.Text, Is.EqualTo(checkText));
+        }
+
+        [TestCase(SqlDialectKinds.MsSql, "AlterTableChangeDataTypeOfTwoColumnsMsSQl")]
+        [TestCase(SqlDialectKinds.PgSql, "AlterTableChangeDataTypeOfTWoColumnsPgSQl")]
+        public void AlterTable_ChangeDataTypeOfTwoColumns_Query(SqlDialectKinds dialectKind, string checkKey)
+        {
+            var model = new AlterTableModel();
+            model.TableName = "cat_currency";
+
+            var rateChangeModel = new ChangeColumnModel();
+            rateChangeModel.Column = _rateColumn;
+            rateChangeModel.DataTypeChanged = true;
+            model.ChangedColumns.Add(rateChangeModel);
+
+            var multiplierChangeModel = new ChangeColumnModel();
+            multiplierChangeModel.Column = _multiplierColumn;
+            multiplierChangeModel.DataTypeChanged = true;
+            model.ChangedColumns.Add(multiplierChangeModel);
+
+            var builder = AlterTableBuilder.Make(model);
+
+            var query = builder.Query(dialectKind);
+
+            PrintQuery(dialectKind, query);
+
+            var checkText = Texts.ResourceManager.GetString(checkKey);
+            Assert.That(query.Text, Is.EqualTo(checkText));
+        }
+
 
         private void PrintQuery(SqlDialectKinds dialectKind, IQuery query)
         {

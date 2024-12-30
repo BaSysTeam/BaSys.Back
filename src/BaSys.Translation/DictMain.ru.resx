@@ -315,4 +315,55 @@
   <data name="Guid" xml:space="preserve">
     <value>Guid</value>
   </data>
+  <data name="Menu" xml:space="preserve">
+    <value>Меню</value>
+  </data>
+  <data name="Catalog" xml:space="preserve">
+    <value>Справочник</value>
+  </data>
+  <data name="Title" xml:space="preserve">
+    <value>Заголовок</value>
+  </data>
+  <data name="Enum" xml:space="preserve">
+    <value>Перечисление</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Имя</value>
+  </data>
+  <data name="Code" xml:space="preserve">
+    <value>Код</value>
+  </data>
+  <data name="Register" xml:space="preserve">
+    <value>Регистр</value>
+  </data>
+  <data name="RecordsRegister" xml:space="preserve">
+    <value>Регистр записей</value>
+  </data>
+  <data name="Period" xml:space="preserve">
+    <value>Период</value>
+  </data>
+  <data name="ObjectKind" xml:space="preserve">
+    <value>Вид объекта</value>
+  </data>
+  <data name="Object" xml:space="preserve">
+    <value>Объект</value>
+  </data>
+  <data name="RowNumber" xml:space="preserve">
+    <value>Номер строки</value>
+  </data>
+  <data name="Operaion" xml:space="preserve">
+    <value>Операция</value>
+  </data>
+  <data name="From" xml:space="preserve">
+    <value>От</value>
+  </data>
+  <data name="Number" xml:space="preserve">
+    <value>Номер</value>
+  </data>
+  <data name="Date" xml:space="preserve">
+    <value>Дата</value>
+  </data>
+  <data name="CreateRecords" xml:space="preserve">
+    <value>Создать записи</value>
+  </data>
 </root>

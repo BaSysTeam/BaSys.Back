@@ -1,10 +1,8 @@
 ﻿using BaSys.FluentQueries.Abstractions;
 using BaSys.FluentQueries.Enums;
 using BaSys.FluentQueries.Models;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Text;
+using System.Linq;
 
 namespace BaSys.FluentQueries.ScriptGenerators
 {
@@ -20,33 +18,29 @@ namespace BaSys.FluentQueries.ScriptGenerators
         protected abstract string GetDataType(DbType dbType, int stringLenght);
         protected abstract string GeneratePrimaryKey(TableColumn column);
 
-        protected virtual void AddColumnQuery(StringBuilder sb, TableColumn column)
+        protected virtual void AddColumnQuery(TableColumn column)
         {
 
             if (column.PrimaryKey)
             {
                 var primaryKeyExpression = GeneratePrimaryKey(column);
-                sb.Append(primaryKeyExpression);
+                Append(primaryKeyExpression);
             }
             else
             {
-                sb.Append(column.Name);
-                sb.Append(' ');
-                sb.Append(GetDataType(column.DbType, column.StringLength));
+                Append(column.Name);
+                Append(' ');
+                Append(GetDataType(column.DbType, column.StringLength));
 
                 if (column.Required)
                 {
-                    sb.Append(" NOT NULL");
+                    Append(" NOT NULL");
                 }
                 else
                 {
-                    sb.Append(" NULL");
+                    Append(" NULL");
                 }
 
-                if (column.Unique)
-                {
-                    sb.Append(" UNIQUE");
-                }
             }
 
           
@@ -62,21 +56,28 @@ namespace BaSys.FluentQueries.ScriptGenerators
 
             var query = new Query();
 
-            var sb = new StringBuilder();
-            sb.AppendLine($"CREATE TABLE {_model.TableName} (");
+            // Create table.
+            AppendLine($"CREATE TABLE {_model.TableName} (");
             var n = 1;
             foreach (var column in _model.Columns)
             {
                 if (n > 1)
-                    sb.AppendLine(",");
-                AddColumnQuery(sb, column);
+                    AppendLine(",");
+                AddColumnQuery(column);
 
                 n++;
             }
-            sb.AppendLine();
-            sb.Append(");");
+            AppendLine();
+            Append(");");
 
-            query.Text = sb.ToString();
+            // Add unique constraints.
+            foreach(var column in _model.Columns.Where(x => x.Unique))
+            {
+               n = AddUniqueConstraintQuery(_model.TableName, column, n);
+            }
+
+
+            query.Text = _sb.ToString();
             return query;
         }
     }

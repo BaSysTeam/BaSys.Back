@@ -1,9 +1,11 @@
-﻿using System.Globalization;
+﻿using System.Data;
+using System.Globalization;
 using System.Security.Claims;
 using System.Text;
 using BaSys.Common.DTO;
 using BaSys.Common.Enums;
 using BaSys.Common.Infrastructure;
+using BaSys.DAL.Models.App;
 using BaSys.Host.Abstractions;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
@@ -17,19 +19,25 @@ namespace BaSys.Host.Services;
 
 public class UserSettingsService : IUserSettingsService
 {
-    private readonly IMainConnectionFactory _connectionFactory;
     private readonly UserManager<WorkDbUser> _userManager;
     private readonly string? _userId;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
+    private IDbConnection? _connection;
+    private UserSettingsProvider? _provider;
+
     public UserSettingsService(IHttpContextAccessor httpContextAccessor,
-        UserManager<WorkDbUser> userManager,
-        IMainConnectionFactory connectionFactory)
+        UserManager<WorkDbUser> userManager)
     {
         _httpContextAccessor = httpContextAccessor;
         _userId = httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
-        _connectionFactory = connectionFactory;
         _userManager = userManager;
+    }
+
+    public void SetUp(IDbConnection connection)
+    {
+        _connection = connection;
+        _provider = new UserSettingsProvider(_connection);
     }
 
     public async Task<ResultWrapper<UserSettingsDto?>> GetUserSettings()
@@ -47,13 +55,10 @@ public class UserSettingsService : IUserSettingsService
             return result;
         }
 
-        using var connection = _connectionFactory.CreateConnection();
-        var provider = new UserSettingsProvider(connection);
-
         var currentUser = await _userManager.Users.FirstOrDefaultAsync(x => x.Id == userId);
 
         UserSettingsDto userSettingsDto;
-        var userSettings = await provider.GetItemByUserIdAsync(userId);
+        var userSettings = await _provider.GetItemByUserIdAsync(userId);
         if (userSettings != null)
             userSettingsDto = new UserSettingsDto(userSettings);
         else
@@ -63,8 +68,8 @@ public class UserSettingsService : IUserSettingsService
                 UserId = currentUser?.Id ?? string.Empty
             };
 
-            var insertedUid = await provider.InsertAsync(userSettingsDto.ToModel(), null);
-            userSettings = await provider.GetItemByUserIdAsync(userId);
+            var insertedUid = await _provider.InsertAsync(userSettingsDto.ToModel(), null);
+            userSettings = await _provider.GetItemByUserIdAsync(userId);
             if (insertedUid == Guid.Empty || userSettings == null)
             {
                 result.Error(-1, $"Cannot get user settings!");
@@ -83,9 +88,6 @@ public class UserSettingsService : IUserSettingsService
     {
         var result = new ResultWrapper<bool>();
         
-        using var connection = _connectionFactory.CreateConnection();
-        var provider = new UserSettingsProvider(connection);
-
         var currentUser = await _userManager.Users.FirstOrDefaultAsync(x => x.Id == _userId);
         if (currentUser == null)
         {
@@ -96,8 +98,8 @@ public class UserSettingsService : IUserSettingsService
         currentUser.UserName = userSettings.UserName;
         await _userManager.UpdateAsync(currentUser);
         
-        var userSettingsDB = await provider.GetItemByUserIdAsync(_userId);
-        var state = await provider.UpdateAsync(userSettings.ToModel(), null);
+        var userSettingsDB = await _provider.GetItemByUserIdAsync(_userId);
+        var state = await _provider.UpdateAsync(userSettings.ToModel(), null);
         if (state == 1)
         {
             if (userSettingsDB != null && 
@@ -178,6 +180,47 @@ public class UserSettingsService : IUserSettingsService
         }
     }
 
+    public async Task<ResultWrapper<bool>> SetLanguageAsync(string userName, string culture)
+    {
+        var result = new ResultWrapper<bool>();
+
+        var dbUser = await _userManager.FindByNameAsync(userName);
+        if (dbUser == null)
+        {
+            result.Error(-1, $"Canot find user: {userName}");
+            return result;
+        }
+
+        var language = culture == "ru" ? Languages.Russian : Languages.English;
+        var userSettings = new UserSettings
+        {
+            UserId = dbUser.Id,
+            Language = language,
+        };
+
+        try
+        {
+            var userSettingsDB = await _provider.GetItemByUserIdAsync(dbUser.Id);
+            if (userSettingsDB == null)
+            {
+                await _provider.InsertAsync(userSettings, null);
+            }
+            else
+            {
+                userSettings.Uid = userSettingsDB.Uid;
+                await _provider.UpdateAsync(userSettings, null);
+            }
+
+            result.Success(true);
+        }
+        catch(Exception ex)
+        {
+            result.Error(-1, $"Cannot set user settings. Message: {ex.Message}", ex.StackTrace);
+        }
+
+        return result;
+    }
+
     private void SetLocalization(Languages userLanguage)
     {
         var cultureName = userLanguage == Languages.English ? "en-US" : "ru-RU";
@@ -189,4 +232,6 @@ public class UserSettingsService : IUserSettingsService
 
         _httpContextAccessor?.HttpContext?.Response.Cookies.Append(defaultCookieName, cookieValue);
     }
+
+  
 }

@@ -1,7 +1,5 @@
 ﻿using MessagePack;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace BaSys.Metadata.Models
 {
@@ -12,13 +10,45 @@ namespace BaSys.Metadata.Models
         public string Title { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public MetaObjectTableColumnDataSettings DataSettings { get; set; } = new MetaObjectTableColumnDataSettings();
-
-        //public Guid DataTypeUid { get; set; }
-        //public int StringLength { get; set; }
-        //public int NumberDigits { get; set; }
-        //public bool IsPrimaryKey { get; set; }
-        //public bool IsRequired { get; set; }
-        //public bool IsUnique { get; set; }
         public string Memo { get; set; }
+
+        public MetaObjectKindStandardColumn()
+        {
+            
+        }
+
+        public MetaObjectKindStandardColumn(string uid, string name, string title)
+        {
+            Uid = Guid.Parse(uid);
+            Name = name;
+            Title = title;
+        }
+
+        public MetaObjectKindStandardColumn(string uid, string name, string title, MetaObjectTableColumnDataSettings dataSettings)
+        {
+            Uid = Guid.Parse(uid);
+            Name = name;
+            Title = title;
+            DataSettings = dataSettings;
+        }
+
+        public MetaObjectKindStandardColumn(Guid uid, string name, string title, Guid dataTypeUid)
+        {
+            Uid = uid;
+            Name = name;
+            Title = title;
+            DataSettings.DataTypeUid = dataTypeUid;
+        }
+
+        public MetaObjectKindStandardColumn(Guid uid,
+                                            string name,
+                                            string title,
+                                            MetaObjectTableColumnDataSettings dataSettings)
+        {
+            Uid = uid;
+            Name = name;
+            Title = title;
+            DataSettings = dataSettings.Clone();
+        }
     }
 }

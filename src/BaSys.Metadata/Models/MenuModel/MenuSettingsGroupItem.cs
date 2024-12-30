@@ -14,7 +14,7 @@ namespace BaSys.Metadata.Models.MenuModel
         public string Url { get; set; } = string.Empty;
         public bool IsVisible { get; set; }
         public bool AutoFill { get; set; }
-        public int ItemsPerColumn { get; set; }
+        public int ItemsPerColumn { get; set; } = 10;
         public string MetaObjectKindUid { get; set; }
         public List<MenuSettingsColumn> Items { get; set; } = new List<MenuSettingsColumn>();
 

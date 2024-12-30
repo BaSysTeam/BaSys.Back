@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace BaSys.FluentQueries.Models
 {
@@ -11,6 +9,8 @@ namespace BaSys.FluentQueries.Models
         public string TableName { get; set; } = string.Empty;
         public List<TableColumn> NewColumns { get; set; } = new List<TableColumn>();
         public List<string> RemovedColumns { get; set; } = new List<string>();
+        public List<ChangeColumnModel> ChangedColumns { get; set; } = new List<ChangeColumnModel>();
+        public List<RenameColumnModel> RenamedColumns { get; set; } = new List<RenameColumnModel>();
 
         public void ToLower()
         {
@@ -21,7 +21,18 @@ namespace BaSys.FluentQueries.Models
                 column.Name = column.Name.ToLower();    
             }
 
-           RemovedColumns = RemovedColumns.Select(s => s.ToLower()).ToList();
+            foreach (var changeModel in ChangedColumns)
+            {
+                changeModel.Column.Name = changeModel.Column.Name.ToLower();
+            }
+
+            foreach (var column in RenamedColumns)
+            {
+                column.OldName = column.OldName.ToLower();
+                column.NewName = column.NewName.ToLower();
+            }
+
+            RemovedColumns = RemovedColumns.Select(s => s.ToLower()).ToList();
         }
 
       

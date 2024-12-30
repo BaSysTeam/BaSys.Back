@@ -1,23 +1,30 @@
-﻿using System.Security.Claims;
-using BaSys.Common.DTO;
+﻿using BaSys.Common.DTO;
 using BaSys.Common.Infrastructure;
 using BaSys.Host.Abstractions;
+using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DTO;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Data;
+using System.Security.Claims;
 
 namespace BaSys.Host.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
 // [Authorize]
-public class UserSettingsController : ControllerBase
+public class UserSettingsController : ControllerBase, IDisposable
 {
     private readonly IUserSettingsService _userSettingsService;
-    
-    public UserSettingsController(IUserSettingsService userSettingsService)
+    private readonly IDbConnection _connection;
+    private bool _disposed = false;
+
+
+    public UserSettingsController(IMainConnectionFactory connectionFactory, IUserSettingsService userSettingsService)
     {
+        _connection = connectionFactory.CreateConnection();
         _userSettingsService = userSettingsService;
+        _userSettingsService.SetUp(_connection);
+
     }
     
     /// <summary>
@@ -105,5 +112,26 @@ public class UserSettingsController : ControllerBase
             
             return Ok(result);
         }
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposed)
+        {
+            if (disposing)
+            {
+                if (_connection != null)
+                    _connection.Dispose();
+            }
+
+            _disposed = true;
+        }
+    }
+
+    public void Dispose()
+    {
+        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
     }
 }
