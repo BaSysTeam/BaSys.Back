@@ -1,7 +1,5 @@
 ﻿using MessagePack;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace BaSys.Metadata.Models
 {
@@ -30,6 +28,10 @@ namespace BaSys.Metadata.Models
 
         public void FillBySettings(MetaObjectKindSettings settings)
         {
+            if (Uid == Guid.Empty)
+            {
+                Uid = settings.Uid;
+            }
             Title = settings.Title;
             Name = settings.Name;
             Prefix = settings.Prefix;

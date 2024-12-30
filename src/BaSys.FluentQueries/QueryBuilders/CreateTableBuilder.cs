@@ -58,6 +58,12 @@ namespace BaSys.FluentQueries.QueryBuilders
             return this;
         }
 
+        public CreateTableBuilder Column(TableColumn column)
+        {
+            _model.AddColumn(column);
+            return this;
+        }
+
         public CreateTableBuilder StringColumn(string name,
             int stringLength,
             bool required,

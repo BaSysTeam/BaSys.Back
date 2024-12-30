@@ -1,4 +1,5 @@
 ﻿using BaSys.FluentQueries.Enums;
+using BaSys.FluentQueries.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -64,6 +65,31 @@ namespace BaSys.FluentQueries.ScriptGenerators
             {
                 _sb.AppendLine(text);
             }
+        }
+
+        protected int AddUniqueConstraintQuery(string tableName, TableColumn column, int counter)
+        {
+            if (counter > 1)
+                AppendLine("");
+
+            Append("ALTER TABLE ");
+            AppendName(tableName);
+            Append(' ');
+
+            var constraintName = UniqueConstraintName(tableName, column.Name);
+            Append("ADD CONSTRAINT ");
+            Append(constraintName);
+            Append(" UNIQUE (");
+            AppendName(column.Name);
+            Append(')');
+            Append(';');
+
+            return counter + 1;
+        }
+
+        protected string UniqueConstraintName(string tableName, string columnName)
+        {
+            return $"uq_{tableName}_{columnName}";
         }
 
         public static char NameWrapperOpen(SqlDialectKinds dialectKind)

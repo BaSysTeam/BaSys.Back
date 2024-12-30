@@ -10,14 +10,6 @@ namespace BaSys.Metadata.Models
         public Guid Uid { get; set; } = Guid.NewGuid();
         public string Title { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
-        //public Guid DataTypeUid { get; set; }
-        //public int StringLength { get; set; }
-        //public int NumberDigits { get; set; }
-        //public bool PrimaryKey { get; set; }
-        //public bool Required { get; set; }
-        //public bool Unique { get; set; }
-        //public string DefaultValue { get; set; } = String.Empty;
-
         public string Formula { get; set; } = string.Empty;
         public bool IsStandard { get; set; }
 
@@ -35,6 +27,19 @@ namespace BaSys.Metadata.Models
         {
             DataSettings.DataTypeUid = dataTypeUid;
             DataSettings.PrimaryKey = primaryKey;
+        }
+
+        public MetaObjectTableColumn(MetaObjectTableColumnDataSettings dataSettings)
+        {
+            DataSettings = dataSettings.Clone();
+        }
+
+        public MetaObjectTableColumn(Guid uid, string title, string name, MetaObjectTableColumnDataSettings dataSettings)
+        {
+            Uid = uid;
+            Title = title;
+            Name = name;
+            DataSettings = dataSettings.Clone();
         }
 
         public bool Equals(MetaObjectTableColumn other)

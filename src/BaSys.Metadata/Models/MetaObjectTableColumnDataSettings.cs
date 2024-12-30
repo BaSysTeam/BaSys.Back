@@ -1,9 +1,5 @@
 ﻿using MessagePack;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BaSys.Metadata.Models
 {
@@ -32,12 +28,55 @@ namespace BaSys.Metadata.Models
             return clone;
         }
 
+        public MetaObjectTableColumnDataSettings()
+        {
+            
+        }
+
+        public MetaObjectTableColumnDataSettings(Guid dataTypeUid,
+                                                 int stringLength = 0,
+                                                 int numberDigits = 0,
+                                                 bool required = false,
+                                                 bool unique = false,
+                                                 bool primaryKey = false)
+        {
+            DataTypeUid = dataTypeUid;
+            StringLength = stringLength;
+            NumberDigits = numberDigits;
+            Required = required;
+            Unique = unique;
+            PrimaryKey = primaryKey;
+        }
+
         public override bool Equals(object obj)
         {
             return obj is MetaObjectTableColumnDataSettings settings &&
                    DataTypeUid.Equals(settings.DataTypeUid) &&
                    StringLength == settings.StringLength &&
                    NumberDigits == settings.NumberDigits;
+        }
+
+        public bool SettingsEquals(MetaObjectTableColumnDataSettings settings)
+        {
+            if (settings == null)
+                return false;
+
+            return DataTypeUid.Equals(settings.DataTypeUid) &&
+                   StringLength == settings.StringLength &&
+                   NumberDigits == settings.NumberDigits && 
+                   PrimaryKey == settings.PrimaryKey && 
+                   Required == settings.Required && 
+                   Unique == settings.Unique;
+        }
+
+        public bool DataTypeEquals(MetaObjectTableColumnDataSettings settings)
+        {
+            if (settings == null)
+                return false;
+
+            return DataTypeUid.Equals(settings.DataTypeUid) &&
+                  StringLength == settings.StringLength &&
+                  NumberDigits == settings.NumberDigits;
         }
 
         public override int GetHashCode()
