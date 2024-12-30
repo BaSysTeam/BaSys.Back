@@ -121,7 +121,7 @@ namespace BaSys.Metadata.Helpers
             if (string.IsNullOrEmpty(formula))
                 return new List<string>();
 
-            var regex = new Regex(@"\$[hrt]\.[a-zA-Z_]\w*(\.\w+)*(\(.*?\))?");
+            var regex = new Regex(@"\$[hrt]\.[a-zA-Z\u0400-\u04FF_]\w*(\.\w+)*(\(.*?\))?");
             var matches = regex.Matches(formula);
             var arguments = new HashSet<string>();
 

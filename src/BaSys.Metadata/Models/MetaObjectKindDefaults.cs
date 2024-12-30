@@ -227,7 +227,7 @@ namespace BaSys.Metadata.Models
                 AllowAttacheFiles = true,
                 UseDetailsTables = true,
                 CanCreateRecords = true,
-                OrderByExpression = "number desc, period desc",
+                OrderByExpression = "number desc, date desc",
                 DisplayExpression = $"{DictMain.Operaion} " + "#{{number}} " + DictMain.From.ToLower() + " {{date}}"
             };
 

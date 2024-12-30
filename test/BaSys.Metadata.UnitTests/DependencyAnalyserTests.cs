@@ -64,15 +64,21 @@ namespace BaSys.Metadata.UnitTests
             Assert.That(dependecy.Kind, Is.EqualTo(DependencyKinds.RowField));
         }
 
-        [Test]
-        public void ExtractArguments_TwoArgsExpression_ListOfArguments()
+        [TestCase("$r.quantity * $r.price", "$r.quantity", "$r.price")]
+        [TestCase("$r.Quantity * $r.Price", "$r.Quantity", "$r.Price")]
+        [TestCase("$h.first_name + ' '+ $h.last_name", "$h.first_name", "$h.last_name")]
+        [TestCase("$h.имя + ' '+ $h.фамилия", "$h.имя", "$h.фамилия")]
+        [TestCase("$h.Имя + ' '+ $h.Фамилия", "$h.Имя", "$h.Фамилия")]
+        public void ExtractArguments_TwoArgsExpression_ListOfArguments(string expression, 
+            string checkFirstArgument, 
+            string checkSecondArgument)
         {
             var analyser = new DependencyAnalyser();
-            var arguments = analyser.ExtractArguments("$r.quantity * $r.price");
+            var arguments = analyser.ExtractArguments(expression);
 
             Assert.That(arguments.Count(), Is.EqualTo(2));
-            Assert.That(arguments[0], Is.EqualTo("$r.quantity"));
-            Assert.That(arguments[1], Is.EqualTo("$r.price"));
+            Assert.That(arguments[0], Is.EqualTo(checkFirstArgument));
+            Assert.That(arguments[1], Is.EqualTo(checkSecondArgument));
 
         }
 
