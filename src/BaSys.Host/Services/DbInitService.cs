@@ -4,6 +4,8 @@ using BaSys.Host.Abstractions;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
 using BaSys.Host.DAL.TableManagers;
+using BaSys.Metadata.Helpers;
+using BaSys.Metadata.Models;
 using BaSys.SuperAdmin.Infrastructure.Models;
 using System.Data;
 using System.Diagnostics;
@@ -62,6 +64,13 @@ namespace BaSys.Host.Services
                 new UserGroupRightManager(_connection),
             };
 
+            var firstManager = tableManagers[0];
+            if (await firstManager.TableExistsAsync())
+            {
+                // Already initialized.
+                return;
+            }
+
             foreach (var tableManager in tableManagers)
                 await CreateTableAsync(tableManager);
 
@@ -76,6 +85,11 @@ namespace BaSys.Host.Services
 
             // Fill metaobject kinds by default.
             await _kindsService.InsertStandardItemsAsync();
+
+            // Build auto-menu.
+            var menuSettings = DefaultMenuBuilder.Build(MetaObjectKindDefaults.AllItems());
+            var menuProvider = new MetaMenuProvider(_connection);
+            await menuProvider.InsertSettingsAsync(menuSettings, null);
 
         }
 
