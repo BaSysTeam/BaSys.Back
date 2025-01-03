@@ -7,7 +7,8 @@ The current pre-alpha version is not recommended for production use. We recommen
 # Docs
 
 [English documentation](https://basysteam.github.io/BaSys.Docs/en/)
-[Документация на русском](https://basysteam.github.io/BaSys.Docs/ru/)
+
+[Russian documentation](https://basysteam.github.io/BaSys.Docs/ru/)
 
 # Getting Started
 
