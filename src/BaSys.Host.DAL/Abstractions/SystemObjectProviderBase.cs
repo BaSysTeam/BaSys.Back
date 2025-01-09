@@ -2,6 +2,7 @@
 using BaSys.FluentQueries.Enums;
 using BaSys.FluentQueries.QueryBuilders;
 using BaSys.Host.DAL.Helpers;
+using BaSys.Host.DAL.QueryResults;
 using BaSys.Metadata.Models;
 using Dapper;
 using Npgsql;
@@ -12,6 +13,7 @@ using System.Data.Common;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace BaSys.Host.DAL.Abstractions
 {
@@ -83,6 +85,15 @@ namespace BaSys.Host.DAL.Abstractions
             return (insertedCount > 0) ? uid : Guid.Empty;
         }
 
-      
+        public virtual async Task<long> CountAsync(IDbTransaction? transaction)
+        {
+            _query = SelectBuilder.Make().From(_config.TableName).Select("count(1) as ItemsCount").Query(_sqlDialect);
+
+            var result = await _dbConnection.QueryFirstOrDefaultAsync<ItemsCountResult>(_query.Text, null, transaction);
+
+            return result.ItemsCount;
+        }
+
+
     }
 }
