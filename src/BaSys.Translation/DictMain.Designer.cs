@@ -187,6 +187,15 @@ namespace BaSys.Translation {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot delete standard item.
+        /// </summary>
+        public static string CannotDeleteStandardItem {
+            get {
+                return ResourceManager.GetString("CannotDeleteStandardItem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cannot delete user.
         /// </summary>
         public static string CannotDeleteUser {
@@ -732,6 +741,15 @@ namespace BaSys.Translation {
         public static string ThereAreSomeDataItems {
             get {
                 return ResourceManager.GetString("ThereAreSomeDataItems", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to There are some metaobjects of this kind.
+        /// </summary>
+        public static string ThereAreSomeMetaObjectsOfThisKind {
+            get {
+                return ResourceManager.GetString("ThereAreSomeMetaObjectsOfThisKind", resourceCulture);
             }
         }
         

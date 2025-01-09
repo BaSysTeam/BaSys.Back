@@ -8,6 +8,7 @@ using BaSys.Logging.Abstractions.Abstractions;
 using BaSys.Logging.EventTypes;
 using BaSys.Metadata.Models;
 using BaSys.Metadata.Validators;
+using BaSys.Translation;
 using System.Data;
 
 namespace BaSys.Core.Services
@@ -257,7 +258,16 @@ namespace BaSys.Core.Services
 
             if (savedItem == null)
             {
-                result.Error(-1, $"Cannot find item", $"Uid: {settings.Uid}");
+                result.Error(-1, $"{DictMain.CannotFindItem}", $"Uid: {settings.Uid}");
+                return result;
+            }
+
+            var metaObjectProvider = new MetaObjectStorableProvider(_connection, savedItem.Name);
+            var count = await metaObjectProvider.CountAsync(null);
+
+            if (count > 0)
+            {
+                result.Error(-1, $"{DictMain.CannotUpdateItem}. {DictMain.ThereAreSomeMetaObjectsOfThisKind}. {savedItem.Title}:{count}.");
                 return result;
             }
 
@@ -270,7 +280,7 @@ namespace BaSys.Core.Services
             }
             catch (Exception ex)
             {
-                result.Error(-1, $"Cannot create item", $"Message: {ex.Message}, Query: {_provider.LastQuery}");
+                result.Error(-1, $"{DictMain.CannotUpdateItem}", $"Message: {ex.Message}, Query: {_provider.LastQuery}");
             }
 
             return result;
@@ -293,7 +303,25 @@ namespace BaSys.Core.Services
 
                 if (savedItem == null)
                 {
-                    result.Error(-1, "Item not found", $"Uid: {uid}");
+                    result.Error(-1, $"{DictMain.CannotFindItem}", $"Uid: {uid}");
+                    transaction.Rollback();
+                    return result;
+                }
+
+                if (savedItem.IsStandard)
+                {
+                    result.Error(-1, $"{DictMain.CannotDeleteStandardItem}.");
+                    transaction.Rollback();
+                    return result;
+
+                }
+
+                var metaObjectProvider = new MetaObjectStorableProvider(_connection, savedItem.Name);
+                var count = await metaObjectProvider.CountAsync(transaction);
+
+                if (count > 0)
+                {
+                    result.Error(-1, $"{DictMain.CannotDeleteItem}. {DictMain.ThereAreSomeMetaObjectsOfThisKind}. {savedItem.Title}:{count}.");
                     transaction.Rollback();
                     return result;
                 }
@@ -328,7 +356,7 @@ namespace BaSys.Core.Services
                 catch (Exception ex)
                 {
                     transaction.Rollback();
-                    result.Error(-1, $"Cannot delete item", $"Uid: {uid}, Message: {ex.Message}, Query: {_provider.LastQuery}");
+                    result.Error(-1, $"{DictMain.CannotDeleteItem}", $"Uid: {uid}, Message: {ex.Message}, Query: {_provider.LastQuery}");
                 }
             }
 
