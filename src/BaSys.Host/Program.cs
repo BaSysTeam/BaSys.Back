@@ -266,7 +266,7 @@ namespace BaSys.Host
             app.UseAuthorization();
 
 #if DEBUG
-            app.UseMiddleware<CustomAuthorizationMiddleware>();
+           // app.UseMiddleware<CustomAuthorizationMiddleware>();
 #endif
 
             app.MapRazorPages();
