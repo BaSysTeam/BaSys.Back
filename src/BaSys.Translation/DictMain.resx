@@ -372,4 +372,10 @@
   <data name="DataBaseDisabled" xml:space="preserve">
     <value>Database is disabled</value>
   </data>
+  <data name="ThereAreSomeMetaObjectsOfThisKind" xml:space="preserve">
+    <value>There are some metaobjects of this kind</value>
+  </data>
+  <data name="CannotDeleteStandardItem" xml:space="preserve">
+    <value>Cannot delete standard item</value>
+  </data>
 </root>
