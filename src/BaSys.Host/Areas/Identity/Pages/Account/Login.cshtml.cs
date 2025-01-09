@@ -12,6 +12,7 @@ using BaSys.Host.Identity.Models;
 using BaSys.Logging.Abstractions.Abstractions;
 using BaSys.Logging.EventTypes;
 using BaSys.SuperAdmin.DAL.Abstractions;
+using BaSys.Translation;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
@@ -22,23 +23,18 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
 {
     public class LoginModel : PageModel
     {
-        private readonly SignInManager<WorkDbUser> _signInManager;
-        private readonly IDbInfoRecordsProvider _dbInfoRecordsProvider;
-        private readonly ILoggerService _basysLogger;
-        private readonly IUserSettingsService _userSettingsService;
+        private readonly IServiceProvider _serviceProvider;
         private readonly IMainConnectionFactory _connectionFactory;
+        private readonly ILoggerService _basysLogger;
 
-        public LoginModel(SignInManager<WorkDbUser> signInManager,
-            IMainConnectionFactory connectionFactory,
-            IDbInfoRecordsProvider dbInfoRecordsProvider,
-            ILoggerService basysLogger,
-            IUserSettingsService userSettingsService)
+        public LoginModel(IServiceProvider serviceProvider, 
+            ILoggerService basysLogger, 
+            IMainConnectionFactory connectionFactory)
         {
-            _signInManager = signInManager;
-            _dbInfoRecordsProvider = dbInfoRecordsProvider;
-            _basysLogger = basysLogger;
-            _userSettingsService = userSettingsService;
+            _serviceProvider = serviceProvider;
+
             _connectionFactory = connectionFactory;
+            _basysLogger = basysLogger;
         }
 
         /// <summary>
@@ -88,7 +84,7 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
             [Required]
             [DataType(DataType.Password)]
             public string Password { get; set; }
-            
+
             [Required]
             public string DbName { get; set; }
             /// <summary>
@@ -111,7 +107,8 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
             // Clear the existing external cookie to ensure a clean login process
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
 
-            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+            var signInManager = _serviceProvider.GetService<SignInManager<WorkDbUser>>();
+            ExternalLogins = (await signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
             ReturnUrl = returnUrl;
 
@@ -123,63 +120,78 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
             {
                 Input.DbName = dbName;
             }
-           
+
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
-            returnUrl ??= Url.Content("~/app");
 
-            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                // This doesn't count login failures towards account lockout
-                // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                var dbInfoRecord = _dbInfoRecordsProvider.GetDbInfoRecordByDbName(Input.DbName);
-                if (dbInfoRecord?.IsDeleted == true)
-                {
-                    ModelState.AddModelError(string.Empty, $"Database with name '{Input.DbName}' is disabled.");
-                    return Page();
-                }
-                
-                var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
-                if (result.Succeeded)
-                {
-                    await SetLocalizationAsync();
-
-                    _basysLogger.Info("User logged in", EventTypeFactory.UserLogin);
-                    return LocalRedirect(returnUrl);
-                }
-                if (result.RequiresTwoFactor)
-                {
-                    return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });
-                }
-                if (result.IsLockedOut)
-                {
-                    _basysLogger.Info("User account locked out", EventTypeFactory.UserLogin);
-                    return RedirectToPage("./Lockout");
-                }
-                else
-                {
-                    _basysLogger.Error("Invalid login attempt", EventTypeFactory.UserLoginFail);
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-                    return Page();
-                }
+                return Page();
             }
 
-            // If we got this far, something failed, redisplay form
-            return Page();
+            returnUrl ??= Url.Content("~/app");
+            var dbInfoRecordsProvider = _serviceProvider.GetService<IDbInfoRecordsProvider>();
+            var dbInfoRecord = dbInfoRecordsProvider.GetDbInfoRecordByDbName(Input.DbName);
+
+            if (dbInfoRecord == null)
+            {
+                ModelState.AddModelError(string.Empty, $"\"{Input.DbName}\" - {DictMain.DataBaseNotFound}.");
+                return Page();
+            }
+
+            if (dbInfoRecord.IsDeleted)
+            {
+                ModelState.AddModelError(string.Empty, $"\"{Input.DbName}\" - {DictMain.DataBaseDisabled}.");
+                return Page();
+            }
+
+            var signInManager = _serviceProvider.GetService<SignInManager<WorkDbUser>>();
+            var userSettingsService = _serviceProvider.GetService<IUserSettingsService>();
+
+
+            ExternalLogins = (await signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+
+            // This doesn't count login failures towards account lockout
+            // To enable password failures to trigger account lockout, set lockoutOnFailure: true
+            var result = await signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+            if (result.Succeeded)
+            {
+
+                await SetLocalizationAsync(_connectionFactory, userSettingsService, signInManager);
+
+                _basysLogger.Info("User logged in", EventTypeFactory.UserLogin);
+                return LocalRedirect(returnUrl);
+            }
+            if (result.RequiresTwoFactor)
+            {
+                return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });
+            }
+            if (result.IsLockedOut)
+            {
+                _basysLogger.Info("User account locked out", EventTypeFactory.UserLogin);
+                return RedirectToPage("./Lockout");
+            }
+            else
+            {
+                _basysLogger.Error("Invalid login attempt", EventTypeFactory.UserLoginFail);
+                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                return Page();
+            }
+
         }
 
-        private async Task SetLocalizationAsync()
+        private async Task SetLocalizationAsync(IMainConnectionFactory connectionFactory,
+            IUserSettingsService userSettingsService,
+            SignInManager<WorkDbUser> signInManager)
         {
             var userLanguage = Languages.English;
-            var userId = _signInManager.UserManager.GetUserId(_signInManager.Context.User);
-            using(IDbConnection connection = _connectionFactory.CreateConnection())
+            var userId = signInManager.UserManager.GetUserId(signInManager.Context.User);
+            using (IDbConnection connection = connectionFactory.CreateConnection())
             {
-                _userSettingsService.SetUp(connection);
-                var result = await _userSettingsService.GetUserSettings(userId);
+                userSettingsService.SetUp(connection);
+                var result = await userSettingsService.GetUserSettings(userId);
                 if (result.IsOK)
                     userLanguage = result.Data.Language;
 
@@ -192,7 +204,7 @@ namespace BaSys.Host.Areas.Identity.Pages.Account
 
                 HttpContext.Response.Cookies.Append(defaultCookieName, cookieValue);
             }
-           
+
         }
     }
 }

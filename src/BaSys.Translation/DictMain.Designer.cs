@@ -358,6 +358,24 @@ namespace BaSys.Translation {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Database is disabled.
+        /// </summary>
+        public static string DataBaseDisabled {
+            get {
+                return ResourceManager.GetString("DataBaseDisabled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Database not found.
+        /// </summary>
+        public static string DataBaseNotFound {
+            get {
+                return ResourceManager.GetString("DataBaseNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Date.
         /// </summary>
         public static string Date {

@@ -59,6 +59,10 @@ public class HttpRequestContextService : IHttpRequestContextService
             _httpContextAccessor.HttpContext?.Request.Form?.TryGetValue("Input.DbName", out var requestDbName) == true)
         {
             item = _dataSourceProvider.GetConnectionItemByDbName(requestDbName);
+            if (item == null)
+            {
+                throw new ArgumentNullException($"Db \"{requestDbName}\" not found.");
+            }
             return item;
         }
 
