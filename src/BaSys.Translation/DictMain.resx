@@ -366,4 +366,10 @@
   <data name="CreateRecords" xml:space="preserve">
     <value>Create records</value>
   </data>
+  <data name="DataBaseNotFound" xml:space="preserve">
+    <value>Database not found</value>
+  </data>
+  <data name="DataBaseDisabled" xml:space="preserve">
+    <value>Database is disabled</value>
+  </data>
 </root>

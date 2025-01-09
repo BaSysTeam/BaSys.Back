@@ -366,4 +366,10 @@
   <data name="CreateRecords" xml:space="preserve">
     <value>Создать записи</value>
   </data>
+  <data name="DataBaseNotFound" xml:space="preserve">
+    <value>База данных не найдена</value>
+  </data>
+  <data name="DataBaseDisabled" xml:space="preserve">
+    <value>База данных отключена</value>
+  </data>
 </root>
