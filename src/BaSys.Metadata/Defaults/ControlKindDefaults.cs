@@ -1,10 +1,11 @@
-﻿using System;
+﻿using BaSys.Metadata.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BaSys.Metadata.Models
+namespace BaSys.Metadata.Defaults
 {
     public static class ControlKindDefaults
     {

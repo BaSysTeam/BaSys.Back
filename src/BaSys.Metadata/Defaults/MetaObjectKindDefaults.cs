@@ -1,9 +1,10 @@
 ﻿using BaSys.Metadata.Helpers;
+using BaSys.Metadata.Models;
 using BaSys.Translation;
 using System;
 using System.Collections.Generic;
 
-namespace BaSys.Metadata.Models
+namespace BaSys.Metadata.Defaults
 {
     public static class MetaObjectKindDefaults
     {
@@ -33,7 +34,7 @@ namespace BaSys.Metadata.Models
             Name = "workflow",
             Title = DictMain.Workflow,
             Prefix = "wkf",
-            IconClass = "pi pi-list",
+            IconClass = "pi pi-cog",
             IsStandard = true
         };
 
@@ -273,7 +274,7 @@ namespace BaSys.Metadata.Models
 
             return settings;
         }
-      
+
     }
-    
+
 }

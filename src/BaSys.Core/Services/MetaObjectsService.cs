@@ -11,11 +11,11 @@ using BaSys.Logging.EventTypes;
 using BaSys.Metadata.Abstractions;
 using BaSys.DTO.Metadata;
 using BaSys.Metadata.Helpers;
-using BaSys.Metadata.Models;
 using BaSys.Metadata.Validators;
 using BaSys.Translation;
 using BaSys.DTO.Constructor;
 using BaSys.Common.Enums;
+using BaSys.Metadata.Defaults;
 
 namespace BaSys.Core.Services
 {
