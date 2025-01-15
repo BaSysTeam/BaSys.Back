@@ -27,6 +27,16 @@ namespace BaSys.Metadata.Models
             IsStandard = true
         };
 
+        public static readonly MetaObjectKindSettings Workflow = new MetaObjectKindSettings()
+        {
+            Uid = Guid.Parse("{8734F14E-13D0-4F74-A960-F21F74853CDA}"),
+            Name = "workflow",
+            Title = DictMain.Workflow,
+            Prefix = "wkf",
+            IconClass = "pi pi-list",
+            IsStandard = true
+        };
+
         public static readonly MetaObjectKindSettings Catalog = BuildDefaultCatalogKindSettings();
         public static readonly MetaObjectKindSettings Enum = BuildDefaultEnumKindSettings();
         public static readonly MetaObjectKindSettings Register = BuildDefaultRegisterKindSettings();
@@ -39,6 +49,7 @@ namespace BaSys.Metadata.Models
             var collection = new List<MetaObjectKindSettings>
             {
                 Menu,
+                Workflow,
                 Catalog,
                 Enum,
                 Register,

@@ -1,5 +1,6 @@
 ﻿using BaSys.Metadata.Abstractions;
 using BaSys.Metadata.Models.MenuModel;
+using BaSys.Metadata.Models.WorkflowModel;
 using MessagePack;
 using System;
 using System.Collections.Generic;
@@ -9,9 +10,9 @@ using System.Threading.Tasks;
 
 namespace BaSys.Metadata.Models
 {
-    public sealed class MetaObjectMenu: MetaObjectBase
+    internal class MetaObjectWorkflow: MetaObjectBase
     {
-        public void FillBySettings(MenuSettings settings)
+        public void FillBySettings(WorkflowSettings settings)
         {
             MetaObjectKindUid = MetaObjectKindDefaults.Menu.Uid;
             Title = settings.Title;
@@ -22,9 +23,9 @@ namespace BaSys.Metadata.Models
             SettingsStorage = MessagePackSerializer.Serialize(settings);
         }
 
-        public MenuSettings ToSettings()
+        public WorkflowSettings ToSettings()
         {
-            var settings = MessagePackSerializer.Deserialize<MenuSettings>(SettingsStorage);
+            var settings = MessagePackSerializer.Deserialize<WorkflowSettings>(SettingsStorage);
             settings.Uid = Uid;
             settings.Version = Version;
 
