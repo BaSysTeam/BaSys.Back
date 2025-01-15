@@ -266,8 +266,14 @@ namespace BaSys.Host
             app.UseAuthorization();
 
 #if DEBUG
-           // app.UseMiddleware<CustomAuthorizationMiddleware>();
+            // app.UseMiddleware<CustomAuthorizationMiddleware>();
 #endif
+            // Load login page at start.
+            app.MapGet("/", context =>
+            {
+                context.Response.Redirect("/Identity/Account/Login");
+                return Task.CompletedTask;
+            });
 
             app.MapRazorPages();
 
