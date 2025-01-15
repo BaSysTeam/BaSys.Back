@@ -10,6 +10,7 @@ namespace BaSys.Metadata.Models.WorkflowModel
     public interface IWorkflowStepSettings
     {
         Guid Uid { get; set; }
+        IWorkflowStepKind Kind { get; }
         string Title { get; set; }
         string Name { get; set; }
         string Memo { get; set; }

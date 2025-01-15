@@ -49,7 +49,7 @@ namespace BaSys.Core.Services
                 var collection = await _menuProvider.GetCollectionAsync(null, null);
                 var listDto = new MetaObjectListDto
                 {
-                    Title = "Menu",
+                    Title = DictMain.Menu,
                     MetaObjectKindUid = MetaObjectKindDefaults.Menu.Uid.ToString(),
                     Items = collection.Select(x => new MetaObjectDto(x)).ToList()
                 };
@@ -122,7 +122,7 @@ namespace BaSys.Core.Services
             }
             catch (Exception ex)
             {
-                result.Error(-1, $"{DictMain.CannotDeleteItem}: {ex.Message}", ex.StackTrace);
+                result.Error(-1, $"{DictMain.CannotUpdateItem}: {ex.Message}", ex.StackTrace);
             }
 
             return result;

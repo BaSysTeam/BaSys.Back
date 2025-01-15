@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace BaSys.Metadata.Models
 {
-    internal class MetaObjectWorkflow: MetaObjectBase
+    public sealed class MetaObjectWorkflow: MetaObjectBase
     {
         public void FillBySettings(WorkflowSettings settings)
         {

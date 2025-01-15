@@ -1,9 +1,6 @@
 ﻿using MessagePack;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BaSys.Metadata.Models.WorkflowModel
 {
@@ -17,6 +14,20 @@ namespace BaSys.Metadata.Models.WorkflowModel
         public bool IsActive { get; set; }
         public long Version { get; set; }
 
-        public List<IWorkflowStepSettings> Steps { get; set; } = new List<IWorkflowStepSettings>();
+       // public List<IWorkflowStepSettings> Steps { get; set; } = new List<IWorkflowStepSettings>();
+
+        public void CopyFrom(WorkflowSettings source)
+        {
+            Name = source.Name;
+            Title = source.Title;
+            Memo = source.Memo;
+            IsActive = source.IsActive;
+            Version = source.Version;
+        }
+
+        public override string ToString()
+        {
+            return $"{Title}/{Name}";
+        }
     }
 }
