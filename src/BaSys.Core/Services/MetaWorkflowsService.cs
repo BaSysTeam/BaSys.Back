@@ -85,12 +85,14 @@ namespace BaSys.Core.Services
             return result;
         }
 
-        public async Task<ResultWrapper<int>> CreateAsync(WorkflowSettingsDto settingsDto)
+        public async Task<ResultWrapper<int>> CreateAsync(WorkflowSettingsDto input)
         {
             var result = new ResultWrapper<int>();
 
             try
             {
+                var settingsDto = input.Parse();
+
                 var settings = settingsDto.ToModel();
                 var insertedCount = await _provider.InsertSettingsAsync(settings, null);
                 result.Success(insertedCount, DictMain.ItemSaved);
@@ -104,12 +106,14 @@ namespace BaSys.Core.Services
             return result;
         }
 
-        public async Task<ResultWrapper<int>> UpdateSettingsItemAsync(WorkflowSettingsDto settingsDto)
+        public async Task<ResultWrapper<int>> UpdateSettingsItemAsync(WorkflowSettingsDto input)
         {
             var result = new ResultWrapper<int>();
 
             try
             {
+                var settingsDto = input.Parse();
+
                 var settings = settingsDto.ToModel();
                 var savedSettings = await _provider.GetSettingsItemAsync(settings.Uid, null);
                 if (savedSettings == null)

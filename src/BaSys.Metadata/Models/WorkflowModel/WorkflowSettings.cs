@@ -1,4 +1,5 @@
-﻿using MessagePack;
+﻿using BaSys.Metadata.Models.WorkflowModel.Steps;
+using MessagePack;
 using System;
 using System.Collections.Generic;
 
@@ -23,6 +24,8 @@ namespace BaSys.Metadata.Models.WorkflowModel
             Memo = source.Memo;
             IsActive = source.IsActive;
             Version = source.Version;
+
+            Steps = source.Steps;
         }
 
         public override string ToString()
