@@ -378,4 +378,10 @@
   <data name="CannotDeleteStandardItem" xml:space="preserve">
     <value>Cannot delete standard item</value>
   </data>
+  <data name="Workflow" xml:space="preserve">
+    <value>Workflow</value>
+  </data>
+  <data name="Workflows" xml:space="preserve">
+    <value>Workflows</value>
+  </data>
 </root>

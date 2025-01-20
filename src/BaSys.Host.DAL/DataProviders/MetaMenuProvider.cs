@@ -1,6 +1,7 @@
 ﻿using BaSys.FluentQueries.QueryBuilders;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.ModelConfigurations;
+using BaSys.Metadata.Defaults;
 using BaSys.Metadata.Models;
 using BaSys.Metadata.Models.MenuModel;
 using Dapper;

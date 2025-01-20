@@ -19,6 +19,7 @@ public static class CoreExtension
         services.AddTransient<IMetaObjectCreateCommandHandler, MetaObjectCreateCommandHandler>();
         services.AddTransient<IMetaObjectUpdateCommandHandler, MetaObjectUpdateCommandHandler>();
         services.AddTransient<IDataObjectRegistratorRouteQueryHandler, DataObjectRegistratorRouteQueryHandler>();
+        services.AddTransient<IMetaWorkflowsService, MetaWorkflowsService>();
 
         return services;
     }

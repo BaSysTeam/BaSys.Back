@@ -1,4 +1,5 @@
-﻿using BaSys.Metadata.Models;
+﻿using BaSys.Metadata.Abstractions;
+using BaSys.Metadata.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,7 +30,7 @@ namespace BaSys.DTO.Metadata
             IsActive = source.IsActive;
         }
 
-        public MetaObjectDto(MetaObjectMenu source)
+        public MetaObjectDto(MetaObjectBase source)
         {
             Uid = source.Uid.ToString();
             Name = source.Name;

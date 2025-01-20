@@ -16,5 +16,15 @@ namespace BaSys.Metadata.Abstractions
         public long Version { get; set; }
         public bool IsActive { get; set; }
         public byte[] SettingsStorage { get; set; }
+
+        public virtual void BeforeSave()
+        {
+            Version++;
+        }
+
+        public override string ToString()
+        {
+            return Title;
+        }
     }
 }

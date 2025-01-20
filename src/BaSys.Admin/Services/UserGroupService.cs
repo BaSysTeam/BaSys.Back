@@ -9,6 +9,7 @@ using BaSys.DTO.Metadata;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
 using BaSys.Host.Identity.Models;
+using BaSys.Metadata.Defaults;
 using BaSys.Metadata.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;

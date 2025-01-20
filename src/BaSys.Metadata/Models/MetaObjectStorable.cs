@@ -25,14 +25,5 @@ namespace BaSys.Metadata.Models
             return settings;
         }
 
-        public void BeforeSave()
-        {
-            Version++;
-        }
-
-        public override string ToString()
-        {
-            return $"{Title}/{Name}";
-        }
     }
 }
