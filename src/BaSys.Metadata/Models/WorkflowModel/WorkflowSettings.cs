@@ -14,7 +14,7 @@ namespace BaSys.Metadata.Models.WorkflowModel
         public bool IsActive { get; set; }
         public long Version { get; set; }
 
-       // public List<IWorkflowStepSettings> Steps { get; set; } = new List<IWorkflowStepSettings>();
+        public List<WorkflowStepSettingsBase> Steps { get; set; } = new List<WorkflowStepSettingsBase>();
 
         public void CopyFrom(WorkflowSettings source)
         {
