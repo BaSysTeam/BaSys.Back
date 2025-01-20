@@ -6,6 +6,7 @@ using BaSys.Host.DAL.DataProviders;
 using BaSys.Host.DAL.TableManagers;
 using BaSys.Logging.Abstractions.Abstractions;
 using BaSys.Logging.EventTypes;
+using BaSys.Metadata.Defaults;
 using BaSys.Metadata.Models;
 using BaSys.Metadata.Validators;
 using BaSys.Translation;

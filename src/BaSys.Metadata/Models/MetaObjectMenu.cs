@@ -1,4 +1,5 @@
 ﻿using BaSys.Metadata.Abstractions;
+using BaSys.Metadata.Defaults;
 using BaSys.Metadata.Models.MenuModel;
 using MessagePack;
 using System;
@@ -29,17 +30,6 @@ namespace BaSys.Metadata.Models
             settings.Version = Version;
 
             return settings;
-        }
-
-
-        public void BeforeSave()
-        {
-            Version++;
-        }
-
-        public override string ToString()
-        {
-            return Title;
         }
     }
 }
