@@ -64,15 +64,20 @@ namespace BaSys.Core.Services
 
                 var workflowSettings = metaWorkflow.ToSettings();
 
-                // Build the workflow definition
-                var workflowDefinition = BuildWorkflow(workflowSettings);
+                var isRegistered = _wRegistry.IsRegistered(workflowSettings.Name, (int)workflowSettings.Version);
 
-                // Register the workflow definition dynamically
-                _wRegistry.RegisterWorkflow(workflowDefinition);
+                if (!isRegistered)
+                {
+                    // Build the workflow definition
+                    var workflowDefinition = BuildWorkflow(workflowSettings);
+
+                    // Register the workflow definition dynamically
+                    _wRegistry.RegisterWorkflow(workflowDefinition);
+                }
 
                 // Start the workflow
                 var runUid = Guid.NewGuid().ToString();
-                string workflowId = await _host.StartWorkflow(workflowDefinition.Id, null, runUid);
+                string workflowId = await _host.StartWorkflow(workflowSettings.Name, null, runUid);
 
 
                 result.Success(runUid, $"Workflow \"{name}\" started");
