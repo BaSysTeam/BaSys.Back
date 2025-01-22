@@ -5,12 +5,15 @@ namespace BaSys.Workflows.Steps
 {
     public class SleepStep : StepBodyAsync
     {
-        public int Delay { get; set; }
+        public string Delay { get; set; } = string.Empty;
 
         public override async Task<ExecutionResult> RunAsync(IStepExecutionContext context)
         {
             Console.WriteLine($"Sleep for {Delay} ms..........");
-            await Task.Delay(Delay);  // Simulate async work
+
+            int.TryParse(Delay, out var delayValue);
+
+            await Task.Delay(delayValue);  // Simulate async work
             Console.WriteLine($"Awake from sleep");
 
             return ExecutionResult.Next();

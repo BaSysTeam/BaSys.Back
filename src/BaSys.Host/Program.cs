@@ -41,6 +41,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using Serilog.Sinks.MSSqlServer;
+using WorkflowCore.Interface;
 using EnvironmentName = Microsoft.AspNetCore.Hosting.EnvironmentName;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
@@ -230,7 +231,19 @@ namespace BaSys.Host
             builder.Host.UseSerilog();
             builder.Logging.AddSerilog();
 
+            // Add WorkflowCore.
+            builder.Services.AddWorkflow();
+            builder.Services.AddWorkflowDSL();
+           
+
             var app = builder.Build();
+
+            // Start the WorkflowCore host.
+            using (var scope = app.Services.CreateScope())
+            {
+                var host = scope.ServiceProvider.GetRequiredService<IWorkflowHost>();
+                host.Start();
+            }
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
@@ -301,6 +314,13 @@ namespace BaSys.Host
 
             var dbInfoRecordsProvider = serviceScope.ServiceProvider.GetRequiredService<IDbInfoRecordsProvider>();
             await dbInfoRecordsProvider.Update();
+
+            // Stop WorkflowCore host.
+            app.Lifetime.ApplicationStopping.Register(() =>
+            {
+                var host = app.Services.GetRequiredService<IWorkflowHost>();
+                host.Stop();
+            });
 
             app.Run();
         }
