@@ -67,7 +67,7 @@ namespace BaSys.DTO.Constructor
                     settings.Uid = uidValue;
                 }
 
-                if (string.IsNullOrWhiteSpace(PreviousStepUid)
+                if (!string.IsNullOrWhiteSpace(PreviousStepUid)
                     && Guid.TryParse(PreviousStepUid, out var previousStepUid))
                 {
                     settings.PreviousStepUid = previousStepUid;
