@@ -5,6 +5,7 @@ using BaSys.Host.DAL.DataProviders;
 using BaSys.Logging.Abstractions.Abstractions;
 using BaSys.Metadata.Models.WorkflowModel;
 using BaSys.Metadata.Models.WorkflowModel.Steps;
+using BaSys.Workflows.DTO;
 using BaSys.Workflows.Steps;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
@@ -23,6 +24,7 @@ namespace BaSys.Core.Services
         private readonly ILoggerService _logger;
         private readonly IWorkflowHost _host;
         private readonly IWorkflowRegistry _wRegistry;
+        private readonly IPersistenceProvider _persistenceProvider;
 
         private IDbConnection _connection;
         private MetaWorkflowsProvider _provider;
@@ -30,12 +32,14 @@ namespace BaSys.Core.Services
         public WorkflowsService(ISystemObjectProviderFactory providerFactory,
             ILoggerService logger,
             IWorkflowHost host,
-            IDefinitionLoader definitionLoader, 
-            IWorkflowRegistry wRegistry)
+            IDefinitionLoader definitionLoader,
+            IWorkflowRegistry wRegistry,
+            IPersistenceProvider persistenceProvider)
         {
             _providerFactory = providerFactory;
             _host = host;
             _wRegistry = wRegistry;
+            _persistenceProvider = persistenceProvider;
 
             _logger = logger;
         }
@@ -76,18 +80,42 @@ namespace BaSys.Core.Services
                 }
 
                 // Start the workflow
-                var runUid = Guid.NewGuid().ToString();
-                string workflowId = await _host.StartWorkflow(workflowSettings.Name, null, runUid);
-
+                string runUid = await _host.StartWorkflow(workflowSettings.Name, null, Guid.NewGuid().ToString());
 
                 result.Success(runUid, $"Workflow \"{name}\" started");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 result.Error(-1, $"Cannot start workflow: {ex.Message}", ex.StackTrace);
             }
 
             return result;
+        }
+
+        public async Task<ResultWrapper<WorkflowCheckDto>> CheckAsync(string runUid)
+        {
+            var result = new ResultWrapper<WorkflowCheckDto>();
+
+            try
+            {
+                var instanse = await _host.PersistenceStore.GetWorkflowInstance(runUid);
+
+                var dto = new WorkflowCheckDto()
+                {
+                    Status = instanse.Status,
+                    Id = instanse.Id,
+                    Reference = instanse.Reference
+                };
+
+                result.Success(dto);
+            }
+            catch (Exception ex)
+            {
+                result.Error(-1, $"Cannot get Workflow status by reference {runUid}: {ex.Message}", ex.StackTrace);
+            }
+
+            return result;
+
         }
 
         private WorkflowDefinition BuildWorkflow(WorkflowSettings settings)
@@ -110,26 +138,27 @@ namespace BaSys.Core.Services
                 {
                     var messageStep = new WorkflowStep<MessageStep>();
                     messageStep.Id = stepId;
-                    messageStep.Name = stepSettings.Name;
+                    messageStep.Name = typeof(MessageStep).Name;
 
-                    messageStep.Inputs.Add(
-                        new MemberMapParameter(
-                        (Expression<Func<MessageStepSettings, object>>)(data => data.Message),
-                        (Expression<Func<MessageStep, object>>)(step => step.Message))
-                        );
+                    var messageParameter = new MemberMapParameter(
+                        (Expression<Func<object, string>>)(data => messageStepSettings.Message),
+                        (Expression<Func<MessageStep, string>>)(step => step.Message));
+
+                    messageStep.Inputs.Add(messageParameter);
 
                     workflowDefinition.Steps.Add(messageStep);
+
                 }
                 else if (stepSettings is SleepStepSettings sleepStepSettings)
                 {
                     var sleepStep = new WorkflowStep<SleepStep>();
                     sleepStep.Id = stepId;
-                    sleepStep.Name = stepSettings.Name;
+                    sleepStep.Name = typeof(SleepStep).Name;
 
                     sleepStep.Inputs.Add(
                       new MemberMapParameter(
-                      (Expression<Func<SleepStepSettings, object>>)(data => data.Delay),
-                      (Expression<Func<SleepStep, object>>)(step => step.Delay))
+                      (Expression<Func<object, string>>)(data => sleepStepSettings.Delay),
+                      (Expression<Func<SleepStep, string>>)(step => step.Delay))
                       );
 
                     workflowDefinition.Steps.Add(sleepStep);

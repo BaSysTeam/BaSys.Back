@@ -37,6 +37,14 @@ namespace BaSys.App.Controllers
             return Ok(result);
         }
 
+        [HttpGet("check/{runUid}")]
+        public async Task<IActionResult> Check(string runUid)
+        {
+            var result = await _service.CheckAsync(runUid);
+
+            return Ok(result);
+        }
+
         protected virtual void Dispose(bool disposing)
         {
             if (!_disposed)

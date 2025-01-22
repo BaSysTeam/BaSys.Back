@@ -1,4 +1,5 @@
-﻿using WorkflowCore.Interface;
+﻿using System.Diagnostics;
+using WorkflowCore.Interface;
 using WorkflowCore.Models;
 
 namespace BaSys.Workflows.Steps
@@ -9,6 +10,7 @@ namespace BaSys.Workflows.Steps
 
         public override ExecutionResult Run(IStepExecutionContext context)
         {
+            Debug.WriteLine($"Message: {Message}");
             Console.WriteLine($"Message: {Message}");
             return ExecutionResult.Next();
         }
