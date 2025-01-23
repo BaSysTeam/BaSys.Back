@@ -90,7 +90,7 @@ namespace BaSys.Host
             //{
             //    options.JsonSerializerOptions.Converters.Add(new DictionaryStringObjectJsonConverter());
             //});
-            
+
             // Add core
             builder.Services.AddCore();
 
@@ -108,7 +108,7 @@ namespace BaSys.Host
 
             // Add logging module
             builder.Services.AddLog();
-            
+
             // Add public api module
             builder.Services.AddPublicApi();
 
@@ -166,7 +166,8 @@ namespace BaSys.Host
                         // options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                         // options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                     })
-                .AddCookie(options => { 
+                .AddCookie(options =>
+                {
                     options.LoginPath = new PathString("/Identity/Account/Login");
                     options.ExpireTimeSpan = TimeSpan.FromHours(24);
                     options.SlidingExpiration = true;
@@ -232,9 +233,12 @@ namespace BaSys.Host
             builder.Logging.AddSerilog();
 
             // Add WorkflowCore.
-            builder.Services.AddWorkflow();
+            builder.Services.AddWorkflow(
+                cfg =>{
+                    cfg.UsePollInterval(TimeSpan.FromSeconds(5)); // Adjust the polling interval if necessary
+                });
             builder.Services.AddWorkflowDSL();
-           
+
 
             var app = builder.Build();
 

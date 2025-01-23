@@ -118,6 +118,39 @@ namespace BaSys.Core.Services
 
         }
 
+        public async Task<ResultWrapper<bool>> TerminateAsync(string runUid)
+        {
+            var result = new ResultWrapper<bool>();
+
+            try
+            {
+                var workflow = await _host.PersistenceStore.GetWorkflowInstance(runUid);
+                if (workflow == null)
+                {
+                    result.Error(-1, $"Workflow {runUid} not found.");
+                    return result;
+                }
+
+                if (workflow.Status == WorkflowStatus.Runnable)
+                {
+                    var isTerminated = await _host.TerminateWorkflow(runUid);
+                    result.Success(isTerminated);
+                }
+                else
+                {
+                    result.Error(-1, $"Cannot terminate workflow {runUid}, current status: {workflow.Status}");
+                }
+
+            }
+            catch (Exception ex)
+            {
+                result.Error(-1, $"Cannot terminate workflow {runUid}: {ex.Message}", ex.StackTrace);
+            }
+
+            return result;
+
+        }
+
         private WorkflowDefinition BuildWorkflow(WorkflowSettings settings)
         {
 

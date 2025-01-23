@@ -10,5 +10,6 @@ namespace BaSys.Core.Abstractions
         void SetUp(IDbConnection connection);
         Task<ResultWrapper<string>> StartAsync(string name);
         Task<ResultWrapper<WorkflowCheckDto>> CheckAsync(string reference);
+        Task<ResultWrapper<bool>> TerminateAsync(string reference);
     }
 }

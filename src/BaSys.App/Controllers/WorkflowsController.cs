@@ -4,7 +4,6 @@ using BaSys.Host.DAL.Abstractions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
-using WorkflowCore.Interface;
 
 namespace BaSys.App.Controllers
 {
@@ -15,15 +14,12 @@ namespace BaSys.App.Controllers
     {
         private readonly IWorkflowsService _service;
         private readonly IDbConnection _connection;
-        private readonly IWorkflowHost _host;
         private bool _disposed = false;
 
         public WorkflowsController(IMainConnectionFactory connectionFactory, 
-            IWorkflowsService service, 
-            IWorkflowHost host)
+            IWorkflowsService service)
         {
             _connection = connectionFactory.CreateConnection();
-            _host = host;
 
             _service = service;
             _service.SetUp(_connection);
@@ -41,6 +37,14 @@ namespace BaSys.App.Controllers
         public async Task<IActionResult> Check(string runUid)
         {
             var result = await _service.CheckAsync(runUid);
+
+            return Ok(result);
+        }
+
+        [HttpDelete("{runUid}")]
+        public async Task<IActionResult> Terminate(string runUid)
+        {
+            var result = await _service.TerminateAsync(runUid);
 
             return Ok(result);
         }
