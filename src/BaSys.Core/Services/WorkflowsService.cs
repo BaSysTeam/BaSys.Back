@@ -52,9 +52,9 @@ namespace BaSys.Core.Services
             _provider = _providerFactory.Create<MetaWorkflowsProvider>();
         }
 
-        public async Task<ResultWrapper<string>> StartAsync(string name)
+        public async Task<ResultWrapper<WorkflowStartDto>> StartAsync(string name)
         {
-            var result = new ResultWrapper<string>();
+            var result = new ResultWrapper<WorkflowStartDto>();
 
             try
             {
@@ -70,19 +70,45 @@ namespace BaSys.Core.Services
 
                 var isRegistered = _wRegistry.IsRegistered(workflowSettings.Name, (int)workflowSettings.Version);
 
+                WorkflowDefinition workflowDefinition;
                 if (!isRegistered)
                 {
                     // Build the workflow definition
-                    var workflowDefinition = BuildWorkflow(workflowSettings);
+                    workflowDefinition = BuildWorkflow(workflowSettings);
 
                     // Register the workflow definition dynamically
                     _wRegistry.RegisterWorkflow(workflowDefinition);
                 }
+                else
+                {
+                    workflowDefinition = _wRegistry.GetDefinition(workflowSettings.Name);
+                }
+
+                var startDto = new WorkflowStartDto();
+                foreach(var step in workflowDefinition.Steps)
+                {
+                    var stepDto = new WorkflowStepDto();
+                    stepDto.Id = step.Id;
+                    stepDto.Name = step.Name;
+
+                    if (!string.IsNullOrEmpty(step.ExternalId))
+                    {
+                        if (Guid.TryParse(step.ExternalId, out var uid))
+                        {
+                            var stepSettings = workflowSettings.Steps.FirstOrDefault(x => x.Uid == uid);
+                            stepDto.Title = stepSettings?.Title ?? string.Empty;
+                        }
+                    }
+
+                    startDto.Steps.Add(stepDto);
+                   
+                }
 
                 // Start the workflow
                 string runUid = await _host.StartWorkflow(workflowSettings.Name, null, Guid.NewGuid().ToString());
+                startDto.RunUid = runUid;
 
-                result.Success(runUid, $"Workflow \"{name}\" started");
+                result.Success(startDto, $"Workflow \"{name}\" started");
             }
             catch (Exception ex)
             {
@@ -172,6 +198,7 @@ namespace BaSys.Core.Services
                     var messageStep = new WorkflowStep<MessageStep>();
                     messageStep.Id = stepId;
                     messageStep.Name = typeof(MessageStep).Name;
+                    messageStep.ExternalId = messageStepSettings.Uid.ToString();
 
                     var messageParameter = new MemberMapParameter(
                         (Expression<Func<object, string>>)(data => messageStepSettings.Message),
@@ -187,6 +214,7 @@ namespace BaSys.Core.Services
                     var sleepStep = new WorkflowStep<SleepStep>();
                     sleepStep.Id = stepId;
                     sleepStep.Name = typeof(SleepStep).Name;
+                    sleepStep.ExternalId = sleepStepSettings.Uid.ToString();
 
                     sleepStep.Inputs.Add(
                       new MemberMapParameter(
