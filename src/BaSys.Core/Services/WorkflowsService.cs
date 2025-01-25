@@ -133,6 +133,16 @@ namespace BaSys.Core.Services
                     Reference = instanse.Reference
                 };
 
+                foreach(var executionPointer in instanse.ExecutionPointers)
+                {
+                    var newStep = new WorkflowStepDto();
+                    newStep.Status = (int)executionPointer.Status;
+                    newStep.Name = executionPointer.StepName;
+                    newStep.Id = executionPointer.StepId;
+
+                    dto.Steps.Add(newStep);
+                }
+
                 result.Success(dto);
             }
             catch (Exception ex)

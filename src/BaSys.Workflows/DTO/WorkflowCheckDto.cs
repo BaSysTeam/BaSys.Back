@@ -12,5 +12,7 @@ namespace BaSys.Workflows.DTO
         public string Id { get; set; } = string.Empty;
         public string Reference { get; set; } = string.Empty;
         public WorkflowStatus Status { get; set; }
+        public List<WorkflowStepDto> Steps { get; set; } = new List<WorkflowStepDto>();
+
     }
 }
