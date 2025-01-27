@@ -384,4 +384,8 @@
   <data name="Workflows" xml:space="preserve">
     <value>Workflows</value>
   </data>
+  <data name="Start" xml:space="preserve">
+    <value>Start</value>
+    <comment>Старт</comment>
+  </data>
 </root>

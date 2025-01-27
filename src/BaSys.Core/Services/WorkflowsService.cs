@@ -5,6 +5,7 @@ using BaSys.Host.DAL.DataProviders;
 using BaSys.Logging.Abstractions.Abstractions;
 using BaSys.Metadata.Models.WorkflowModel;
 using BaSys.Metadata.Models.WorkflowModel.Steps;
+using BaSys.Translation;
 using BaSys.Workflows;
 using BaSys.Workflows.DTO;
 using BaSys.Workflows.Steps;
@@ -91,6 +92,10 @@ namespace BaSys.Core.Services
                     var stepDto = new WorkflowStepDto();
                     stepDto.Id = step.Id;
                     stepDto.Name = step.Name;
+                    if (step.Id == 0)
+                    {
+                        stepDto.Title = DictMain.Start;
+                    }
 
                     if (!string.IsNullOrEmpty(step.ExternalId))
                     {
@@ -207,6 +212,14 @@ namespace BaSys.Core.Services
             var stepId = 0;
             var identifiersIndex = new Dictionary<Guid, int>();
 
+            var startStep = new WorkflowStep<StartStep>();
+            startStep.Id = stepId;
+            startStep.Name = typeof(StartStep).Name;
+
+            workflowDefinition.Steps.Add(startStep);
+
+            stepId++;
+
             // Create steps.
             foreach (var stepSettings in settings.Steps)
             {
@@ -248,6 +261,16 @@ namespace BaSys.Core.Services
             }
 
             // Define step outcomes.
+
+            if (workflowDefinition.Steps.Count > 1)
+            {
+                startStep.Outcomes.Add(new ValueOutcome
+                {
+                    NextStep = 1
+                });
+            }
+
+
             foreach (var stepSettings in settings.Steps)
             {
                 if (stepSettings.PreviousStepUid.HasValue)
