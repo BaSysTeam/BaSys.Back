@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BaSys.Logging.InMemory;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,6 +14,7 @@ namespace BaSys.Workflows.DTO
         public string Reference { get; set; } = string.Empty;
         public WorkflowStatus Status { get; set; }
         public List<WorkflowStepDto> Steps { get; set; } = new List<WorkflowStepDto>();
+        public List<InMemoryLogMessage> Messages { get; set; } = new List<InMemoryLogMessage>();
 
     }
 }

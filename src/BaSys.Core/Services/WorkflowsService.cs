@@ -5,6 +5,7 @@ using BaSys.Host.DAL.DataProviders;
 using BaSys.Logging.Abstractions.Abstractions;
 using BaSys.Metadata.Models.WorkflowModel;
 using BaSys.Metadata.Models.WorkflowModel.Steps;
+using BaSys.Workflows;
 using BaSys.Workflows.DTO;
 using BaSys.Workflows.Steps;
 using Microsoft.EntityFrameworkCore;
@@ -105,7 +106,8 @@ namespace BaSys.Core.Services
                 }
 
                 // Start the workflow
-                string runUid = await _host.StartWorkflow(workflowSettings.Name, null, Guid.NewGuid().ToString());
+                var workflowData = new BaSysWorkflowData();
+                string runUid = await _host.StartWorkflow(workflowSettings.Name, workflowData, Guid.NewGuid().ToString());
                 startDto.RunUid = runUid;
 
                 result.Success(startDto, $"Workflow \"{name}\" started");
@@ -132,6 +134,11 @@ namespace BaSys.Core.Services
                     Id = instanse.Id,
                     Reference = instanse.Reference
                 };
+
+                if (instanse.Data is BaSysWorkflowData workflowData)
+                {
+                    dto.Messages = workflowData.Log;
+                }
 
                 foreach(var executionPointer in instanse.ExecutionPointers)
                 {
@@ -194,7 +201,7 @@ namespace BaSys.Core.Services
             {
                 Id = settings.Name,
                 Version = (int)settings.Version,
-                DataType = typeof(object)
+                DataType = typeof(BaSysWorkflowData)
             };
 
             var stepId = 0;

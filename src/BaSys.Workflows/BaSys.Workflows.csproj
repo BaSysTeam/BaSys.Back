@@ -11,4 +11,8 @@
     <PackageReference Include="WorkflowCore.DSL" Version="3.13.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\BaSys.Logging\BaSys.Logging.csproj" />
+  </ItemGroup>
+
 </Project>

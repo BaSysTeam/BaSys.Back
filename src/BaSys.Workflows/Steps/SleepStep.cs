@@ -4,13 +4,13 @@ using WorkflowCore.Models;
 
 namespace BaSys.Workflows.Steps
 {
-    public class SleepStep : StepBodyAsync
+    public class SleepStep : StepAsyncBase
     {
         public string Delay { get; set; } = string.Empty;
 
-        public override async Task<ExecutionResult> RunAsync(IStepExecutionContext context)
+        public override async Task<ExecutionResult> ExecuteAsync(IStepExecutionContext context)
         {
-            Console.WriteLine($"Sleep for {Delay} ms at {DateTime.UtcNow}..........");
+            LogInfo($"Sleep for {Delay} ms..........");
 
             int.TryParse(Delay, out var delayValue);
 
@@ -22,11 +22,11 @@ namespace BaSys.Workflows.Steps
 
             while (elapsed < delayValue)
             {
-                Console.WriteLine($"{DateTime.UtcNow}. Cancellation token: {context.CancellationToken}, CancelRequested: {context.CancellationToken.IsCancellationRequested}");
+                // Console.WriteLine($"{DateTime.UtcNow}. Cancellation token: {context.CancellationToken}, CancelRequested: {context.CancellationToken.IsCancellationRequested}");
 
                 if (context.CancellationToken.IsCancellationRequested)
                 {
-                    Console.WriteLine($"Sleep was canceled at {DateTime.UtcNow}");
+                    LogInfo($"Sleep was canceled at {DateTime.UtcNow}");
                     return ExecutionResult.Persist(context.PersistenceData);
                 }
 
@@ -34,18 +34,18 @@ namespace BaSys.Workflows.Steps
                 {
                     // Monitor the cancellation token from the context
                     await Task.Delay(interval, context.CancellationToken);
-                   
+
                 }
                 catch (TaskCanceledException)
                 {
-                    Console.WriteLine($"Sleep was canceled at {DateTime.UtcNow}");
+                    LogInfo($"Sleep was canceled at {DateTime.UtcNow}");
                     return ExecutionResult.Persist(context.PersistenceData);
                 }
 
                 elapsed += interval;
             }
 
-            Console.WriteLine($"Awake from sleep at {DateTime.UtcNow}");
+            LogInfo($"Awake from sleep");
 
             return ExecutionResult.Next();
         }
