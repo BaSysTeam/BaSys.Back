@@ -9,14 +9,10 @@ using BaSys.Translation;
 using BaSys.Workflows;
 using BaSys.Workflows.DTO;
 using BaSys.Workflows.Steps;
-using Microsoft.EntityFrameworkCore;
 using System.Data;
 using System.Linq.Expressions;
-using System.Text;
 using WorkflowCore.Interface;
 using WorkflowCore.Models;
-using WorkflowCore.Services;
-using static Dapper.SqlMapper;
 
 namespace BaSys.Core.Services
 {
@@ -54,9 +50,10 @@ namespace BaSys.Core.Services
             _provider = _providerFactory.Create<MetaWorkflowsProvider>();
         }
 
-        public async Task<ResultWrapper<WorkflowStartDto>> StartAsync(string name)
+        public async Task<ResultWrapper<WorkflowStartResultDto>> StartAsync(WorkflowStartDto startDto)
         {
-            var result = new ResultWrapper<WorkflowStartDto>();
+            var result = new ResultWrapper<WorkflowStartResultDto>();
+            var name = startDto.Name;
 
             try
             {
@@ -86,7 +83,7 @@ namespace BaSys.Core.Services
                     workflowDefinition = _wRegistry.GetDefinition(workflowSettings.Name);
                 }
 
-                var startDto = new WorkflowStartDto();
+                var startResultDto = new WorkflowStartResultDto();
                 foreach(var step in workflowDefinition.Steps)
                 {
                     var stepDto = new WorkflowStepDto();
@@ -106,16 +103,16 @@ namespace BaSys.Core.Services
                         }
                     }
 
-                    startDto.Steps.Add(stepDto);
+                    startResultDto.Steps.Add(stepDto);
                    
                 }
 
                 // Start the workflow
                 var workflowData = new BaSysWorkflowData();
                 string runUid = await _host.StartWorkflow(workflowSettings.Name, workflowData, Guid.NewGuid().ToString());
-                startDto.RunUid = runUid;
+                startResultDto.RunUid = runUid;
 
-                result.Success(startDto, $"Workflow \"{name}\" started");
+                result.Success(startResultDto, $"Workflow \"{name}\" started");
             }
             catch (Exception ex)
             {

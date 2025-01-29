@@ -8,7 +8,7 @@ namespace BaSys.Core.Abstractions
     public interface IWorkflowsService
     {
         void SetUp(IDbConnection connection);
-        Task<ResultWrapper<WorkflowStartDto>> StartAsync(string name);
+        Task<ResultWrapper<WorkflowStartResultDto>> StartAsync(WorkflowStartDto startDto);
         Task<ResultWrapper<WorkflowCheckDto>> CheckAsync(string reference);
         Task<ResultWrapper<bool>> TerminateAsync(string reference);
     }

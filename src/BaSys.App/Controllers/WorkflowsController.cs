@@ -1,6 +1,7 @@
 ﻿using BaSys.Common.Infrastructure;
 using BaSys.Core.Abstractions;
 using BaSys.Host.DAL.Abstractions;
+using BaSys.Workflows.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
@@ -25,10 +26,10 @@ namespace BaSys.App.Controllers
             _service.SetUp(_connection);
         }
 
-        [HttpPost("start/{name}")]
-        public async Task<IActionResult> Start(string name)
+        [HttpPost("start")]
+        public async Task<IActionResult> Start([FromBody] WorkflowStartDto startDto)
         {
-            var result = await _service.StartAsync(name);
+            var result = await _service.StartAsync(startDto);
 
             return Ok(result);
         }
