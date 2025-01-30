@@ -1,5 +1,6 @@
 ﻿using BaSys.Common.Enums;
 using BaSys.Logging.InMemory;
+using BaSys.Workflows.Infrastructure;
 using WorkflowCore.Interface;
 using WorkflowCore.Models;
 
@@ -32,12 +33,12 @@ namespace BaSys.Workflows.Steps
 
         protected void LogInfo(string message)
         {
-            _logger?.LogInfo(message);
+            _logger?.Log(EventTypeLevels.Info, message);
         }
 
         protected void LogError(string message)
         {
-            _logger?.LogError(message);
+            _logger?.Log(EventTypeLevels.Error, message);
         }
 
 

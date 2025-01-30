@@ -34,6 +34,16 @@ namespace BaSys.Logging.InMemory
             _minimumLevel = level;
         }
 
+        public void Log(EventTypeLevels level, string messageText)
+        {
+            if (!IsEnabled(level))
+            {
+                return;
+            }
+
+            _messages.Add(new InMemoryLogMessage() { Level = level, Text = messageText });
+        }
+
         public void Log(EventTypeLevels level, string messageTemplate, params object[] args)
         {
             if (!IsEnabled(level))

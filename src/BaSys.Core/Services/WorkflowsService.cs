@@ -6,8 +6,8 @@ using BaSys.Logging.Abstractions.Abstractions;
 using BaSys.Metadata.Models.WorkflowModel;
 using BaSys.Metadata.Models.WorkflowModel.Steps;
 using BaSys.Translation;
-using BaSys.Workflows;
 using BaSys.Workflows.DTO;
+using BaSys.Workflows.Infrastructure;
 using BaSys.Workflows.Steps;
 using System.Data;
 using System.Linq.Expressions;
@@ -73,8 +73,7 @@ namespace BaSys.Core.Services
                 if (!isRegistered)
                 {
                     // Build the workflow definition
-                    var builder = new WorkflowBuilder();
-                    workflowDefinition = builder.Build(workflowSettings);
+                    workflowDefinition = WorkflowBuilder.Build(workflowSettings);
 
                     // Register the workflow definition dynamically
                     _wRegistry.RegisterWorkflow(workflowDefinition);
@@ -110,6 +109,7 @@ namespace BaSys.Core.Services
 
                 // Start the workflow
                 var workflowData = new BaSysWorkflowData();
+                workflowData.Parameters = WorkflowParametersParser.Parse(startDto.Parameters);
                 string runUid = await _host.StartWorkflow(workflowSettings.Name, workflowData, Guid.NewGuid().ToString());
                 startResultDto.RunUid = runUid;
 

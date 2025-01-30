@@ -4,11 +4,11 @@ using BaSys.Workflows.Steps;
 using System.Linq.Expressions;
 using WorkflowCore.Models;
 
-namespace BaSys.Workflows
+namespace BaSys.Workflows.Infrastructure
 {
     public sealed class WorkflowBuilder
     {
-        public WorkflowDefinition Build(WorkflowSettings settings)
+        public static WorkflowDefinition Build(WorkflowSettings settings)
         {
             var workflowDefinition = new WorkflowDefinition()
             {

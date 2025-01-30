@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BaSys.Logging\BaSys.Logging.csproj" />
+    <ProjectReference Include="..\BaSys.Shared\BaSys.Shared.csproj" />
   </ItemGroup>
 
 </Project>

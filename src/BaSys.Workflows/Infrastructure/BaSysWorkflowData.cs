@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BaSys.Workflows
+namespace BaSys.Workflows.Infrastructure
 {
     public sealed class BaSysWorkflowData
     {
