@@ -57,7 +57,10 @@ namespace BaSys.Workflows.Infrastructure
 
                 case "object":
 
-                    var parameters = JsonSerializer.Deserialize<List<WorkflowParameterDto>>(parameterDto.Value);
+                    var parameters = JsonSerializer.Deserialize<List<WorkflowParameterDto>>(parameterDto.Value, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
 
                     if (parameters != null)
                     {
