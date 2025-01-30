@@ -10,5 +10,6 @@ public class LoggerConfig
     public string? ConnectionString { get; set; }
     public Guid DbUid { get; set; }
     public string? TableName { get; set; }
+    public string WorkflowsLogTableName { get; set; } = "log_workflows";
     public AutoClearInterval AutoClearInterval { get; set; } = AutoClearInterval.Month;
 }
