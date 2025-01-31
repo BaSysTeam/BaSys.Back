@@ -3,6 +3,7 @@ using BaSys.Core.Abstractions;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
 using BaSys.Logging.Abstractions.Abstractions;
+using BaSys.Logging.Workflow;
 using BaSys.Metadata.Models.WorkflowModel;
 using BaSys.Metadata.Models.WorkflowModel.Steps;
 using BaSys.Translation;
@@ -11,6 +12,7 @@ using BaSys.Workflows.Infrastructure;
 using BaSys.Workflows.Steps;
 using System.Data;
 using System.Linq.Expressions;
+using System.Security.Claims;
 using WorkflowCore.Interface;
 using WorkflowCore.Models;
 
@@ -19,27 +21,27 @@ namespace BaSys.Core.Services
     public class WorkflowsService : IWorkflowsService
     {
         private readonly ISystemObjectProviderFactory _providerFactory;
-        private readonly ILoggerService _logger;
         private readonly IWorkflowHost _host;
         private readonly IWorkflowRegistry _wRegistry;
-        private readonly IPersistenceProvider _persistenceProvider;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ILoggerConfigService _loggerConfigService;
 
         private IDbConnection _connection;
         private MetaWorkflowsProvider _provider;
 
         public WorkflowsService(ISystemObjectProviderFactory providerFactory,
-            ILoggerService logger,
             IWorkflowHost host,
             IDefinitionLoader definitionLoader,
-            IWorkflowRegistry wRegistry,
-            IPersistenceProvider persistenceProvider)
+            IWorkflowRegistry wRegistry,  
+            IHttpContextAccessor httpContextAccessor, 
+            ILoggerConfigService loggerConfigService)
         {
             _providerFactory = providerFactory;
             _host = host;
             _wRegistry = wRegistry;
-            _persistenceProvider = persistenceProvider;
+            _httpContextAccessor = httpContextAccessor;
+            _loggerConfigService = loggerConfigService;
 
-            _logger = logger;
         }
 
         public void SetUp(IDbConnection connection)
@@ -108,9 +110,36 @@ namespace BaSys.Core.Services
                 }
 
                 // Start the workflow
+                var loggerConfig = await _loggerConfigService.GetLoggerConfig();
+
                 var workflowData = new BaSysWorkflowData();
                 workflowData.Parameters = WorkflowParametersParser.Parse(startDto.Parameters);
+                workflowData.LoggerConfig = loggerConfig;
+
+                var loggerContext = new WorkflowLoggerContext();
+                loggerContext.WorkflowUid = workflowSettings.Uid;
+                loggerContext.WorkflowName = workflowSettings.Name;
+
+                var user = _httpContextAccessor.HttpContext?.User;
+                if (user != null)
+                {
+                    var userUid = user.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+                    var userName = user.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Name)?.Value;
+                    var dbName = user.Claims.FirstOrDefault(x => x.Type == "DbName")?.Value;
+
+                    loggerContext.UserUid = userUid;
+                    loggerContext.UserName = userName;
+                    loggerContext.DbName = dbName;
+                    loggerContext.DbUid = loggerConfig.DbUid;
+
+                }
+
+               
+
+                workflowData.LoggerContext = loggerContext;
+
                 string runUid = await _host.StartWorkflow(workflowSettings.Name, workflowData, Guid.NewGuid().ToString());
+                loggerContext.RunUid = runUid;
                 startResultDto.RunUid = runUid;
 
                 result.Success(startResultDto, $"Workflow \"{name}\" started");

@@ -1,27 +1,19 @@
-﻿using BaSys.Logging.Abstractions;
+﻿using BaSys.Common.Enums;
+using BaSys.Logging.Abstractions;
+using BaSys.Logging.Workflow.Abstractions;
 using Dapper;
 using Npgsql;
 using NpgsqlTypes;
-using Serilog.Sinks.PostgreSQL.ColumnWriters;
-using Serilog.Sinks.PostgreSQL;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Serilog.Core;
-using BaSys.Common.Enums;
-using System.Diagnostics;
-using System.Net;
-using System.Reflection.Metadata;
+using Serilog.Sinks.PostgreSQL;
+using Serilog.Sinks.PostgreSQL.ColumnWriters;
 
 namespace BaSys.Logging.Workflow
 {
-    public sealed class WorkflowPgSqlLogger: WorkflowLogger
+    public sealed class WorkflowPgSqlLogger : WorkflowLogger
     {
 
-        public WorkflowPgSqlLogger(LoggerConfig loggerConfig, WorkflowLoggerContext context):base(loggerConfig, context)
+        public WorkflowPgSqlLogger(LoggerConfig loggerConfig, WorkflowLoggerContext context) : base(loggerConfig, context)
         {
             if (string.IsNullOrEmpty(loggerConfig.ConnectionString) || string.IsNullOrEmpty(loggerConfig.WorkflowsLogTableName))
                 return;
@@ -30,14 +22,14 @@ namespace BaSys.Logging.Workflow
 
             var columnWriters = new Dictionary<string, ColumnWriterBase>
         {
-            {"message", new RenderedMessageColumnWriter(NpgsqlDbType.Text)},
-            {"exception_message", new SinglePropertyColumnWriter("ExceptionMessage", PropertyWriteMethod.Raw)},
             {"raise_date", new TimestampColumnWriter(NpgsqlDbType.Timestamp)},
 
+            {"log_message", new SinglePropertyColumnWriter("LogMessage", PropertyWriteMethod.Raw, NpgsqlDbType.Varchar)},
             {"kind", new SinglePropertyColumnWriter("Kind", PropertyWriteMethod.Raw, NpgsqlDbType.Integer)},
             {"level", new SinglePropertyColumnWriter("Level", PropertyWriteMethod.Raw, NpgsqlDbType.Integer)},
 
-            {"db_uid", new SinglePropertyColumnWriter("DbUid", PropertyWriteMethod.Raw, NpgsqlDbType.Uuid)},
+            {"dbName", new SinglePropertyColumnWriter("DbName", PropertyWriteMethod.Raw, NpgsqlDbType.Varchar)},
+            {"dbUid", new SinglePropertyColumnWriter("DbUid", PropertyWriteMethod.Raw, NpgsqlDbType.Uuid)},
 
             {"workflow_name", new SinglePropertyColumnWriter("WorkflowName", PropertyWriteMethod.Raw, NpgsqlDbType.Varchar)},
             {"workflow_uid", new SinglePropertyColumnWriter("WorkflowUid", PropertyWriteMethod.Raw, NpgsqlDbType.Uuid)},
@@ -47,8 +39,6 @@ namespace BaSys.Logging.Workflow
 
             {"user_uid", new SinglePropertyColumnWriter("UserUid")},
             {"user_name", new SinglePropertyColumnWriter("UserName")},
-
-            {"properties", new LogEventSerializedColumnWriter(NpgsqlDbType.Jsonb)},
 
         };
 
@@ -62,7 +52,7 @@ namespace BaSys.Logging.Workflow
                         needAutoCreateTable: true)
                     .CreateLogger();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine($"WorkflowPgSqlLogger. Cannot init logger: {ex.Message}, {ex.StackTrace}");
             }
@@ -71,10 +61,11 @@ namespace BaSys.Logging.Workflow
 
         protected override void WriteInner(WorkflowLogEventKinds kind, EventTypeLevels level, string stepName, string message)
         {
-            Logger?.Information("{message} {Kind} {Level} {DbUid} {WorkflowName} {WorkflowUid} {RunUid} {UserUid} {UserName} {StepName}",
+            Logger?.Information("{LogMessage} {Kind} {Level} {DbName} {DbUid} {WorkflowName} {WorkflowUid} {RunUid} {UserUid} {UserName} {StepName}",
            message,
            (int)kind,
            (int)level,
+           _dbName,
            _dbUid,
            _workflowName,
            _workflowUid,
@@ -111,7 +102,7 @@ namespace BaSys.Logging.Workflow
                         IS_TEMPLATE = False;";
                 db.Execute(sql);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine($"WorkflowPgSqlLogger. Cannot create DB: {ex.Message}, {ex.StackTrace}");
             }

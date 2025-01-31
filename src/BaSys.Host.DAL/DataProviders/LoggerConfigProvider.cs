@@ -41,7 +41,7 @@ namespace BaSys.Host.DAL.DataProviders
                 .From(_config.TableName)
                 .Select("uid")
                 .WhereAnd("loggertype = @loggertype")
-                .Parameter("loggertype", item.LoggerType)
+                .Parameter("loggertype", (int)item.LoggerType, DbType.Int32)
                 .Query(_sqlDialect);
             var result = await _dbConnection.QueryFirstOrDefaultAsync<Guid?>(_query.Text, _query.DynamicParameters, transaction);
 

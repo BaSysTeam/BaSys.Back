@@ -7,12 +7,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BaSys.Logging.Workflow
+namespace BaSys.Logging.Workflow.Abstractions
 {
-    public abstract class WorkflowLogger
+    public abstract class WorkflowLogger : IWorkflowLogger
     {
         protected readonly LoggerConfig _loggerConfig;
 
+        protected readonly string _dbName;
         protected readonly Guid _dbUid;
         protected readonly string _workflowName;
         protected readonly Guid _workflowUid;
@@ -27,7 +28,9 @@ namespace BaSys.Logging.Workflow
         {
             _loggerConfig = loggerConfig;
 
+            _dbName = context.DbName;
             _dbUid = context.DbUid;
+
             _workflowName = context.WorkflowName;
             _workflowUid = context.WorkflowUid;
             _runUid = context.RunUid;

@@ -5,11 +5,11 @@ using WorkflowCore.Models;
 
 namespace BaSys.Workflows.Steps
 {
-    public sealed class StartStep: StepAsyncBase
+    public sealed class StartStep : StepAsyncBase
     {
         public override Task<ExecutionResult> ExecuteAsync(IStepExecutionContext context)
         {
-            LogInfo("Workflow started");
+            LogStart();
 
             if (context.Workflow.Data is BaSysWorkflowData workflowData)
             {
@@ -18,11 +18,18 @@ namespace BaSys.Workflows.Steps
                 {
                     json = JsonSerializer.Serialize(workflowData.Parameters, new JsonSerializerOptions { WriteIndented = true });
                 }
-               
+
                 LogInfo($"parameters: {json}");
             }
 
             return Task.FromResult(ExecutionResult.Next());
+        }
+
+        private void LogStart()
+        {
+            var message = "Workflow started";
+            _inMemoryLogger?.LogInfo(message);
+            _logger?.Info(Common.Enums.WorkflowLogEventKinds.Start, this.GetType().Name, message);
         }
     }
 }

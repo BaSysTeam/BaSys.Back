@@ -1,22 +1,30 @@
 ﻿namespace BaSys.Logging.Workflow
 {
-    public readonly struct WorkflowLoggerContext
+    public sealed class WorkflowLoggerContext
     {
-        public Guid DbUid { get; }
-        public string WorkflowName { get; } = string.Empty;
-        public Guid WorkflowUid { get; }
-        public string RunUid { get; } = string.Empty;
-        public string UserName { get; } = string.Empty;
-        public string UserUid { get; } = string.Empty;
+        public string DbName { get; set; } = string.Empty;
+        public Guid DbUid { get; set; }
+        public string WorkflowName { get; set; } = string.Empty;
+        public Guid WorkflowUid { get; set; }
+        public string RunUid { get; set; } = string.Empty;
+        public string UserName { get; set; } = string.Empty;
+        public string UserUid { get; set; } = string.Empty;
 
         public WorkflowLoggerContext()
         {
             
         }
 
-        public WorkflowLoggerContext(Guid dbUid, string workflowName, Guid workflowUid, string runUid, string userName, string userUid)
+        public WorkflowLoggerContext(string dbName,
+                                     Guid dbUid,
+                                     string workflowName,
+                                     Guid workflowUid,
+                                     string runUid,
+                                     string userName,
+                                     string userUid)
         {
             DbUid = dbUid;
+            DbName = dbName;
             WorkflowName = workflowName;
             WorkflowUid = workflowUid;
             RunUid = runUid;
