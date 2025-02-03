@@ -27,8 +27,10 @@ namespace BaSys.Logging.Workflow
                 case LoggerTypes.PgSql:
                     return new WorkflowPgSqlLogger(_loggerConfig, _loggerContext);
                 case LoggerTypes.MsSql:
+                    // TODO: Implement MSSQL logger.
                     return null;
                 case LoggerTypes.MongoDb:
+                    // TODO: Implement MongoDb logger.
                     return null;
                 default:
                     return null;

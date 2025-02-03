@@ -17,6 +17,7 @@ namespace BaSys.Constructor.Infrastructure
                 .Add(new AssemblyPart(typeof(ConstructorExtension).Assembly));
 
             services.AddTransient<IQueriesService, QueriesService>();
+            services.AddTransient<IWorkflowLogsService, WorkflowLogsService>();
 
             return services;
         }
