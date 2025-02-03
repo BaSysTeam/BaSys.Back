@@ -129,8 +129,7 @@ namespace BaSys.Core.Services
 
                     loggerContext.UserUid = userUid;
                     loggerContext.UserName = userName;
-                    loggerContext.DbName = dbName;
-                    loggerContext.DbUid = loggerConfig.DbUid;
+                    loggerContext.Origine = "interactive";
 
                 }
 
