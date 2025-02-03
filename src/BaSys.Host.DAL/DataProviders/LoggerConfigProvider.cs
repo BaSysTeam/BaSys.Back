@@ -55,10 +55,11 @@ namespace BaSys.Host.DAL.DataProviders
                 // unselect all
                 _query = UpdateBuilder.Make()
                     .Table(_config.TableName)
-                    .Set("isselected", "0")
-                    .WhereAnd("isselected = 1")
+                    .Set("isselected", "@false_value")
+                    .Parameter("false_value", false, DbType.Boolean)
+                    .WhereAnd("1 = 1")
                     .Query(_sqlDialect);
-                await _dbConnection.ExecuteAsync(_query.Text, null, transaction);
+                await _dbConnection.ExecuteAsync(_query.Text, _query.DynamicParameters, transaction);
 
                 // select current & save
                 item.IsSelected = true;
