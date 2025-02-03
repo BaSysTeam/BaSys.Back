@@ -8,11 +8,11 @@ namespace BaSys.Constructor.Controllers
     [Route("api/constructor/v1/[controller]")]
     [ApiController]
     [Authorize(Roles = ApplicationRole.Designer)]
-    public class WorkflowLogsController : ControllerBase
+    public class WorkflowLogRecordsController : ControllerBase
     {
-        private readonly IWorkflowLogsService _service;
+        private readonly IWorkflowLogRecordsService _service;
 
-        public WorkflowLogsController(IWorkflowLogsService service)
+        public WorkflowLogRecordsController(IWorkflowLogRecordsService service)
         {
             _service = service;
         }

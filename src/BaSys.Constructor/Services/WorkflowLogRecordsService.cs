@@ -10,12 +10,12 @@ using System.Data;
 
 namespace BaSys.Constructor.Services
 {
-    public class WorkflowLogsService : IWorkflowLogsService
+    public class WorkflowLogRecordsService : IWorkflowLogRecordsService
     {
         private readonly ILoggerConfigService _loggerConfigService;
         private readonly IMainConnectionFactory _connectionFactory;
 
-        public WorkflowLogsService(IMainConnectionFactory connectionFactory, 
+        public WorkflowLogRecordsService(IMainConnectionFactory connectionFactory, 
             ILoggerConfigService loggerConfigService)
         {
             _loggerConfigService = loggerConfigService;
