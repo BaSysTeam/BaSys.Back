@@ -24,7 +24,7 @@ namespace BaSys.Logging.Workflow
         {
             {"raise_date", new TimestampColumnWriter(NpgsqlDbType.Timestamp)},
 
-            {"log_message", new SinglePropertyColumnWriter("LogMessage", PropertyWriteMethod.Raw, NpgsqlDbType.Varchar)},
+            {"log_message", new SinglePropertyColumnWriter("LogMessage", PropertyWriteMethod.Raw, NpgsqlDbType.Text)},
             {"kind", new SinglePropertyColumnWriter("Kind", PropertyWriteMethod.Raw, NpgsqlDbType.Integer)},
             {"level", new SinglePropertyColumnWriter("Level", PropertyWriteMethod.Raw, NpgsqlDbType.Integer)},
 
@@ -36,7 +36,7 @@ namespace BaSys.Logging.Workflow
 
             {"step_name", new SinglePropertyColumnWriter("StepName", PropertyWriteMethod.Raw, NpgsqlDbType.Varchar)},
 
-            {"user_uid", new SinglePropertyColumnWriter("UserUid")},
+            {"user_uid", new SinglePropertyColumnWriter("UserUid", PropertyWriteMethod.Raw, NpgsqlDbType.Varchar)},
             {"user_name", new SinglePropertyColumnWriter("UserName")},
 
         };
