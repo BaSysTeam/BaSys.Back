@@ -2,7 +2,7 @@
 {
     public sealed class WorkflowLoggerContext
     {
-        public string Origine { get; set; } = string.Empty;
+        public string Origin { get; set; } = string.Empty;
         public string WorkflowName { get; set; } = string.Empty;
         public Guid WorkflowUid { get; set; }
         public string RunUid { get; set; } = string.Empty;
@@ -14,7 +14,7 @@
             
         }
 
-        public WorkflowLoggerContext(string origine,
+        public WorkflowLoggerContext(string origin,
                                      Guid dbUid,
                                      string workflowName,
                                      Guid workflowUid,
@@ -22,7 +22,7 @@
                                      string userName,
                                      string userUid)
         {
-            Origine = origine;
+            Origin = origin;
             WorkflowName = workflowName;
             WorkflowUid = workflowUid;
             RunUid = runUid;

@@ -13,7 +13,7 @@ namespace BaSys.Logging.Workflow.Abstractions
     {
         protected readonly LoggerConfig _loggerConfig;
 
-        protected readonly string _origine;
+        protected readonly string _origin;
         protected readonly string _workflowName;
         protected readonly Guid _workflowUid;
         protected readonly string _runUid;
@@ -27,7 +27,7 @@ namespace BaSys.Logging.Workflow.Abstractions
         {
             _loggerConfig = loggerConfig;
 
-            _origine = context.Origine;
+            _origin = context.Origin;
 
             _workflowName = context.WorkflowName;
             _workflowUid = context.WorkflowUid;
