@@ -8,6 +8,7 @@ namespace BaSys.Logging.Workflow
         public string LogMessage { get; set; } = string.Empty;
         public WorkflowLogEventKinds Kind { get; set; }
         public EventTypeLevels Level { get; set; }
+        public long Version { get; set; }
         public string Origin { get; set; } = string.Empty;
         public Guid WorkflowUid { get; set; }
         public string RunUid { get; set; } = string.Empty;

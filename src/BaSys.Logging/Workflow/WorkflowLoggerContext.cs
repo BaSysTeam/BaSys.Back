@@ -9,6 +9,7 @@
         public string RunUid { get; set; } = string.Empty;
         public string UserName { get; set; } = string.Empty;
         public string UserUid { get; set; } = string.Empty;
+        public long Version { get; set; }
 
         public WorkflowLoggerContext()
         {

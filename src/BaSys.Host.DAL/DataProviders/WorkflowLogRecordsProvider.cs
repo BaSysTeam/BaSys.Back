@@ -83,6 +83,7 @@ namespace BaSys.Host.DAL.DataProviders
             {
                 Kind = (WorkflowLogEventKinds)x.kind,
                 Level = (EventTypeLevels)x.level,
+                Version = x.version,
                 LogMessage = x.log_message,
                 Origin = x.origin,
                 RaiseDate = x.raise_date,

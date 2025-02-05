@@ -116,6 +116,7 @@ namespace BaSys.Core.Services
                 loggerContext.WorkflowUid = workflowSettings.Uid;
                 loggerContext.WorkflowName = workflowSettings.Name;
                 loggerContext.WorkflowTitle = workflowSettings.Title;
+                loggerContext.Version = workflowSettings.Version;
 
                 var user = _httpContextAccessor.HttpContext?.User;
                 if (user != null)

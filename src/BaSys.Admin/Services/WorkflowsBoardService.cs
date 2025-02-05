@@ -66,6 +66,7 @@ namespace BaSys.Admin.Services
                 infoItem.UserName = workflowData.LoggerContext.UserName;
                 infoItem.RunUid = workflowData.LoggerContext.RunUid;
                 infoItem.UserUid = workflowData.LoggerContext.UserUid;
+                infoItem.Version = workflowData.LoggerContext.Version;
             }
 
             return infoItem;

@@ -33,6 +33,7 @@ namespace BaSys.Logging.Workflow
             {"workflow_name", new SinglePropertyColumnWriter("WorkflowName", PropertyWriteMethod.Raw, NpgsqlDbType.Varchar)},
             {"workflow_uid", new SinglePropertyColumnWriter("WorkflowUid", PropertyWriteMethod.Raw, NpgsqlDbType.Uuid)},
             {"run_uid", new SinglePropertyColumnWriter("RunUid", PropertyWriteMethod.Raw, NpgsqlDbType.Varchar)},
+            {"version", new SinglePropertyColumnWriter("Version", PropertyWriteMethod.Raw, NpgsqlDbType.Bigint)},
 
             {"step_name", new SinglePropertyColumnWriter("StepName", PropertyWriteMethod.Raw, NpgsqlDbType.Varchar)},
 
@@ -60,10 +61,11 @@ namespace BaSys.Logging.Workflow
 
         protected override void WriteInner(WorkflowLogEventKinds kind, EventTypeLevels level, string stepName, string message)
         {
-            Logger?.Information("{LogMessage} {Kind} {Level} {Origin} {WorkflowName} {WorkflowUid} {RunUid} {UserUid} {UserName} {StepName}",
+            Logger?.Information("{LogMessage} {Kind} {Level} {Version} {Origin} {WorkflowName} {WorkflowUid} {RunUid} {UserUid} {UserName} {StepName}",
            message,
            (int)kind,
            (int)level,
+           _version,
            _origin,
            _workflowName,
            _workflowUid,

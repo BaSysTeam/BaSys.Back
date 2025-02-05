@@ -18,5 +18,6 @@ namespace BaSys.Workflows.DTO
         public string Origin { get; set; } = string.Empty;
         public string UserName { get; set; } = string.Empty;
         public string UserUid { get; set; } = string.Empty;
+        public long Version { get; set; }
     }
 }

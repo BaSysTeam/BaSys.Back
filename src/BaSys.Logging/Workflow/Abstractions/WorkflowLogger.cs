@@ -1,11 +1,6 @@
 ﻿using BaSys.Common.Enums;
 using BaSys.Logging.Abstractions;
 using Serilog.Core;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BaSys.Logging.Workflow.Abstractions
 {
@@ -17,6 +12,7 @@ namespace BaSys.Logging.Workflow.Abstractions
         protected readonly string _workflowName;
         protected readonly Guid _workflowUid;
         protected readonly string _runUid;
+        protected readonly long _version;
 
         protected readonly string _userName;
         protected readonly string _userUid;
@@ -32,6 +28,7 @@ namespace BaSys.Logging.Workflow.Abstractions
             _workflowName = context.WorkflowName;
             _workflowUid = context.WorkflowUid;
             _runUid = context.RunUid;
+            _version = context.Version;
 
             _userName = context.UserName;
             _userUid = context.UserUid;
