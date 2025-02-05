@@ -4,14 +4,10 @@ using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
 using BaSys.Logging.Abstractions.Abstractions;
 using BaSys.Logging.Workflow;
-using BaSys.Metadata.Models.WorkflowModel;
-using BaSys.Metadata.Models.WorkflowModel.Steps;
 using BaSys.Translation;
 using BaSys.Workflows.DTO;
 using BaSys.Workflows.Infrastructure;
-using BaSys.Workflows.Steps;
 using System.Data;
-using System.Linq.Expressions;
 using System.Security.Claims;
 using WorkflowCore.Interface;
 using WorkflowCore.Models;
@@ -185,39 +181,6 @@ namespace BaSys.Core.Services
             catch (Exception ex)
             {
                 result.Error(-1, $"Cannot get Workflow status by reference {runUid}: {ex.Message}", ex.StackTrace);
-            }
-
-            return result;
-
-        }
-
-        public async Task<ResultWrapper<bool>> TerminateAsync(string runUid)
-        {
-            var result = new ResultWrapper<bool>();
-
-            try
-            {
-                var workflow = await _host.PersistenceStore.GetWorkflowInstance(runUid);
-                if (workflow == null)
-                {
-                    result.Error(-1, $"Workflow {runUid} not found.");
-                    return result;
-                }
-
-                if (workflow.Status == WorkflowStatus.Runnable)
-                {
-                    var isTerminated = await _host.TerminateWorkflow(runUid);
-                    result.Success(isTerminated);
-                }
-                else
-                {
-                    result.Error(-1, $"Cannot terminate workflow {runUid}, current status: {workflow.Status}");
-                }
-
-            }
-            catch (Exception ex)
-            {
-                result.Error(-1, $"Cannot terminate workflow {runUid}: {ex.Message}", ex.StackTrace);
             }
 
             return result;

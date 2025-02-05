@@ -1,9 +1,8 @@
 ﻿using BaSys.Admin.Abstractions;
 using BaSys.Common.Infrastructure;
+using BaSys.Workflows.Abstractions;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections;
 
 namespace BaSys.Admin.Controllers
 {
@@ -13,16 +12,28 @@ namespace BaSys.Admin.Controllers
     public class WorkflowsBoardController : ControllerBase
     {
         private readonly IWorkflowsBoardService _service;
+        private readonly IWorkflowTerminateCommandHandler _terminateHandler;
 
-        public WorkflowsBoardController(IWorkflowsBoardService service)
+
+        public WorkflowsBoardController(IWorkflowsBoardService service, 
+            IWorkflowTerminateCommandHandler terminateHandler)
         {
             _service = service;
+            _terminateHandler = terminateHandler;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetInfo()
         {
             var result = await _service.GetInfoAsync();
+
+            return Ok(result);
+        }
+
+        [HttpDelete("{runUid}")]
+        public async Task<IActionResult> Terminate(string runUid)
+        {
+            var result = await _terminateHandler.ExecuteAsync(runUid);
 
             return Ok(result);
         }

@@ -1,6 +1,7 @@
 ﻿using BaSys.Common.Infrastructure;
 using BaSys.Core.Abstractions;
 using BaSys.Host.DAL.Abstractions;
+using BaSys.Workflows.Abstractions;
 using BaSys.Workflows.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,16 +15,20 @@ namespace BaSys.App.Controllers
     public class WorkflowsController : ControllerBase, IDisposable
     {
         private readonly IWorkflowsService _service;
+        private readonly IWorkflowTerminateCommandHandler _terminateHandler;
         private readonly IDbConnection _connection;
         private bool _disposed = false;
 
         public WorkflowsController(IMainConnectionFactory connectionFactory, 
-            IWorkflowsService service)
+            IWorkflowsService service, 
+            IWorkflowTerminateCommandHandler terminateHanlder)
         {
             _connection = connectionFactory.CreateConnection();
 
             _service = service;
             _service.SetUp(_connection);
+
+            _terminateHandler = terminateHanlder;
         }
 
         [HttpPost("start")]
@@ -45,7 +50,7 @@ namespace BaSys.App.Controllers
         [HttpDelete("{runUid}")]
         public async Task<IActionResult> Terminate(string runUid)
         {
-            var result = await _service.TerminateAsync(runUid);
+            var result = await _terminateHandler.ExecuteAsync(runUid);
 
             return Ok(result);
         }

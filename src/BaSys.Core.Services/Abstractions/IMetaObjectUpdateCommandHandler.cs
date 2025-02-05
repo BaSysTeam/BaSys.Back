@@ -1,4 +1,5 @@
-﻿using BaSys.DTO.Metadata;
+﻿using BaSys.Common.Abstractions;
+using BaSys.DTO.Metadata;
 
 namespace BaSys.Core.Features.Abstractions
 {
