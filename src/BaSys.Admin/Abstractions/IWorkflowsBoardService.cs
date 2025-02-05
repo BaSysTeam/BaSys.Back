@@ -1,7 +1,10 @@
-﻿namespace BaSys.Admin.Abstractions
+﻿using BaSys.Common.Infrastructure;
+using BaSys.Workflows.DTO;
+
+namespace BaSys.Admin.Abstractions
 {
     public interface IWorkflowsBoardService
     {
-        Task<IEnumerable<string?>> GetInfoAsync();
+        Task<ResultWrapper<IEnumerable<WorkflowInfoDto>>> GetInfoAsync();
     }
 }

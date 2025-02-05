@@ -119,6 +119,7 @@ namespace BaSys.Core.Services
                 var loggerContext = new WorkflowLoggerContext();
                 loggerContext.WorkflowUid = workflowSettings.Uid;
                 loggerContext.WorkflowName = workflowSettings.Name;
+                loggerContext.WorkflowTitle = workflowSettings.Title;
 
                 var user = _httpContextAccessor.HttpContext?.User;
                 if (user != null)
@@ -132,8 +133,6 @@ namespace BaSys.Core.Services
                     loggerContext.Origin = "interactive";
 
                 }
-
-               
 
                 workflowData.LoggerContext = loggerContext;
 

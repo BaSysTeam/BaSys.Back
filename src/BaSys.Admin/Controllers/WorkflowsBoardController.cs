@@ -22,10 +22,7 @@ namespace BaSys.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> GetInfo()
         {
-            var collection = await _service.GetInfoAsync();
-
-            var result = new ResultWrapper<IEnumerable<string?>>();
-            result.Success(collection);
+            var result = await _service.GetInfoAsync();
 
             return Ok(result);
         }
