@@ -1,6 +1,7 @@
 ﻿using BaSys.Admin.Abstractions;
 using BaSys.Common.Infrastructure;
 using BaSys.Workflows.DTO;
+using BaSys.Workflows.Enums;
 using BaSys.Workflows.Infrastructure;
 using WorkflowCore.Interface;
 using WorkflowCore.Models;
@@ -52,7 +53,8 @@ namespace BaSys.Admin.Services
 
             if (workflow == null) return infoItem;
 
-            infoItem.Status = (int)workflow.Status;
+
+            infoItem.Status = ConvertStatus(workflow);
             infoItem.CreateTime = workflow.CreateTime;
             infoItem.WorkflowName = workflow.WorkflowDefinitionId;
 
@@ -67,6 +69,34 @@ namespace BaSys.Admin.Services
             }
 
             return infoItem;
+        }
+
+        private BaSysWorkflowStatuses ConvertStatus(WorkflowInstance workflow)
+        {
+            switch (workflow.Status)
+            {
+                case WorkflowStatus.Runnable:
+
+                    // Check is workflow running.
+                    if (workflow.ExecutionPointers.Any(x => x.Status == PointerStatus.Running))
+                    {
+                        return BaSysWorkflowStatuses.Running;
+                    }
+                    else
+                    {
+                        return BaSysWorkflowStatuses.Waiting;
+                    }
+
+                case WorkflowStatus.Suspended:
+                    return BaSysWorkflowStatuses.Suspended;
+                case WorkflowStatus.Complete:
+                    return BaSysWorkflowStatuses.Complete;
+                case WorkflowStatus.Terminated:
+                    return BaSysWorkflowStatuses.Terminated;
+                default:
+                    throw new ArgumentException($"Unknown workfow status {workflow.Status}");
+
+            }
         }
     }
 }

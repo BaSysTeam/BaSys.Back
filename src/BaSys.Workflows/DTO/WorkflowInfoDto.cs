@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BaSys.Workflows.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,7 +10,7 @@ namespace BaSys.Workflows.DTO
     public sealed class WorkflowInfoDto
     {
         public DateTime CreateTime { get; set; }
-        public int Status { get; set; }
+        public BaSysWorkflowStatuses Status { get; set; }
         public string RunUid { get; set; } = string.Empty;
         public string WorkflowUid { get; set; } = string.Empty;
         public string WorkflowName { get; set; } = string.Empty;
