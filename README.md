@@ -1,5 +1,6 @@
 # BaSYS
-BaSYS - Business Applications System is a Low-Code constructor for creating applications for business automation.
+BaSYS is a LowCode platform for building business applications. The system is based on a metadata layer that defines the structure 
+and logic of the business model. This approach ensures both high flexibility and rapid application development.
 
 # Disclaimer
 The current pre-alpha version is not recommended for production use. We recommend using it for testing and evaluation purposes only.

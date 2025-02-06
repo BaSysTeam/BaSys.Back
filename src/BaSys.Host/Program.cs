@@ -41,6 +41,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using Serilog.Sinks.MSSqlServer;
+using WorkflowCore.Interface;
 using EnvironmentName = Microsoft.AspNetCore.Hosting.EnvironmentName;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
@@ -89,7 +90,7 @@ namespace BaSys.Host
             //{
             //    options.JsonSerializerOptions.Converters.Add(new DictionaryStringObjectJsonConverter());
             //});
-            
+
             // Add core
             builder.Services.AddCore();
 
@@ -107,7 +108,7 @@ namespace BaSys.Host
 
             // Add logging module
             builder.Services.AddLog();
-            
+
             // Add public api module
             builder.Services.AddPublicApi();
 
@@ -165,7 +166,8 @@ namespace BaSys.Host
                         // options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                         // options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                     })
-                .AddCookie(options => { 
+                .AddCookie(options =>
+                {
                     options.LoginPath = new PathString("/Identity/Account/Login");
                     options.ExpireTimeSpan = TimeSpan.FromHours(24);
                     options.SlidingExpiration = true;
@@ -230,7 +232,22 @@ namespace BaSys.Host
             builder.Host.UseSerilog();
             builder.Logging.AddSerilog();
 
+            // Add WorkflowCore.
+            builder.Services.AddWorkflow(
+                cfg =>{
+                    cfg.UsePollInterval(TimeSpan.FromSeconds(5)); // Adjust the polling interval if necessary
+                });
+            builder.Services.AddWorkflowDSL();
+
+
             var app = builder.Build();
+
+            // Start the WorkflowCore host.
+            using (var scope = app.Services.CreateScope())
+            {
+                var host = scope.ServiceProvider.GetRequiredService<IWorkflowHost>();
+                host.Start();
+            }
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
@@ -301,6 +318,13 @@ namespace BaSys.Host
 
             var dbInfoRecordsProvider = serviceScope.ServiceProvider.GetRequiredService<IDbInfoRecordsProvider>();
             await dbInfoRecordsProvider.Update();
+
+            // Stop WorkflowCore host.
+            app.Lifetime.ApplicationStopping.Register(() =>
+            {
+                var host = app.Services.GetRequiredService<IWorkflowHost>();
+                host.Stop();
+            });
 
             app.Run();
         }

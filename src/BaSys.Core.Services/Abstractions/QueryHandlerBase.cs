@@ -1,4 +1,5 @@
-﻿using BaSys.Common.Infrastructure;
+﻿using BaSys.Common.Abstractions;
+using BaSys.Common.Infrastructure;
 
 namespace BaSys.Core.Features.Abstractions
 {

@@ -164,7 +164,7 @@ namespace BaSys.FluentQueries.Models
             else if (type == typeof(Guid?)) return DbType.Guid;
             else if (type == typeof(DateTime?)) return DbType.DateTime;
             else if (type == typeof(DateTimeOffset?)) return DbType.DateTimeOffset;
-            else if (type.IsEnum) return DbType.Byte;
+            else if (type.IsEnum) return ToDbType( Enum.GetUnderlyingType(type));
             else if (IsNullableEnum(type)) return DbType.Byte;
             else throw new ArgumentException("Unsupported type");
         }

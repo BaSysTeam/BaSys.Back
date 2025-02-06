@@ -11,7 +11,7 @@ public class LoggerConfig
 {
     public Guid Uid { get; set; }
     public bool IsEnabled { get; set; }
-    public LoggerTypes? LoggerType { get; set; }
+    public LoggerTypes LoggerType { get; set; }
     public EventTypeLevels MinimumLogLevel { get; set; } = EventTypeLevels.Info;
     public string? ConnectionString { get; set; }
     public AutoClearInterval AutoClearInterval { get; set; } = AutoClearInterval.Month;

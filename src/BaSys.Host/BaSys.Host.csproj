@@ -30,6 +30,8 @@
     <PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />
     <PackageReference Include="Serilog.Sinks.MSSqlServer" Version="6.6.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+    <PackageReference Include="WorkflowCore" Version="3.13.0" />
+    <PackageReference Include="WorkflowCore.DSL" Version="3.13.0" />
   </ItemGroup>
 
   <ItemGroup>
