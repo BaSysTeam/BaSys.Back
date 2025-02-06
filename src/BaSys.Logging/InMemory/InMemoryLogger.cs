@@ -19,6 +19,12 @@ namespace BaSys.Logging.InMemory
             _minimumLevel = level;
         }
 
+        public InMemoryLogger(EventTypeLevels level, List<InMemoryLogMessage> messages)
+        {
+            _minimumLevel = level;
+            _messages = messages;
+        }
+
         public void Clear()
         {
             _messages.Clear();
@@ -26,6 +32,16 @@ namespace BaSys.Logging.InMemory
 
         public void SetLevel(EventTypeLevels level) { 
             _minimumLevel = level;
+        }
+
+        public void Log(EventTypeLevels level, string messageText)
+        {
+            if (!IsEnabled(level))
+            {
+                return;
+            }
+
+            _messages.Add(new InMemoryLogMessage() { Level = level, Text = messageText });
         }
 
         public void Log(EventTypeLevels level, string messageTemplate, params object[] args)

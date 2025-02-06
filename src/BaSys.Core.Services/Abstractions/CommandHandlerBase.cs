@@ -1,4 +1,5 @@
-﻿using BaSys.Common.Infrastructure;
+﻿using BaSys.Common.Abstractions;
+using BaSys.Common.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Data;

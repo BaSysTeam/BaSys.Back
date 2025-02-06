@@ -1,9 +1,6 @@
 ﻿using BaSys.FluentQueries.Abstractions;
 using BaSys.FluentQueries.Enums;
 using BaSys.FluentQueries.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace BaSys.FluentQueries.ScriptGenerators
 {
@@ -20,17 +17,16 @@ namespace BaSys.FluentQueries.ScriptGenerators
         {
             var query = new Query();
 
-            var sb = new StringBuilder();
+            Append($"DELETE FROM ");
+            AppendName(_model.TableName); 
 
-            sb.Append($"DELETE FROM {_model.TableName}");
+            AppendLine();
+            Append("WHERE ");
+            Append(_model.WhereExpression);
 
-            sb.AppendLine();
-            sb.Append("WHERE ");
-            sb.Append(_model.WhereExpression);
+            Append(";");
 
-            sb.Append(";");
-
-            query.Text = sb.ToString();
+            query.Text = _sb.ToString();
             query.AddParameters(_model.Parameters);
 
             return query;

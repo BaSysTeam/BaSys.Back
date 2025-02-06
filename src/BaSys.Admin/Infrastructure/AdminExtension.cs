@@ -19,6 +19,7 @@ namespace BaSys.Admin.Infrastructure
             services.AddTransient<ILoggerConfigService, LoggerConfigService>();
             services.AddTransient<IFileStorageConfigService, FileStorageConfigService>();
             services.AddTransient<IUserGroupService, UserGroupService>();
+            services.AddTransient<IWorkflowsBoardService, WorkflowsBoardService>();
 
             return services;
         }

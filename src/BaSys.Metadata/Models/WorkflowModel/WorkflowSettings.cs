@@ -23,7 +23,6 @@ namespace BaSys.Metadata.Models.WorkflowModel
             Title = source.Title;
             Memo = source.Memo;
             IsActive = source.IsActive;
-            Version = source.Version;
 
             Steps = source.Steps;
         }

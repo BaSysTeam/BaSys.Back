@@ -55,7 +55,8 @@ public class LoggerConfigService : ILoggerConfigService
             IsEnabled = config.IsEnabled,
             AutoClearInterval = config.AutoClearInterval,
             DbUid = appConstants.DataBaseUid,
-            TableName = GetTableName(appConstants.DataBaseUid)
+            TableName = GetTableName(appConstants.DataBaseUid),
+            WorkflowsLogTableName = GetWorkflowsLogTableName(appConstants.DataBaseUid),
         };
 
         #region hardcode for test
@@ -99,4 +100,5 @@ public class LoggerConfigService : ILoggerConfigService
     }
 
     private string GetTableName(Guid dbUid) => $"logs-{dbUid}";
+    private string GetWorkflowsLogTableName(Guid dbUid) => $"workflows-{dbUid}";
 }

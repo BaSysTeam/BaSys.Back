@@ -43,4 +43,24 @@ public sealed class MainConnectionFactory : IMainConnectionFactory
         
         return connection;
     }
+
+    public IDbConnection CreateConnection(string connectionString, DbKinds dbKind)
+    {
+        IDbConnection connection = null;
+        switch (dbKind)
+        {
+            case DbKinds.MsSql:
+                connection = new SqlConnection(connectionString);
+                break;
+            case DbKinds.PgSql:
+                connection = new NpgsqlConnection(connectionString);
+                break;
+            default:
+                throw new NotImplementedException($"DbKind {dbKind} not supported");
+        }
+
+        return connection;
+    }
+
+
 }
