@@ -12,7 +12,7 @@ namespace BaSys.Metadata.Models.WorkflowModel
 
         public void CopyFrom(WorkflowScheduleRecord source)
         {
-            WorkflowUid = source.Uid;
+            WorkflowUid = source.WorkflowUid;
             CronExpression = source.CronExpression;
             Memo = source.Memo;
             IsActive = source.IsActive;

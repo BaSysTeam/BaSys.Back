@@ -32,7 +32,7 @@ namespace BaSys.Host.DAL.DataProviders
                     .Parameter("workflowUid", workflowUid.Value, DbType.Guid);
             }
 
-            _query = builder.Query(_sqlDialect);
+            _query = builder.OrderBy("cronexpression").Query(_sqlDialect);
 
             var result = await _dbConnection.QueryAsync<WorkflowScheduleRecord>(_query.Text, _query.DynamicParameters, transaction);
 
