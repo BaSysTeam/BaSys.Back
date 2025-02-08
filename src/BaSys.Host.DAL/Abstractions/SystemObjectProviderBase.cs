@@ -3,17 +3,8 @@ using BaSys.FluentQueries.Enums;
 using BaSys.FluentQueries.QueryBuilders;
 using BaSys.Host.DAL.Helpers;
 using BaSys.Host.DAL.QueryResults;
-using BaSys.Metadata.Models;
 using Dapper;
-using Npgsql;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace BaSys.Host.DAL.Abstractions
 {
@@ -48,7 +39,7 @@ namespace BaSys.Host.DAL.Abstractions
             return result;
         }
 
-        public virtual async Task<T?> GetItemAsync(Guid uid, IDbTransaction transaction)
+        public virtual async Task<T?> GetItemAsync(Guid uid, IDbTransaction? transaction)
         {
             _query = SelectBuilder.Make()
               .From(_config.TableName)
@@ -63,11 +54,11 @@ namespace BaSys.Host.DAL.Abstractions
         }
 
 
-        public abstract Task<Guid> InsertAsync(T item, IDbTransaction transaction);
+        public abstract Task<Guid> InsertAsync(T item, IDbTransaction? transaction);
 
-        public abstract Task<int> UpdateAsync(T item, IDbTransaction transaction);
+        public abstract Task<int> UpdateAsync(T item, IDbTransaction? transaction);
 
-        public virtual async Task<int> DeleteAsync(Guid uid, IDbTransaction transaction)
+        public virtual async Task<int> DeleteAsync(Guid uid, IDbTransaction? transaction)
         {
             _query = DeleteBuilder.Make()
             .Table(_config.TableName)
