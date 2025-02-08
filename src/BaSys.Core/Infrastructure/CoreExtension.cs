@@ -6,6 +6,7 @@ using BaSys.Core.Features.MetaObjects.Services;
 using BaSys.Core.Services;
 using BaSys.Workflows.Abstractions;
 using BaSys.Workflows.Commands;
+using BaSys.Workflows.Services;
 
 namespace BaSys.Core.Infrastructure;
 
@@ -21,9 +22,11 @@ public static class CoreExtension
         services.AddTransient<IMetaObjectCreateCommandHandler, MetaObjectCreateCommandHandler>();
         services.AddTransient<IMetaObjectUpdateCommandHandler, MetaObjectUpdateCommandHandler>();
         services.AddTransient<IDataObjectRegistratorRouteQueryHandler, DataObjectRegistratorRouteQueryHandler>();
+
         services.AddTransient<IMetaWorkflowsService, MetaWorkflowsService>();
         services.AddTransient<IWorkflowsService, WorkflowsService>();
         services.AddTransient<IWorkflowTerminateCommandHandler, WorkflowTerminateCommandHandler>();
+        services.AddTransient<IWorkflowsScheduleService, WorkflowsScheduleService>();
 
         return services;
     }
