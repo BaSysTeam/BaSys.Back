@@ -34,6 +34,7 @@ using BaSys.SuperAdmin.DAL.Abstractions;
 using BaSys.SuperAdmin.DAL.Models;
 using BaSys.SuperAdmin.Data.Identity;
 using BaSys.SuperAdmin.Infrastructure;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Connections;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -162,16 +163,11 @@ namespace BaSys.Host
             builder.Services.AddAuthentication(
                     options =>
                     {
-                        // options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                        // options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                        // options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                        //options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                        //options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                        //options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                     })
-                .AddCookie(options =>
-                {
-                    options.LoginPath = new PathString("/Identity/Account/Login");
-                    options.ExpireTimeSpan = TimeSpan.FromHours(24);
-                    options.SlidingExpiration = true;
-                })
+                .AddCookie()
                 .AddJwtBearer(
                     opt =>
                     {
@@ -186,6 +182,30 @@ namespace BaSys.Host
                             RequireExpirationTime = true
                         };
                     });
+
+            builder.Services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = "/Identity/Account/Login";
+                options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+                options.ExpireTimeSpan = TimeSpan.FromHours(24);
+                options.SlidingExpiration = true;
+
+                // Disable redirect for API requests.
+                options.Events.OnRedirectToLogin = context =>
+                {
+                    if (context.Request.Path.StartsWithSegments("/api"))
+                    {
+                        // Just return 401.
+                        context.Response.StatusCode = 401; 
+                    }
+                    else
+                    {
+                        // Redirect for other pages.
+                        context.Response.Redirect(context.RedirectUri); 
+                    }
+                    return Task.CompletedTask;
+                };
+            });
 
 
             builder.Services.AddTransient<IJwtAuthService, JwtAuthService>();
