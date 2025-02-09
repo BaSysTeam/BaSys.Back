@@ -388,4 +388,19 @@
     <value>Start</value>
     <comment>Старт</comment>
   </data>
+  <data name="LoginPageHeader" xml:space="preserve">
+    <value>Log in</value>
+  </data>
+  <data name="ToLogin" xml:space="preserve">
+    <value>Log in</value>
+  </data>
+  <data name="DbName" xml:space="preserve">
+    <value>DbName</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="RememberMe" xml:space="preserve">
+    <value>Remember me</value>
+  </data>
 </root>
