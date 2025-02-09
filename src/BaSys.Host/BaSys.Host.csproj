@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <AssemblyVersion>8.0.1.5</AssemblyVersion>
+    <AssemblyVersion>0.0.2.1</AssemblyVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>aspnet-BaSys.Host-87ce7d22-5c0f-4cf1-8b69-d13074614546</UserSecretsId>
