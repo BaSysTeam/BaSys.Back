@@ -13,5 +13,7 @@ public sealed class MigrationsConfiguration : DataModelConfiguration<Migration>
         Column("MigrationUid");
         Column("MigrationName");
         Column("ApplyDateTime");
+
+        OrderColumns();
     }
 }

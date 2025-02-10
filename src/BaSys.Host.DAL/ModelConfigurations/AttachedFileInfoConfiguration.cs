@@ -21,5 +21,7 @@ public class AttachedFileInfoConfiguration<T> : DataModelConfiguration<AttachedF
         Column("userId").MaxLength(36);
         Column("userName").MaxLength(100);
         Column("uploadDate");
+
+        OrderColumns();
     }
 }

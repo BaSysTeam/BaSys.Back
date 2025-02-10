@@ -13,6 +13,16 @@ namespace BaSys.Metadata.Models.WorkflowModel
         public string Memo { get; set; }
         public bool IsActive { get; set; }
 
+        public void CopyFrom(WorkflowTrigger source)
+        {
+            MetaObjectKindUid = source.MetaObjectKindUid;
+            MetaObjectUid = source.MetaObjectUid;
+            EventUid = source.EventUid;
+            WorkflowUid = source.WorkflowUid;
+            Memo = source.Memo;
+            IsActive = source.IsActive;
+        }
+
         public override string ToString()
         {
             var triggerEvent = WorkflowTriggerEvents.GetItem(EventUid);

@@ -23,10 +23,12 @@ public static class CoreExtension
         services.AddTransient<IMetaObjectUpdateCommandHandler, MetaObjectUpdateCommandHandler>();
         services.AddTransient<IDataObjectRegistratorRouteQueryHandler, DataObjectRegistratorRouteQueryHandler>();
 
+        // Workflows
         services.AddTransient<IMetaWorkflowsService, MetaWorkflowsService>();
         services.AddTransient<IWorkflowsService, WorkflowsService>();
         services.AddTransient<IWorkflowTerminateCommandHandler, WorkflowTerminateCommandHandler>();
         services.AddTransient<IWorkflowsScheduleService, WorkflowsScheduleService>();
+        services.AddTransient<IWorkflowTriggersService, WorkflowTriggersService>();
 
         return services;
     }

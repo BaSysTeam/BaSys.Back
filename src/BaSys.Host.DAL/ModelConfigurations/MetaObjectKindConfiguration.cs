@@ -19,6 +19,8 @@ namespace BaSys.Host.DAL.ModelConfigurations
             Column("name").MaxLength(40).IsRequired().IsUnique();
             Column("prefix").MaxLength(4).IsRequired().IsUnique();
             Column("memo").MaxLength(300).IsOptional();
+
+            OrderColumns();
         }
     }
 }

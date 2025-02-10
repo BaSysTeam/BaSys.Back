@@ -14,5 +14,7 @@ public class UserGroupConfiguration : DataModelConfiguration<UserGroup>
         Column("memo").MaxLength(256);
         Column("isDelete");
         Column("createDate");
+
+        OrderColumns();
     }
 }

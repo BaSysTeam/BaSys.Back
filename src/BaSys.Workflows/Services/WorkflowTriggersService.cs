@@ -1,4 +1,5 @@
 ﻿using BaSys.Common.Infrastructure;
+using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
 using BaSys.Metadata.Models.WorkflowModel;
 using BaSys.Translation;
@@ -7,24 +8,32 @@ using System.Data;
 
 namespace BaSys.Workflows.Services
 {
-    public sealed class WorkflowsScheduleService : IWorkflowsScheduleService
+    public sealed class WorkflowTriggersService: IWorkflowTriggersService
     {
         private IDbConnection? _connection;
-        private WorkflowScheduleProvider _provider;
+        private WorkflowTriggersProvider? _provider;
+        private readonly ISystemObjectProviderFactory _providerFactory;
+
+        public WorkflowTriggersService(ISystemObjectProviderFactory providerFactory)
+        {
+            _providerFactory = providerFactory;
+        }
 
         public void SetUp(IDbConnection connection)
         {
             _connection = connection;
-            _provider = new WorkflowScheduleProvider(_connection);
+            _providerFactory.SetUp(_connection);
+
+            _provider = _providerFactory.Create<WorkflowTriggersProvider>();
         }
 
-        public async Task<ResultWrapper<IEnumerable<WorkflowScheduleRecord>>> GetCollectionAsync(Guid? workflowUid, bool? isActive)
+        public async Task<ResultWrapper<IEnumerable<WorkflowTrigger>>> GetCollectionAsync(Guid? metaObjectUid, Guid? workflowUid)
         {
-            var result = new ResultWrapper<IEnumerable<WorkflowScheduleRecord>>();
+            var result = new ResultWrapper<IEnumerable<WorkflowTrigger>>();
 
             try
             {
-                var collection = await _provider.GetCollectionAsync(workflowUid, isActive, null);
+                var collection = await _provider.GetCollectionAsync(metaObjectUid, workflowUid, null);
                 result.Success(collection);
             }
             catch (Exception ex)
@@ -34,10 +43,9 @@ namespace BaSys.Workflows.Services
 
             return result;
         }
-
-        public async Task<ResultWrapper<WorkflowScheduleRecord>> GetRecordAsync(Guid uid)
+        public async Task<ResultWrapper<WorkflowTrigger>> GetItemAsync(Guid uid)
         {
-            var result = new ResultWrapper<WorkflowScheduleRecord>();
+            var result = new ResultWrapper<WorkflowTrigger>();
 
             try
             {
@@ -52,19 +60,19 @@ namespace BaSys.Workflows.Services
             }
             catch (Exception ex)
             {
-                result.Error(-1, $"Cannot get data: {ex.Message}", ex.StackTrace);
+                result.Error(-1, $"{DictMain.CannotGetData}: {ex.Message}", ex.StackTrace);
             }
 
             return result;
         }
 
-        public async Task<ResultWrapper<Guid>> CreateAsync(WorkflowScheduleRecord record)
+        public async Task<ResultWrapper<Guid>> CreateAsync(WorkflowTrigger item)
         {
             var result = new ResultWrapper<Guid>();
 
             try
             {
-                var newUid = await _provider.InsertAsync(record, null);
+                var newUid = await _provider.InsertAsync(item, null);
                 result.Success(newUid, DictMain.ItemSaved);
             }
             catch (Exception ex)
@@ -76,7 +84,7 @@ namespace BaSys.Workflows.Services
             return result;
         }
 
-        public async Task<ResultWrapper<int>> UpdateAsync(WorkflowScheduleRecord record)
+        public async Task<ResultWrapper<int>> UpdateAsync(WorkflowTrigger record)
         {
             var result = new ResultWrapper<int>();
 
@@ -112,11 +120,13 @@ namespace BaSys.Workflows.Services
             }
             catch (Exception ex)
             {
-                result.Error(-1, $"{DictMain.CannotDeleteItem} WorkflowSheduleRecord.{uid}: {ex.Message}", ex.StackTrace);
+                result.Error(-1, $"{DictMain.CannotDeleteItem} WorkflowTrigger.{uid}: {ex.Message}", ex.StackTrace);
             }
 
 
             return result;
         }
+
+
     }
 }

@@ -14,28 +14,31 @@ namespace BaSys.Host.DAL.DataProviders
             
         }
 
-        public override async Task<Guid> InsertAsync(WorkflowTrigger item, IDbTransaction? transaction)
+        public async Task<IEnumerable<WorkflowTrigger>> GetCollectionAsync(Guid? metaObjectUid, Guid? workflowUid, IDbTransaction? transaction)
         {
-            _query = InsertBuilder.Make(_config).FillValuesByColumnNames(true).Query(_sqlDialect);
+            var builder = SelectBuilder
+                .Make()
+                .From(_config.TableName)
+                .Select("*");
 
-            item.BeforeSave();
-            var insertedCount = await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
+            if (metaObjectUid.HasValue)
+            {
+                builder.WhereAnd("metaobjectuid = @metaObjectUid")
+                    .Parameter("metaObjectUid", metaObjectUid, DbType.Guid);
+            }
 
-            return InsertedUid(insertedCount, item.Uid);
-        }
+            if (workflowUid.HasValue)
+            {
+                builder.WhereAnd("workflowuid = @workflowUid")
+                    .Parameter("workflowUid", workflowUid, DbType.Guid);
+            }
 
-        public override async Task<int> UpdateAsync(WorkflowTrigger item, IDbTransaction? transaction)
-        {
-            var result = 0;
+            _query = builder.Query(_sqlDialect);
 
-            _query = UpdateBuilder.Make(_config)
-              .WhereAnd("uid = @uid")
-              .Query(_sqlDialect);
-
-            item.BeforeSave();
-            result = await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
+            var result = await _dbConnection.QueryAsync<WorkflowTrigger>(_query.Text, _query.DynamicParameters, transaction);
 
             return result;
         }
+
     }
 }

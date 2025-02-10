@@ -14,7 +14,9 @@ namespace BaSys.Host.DAL.ModelConfigurations
             Column("CronExpression").IsRequired().MaxLength(50);
             Column("IsActive").IsRequired();
             Column("Memo").IsOptional().MaxLength(300);
-            
+
+            OrderColumns();
+
         }
     }
 }

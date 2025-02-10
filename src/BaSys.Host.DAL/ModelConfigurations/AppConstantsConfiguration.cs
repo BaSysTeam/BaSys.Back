@@ -17,6 +17,8 @@ namespace BaSys.Host.DAL.ModelConfigurations
             Column("uid").IsPrimaryKey();
             Column("DataBaseUid").IsRequired();
             Column("ApplicationTitle").MaxLength(100).IsOptional();
+
+            OrderColumns();
         }
     }
 }

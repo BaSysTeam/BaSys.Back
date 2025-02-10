@@ -21,6 +21,8 @@ namespace BaSys.Host.DAL.ModelConfigurations
             Column("WorkflowUid").IsRequired();
             Column("IsActive").IsRequired();
             Column("Memo").IsOptional().MaxLength(300);
+
+            OrderColumns();
         }
     }
 }
