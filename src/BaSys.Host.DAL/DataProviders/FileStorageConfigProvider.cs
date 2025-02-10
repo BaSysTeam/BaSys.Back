@@ -1,9 +1,7 @@
-﻿using System.Data;
-using BaSys.DAL.Models.Admin;
-using BaSys.FluentQueries.QueryBuilders;
+﻿using BaSys.DAL.Models.Admin;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.ModelConfigurations;
-using Dapper;
+using System.Data;
 
 namespace BaSys.Host.DAL.DataProviders;
 
@@ -13,29 +11,29 @@ public class FileStorageConfigProvider : SystemObjectProviderBase<FileStorageCon
     {
     }
 
-    public override async Task<Guid> InsertAsync(FileStorageConfig item, IDbTransaction transaction)
-    {
-        if (item.Uid == Guid.Empty)
-        {
-            item.Uid = Guid.NewGuid();
-        }
+    //public override async Task<Guid> InsertAsync(FileStorageConfig item, IDbTransaction transaction)
+    //{
+    //    if (item.Uid == Guid.Empty)
+    //    {
+    //        item.Uid = Guid.NewGuid();
+    //    }
 
-        _query = InsertBuilder.Make(_config)
-            .FillValuesByColumnNames(true)
-            .Query(_sqlDialect);
+    //    _query = InsertBuilder.Make(_config)
+    //        .FillValuesByColumnNames(true)
+    //        .Query(_sqlDialect);
 
-        var createdCount = await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
+    //    var createdCount = await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
 
-        return InsertedUid(createdCount, item.Uid);
-    }
+    //    return InsertedUid(createdCount, item.Uid);
+    //}
 
-    public override async Task<int> UpdateAsync(FileStorageConfig item, IDbTransaction transaction)
-    {
-        _query = UpdateBuilder.Make(_config)
-            .WhereAnd("uid = @uid")
-            .Query(_sqlDialect);
+    //public override async Task<int> UpdateAsync(FileStorageConfig item, IDbTransaction transaction)
+    //{
+    //    _query = UpdateBuilder.Make(_config)
+    //        .WhereAnd("uid = @uid")
+    //        .Query(_sqlDialect);
 
-        var result = await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
-        return result;
-    }
+    //    var result = await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
+    //    return result;
+    //}
 }

@@ -3,7 +3,7 @@ using BaSys.Metadata.Models.WorkflowModel;
 
 namespace BaSys.Host.DAL.ModelConfigurations
 {
-    internal class WorkflowScheduleRecordConfiguration: DataModelConfiguration<WorkflowScheduleRecord>
+    public class WorkflowScheduleRecordConfiguration: DataModelConfiguration<WorkflowScheduleRecord>
     {
         public WorkflowScheduleRecordConfiguration()
         {
