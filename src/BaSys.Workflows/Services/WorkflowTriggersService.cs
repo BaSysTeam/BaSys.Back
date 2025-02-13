@@ -2,9 +2,12 @@
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
 using BaSys.Metadata.Models.WorkflowModel;
+using BaSys.Metadata.Models.WorkflowModel.TriggerEvents;
 using BaSys.Translation;
 using BaSys.Workflows.Abstractions;
+using BaSys.Workflows.DTO;
 using System.Data;
+using System.Net.WebSockets;
 
 namespace BaSys.Workflows.Services
 {
@@ -27,14 +30,41 @@ namespace BaSys.Workflows.Services
             _provider = _providerFactory.Create<WorkflowTriggersProvider>();
         }
 
-        public async Task<ResultWrapper<IEnumerable<WorkflowTrigger>>> GetCollectionAsync(Guid? metaObjectUid, Guid? workflowUid)
+        public async Task<ResultWrapper<IEnumerable<WorkflowTriggerDto>>> GetCollectionAsync(Guid? metaObjectUid, Guid? workflowUid)
         {
-            var result = new ResultWrapper<IEnumerable<WorkflowTrigger>>();
+            var result = new ResultWrapper<IEnumerable<WorkflowTriggerDto>>();
 
             try
             {
+                var workflowsProvider = _providerFactory.Create<MetaWorkflowsProvider>();
+                var allWorkflows = (await workflowsProvider.GetCollectionAsync(null)).ToDictionary(x=>x.Uid, x=>x);
+                var allEvents = WorkflowTriggerEvents.AllItems().ToDictionary(x=>x.Uid, x=>x);
+
                 var collection = await _provider.GetCollectionAsync(metaObjectUid, workflowUid, null);
-                result.Success(collection);
+                var collectionDto = new List<WorkflowTriggerDto>();
+                foreach(var item in collection)
+                {
+                    var dto = new WorkflowTriggerDto
+                    {
+                        Uid = item.Uid,
+                        MetaObjectKindUid = item.MetaObjectKindUid,
+                        MetaObjectUid = item.MetaObjectUid,
+                        WorkflowUid = item.WorkflowUid,
+                        EventUid = item.EventUid,
+                        Memo = item.Memo,
+                        IsActive = item.IsActive
+
+                    };
+
+                    dto.EventName = allEvents[dto.EventUid].Name;
+                    if (allWorkflows.ContainsKey(dto.WorkflowUid))
+                    {
+                        dto.WorkflowTitle = allWorkflows[dto.WorkflowUid].Title;
+                    }
+
+                    collectionDto.Add(dto);
+                }
+                result.Success(collectionDto);
             }
             catch (Exception ex)
             {
