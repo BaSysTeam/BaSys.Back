@@ -34,6 +34,7 @@ public static class CoreExtension
         services.AddTransient<IMetaWorkflowsService, MetaWorkflowsService>();
         services.AddTransient<IWorkflowsService, WorkflowsService>();
         services.AddTransient<IWorkflowTerminateCommandHandler, WorkflowTerminateCommandHandler>();
+        services.AddTransient<IWorkflowTriggersStartCommandHandler, WorkflowTriggersStartCommandHandler>();
         services.AddTransient<IWorkflowsScheduleService, WorkflowsScheduleService>();
         services.AddTransient<IWorkflowTriggersService, WorkflowTriggersService>();
 

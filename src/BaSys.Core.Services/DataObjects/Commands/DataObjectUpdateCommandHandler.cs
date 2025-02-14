@@ -18,7 +18,8 @@ namespace BaSys.Core.Features.DataObjects.Commands
     {
         public DataObjectUpdateCommandHandler(ISystemObjectProviderFactory providerFactory,
             IMetadataReader metadataReder,
-            ILoggerService logger):base (providerFactory, metadataReder, logger)
+            ILoggerService logger, 
+            IServiceProvider serviceProvider):base (providerFactory, metadataReder, logger, serviceProvider)
         {
             
         }
@@ -113,6 +114,8 @@ namespace BaSys.Core.Features.DataObjects.Commands
                 logMessages.AddRange(recordsBuilder.Messages);
             }
 
+            FillHeaderData(savedItem);
+            await GetActiveTriggersAsync(metaObject.Uid, transaction);
            
             result.Success(logMessages, DictMain.ItemSaved);
 

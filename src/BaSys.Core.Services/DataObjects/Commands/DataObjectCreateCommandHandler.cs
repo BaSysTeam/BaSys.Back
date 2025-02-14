@@ -17,7 +17,8 @@ namespace BaSys.Core.Features.DataObjects.Commands
     {
         public DataObjectCreateCommandHandler(ISystemObjectProviderFactory providerFactory,
             IMetadataReader metadataReder,
-            ILoggerService logger):base(providerFactory, metadataReder, logger)
+            ILoggerService logger, 
+            IServiceProvider serviceProvider):base(providerFactory, metadataReder, logger, serviceProvider)
         {
             
         }
@@ -98,6 +99,9 @@ namespace BaSys.Core.Features.DataObjects.Commands
                     command.LogLevel);
                 var buildResult = await recordsBuilder.BuildAsync();
             }
+
+            FillHeaderData(newObject);
+            await GetActiveTriggersAsync(metaObject.Uid, transaction);
 
             result.Success(insertedUid, DictMain.ItemSaved);
 
