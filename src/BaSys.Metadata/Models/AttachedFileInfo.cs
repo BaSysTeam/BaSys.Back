@@ -1,9 +1,10 @@
-﻿using BaSys.Common.Enums;
+﻿using BaSys.Common.Abstractions;
+using BaSys.Common.Enums;
 using System;
 
 namespace BaSys.Metadata.Models;
 
-public sealed class AttachedFileInfo<T>
+public sealed class AttachedFileInfo<T>: SystemObjectBase
 {
     public Guid Uid { get; set; }
 
@@ -20,4 +21,10 @@ public sealed class AttachedFileInfo<T>
     public string UserId { get; set; }
     public string UserName { get; set; }
     public DateTime UploadDate { get; set; }
+
+    public void BeforeSave()
+    {
+        if (Uid == Guid.Empty)
+            Uid = Guid.NewGuid();
+    }
 }

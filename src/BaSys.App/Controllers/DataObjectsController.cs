@@ -1,27 +1,45 @@
 ﻿using BaSys.App.Abstractions;
 using BaSys.Common.Infrastructure;
 using BaSys.Core.Features.Abstractions;
+using BaSys.Core.Features.DataObjects.Abstractions;
 using BaSys.Core.Features.DataObjects.Queries;
 using BaSys.DTO.App;
 using BaSys.Host.DAL.Abstractions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Data;
 
 namespace BaSys.App.Controllers
 {
     [Route("api/app/v1/[controller]")]
     [ApiController]
     [Authorize(Roles = ApplicationRole.User)]
-    public class DataObjectsController : ControllerBase
+    public class DataObjectsController : ControllerBase, IDisposable
     {
 
         private readonly IDataObjectsService _service;
-        private readonly IDataObjectRegistratorRouteQueryHandler _queryRouteHandler;
 
-        public DataObjectsController(IDataObjectsService service, IDataObjectRegistratorRouteQueryHandler queryRouteHandler)
+        private readonly IDataObjectCreateCommandHandler _createCommandHandler;
+        private readonly IDataObjectUpdateCommanHandler _updateCommandHandler;
+        private readonly IDataObjectRegistratorRouteQueryHandler _queryRouteHandler;
+        private readonly IDbConnection _connection;
+        private bool _disposed = false;
+
+
+        public DataObjectsController(IMainConnectionFactory connectionFactory, 
+            IDataObjectsService service, 
+            IDataObjectCreateCommandHandler createCommandHandler,
+            IDataObjectUpdateCommanHandler updateCommandHandler,
+            IDataObjectRegistratorRouteQueryHandler queryRouteHandler)
         {
+            _connection = connectionFactory.CreateConnection();
+
             _service = service;
+
+            _createCommandHandler = createCommandHandler;
+            _updateCommandHandler = updateCommandHandler;
+
             _queryRouteHandler = queryRouteHandler;
         }
 
@@ -59,7 +77,7 @@ namespace BaSys.App.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateItem([FromBody]DataObjectSaveDto dto)
         {
-            var result = await _service.InsertAsync(dto);
+            var result = await _createCommandHandler.SetUp(_connection).ExecuteAsync(dto);
 
             return Ok(result);
         }
@@ -67,7 +85,7 @@ namespace BaSys.App.Controllers
         [HttpPut]
         public async Task<IActionResult> UpdateItem([FromBody] DataObjectSaveDto dto)
         {
-            var result = await _service.UpdateAsync(dto);
+            var result = await _updateCommandHandler.SetUp(_connection).ExecuteAsync(dto);
 
             return Ok(result);
         }
@@ -78,6 +96,27 @@ namespace BaSys.App.Controllers
             var result = await _service.DeleteItemAsync(kind, name, uid);
 
             return Ok(result);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    if (_connection != null)
+                        _connection.Dispose();
+                }
+
+                _disposed = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

@@ -23,6 +23,14 @@ namespace BaSys.FluentQueries.Models
             }
         }
 
+        public void OrderColumns()
+        {
+            var columns = _columns.OrderByDescending(x => x.PrimaryKey).ToList();
+            _columns.Clear();
+            _columns.AddRange(columns);
+
+        }
+
         public TableColumn Column(string name)
         {
             return _columns.FirstOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase));

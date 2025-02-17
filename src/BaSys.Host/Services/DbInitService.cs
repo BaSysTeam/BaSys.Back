@@ -63,6 +63,7 @@ namespace BaSys.Host.Services
                 new UserGroupRoleManager(_connection),
                 new UserGroupRightManager(_connection),
                 new WorkflowScheduleManager(_connection),
+                new WorkflowTriggerManager(_connection),
             };
 
             var firstManager = tableManagers[0];

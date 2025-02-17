@@ -13,5 +13,7 @@ public class UserSettingsConfiguration : DataModelConfiguration<UserSettings>
         Column("uid").IsPrimaryKey();
         Column("userid").IsRequired();
         Column("language").ToType(DbType.Int32).IsRequired();
+
+        OrderColumns();
     }
 }

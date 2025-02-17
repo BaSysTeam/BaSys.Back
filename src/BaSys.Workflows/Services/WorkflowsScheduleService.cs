@@ -29,7 +29,7 @@ namespace BaSys.Workflows.Services
             }
             catch (Exception ex)
             {
-                result.Error(-1, $"Cannot get data: {ex.Message}", ex.StackTrace);
+                result.Error(-1, $"{DictMain.CannotGetData}: {ex.Message}", ex.StackTrace);
             }
 
             return result;

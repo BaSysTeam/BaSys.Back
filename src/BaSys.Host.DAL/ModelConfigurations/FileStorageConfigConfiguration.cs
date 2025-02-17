@@ -14,5 +14,7 @@ public class FileStorageConfigConfiguration : DataModelConfiguration<FileStorage
         Column("S3ConnectionString").MaxLength(512);
         Column("MaxFileSizeMb");
         Column("IsEnabled");
+
+        OrderColumns();
     }
 }

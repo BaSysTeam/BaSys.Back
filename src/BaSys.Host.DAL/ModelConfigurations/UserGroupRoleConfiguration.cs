@@ -12,5 +12,7 @@ public class UserGroupRoleConfiguration : DataModelConfiguration<UserGroupRole>
         Column("uid").IsPrimaryKey();
         Column("userGroupUid");
         Column("roleUid");
+
+        OrderColumns();
     }
 }

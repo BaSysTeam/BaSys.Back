@@ -3,7 +3,7 @@ using BaSys.Metadata.Models.WorkflowModel;
 
 namespace BaSys.Host.DAL.ModelConfigurations
 {
-    internal class WorkflowScheduleRecordConfiguration: DataModelConfiguration<WorkflowScheduleRecord>
+    public class WorkflowScheduleRecordConfiguration: DataModelConfiguration<WorkflowScheduleRecord>
     {
         public WorkflowScheduleRecordConfiguration()
         {
@@ -14,7 +14,9 @@ namespace BaSys.Host.DAL.ModelConfigurations
             Column("CronExpression").IsRequired().MaxLength(50);
             Column("IsActive").IsRequired();
             Column("Memo").IsOptional().MaxLength(300);
-            
+
+            OrderColumns();
+
         }
     }
 }

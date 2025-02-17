@@ -1,8 +1,9 @@
-﻿namespace BaSys.DAL.Models.App;
+﻿using BaSys.Common.Abstractions;
 
-public class UserGroup
+namespace BaSys.DAL.Models.App;
+
+public class UserGroup: SystemObjectBase
 {
-    public Guid Uid { get; set; }
     public required string Name { get; set; }
     public string? Memo { get; set; }
     public bool IsDelete { get; set; }

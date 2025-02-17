@@ -14,5 +14,7 @@ public class UserGroupRightConfiguration : DataModelConfiguration<UserGroupRight
         Column("rightUid");
         Column("metaObjectKindUid");
         Column("metaObjectUid");
+
+        OrderColumns();
     }
 }

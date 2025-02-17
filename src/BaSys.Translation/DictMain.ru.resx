@@ -384,4 +384,25 @@
   <data name="Workflows" xml:space="preserve">
     <value>Процессы</value>
   </data>
+  <data name="Start" xml:space="preserve">
+    <value>Старт</value>
+  </data>
+  <data name="LoginPageHeader" xml:space="preserve">
+    <value>Вход</value>
+  </data>
+  <data name="ToLogin" xml:space="preserve">
+    <value>Войти</value>
+  </data>
+  <data name="DbName" xml:space="preserve">
+    <value>Имя базы данных</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>Пароль</value>
+  </data>
+  <data name="RememberMe" xml:space="preserve">
+    <value>Запомнить</value>
+  </data>
+  <data name="CannotGetData" xml:space="preserve">
+    <value>Ошибка получения данных</value>
+  </data>
 </root>
