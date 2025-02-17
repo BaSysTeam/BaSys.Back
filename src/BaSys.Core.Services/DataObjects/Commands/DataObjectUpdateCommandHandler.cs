@@ -9,6 +9,8 @@ using BaSys.Host.DAL.DataProviders;
 using BaSys.Logging.Abstractions.Abstractions;
 using BaSys.Logging.InMemory;
 using BaSys.Metadata.Models;
+using BaSys.Metadata.Models.WorkflowModel.Abstractions;
+using BaSys.Metadata.Models.WorkflowModel.TriggerEvents;
 using BaSys.Translation;
 using System.Data;
 
@@ -16,6 +18,8 @@ namespace BaSys.Core.Features.DataObjects.Commands
 {
     public sealed class DataObjectUpdateCommandHandler : DataObjectCommandHandlerBase<DataObjectSaveDto, List<InMemoryLogMessage>>, IDataObjectUpdateCommanHandler
     {
+        protected override IWorkflowTriggerEvent TriggerEvent => WorkflowTriggerEvents.Update;
+
         public DataObjectUpdateCommandHandler(ISystemObjectProviderFactory providerFactory,
             IMetadataReader metadataReder,
             ILoggerService logger, 
@@ -33,7 +37,6 @@ namespace BaSys.Core.Features.DataObjects.Commands
 
             if (kind == null)
             {
-                transaction.Rollback();
                 result.Error(-1, $"{DictMain.CannotFindMetaObjectKind}", $"MetaObjectKindUid: {command.MetaObjectKindUid}");
                 return result;
             }
@@ -48,6 +51,7 @@ namespace BaSys.Core.Features.DataObjects.Commands
                 return result;
             }
 
+           
             var metaObjectSettings = metaObject.ToSettings();
             var dataTypesIndex = await _metadataReader.GetIndexAsync(transaction);
             var allMetaObjects = new List<MetaObjectStorable>();
@@ -68,11 +72,15 @@ namespace BaSys.Core.Features.DataObjects.Commands
 
             var uid = command.Item.Header[metaObjectSettings.Header.PrimaryKey.Name];
             var objectUid = uid?.ToString() ?? string.Empty;
+            
             var savedItem = await provider.GetItemAsync(objectUid, transaction);
+
+            _metadataUid = metaObject.Uid;
+            _dataUid = objectUid;
+            _dataPresentation = newItem.GetDisplay(kind.Title);
 
             if (savedItem == null)
             {
-                transaction.Rollback();
                 result.Error(-1, $"Cannot find item: {uid}");
                 return result;
             }

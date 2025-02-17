@@ -8,6 +8,8 @@ using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.DataProviders;
 using BaSys.Logging.Abstractions.Abstractions;
 using BaSys.Metadata.Models;
+using BaSys.Metadata.Models.WorkflowModel.Abstractions;
+using BaSys.Metadata.Models.WorkflowModel.TriggerEvents;
 using BaSys.Translation;
 using System.Data;
 
@@ -15,6 +17,8 @@ namespace BaSys.Core.Features.DataObjects.Commands
 {
     public sealed class DataObjectCreateCommandHandler : DataObjectCommandHandlerBase<DataObjectSaveDto, string>, IDataObjectCreateCommandHandler
     {
+        protected override IWorkflowTriggerEvent TriggerEvent => WorkflowTriggerEvents.Create;
+
         public DataObjectCreateCommandHandler(ISystemObjectProviderFactory providerFactory,
             IMetadataReader metadataReder,
             ILoggerService logger, 
@@ -33,7 +37,6 @@ namespace BaSys.Core.Features.DataObjects.Commands
             if (kind == null)
             {
                 result.Error(-1, $"{DictMain.CannotFindMetaObjectKind}", $"MetaObjectKindUid: {command.MetaObjectKindUid}");
-                transaction.Rollback();
                 return result;
             }
 
@@ -44,10 +47,10 @@ namespace BaSys.Core.Features.DataObjects.Commands
             if (metaObject == null)
             {
                 result.Error(-1, $"{DictMain.CannotFindMetaObject}", $"MetaObjectUid: {command.MetaObjectUid}");
-                transaction.Rollback();
                 return result;
             }
 
+           
             var metaObjectSettings = metaObject.ToSettings();
             var dataTypesIndex = await _metadataReader.GetIndexAsync(transaction);
             var allMetaObjects = new List<MetaObjectStorable>();
@@ -69,6 +72,11 @@ namespace BaSys.Core.Features.DataObjects.Commands
 
             var insertedUid = await provider.InsertAsync(newObject, transaction);
             newObject.SetPrimaryKey(insertedUid);
+
+            _metadataUid = metaObject.Uid;
+            _dataUid = insertedUid;
+            _dataPresentation = newObject.GetDisplay(kind.Title);
+
             foreach (var table in newObject.DetailTables)
             {
                 var tableSettings = metaObjectSettings.DetailTables.FirstOrDefault(x => x.Uid == table.Uid);

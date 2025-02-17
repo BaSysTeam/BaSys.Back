@@ -40,7 +40,9 @@ namespace BaSys.Host.DAL.DataProviders
             return result;
         }
 
-        public async Task<IEnumerable<WorkflowTrigger>> GetActiveObjectTriggersAsync(Guid metaObjectUid, IDbTransaction? transaction)
+        public async Task<IEnumerable<WorkflowTrigger>> GetActiveObjectTriggersAsync(Guid metaObjectUid,
+                                                                                     Guid eventUId,
+                                                                                     IDbTransaction? transaction)
         {
             var builder = SelectBuilder
                 .Make()
@@ -50,6 +52,8 @@ namespace BaSys.Host.DAL.DataProviders
 
             builder.WhereAnd("metaobjectuid = @metaObjectUid")
                 .Parameter("metaObjectUid", metaObjectUid, DbType.Guid)
+                .WhereAnd("eventuid = @eventUid")
+                .Parameter("eventUid", eventUId, DbType.Guid)
                 .WhereAnd("isactive = @isActive")
                 .Parameter("isActive", true, DbType.Boolean);
 
