@@ -204,6 +204,7 @@ namespace BaSys.Core.Features.DataObjects.Abstractions
                 {
                     // Cannot start triggers.
                     var message = $"Cannot start triggers for event {TriggerEvent}: {ex}";
+                    Console.WriteLine(message);
                     _logger.Write(message, EventTypeLevels.Error, EventTypeFactory.TriggerStart, _metadataUid, _dataUid, _dataPresentation);
                 }
             });
