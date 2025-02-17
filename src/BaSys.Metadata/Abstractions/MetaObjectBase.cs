@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using BaSys.Common.Abstractions;
+using System;
 
 namespace BaSys.Metadata.Abstractions
 {
-    public abstract class MetaObjectBase
+    public abstract class MetaObjectBase: SystemObjectBase
     {
-        public Guid Uid { get; set; }
         public Guid MetaObjectKindUid { get; set; }
         public string Title { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;      
@@ -17,8 +13,9 @@ namespace BaSys.Metadata.Abstractions
         public bool IsActive { get; set; }
         public byte[] SettingsStorage { get; set; }
 
-        public virtual void BeforeSave()
+        public override void BeforeSave()
         {
+            base.BeforeSave();
             Version++;
         }
 

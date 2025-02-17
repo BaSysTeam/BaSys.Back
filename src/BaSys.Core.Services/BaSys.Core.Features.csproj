@@ -15,6 +15,7 @@
     <ProjectReference Include="..\BaSys.Host.DAL\BaSys.Host.DAL.csproj" />
     <ProjectReference Include="..\BaSys.Logging\BaSys.Logging.csproj" />
     <ProjectReference Include="..\BaSys.Metadata\BaSys.Metadata.csproj" />
+    <ProjectReference Include="..\BaSys.Workflows\BaSys.Workflows.csproj" />
   </ItemGroup>
 
   <ItemGroup>

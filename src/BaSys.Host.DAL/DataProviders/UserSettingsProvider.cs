@@ -13,32 +13,32 @@ public class UserSettingsProvider : SystemObjectProviderBase<UserSettings>
     {
     }
 
-    public override async Task<Guid> InsertAsync(UserSettings item, IDbTransaction transaction)
-    {
-        if (item.Uid == Guid.Empty)
-        {
-            item.Uid = Guid.NewGuid();
-        }
+    //public override async Task<Guid> InsertAsync(UserSettings item, IDbTransaction transaction)
+    //{
+    //    if (item.Uid == Guid.Empty)
+    //    {
+    //        item.Uid = Guid.NewGuid();
+    //    }
 
-        _query = InsertBuilder.Make(_config)
-            .FillValuesByColumnNames(true)
-            .Query(_sqlDialect);
+    //    _query = InsertBuilder.Make(_config)
+    //        .FillValuesByColumnNames(true)
+    //        .Query(_sqlDialect);
 
-        var insertedCount = await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
+    //    var insertedCount = await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
 
-        return InsertedUid(insertedCount, item.Uid);
-    }
+    //    return InsertedUid(insertedCount, item.Uid);
+    //}
 
-    public override async Task<int> UpdateAsync(UserSettings item, IDbTransaction transaction)
-    {
-        _query = UpdateBuilder.Make(_config)
-            .WhereAnd("uid = @uid")
-            .Query(_sqlDialect);
+    //public override async Task<int> UpdateAsync(UserSettings item, IDbTransaction transaction)
+    //{
+    //    _query = UpdateBuilder.Make(_config)
+    //        .WhereAnd("uid = @uid")
+    //        .Query(_sqlDialect);
 
-        var result = await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
+    //    var result = await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
 
-        return result;
-    }
+    //    return result;
+    //}
 
     public async Task<UserSettings?> GetItemByUserIdAsync(string userId, IDbTransaction? transaction = null)
     {

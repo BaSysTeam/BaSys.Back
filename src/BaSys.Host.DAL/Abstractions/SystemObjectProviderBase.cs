@@ -1,14 +1,16 @@
-﻿using BaSys.FluentQueries.Abstractions;
+﻿using BaSys.Common.Abstractions;
+using BaSys.FluentQueries.Abstractions;
 using BaSys.FluentQueries.Enums;
 using BaSys.FluentQueries.QueryBuilders;
 using BaSys.Host.DAL.Helpers;
 using BaSys.Host.DAL.QueryResults;
+using BaSys.Metadata.Models.WorkflowModel;
 using Dapper;
 using System.Data;
 
 namespace BaSys.Host.DAL.Abstractions
 {
-    public abstract class SystemObjectProviderBase<T> : ISystemObjectProvider<T> where T : class
+    public abstract class SystemObjectProviderBase<T> : ISystemObjectProvider<T> where T : class, ISystemObject
     {
         protected readonly IDbConnection _dbConnection;
         protected SqlDialectKinds _sqlDialect;
@@ -54,9 +56,33 @@ namespace BaSys.Host.DAL.Abstractions
         }
 
 
-        public abstract Task<Guid> InsertAsync(T item, IDbTransaction? transaction);
+        public virtual async Task<Guid> InsertAsync(T item, IDbTransaction? transaction)
+        {
+            _query = InsertBuilder.Make(_config).FillValuesByColumnNames(true).Query(_sqlDialect);
 
-        public abstract Task<int> UpdateAsync(T item, IDbTransaction? transaction);
+            item.BeforeSave();
+            var insertedCount = await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
+
+            return InsertedUid(insertedCount, item.Uid);
+        }
+
+       // public abstract Task<Guid> InsertAsync(T item, IDbTransaction? transaction);
+
+       // public abstract Task<int> UpdateAsync(T item, IDbTransaction? transaction);
+
+        public virtual async Task<int> UpdateAsync(T item, IDbTransaction? transaction)
+        {
+            var result = 0;
+
+            _query = UpdateBuilder.Make(_config)
+              .WhereAnd("uid = @uid")
+              .Query(_sqlDialect);
+
+            item.BeforeSave();
+            result = await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
+
+            return result;
+        }
 
         public virtual async Task<int> DeleteAsync(Guid uid, IDbTransaction? transaction)
         {

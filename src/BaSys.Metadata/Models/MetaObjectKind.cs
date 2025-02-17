@@ -1,9 +1,10 @@
-﻿using MessagePack;
+﻿using BaSys.Common.Abstractions;
+using MessagePack;
 using System;
 
 namespace BaSys.Metadata.Models
 {
-    public sealed class MetaObjectKind
+    public sealed class MetaObjectKind: SystemObjectBase
     {
         public Guid Uid { get; set; }
         public string Title { get; set; } = string.Empty;
@@ -52,8 +53,9 @@ namespace BaSys.Metadata.Models
             return settings;
         }
 
-        public void BeforeSave()
+        public override void BeforeSave()
         {
+            base.BeforeSave();
             Version++;
         }
 

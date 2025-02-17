@@ -286,6 +286,15 @@ namespace BaSys.Translation {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot get data.
+        /// </summary>
+        public static string CannotGetData {
+            get {
+                return ResourceManager.GetString("CannotGetData", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cannot get users list.
         /// </summary>
         public static string CannotGetUsersList {

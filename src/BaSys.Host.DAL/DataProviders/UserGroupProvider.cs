@@ -14,7 +14,7 @@ public class UserGroupProvider : SystemObjectProviderBase<UserGroup>
     {
     }
 
-    public override async Task<Guid> InsertAsync(UserGroup item, IDbTransaction transaction)
+    public override async Task<Guid> InsertAsync(UserGroup item, IDbTransaction? transaction)
     {
         if (item.Uid == Guid.Empty)
         {
@@ -30,7 +30,7 @@ public class UserGroupProvider : SystemObjectProviderBase<UserGroup>
         return InsertedUid(insertedCount, item.Uid);
     }
 
-    public override async Task<int> UpdateAsync(UserGroup item, IDbTransaction transaction)
+    public override async Task<int> UpdateAsync(UserGroup item, IDbTransaction? transaction)
     {
         _query = UpdateBuilder.Make(_config)
             .WhereAnd("uid = @uid")

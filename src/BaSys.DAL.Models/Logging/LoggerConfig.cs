@@ -1,15 +1,10 @@
-﻿using BaSys.Common.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using BaSys.Common.Abstractions;
+using BaSys.Common.Enums;
 
 namespace BaSys.DAL.Models.Logging;
 
-public class LoggerConfig
+public class LoggerConfig: SystemObjectBase
 {
-    public Guid Uid { get; set; }
     public bool IsEnabled { get; set; }
     public LoggerTypes LoggerType { get; set; }
     public EventTypeLevels MinimumLogLevel { get; set; } = EventTypeLevels.Info;

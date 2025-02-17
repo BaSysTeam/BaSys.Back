@@ -21,6 +21,8 @@ namespace BaSys.Host.DAL.ModelConfigurations
             Column("ConnectionString").MaxLength(300).IsOptional();
             Column("AutoClearInterval");
             Column("IsSelected");
+
+            OrderColumns();
         }
     }
 }

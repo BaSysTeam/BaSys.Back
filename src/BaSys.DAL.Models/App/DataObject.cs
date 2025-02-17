@@ -174,5 +174,15 @@ namespace BaSys.DAL.Models.App
             }
         }
 
+        public override string ToString()
+        {
+            return $"{_settings?.Title}.{GetPrimaryKey()}";
+        }
+
+        public string GetDisplay(string kindTitle)
+        {
+            return $"{kindTitle}.{ToString()}";
+        }
+
     }
 }

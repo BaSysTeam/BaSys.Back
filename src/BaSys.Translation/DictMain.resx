@@ -403,4 +403,7 @@
   <data name="RememberMe" xml:space="preserve">
     <value>Remember me</value>
   </data>
+  <data name="CannotGetData" xml:space="preserve">
+    <value>Cannot get data</value>
+  </data>
 </root>

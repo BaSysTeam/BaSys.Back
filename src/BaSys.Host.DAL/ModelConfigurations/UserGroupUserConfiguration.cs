@@ -12,5 +12,7 @@ public class UserGroupUserConfiguration : DataModelConfiguration<UserGroupUser>
         Column("uid").IsPrimaryKey();
         Column("userGroupUid");
         Column("userUid");
+
+        OrderColumns();
     }
 }

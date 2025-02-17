@@ -402,4 +402,7 @@
   <data name="RememberMe" xml:space="preserve">
     <value>Запомнить</value>
   </data>
+  <data name="CannotGetData" xml:space="preserve">
+    <value>Ошибка получения данных</value>
+  </data>
 </root>

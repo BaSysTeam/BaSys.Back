@@ -13,30 +13,30 @@ public class MigrationsProvider : SystemObjectProviderBase<Migration>
     {
     }
 
-    public override async Task<Guid> InsertAsync(Migration item, IDbTransaction transaction)
-    {
-        if(item.Uid == Guid.Empty)
-        {
-            item.Uid = Guid.NewGuid();
-        }
+    //public override async Task<Guid> InsertAsync(Migration item, IDbTransaction transaction)
+    //{
+    //    if(item.Uid == Guid.Empty)
+    //    {
+    //        item.Uid = Guid.NewGuid();
+    //    }
 
-        _query = InsertBuilder.Make(_config)
-            .FillValuesByColumnNames(true)
-            .Query(_sqlDialect);
+    //    _query = InsertBuilder.Make(_config)
+    //        .FillValuesByColumnNames(true)
+    //        .Query(_sqlDialect);
 
-        var insertedCount = await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
+    //    var insertedCount = await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
 
-        return InsertedUid(insertedCount, item.Uid);
-    }
+    //    return InsertedUid(insertedCount, item.Uid);
+    //}
     
-    public override async Task<int> UpdateAsync(Migration item, IDbTransaction transaction)
-    {
-        _query = UpdateBuilder.Make(_config)
-            .WhereAnd("uid = @uid")
-            .Query(_sqlDialect);
+    //public override async Task<int> UpdateAsync(Migration item, IDbTransaction transaction)
+    //{
+    //    _query = UpdateBuilder.Make(_config)
+    //        .WhereAnd("uid = @uid")
+    //        .Query(_sqlDialect);
 
-        return await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
-    }
+    //    return await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
+    //}
     
     public async Task<Migration?> GetMigrationByMigrationUidAsync(Guid migrationUid, IDbTransaction transaction)
     {

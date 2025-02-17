@@ -1,10 +1,10 @@
-﻿using System;
+﻿using BaSys.Common.Abstractions;
+using System;
 
 namespace BaSys.Metadata.Models.WorkflowModel
 {
-    public sealed class WorkflowScheduleRecord
+    public sealed class WorkflowScheduleRecord: SystemObjectBase
     {
-        public Guid Uid { get; set; }
         public Guid WorkflowUid { get; set; }
         public string CronExpression { get; set; }
         public string Memo { get; set; }
@@ -18,19 +18,10 @@ namespace BaSys.Metadata.Models.WorkflowModel
             IsActive = source.IsActive;
         }
 
-        public void BeforeSave()
-        {
-            if (Uid == Guid.Empty)
-            {
-                Uid = Guid.NewGuid();
-            }
-        }
-
         public override string ToString()
         {
-            return $"{IsActive} / {WorkflowUid} / {CronExpression}";
+            return $"{IsActive}. {WorkflowUid}. {CronExpression}";
         }
     }
-
 
 }

@@ -1,8 +1,9 @@
-﻿namespace BaSys.DAL.Models.App;
+﻿using BaSys.Common.Abstractions;
 
-public class UserGroupUser
+namespace BaSys.DAL.Models.App;
+
+public class UserGroupUser: SystemObjectBase
 {
-    public Guid Uid { get; set; }
     public Guid UserGroupUid { get; set; }
     public Guid UserUid { get; set; }
 }
