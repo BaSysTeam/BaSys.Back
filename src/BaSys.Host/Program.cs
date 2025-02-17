@@ -259,6 +259,8 @@ namespace BaSys.Host
                 });
             builder.Services.AddWorkflowDSL();
 
+            // Service to start workflows by schedule.
+            builder.Services.AddHostedService<WorkflowsSchedulerService>();
 
             var app = builder.Build();
 
