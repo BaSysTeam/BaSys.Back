@@ -3,7 +3,7 @@ using BaSys.Common.Enums;
 
 namespace BaSys.DAL.Models.Logging;
 
-public class LoggerConfig: SystemObjectBase
+public class LoggerConfigRecord: SystemObjectBase
 {
     public bool IsEnabled { get; set; }
     public LoggerTypes LoggerType { get; set; }

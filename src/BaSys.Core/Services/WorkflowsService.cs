@@ -106,7 +106,7 @@ namespace BaSys.Core.Services
                 }
 
                 // Start the workflow
-                var loggerConfig = await _loggerConfigService.GetLoggerConfig();
+                var loggerConfig = await _loggerConfigService.GetLoggerConfigAsync(_connection, null);
 
                 var workflowData = new BaSysWorkflowData();
                 workflowData.Parameters = WorkflowParametersParser.Parse(startDto.Parameters);

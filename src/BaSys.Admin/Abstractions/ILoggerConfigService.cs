@@ -6,10 +6,10 @@ namespace BaSys.Admin.Abstractions
 {
     public interface ILoggerConfigService
     {
-        Task<ResultWrapper<LoggerConfig>> GetCurrentLoggerConfigAsync();
-        Task<ResultWrapper<LoggerConfig>> GetLoggerConfigByTypeAsync(LoggerTypes loggerType);
-        Task<ResultWrapper<int>> CreateLoggerConfigAsync(LoggerConfig loggerConfig);
-        Task<ResultWrapper<int>> UpdateLoggerConfigAsync(LoggerConfig loggerConfig);
+        Task<ResultWrapper<LoggerConfigRecord>> GetCurrentLoggerConfigAsync();
+        Task<ResultWrapper<LoggerConfigRecord>> GetLoggerConfigByTypeAsync(LoggerTypes loggerType);
+        Task<ResultWrapper<int>> CreateLoggerConfigAsync(LoggerConfigRecord loggerConfig);
+        Task<ResultWrapper<int>> UpdateLoggerConfigAsync(LoggerConfigRecord loggerConfig);
         Task<ResultWrapper<int>> DeleteLoggerConfigAsync(Guid uid);
     }
 }

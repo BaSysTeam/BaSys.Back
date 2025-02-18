@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace BaSys.Host.DAL.ModelConfigurations
 {
-    public sealed class LoggerConfigConfiguration : DataModelConfiguration<LoggerConfig>
+    public sealed class LoggerConfigConfiguration : DataModelConfiguration<LoggerConfigRecord>
     {
         public LoggerConfigConfiguration()
         {

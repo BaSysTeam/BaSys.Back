@@ -12,4 +12,8 @@ public class LoggerConfig
     public string TableName { get; set; } = string.Empty;
     public string WorkflowsLogTableName { get; set; } = string.Empty;
     public AutoClearInterval AutoClearInterval { get; set; } = AutoClearInterval.Month;
+
+
+    public static string GetTableName(Guid dbUid) => $"logs-{dbUid}";
+    public static string GetWorkflowsLogTableName(Guid dbUid) => $"workflows-{dbUid}";
 }
