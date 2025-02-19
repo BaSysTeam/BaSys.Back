@@ -86,8 +86,7 @@ namespace BaSys.Admin.Services
 
             try
             {
-                var collection = await _provider.GetCollectionAsync(null);
-                var appConstants = collection.FirstOrDefault();
+                var appConstants = await _provider.GetConstantsAsync(null);
                 if (appConstants == null)
                 {
                     result.Error(-1, DictMain.CannotFindAppConstantsRecord);
@@ -117,11 +116,6 @@ namespace BaSys.Admin.Services
                 if (appConstants.DataBaseUid == Guid.Empty)
                 {
                     result.Error(-1, DictMain.WrongDataBaseUidFormat);
-                    return result;
-                }
-                if (string.IsNullOrEmpty(appConstants.ApplicationTitle))
-                {
-                    result.Error(-1, DictMain.EmptyApplicationTitle);
                     return result;
                 }
 

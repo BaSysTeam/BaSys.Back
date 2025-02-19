@@ -57,9 +57,18 @@ namespace BaSys.Host.Services
                     using (var connection = _connectionFactory.CreateConnection(record.ConnectionString, record.DbKind))
                     {
                         var provider = new WorkflowScheduleProvider(connection);
+                        var constantsProvider = new AppConstantsProvider(connection);
                         var recordsToStart = new List<WorkflowScheduleRecord>();
                         try
                         {
+                            var appConstants = await constantsProvider.GetConstantsAsync(null);
+
+                            if (!appConstants?.UseWorkflowsScheduler ?? false)
+                            {
+                                Console.WriteLine($"WorkflowScheduler. Scheduler disabled for base {record.Name}.");
+                                continue;
+                            }
+
                             var scheduleRecords = await provider.GetCollectionAsync(null, true, null);
                             foreach (var scheduleRecord in scheduleRecords)
                             {

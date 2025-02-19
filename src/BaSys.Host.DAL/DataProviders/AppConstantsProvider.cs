@@ -1,6 +1,8 @@
 ﻿using BaSys.DAL.Models.Admin;
+using BaSys.FluentQueries.QueryBuilders;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.ModelConfigurations;
+using Dapper;
 using System.Data;
 
 namespace BaSys.Host.DAL.DataProviders
@@ -11,35 +13,18 @@ namespace BaSys.Host.DAL.DataProviders
         {
         }
 
-        //public override async Task<Guid> InsertAsync(AppConstants item, IDbTransaction transaction)
-        //{
+        public  async Task<AppConstants?> GetConstantsAsync(IDbTransaction? transaction)
+        {
+            _query = SelectBuilder.Make()
+              .From(_config.TableName)
+              .Select("*")
+              .Top(1)
+              .Query(_sqlDialect);
 
-        //    if (item.Uid == Guid.Empty)
-        //    {
-        //        item.Uid = Guid.NewGuid();
-        //    }
+            var result = await _dbConnection.QueryFirstOrDefaultAsync<AppConstants>(_query.Text, _query.DynamicParameters, transaction);
 
-        //    _query = InsertBuilder.Make(_config)
-        //        .FillValuesByColumnNames(true)
-        //        .Query(_sqlDialect);
+            return result;
+        }
 
-        //    var insertedCount = await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
-
-        //    var result = InsertedUid(insertedCount, item.Uid);
-
-        //    return result;
-        //}
-
-        //public override async Task<int> UpdateAsync(AppConstants item, IDbTransaction transaction)
-        //{
-
-        //    _query = UpdateBuilder.Make(_config)
-        //       .WhereAnd("uid = @uid")
-        //       .Query(_sqlDialect);
-
-        //    var result = await _dbConnection.ExecuteAsync(_query.Text, item, transaction);
-
-        //    return result;
-        //}
     }
 }
