@@ -28,9 +28,6 @@ namespace BaSys.SuperAdmin.DAL.MsSqlContext.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<int>("MaxConcurrentWorkflows")
-                        .HasColumnType("int");
-
                     b.Property<string>("Memo")
                         .HasMaxLength(300)
                         .HasColumnType("nvarchar(300)");
@@ -44,9 +41,6 @@ namespace BaSys.SuperAdmin.DAL.MsSqlContext.Migrations
                         .HasColumnType("bit");
 
                     b.Property<int>("WorkflowPollInterval")
-                        .HasColumnType("int");
-
-                    b.Property<int>("WorkflowThreadsCount")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
