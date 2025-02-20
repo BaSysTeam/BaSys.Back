@@ -1,6 +1,3 @@
-using System.Data;
-using System.Reflection;
-using System.Text;
 using BaSys.Admin.Infrastructure;
 using BaSys.App.Infrastructure;
 using BaSys.Common;
@@ -12,18 +9,14 @@ using BaSys.FileStorage.Infrastructure;
 using BaSys.Host.Abstractions;
 using BaSys.Host.DAL;
 using BaSys.Host.DAL.Abstractions;
-using BaSys.Host.DAL.DataProviders;
 using BaSys.Host.DAL.MsSqlContext;
 using BaSys.Host.DAL.PgSqlContext;
 using BaSys.Host.Extensions;
 using BaSys.Host.Helpers;
-using BaSys.Host.Identity;
 using BaSys.Host.Identity.Models;
-using BaSys.Host.Infrastructure;
 using BaSys.Host.Infrastructure.Abstractions;
 using BaSys.Host.Infrastructure.JwtAuth;
 using BaSys.Host.Infrastructure.Providers;
-using BaSys.Host.Middlewares;
 using BaSys.Host.Services;
 using BaSys.Logging.Abstractions.Abstractions;
 using BaSys.Logging.Infrastructure;
@@ -31,20 +24,18 @@ using BaSys.PublicAPI.Infrastructure;
 using BaSys.SuperAdmin.Abstractions;
 using BaSys.SuperAdmin.DAL;
 using BaSys.SuperAdmin.DAL.Abstractions;
-using BaSys.SuperAdmin.DAL.Models;
 using BaSys.SuperAdmin.Data.Identity;
 using BaSys.SuperAdmin.Infrastructure;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Connections;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using Serilog.Sinks.MSSqlServer;
+using System.Reflection;
+using System.Text;
 using WorkflowCore.Interface;
-using EnvironmentName = Microsoft.AspNetCore.Hosting.EnvironmentName;
-using ILogger = Microsoft.Extensions.Logging.ILogger;
+using WorkflowCore.Services;
 
 namespace BaSys.Host
 {
@@ -207,7 +198,7 @@ namespace BaSys.Host
                 };
             });
 
-
+            builder.Services.AddTransient<IAppSettingsReader, AppSettingsReader>();
             builder.Services.AddTransient<IJwtAuthService, JwtAuthService>();
             builder.Services.AddTransient<IFileService, FileService>();
 
@@ -252,15 +243,27 @@ namespace BaSys.Host
             builder.Host.UseSerilog();
             builder.Logging.AddSerilog();
 
+            var settingsReader = new AppSettingsReader(builder.Configuration);
+            var appSettings = await settingsReader.GetSettingsAsync();
+            if (appSettings == null)
+            {
+                appSettings = new SuperAdmin.DAL.Models.AppRecord();
+            }
+
             // Add WorkflowCore.
             builder.Services.AddWorkflow(
                 cfg =>{
-                    cfg.UsePollInterval(TimeSpan.FromSeconds(5)); // Adjust the polling interval if necessary
+                    cfg.UsePollInterval(TimeSpan.FromMilliseconds(appSettings.WorkflowPollInterval)); 
                 });
+
             builder.Services.AddWorkflowDSL();
 
             // Service to start workflows by schedule.
-            builder.Services.AddHostedService<WorkflowsSchedulerService>();
+            if (appSettings.UseWorkflowsScheduler)
+            {
+                builder.Services.AddHostedService<WorkflowsSchedulerService>();
+            }
+
 
             var app = builder.Build();
 
@@ -268,7 +271,7 @@ namespace BaSys.Host
             using (var scope = app.Services.CreateScope())
             {
                 var host = scope.ServiceProvider.GetRequiredService<IWorkflowHost>();
-                host.Start();
+                await host.StartAsync(CancellationToken.None);
             }
 
             // Configure the HTTP request pipeline.

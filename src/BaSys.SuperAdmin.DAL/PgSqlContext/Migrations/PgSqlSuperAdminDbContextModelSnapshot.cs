@@ -28,6 +28,9 @@ namespace BaSys.SuperAdmin.DAL.PgSqlContext.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<int>("MaxConcurrentWorkflows")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Memo")
                         .HasMaxLength(300)
                         .HasColumnType("character varying(300)");
@@ -36,6 +39,15 @@ namespace BaSys.SuperAdmin.DAL.PgSqlContext.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<bool>("UseWorkflowsScheduler")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("WorkflowPollInterval")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("WorkflowThreadsCount")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
