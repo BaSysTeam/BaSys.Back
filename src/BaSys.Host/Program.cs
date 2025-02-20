@@ -244,8 +244,8 @@ namespace BaSys.Host
             builder.Logging.AddSerilog();
 
             var settingsReader = new AppSettingsReader(builder.Configuration);
-            // var appSettings = await settingsReader.GetSettingsAsync();
-            var appSettings = new SuperAdmin.DAL.Models.AppRecord();
+            var appSettings = await settingsReader.GetSettingsAsync();
+            //var appSettings = new SuperAdmin.DAL.Models.AppRecord();
             if (appSettings == null)
             {
                 appSettings = new SuperAdmin.DAL.Models.AppRecord();

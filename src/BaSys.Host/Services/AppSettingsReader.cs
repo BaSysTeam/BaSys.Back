@@ -2,12 +2,9 @@
 using BaSys.Host.Abstractions;
 using BaSys.Host.DAL;
 using BaSys.Host.DAL.Helpers;
-using BaSys.SuperAdmin.DAL;
 using BaSys.SuperAdmin.DAL.Models;
 using BaSys.SuperAdmin.Infrastructure.Models;
 using Dapper;
-using Microsoft.EntityFrameworkCore;
-using System.Configuration;
 using System.Linq.Dynamic.Core;
 
 namespace BaSys.Host.Services
@@ -46,25 +43,31 @@ namespace BaSys.Host.Services
                 return record;
             }
 
-            var appName = currentApp.Id;
-            var connectionString = saSection.ConnectionString;
-            var dbKind = saSection.DbKind.Value;
-           
-
-            var connectionFactory = new BaSysConnectionFactory();
-            using(var connection = connectionFactory.CreateConnection(connectionString, dbKind))
+          
+            try
             {
-                var dialectKind = SqlDialectKindHelper.GetDialectKind(connection);
+                var appName = currentApp.Id;
+                var connectionString = saSection.ConnectionString;
+                var dbKind = saSection.DbKind.Value;
 
-                var query = SelectBuilder.Make()
-                    .From("AppRecords")
-                    .Select("*").Query(dialectKind);
+                var connectionFactory = new BaSysConnectionFactory();
+                using (var connection = connectionFactory.CreateConnection(connectionString, dbKind))
+                {
+                    var dialectKind = SqlDialectKindHelper.GetDialectKind(connection);
 
-                var collection = await connection.QueryAsync<AppRecord>(query.Text);
+                    var query = SelectBuilder.Make()
+                        .From("AppRecords")
+                        .Select("*").Query(dialectKind);
 
-                record = collection.FirstOrDefault(x => x.Id.Equals(appName, StringComparison.OrdinalIgnoreCase));
+                    var collection = await connection.QueryAsync<AppRecord>(query.Text);
+
+                    record = collection.FirstOrDefault(x => x.Id.Equals(appName, StringComparison.OrdinalIgnoreCase));
+                }
             }
-
+            catch (Exception ex)
+            {
+                Console.WriteLine($"BaSYS. Cannot get app settings: {ex.Message}.");
+            }
             
             if(record == null)
             {
