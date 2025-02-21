@@ -46,7 +46,7 @@ namespace BaSys.Admin.Controllers
         /// <param name="loggerConfig"></param>
         /// <returns></returns>
         [HttpPut]
-        public async Task<IActionResult> UpdateLoggerConfig(LoggerConfig loggerConfig)
+        public async Task<IActionResult> UpdateLoggerConfig(LoggerConfigRecord loggerConfig)
         {
             var result = await _loggerConfigService.UpdateLoggerConfigAsync(loggerConfig);
             return Ok(result);

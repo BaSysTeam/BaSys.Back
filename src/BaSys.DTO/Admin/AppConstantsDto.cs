@@ -1,9 +1,4 @@
 ﻿using BaSys.DAL.Models.Admin;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BaSys.DTO.Admin
 {
@@ -12,6 +7,7 @@ namespace BaSys.DTO.Admin
         public Guid Uid { get; set; }
         public Guid DataBaseUid { get; set; }
         public string ApplicationTitle { get; set; } = string.Empty;
+        public bool UseWorkflowsScheduler { get; set; }
         public string AppVersion { get; set; } = string.Empty;
 
         public AppConstantsDto()
@@ -23,6 +19,7 @@ namespace BaSys.DTO.Admin
             Uid = model.Uid;
             DataBaseUid = model.DataBaseUid;
             ApplicationTitle = model.ApplicationTitle;
+            UseWorkflowsScheduler = model.UseWorkflowsScheduler;
         }
 
         public AppConstants ToModel()
@@ -31,7 +28,8 @@ namespace BaSys.DTO.Admin
             {
                 Uid = Uid,
                 DataBaseUid = DataBaseUid,
-                ApplicationTitle = ApplicationTitle
+                ApplicationTitle = ApplicationTitle,
+                UseWorkflowsScheduler = UseWorkflowsScheduler
             };
         }
     }

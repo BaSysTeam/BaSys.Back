@@ -23,7 +23,7 @@ public class BaSysLoggerFactory : IBaSysLoggerFactory
         var userName = _httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Name)?.Value;
         var ipAddress = _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
         
-        var loggerConfig = await _loggerConfigService.GetLoggerConfig();
+        var loggerConfig = await _loggerConfigService.GetLoggerConfigAsync();
 
         switch (loggerConfig.LoggerType)
         {

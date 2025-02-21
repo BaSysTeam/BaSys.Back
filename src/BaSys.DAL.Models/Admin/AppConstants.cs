@@ -7,6 +7,7 @@ namespace BaSys.DAL.Models.Admin
         public Guid Uid { get; set; }
         public Guid DataBaseUid { get; set; }
         public string ApplicationTitle { get; set; } = string.Empty;
+        public bool UseWorkflowsScheduler { get; set; }
 
         public void BeforeSave()
         {
