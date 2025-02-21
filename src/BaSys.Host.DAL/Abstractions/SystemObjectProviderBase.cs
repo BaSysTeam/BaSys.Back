@@ -55,7 +55,6 @@ namespace BaSys.Host.DAL.Abstractions
             return result;
         }
 
-
         public virtual async Task<Guid> InsertAsync(T item, IDbTransaction? transaction)
         {
             _query = InsertBuilder.Make(_config).FillValuesByColumnNames(true).Query(_sqlDialect);
@@ -65,10 +64,6 @@ namespace BaSys.Host.DAL.Abstractions
 
             return InsertedUid(insertedCount, item.Uid);
         }
-
-       // public abstract Task<Guid> InsertAsync(T item, IDbTransaction? transaction);
-
-       // public abstract Task<int> UpdateAsync(T item, IDbTransaction? transaction);
 
         public virtual async Task<int> UpdateAsync(T item, IDbTransaction? transaction)
         {

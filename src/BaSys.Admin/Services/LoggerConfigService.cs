@@ -26,7 +26,7 @@ namespace BaSys.Admin.Services
             _provider = providerFactory.Create<LoggerConfigProvider>();
         }
 
-        public async Task<ResultWrapper<int>> CreateLoggerConfigAsync(LoggerConfig loggerConfig)
+        public async Task<ResultWrapper<int>> CreateLoggerConfigAsync(LoggerConfigRecord loggerConfig)
         {
             var result = new ResultWrapper<int>();
 
@@ -74,16 +74,16 @@ namespace BaSys.Admin.Services
             return result;
         }
 
-        public async Task<ResultWrapper<LoggerConfig>> GetCurrentLoggerConfigAsync()
+        public async Task<ResultWrapper<LoggerConfigRecord>> GetCurrentLoggerConfigAsync()
         {
-            var result = new ResultWrapper<LoggerConfig>();
+            var result = new ResultWrapper<LoggerConfigRecord>();
             
             try
             {
                 var collection = await _provider.GetCollectionAsync(null);
                 var loggerConfig = collection.FirstOrDefault(x => x.IsSelected);
                 if (loggerConfig == null)
-                    loggerConfig = new LoggerConfig();
+                    loggerConfig = new LoggerConfigRecord();
 
                 result.Success(loggerConfig);
             }
@@ -95,9 +95,9 @@ namespace BaSys.Admin.Services
             return result;
         }
 
-        public async Task<ResultWrapper<LoggerConfig>> GetLoggerConfigByTypeAsync(LoggerTypes loggerType)
+        public async Task<ResultWrapper<LoggerConfigRecord>> GetLoggerConfigByTypeAsync(LoggerTypes loggerType)
         {
-            var result = new ResultWrapper<LoggerConfig>();
+            var result = new ResultWrapper<LoggerConfigRecord>();
 
             try
             {
@@ -105,7 +105,7 @@ namespace BaSys.Admin.Services
                 var loggerConfig = collection.FirstOrDefault(x => x.LoggerType == loggerType);
                 if (loggerConfig == null)
                 {
-                    loggerConfig = new LoggerConfig
+                    loggerConfig = new LoggerConfigRecord
                     {
                         LoggerType = loggerType
                     };
@@ -121,7 +121,7 @@ namespace BaSys.Admin.Services
             return result;
         }
 
-        public async Task<ResultWrapper<int>> UpdateLoggerConfigAsync(LoggerConfig loggerConfig)
+        public async Task<ResultWrapper<int>> UpdateLoggerConfigAsync(LoggerConfigRecord loggerConfig)
         {
             var result = new ResultWrapper<int>();
 

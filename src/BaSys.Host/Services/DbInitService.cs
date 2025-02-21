@@ -143,7 +143,8 @@ namespace BaSys.Host.Services
             {
                 Uid = Guid.NewGuid(),
                 DataBaseUid = Guid.NewGuid(),
-                ApplicationTitle = string.Empty
+                ApplicationTitle = string.Empty,
+                UseWorkflowsScheduler = true
             };
 
             await provider.InsertAsync(appConstants, null);

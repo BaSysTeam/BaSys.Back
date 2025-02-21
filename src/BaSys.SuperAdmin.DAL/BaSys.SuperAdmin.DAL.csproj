@@ -17,9 +17,4 @@
       <ProjectReference Include="..\BaSys.Shared\BaSys.Shared.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="MsSqlContext\Migrations\" />
-      <Folder Include="PgSqlContext\Migrations\" />
-    </ItemGroup>
-
 </Project>

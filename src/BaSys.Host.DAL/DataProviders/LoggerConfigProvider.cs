@@ -1,13 +1,15 @@
-﻿using BaSys.DAL.Models.Logging;
+﻿using BaSys.DAL.Models.Admin;
+using BaSys.DAL.Models.Logging;
 using BaSys.FluentQueries.QueryBuilders;
 using BaSys.Host.DAL.Abstractions;
 using BaSys.Host.DAL.ModelConfigurations;
+using BaSys.Logging.Abstractions;
 using Dapper;
 using System.Data;
 
 namespace BaSys.Host.DAL.DataProviders
 {
-    public sealed class LoggerConfigProvider : SystemObjectProviderBase<LoggerConfig>
+    public sealed class LoggerConfigProvider : SystemObjectProviderBase<LoggerConfigRecord>
     {
         public LoggerConfigProvider(IDbConnection dbConnection) : base(dbConnection, new LoggerConfigConfiguration())
         {
@@ -29,7 +31,21 @@ namespace BaSys.Host.DAL.DataProviders
         //    return InsertedUid(createdCount, item.Uid);
         //}
 
-        public override async Task<int> UpdateAsync(LoggerConfig item, IDbTransaction? transaction)
+        public async Task<LoggerConfigRecord?> GetActiveRecord(IDbTransaction? transaction)
+        {
+            _query = SelectBuilder.Make()
+             .From(_config.TableName)
+             .Select("*")
+             .WhereAnd("isselected = @isSelected")
+             .Parameter("isSelected", true, DbType.Boolean)
+             .Query(_sqlDialect);
+
+            var record = await _dbConnection.QueryFirstOrDefaultAsync<LoggerConfigRecord>(_query.Text, _query.DynamicParameters, transaction);
+
+            return record;
+        }
+
+        public override async Task<int> UpdateAsync(LoggerConfigRecord item, IDbTransaction? transaction)
         {
 
             _query = SelectBuilder.Make()

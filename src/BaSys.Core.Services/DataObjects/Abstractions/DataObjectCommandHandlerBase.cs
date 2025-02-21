@@ -173,7 +173,7 @@ namespace BaSys.Core.Features.DataObjects.Abstractions
             var startTriggersHandler = _serviceProvider.GetRequiredService<IWorkflowTriggersStartCommandHandler>();
             var dbInfoRecordsProvider = _serviceProvider.GetRequiredService<IDbInfoRecordsProvider>();
 
-            var loggerConfig = await loggerConfigService.GetLoggerConfig();
+            var loggerConfig = await loggerConfigService.GetLoggerConfigAsync();
 
             var user = httpContextAccessor.HttpContext?.User;
             var userUid = string.Empty;

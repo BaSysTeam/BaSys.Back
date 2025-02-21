@@ -33,6 +33,35 @@ public class DbInfoRecordsProvider : IDbInfoRecordsProvider
         }
     }
     
+    public List<DbInfoRecord> GetCollection()
+    {
+        var collection = new List<DbInfoRecord>();
+
+        foreach(var kvp in _dict)
+        {
+            collection.Add(kvp.Value);
+        }
+
+        return collection;
+    }
+
+    public List<DbInfoRecord> GetActiveRecords()
+    {
+        var collection = new List<DbInfoRecord>();
+
+        foreach (var kvp in _dict)
+        {
+            if (kvp.Value.IsDeleted)
+            {
+                continue;
+            }
+
+            collection.Add(kvp.Value);
+        }
+
+        return collection;
+    }
+
     public DbInfoRecord? GetDbInfoRecordByDbName(string dbName)
     {
         if (string.IsNullOrEmpty(dbName))

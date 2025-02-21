@@ -174,7 +174,7 @@ namespace BaSys.Constructor.Services
         private async Task<BaSys.Logging.Abstractions.LoggerConfig?> GetLoggerConfigAsync(IResultWrapper result)
         {
 
-            var loggerConfig = await _loggerConfigService.GetLoggerConfig();
+            var loggerConfig = await _loggerConfigService.GetLoggerConfigAsync();
 
             if (loggerConfig == null)
             {

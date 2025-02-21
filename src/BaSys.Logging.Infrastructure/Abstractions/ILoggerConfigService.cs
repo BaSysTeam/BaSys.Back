@@ -1,6 +1,9 @@
-﻿namespace BaSys.Logging.Abstractions.Abstractions;
+﻿using System.Data;
+
+namespace BaSys.Logging.Abstractions.Abstractions;
 
 public interface ILoggerConfigService
 {
-    Task<LoggerConfig> GetLoggerConfig();
+    Task<LoggerConfig> GetLoggerConfigAsync();
+    Task<LoggerConfig> GetLoggerConfigAsync(IDbConnection connection, IDbTransaction? transaction);
 }

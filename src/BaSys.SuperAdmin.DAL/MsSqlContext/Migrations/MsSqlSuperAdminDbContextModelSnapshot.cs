@@ -37,6 +37,12 @@ namespace BaSys.SuperAdmin.DAL.MsSqlContext.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<bool>("UseWorkflowsScheduler")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("WorkflowPollInterval")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.ToTable("AppRecords");
